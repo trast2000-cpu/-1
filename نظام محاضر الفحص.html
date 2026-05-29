@@ -1,0 +1,1514 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<title>نظام كشوف الأوامر الجنائية المتطور 2026</title>
+
+<style>
+/* ===== التنسيق العام ===== */
+body {
+    font-family: "Segoe UI", Tahoma, sans-serif;
+    margin: 0;
+    padding: 10px;
+    background: linear-gradient(135deg, #eef2f7, #dde5ee);
+    direction: rtl;
+}
+
+/* تكبير الواجهة على الشاشة فقط — لا يؤثر على الطباعة */
+@media screen {
+    body {
+        zoom: 1.3;
+    }
+}
+
+.container {
+    max-width: 1150px;
+    margin: auto;
+    background: #fff;
+    padding: 8px 14px;
+    box-sizing: border-box;
+    border-radius: 12px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+    position: relative;
+}
+
+/* ===== الهيدر ===== */
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.header-text {
+    font-size: 15px;
+    font-weight: bold;
+    line-height: 1.4;
+    color: #2c3e50;
+}
+
+.logo {
+    width: 70px;
+    height: 70px;
+    border-radius: 10px;
+    object-fit: contain;
+}
+
+/* ===== العنوان ===== */
+.title {
+    text-align: center;
+    font-size: 20px;
+    font-weight: bold;
+    margin: 4px 0;
+    color: #1a237e;
+    letter-spacing: 1px;
+    text-decoration: underline;
+}
+
+.print-values {
+    text-align: center;
+    font-size: 15px;
+    font-weight: bold;
+    margin-bottom: 4px;
+}
+
+/* ===== شريط التحكم ===== */
+.controls {
+    background: #f1f5f9;
+    padding: 7px 10px;
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 8px;
+    border-radius: 10px;
+    border: 1px solid #ddd;
+}
+
+.date-field, select, input {
+    font-family: inherit;
+    font-size: 13px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    padding: 4px 6px;
+    transition: 0.2s;
+}
+
+input:focus, select:focus {
+    border-color: #007bff;
+    outline: none;
+    box-shadow: 0 0 5px rgba(0,123,255,0.3);
+}
+
+/* ===== حاوية الجدول القابلة للتمرير ===== */
+#tableWrapper {
+    overflow: visible;
+    max-height: none;
+    transition: max-height 0.3s ease;
+    border-radius: 6px;
+}
+ 
+#tableWrapper.scrollable {
+    overflow-y: auto;
+    max-height: 380px;  /* التحكم في ارتفاع الحاويه القابله للتمرير */
+    border: 2px solid #007bff;
+    box-shadow: 0 2px 12px rgba(0,123,255,0.15);
+}
+
+/* تثبيت رأس الجدول عند التمرير */
+#tableWrapper.scrollable thead th {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    background: linear-gradient(135deg, #e3e9f0, #d4dce5) !important;
+    box-shadow: inset 0 -1px 0 #aaa, inset 1px 0 0 #ddd;
+}
+
+/* ===== الجدول ===== */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+    margin-bottom: 5px;
+}
+
+th, td {
+    border: 1px solid #ddd;
+    padding: 3px;
+    text-align: center;
+    font-size: 14px;
+    vertical-align: middle;
+    word-wrap: break-word;
+    overflow: visible;
+}
+
+/* توسيط المؤشر عمودياً في الخلايا القابلة للتحرير */
+tbody td[contenteditable] {
+    vertical-align: middle !important;
+}
+
+/* خلايا الـ span الداخلي - توسيط عمودي حقيقي */
+tbody td.ce-cell {
+    padding: 0 !important;
+    vertical-align: middle;
+}
+
+tbody td.ce-cell span[contenteditable] {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    min-height: 36px;
+    padding: 3px;
+    box-sizing: border-box;
+    outline: none;
+    text-align: center;
+    word-break: break-word;
+}
+
+/* placeholder للـ span */
+tbody td.ce-cell span[contenteditable][data-ph]:empty::before {
+    content: attr(data-ph);
+    color: #bbb;
+    pointer-events: none;
+    font-style: italic;
+    font-size: 11px;
+}
+
+th {
+    background: linear-gradient(135deg, #e3e9f0, #d4dce5) !important;
+    color: #2c3e50;
+}
+
+/* ===== تلوين الصفوف تلقائياً (زيبرا) ===== */
+tbody tr:nth-child(odd)  { background-color: #f4f8fd; }
+tbody tr:nth-child(even) { background-color: #eaf1f8; }
+
+/* hover يتغلب على الزيبرا */
+tbody tr:hover { background-color: #d9ecff !important; }
+
+/* تأثير بسيط جدًا وهادئ للخلية النشطة */
+td:focus-within,
+td.ce-cell:focus-within,
+.inner-table td:focus-within {
+    background-color: #f8f9fc !important;
+    box-shadow: 0 0 0 2px rgba(0, 100, 200, 0.25) !important;
+    transition: background-color 0.15s;
+}
+
+@media print {
+    td:focus-within,
+    td.ce-cell:focus-within,
+    .inner-table td:focus-within {
+        background-color: transparent !important;
+        box-shadow: none !important;
+    }
+}
+
+/* ===== الجداول الداخلية (رقم المحضر) ===== */
+.inner-table {
+    width: 100%;
+    height: 100%;
+    border-collapse: collapse;
+    margin: 0;
+}
+
+.inner-table td {
+    border: 1px solid #bbb !important;
+    padding: 5px;
+    height: 25px;
+}
+
+.year-cell {
+    background-color: #f8f9fa;
+    font-weight: normal;
+}
+
+/* ===== القوائم (وصف الاتهام) ===== */
+.auto-list {
+    text-align: right !important;
+    vertical-align: middle !important;
+    background-color: #f9fbfd;
+}
+
+.auto-list ol {
+    margin: 2px;
+    padding-right: 15px;
+    line-height: 1.6;
+}
+
+/* تعديل خلية بيان الأمر الصادر */
+.order-cell {
+    vertical-align: middle !important;
+    text-align: center;
+    padding: 4px !important;
+}
+
+.order-cell-inner {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 4px;
+    min-height: 45px;
+}
+
+.amount-span {
+    display: inline-block;
+    min-width: 35px;
+    border-bottom: 1px dashed #999;
+    outline: none;
+}
+
+/* ===== رقم المركبة ===== */
+.plate-grid {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    border: 1px solid #999;
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.plate-letters {
+    display: flex;
+    flex-direction: row;
+    border-bottom: 1px solid #999;
+}
+
+.plate-letters div {
+    flex: 1;
+    border-right: 1px solid #999;
+    min-height: 24px;
+    outline: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 14px;
+}
+
+.plate-letters div:first-child {
+    border-right: none;
+}
+
+.plate-numbers {
+    min-height: 24px;
+    outline: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 13px;
+    letter-spacing: 2px;
+}
+
+.plate-type-select {
+    width: 100%;
+    max-width: 90px;
+    font-size: 11px;
+    padding: 2px;
+    margin-bottom: 3px;
+    display: block;
+    margin-right: auto;
+    margin-left: auto;
+}
+
+/* ===== الأزرار والتحكم ===== */
+.action-btns {
+    text-align: right;
+    margin: 6px 0;
+}
+
+.add-btn, .remove-last-btn, .print-btn-main {
+    border: none;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s;
+    font-family: inherit;
+}
+
+.add-btn {
+    background: linear-gradient(135deg, #28a745, #218838);
+    color: white;
+    padding: 5px 5px;
+    font-size: 13px;
+}
+
+.remove-last-btn {
+    background: linear-gradient(135deg, #dc3545, #c82333);
+    color: white;
+    padding: 5px 5px;
+    font-size: 13px;
+}
+
+.add-btn:hover, .remove-last-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+}
+
+.print-btn-main {
+    background: linear-gradient(135deg, #007bff, #0056b3);
+    color: white;
+    padding: 5px 15px;
+    margin: 3px auto;
+    display: block;
+    font-size: 16px;
+}
+
+/* ===== أزرار الصف (سهم صاعد، سهم نازل، نسخ ، حذف) ===== */
+.del-row-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.row-actions {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    padding: 2px;
+}
+
+.row-actions .del-row-btn {
+    margin-top: 2px;
+}
+
+.move-btn, .copy-row-btn {
+    background: none;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 13px;
+    padding: 1px 4px;
+    line-height: 1;
+    transition: 0.2s;
+}
+
+.move-btn:hover {
+    background: #e0e8f5;
+    border-color: #007bff;
+}
+
+.copy-row-btn {
+    background: none;
+    border: 1px solid #28a745;
+    border-radius: 4px;
+    color: #28a745;
+    font-size: 13px;
+    cursor: pointer;
+    padding: 1px 4px;
+    transition: 0.2s;
+}
+
+.copy-row-btn:hover {
+    background: #e6f9ec;
+}
+
+/* ===== مؤشر الصف النشط ===== */
+tbody tr.active-row {
+    background-color: #fff8e1 !important;
+    box-shadow: inset 3px 0 0 #f5a623, inset -3px 0 0 #f5a623;
+}
+
+/* ===== Tooltip على رؤوس الأعمدة ===== */
+thead th[data-tip] {
+    position: relative;
+    cursor: help;
+}
+
+thead th[data-tip]:hover::after {
+    content: attr(data-tip);
+    position: absolute;
+    top: 110%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #2c3e50;
+    color: #fff;
+    padding: 5px 10px;
+    border-radius: 6px;
+    font-size: 12px;
+    white-space: nowrap;
+    z-index: 999;
+    pointer-events: none;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+
+thead th[data-tip]:hover::before {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 5px solid transparent;
+    border-bottom-color: #2c3e50;
+    z-index: 999;
+    pointer-events: none;
+}
+
+/* ===== Placeholder للخلايا الفارغة ===== */
+[contenteditable][data-ph]:empty::before {
+    content: attr(data-ph);
+    color: #bbb;
+    pointer-events: none;
+    font-style: italic;
+    font-size: 11px;
+}
+
+/* ==================== Media Screen ==================== */
+@media screen {
+    .signatures {
+        display: none !important;
+    }
+
+    .header {
+        display: none !important;
+    }
+
+    tfoot {
+        display: none !important;
+    }
+
+    /* إخفاء الخلفية المائية على الشاشة */
+    #watermark-img {
+        display: none !important;
+    }
+}
+
+/* ===== التاريخ والتوقيع ===== */
+.edit-date-section {
+    margin-top: 6px;
+    font-weight: bold;
+    font-size: 16px;
+}
+
+.edit-date-section input {
+    border: none;
+    border-bottom: 1px dotted #000;
+    background: transparent;
+    outline: none;
+    width: 150px;
+    text-align: center;
+}
+
+.bottom-section {
+    margin-top: 8px;
+}
+
+.signatures {
+    display: flex;
+    justify-content: space-around;
+    text-align: center;
+}
+
+.sig-box {
+    width: 28%;
+    font-weight: bold;
+}
+
+.line {
+    display: block;
+    border-top: 1px dotted black;
+    margin-top: 30px;
+    width: 90%;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* ===== إعداد و تطوير hover ===== */
+.dev-credit-fhs {
+    cursor: default;
+    transition: color 0.35s ease, transform 0.35s ease, letter-spacing 0.35s ease;
+    display: inline-block;
+}
+.dev-credit-fhs:hover {
+    color: #e6b800 !important;
+    transform: translateY(-2px) scale(1.04);
+    letter-spacing: 0.6px;
+}
+
+/* ===== إعدادات الطباعة ===== */
+@media print {
+    @page { 
+        size: A4 landscape; 
+        margin: 10mm 8mm 10mm 8mm; 
+    }
+
+    tbody tr.active-row { background-color: transparent !important; box-shadow: none !important; }
+    thead th[data-tip]::after,
+    thead th[data-tip]::before { display: none !important; }
+    [contenteditable][data-ph]:empty::before { display: none !important; }
+
+    /* تثبيت ألوان الصفوف في الطباعة على أبيض */
+    tbody tr:nth-child(odd),
+    tbody tr:nth-child(even),
+    tbody tr:hover,
+    td:focus-within,
+    td[contenteditable]:focus {
+        background-color: transparent !important;
+        outline: none !important;
+        box-shadow: none !important;
+    }
+
+    /* إخفاء العناصر غير الضرورية */
+    .controls, .action-btns, .print-btn-main, .plate-type-select, .del-col, .del-row-btn, .move-btn, .copy-row-btn {
+        display: none !important;
+    }
+
+    /* إظهار التوقيعات في الطباعة */
+    .signatures {
+        display: flex !important;
+    }
+
+    body { 
+        background: white !important; 
+        margin: 0 !important; 
+        padding: 0 !important; 
+    }
+
+    .container {
+        padding: 4mm !important;
+        box-shadow: none !important;
+        border-radius: 0 !important;
+    }
+
+    /* البرواز الخارجي */
+    body::before {
+        content: "";
+        position: fixed;
+        top: 0; left: 0; right: 0; bottom: 0;
+        border: 2px solid #000;
+        box-sizing: border-box;
+        z-index: 9999;
+        pointer-events: none;
+    }
+
+    /* إلغاء الحاوية القابلة للتمرير عند الطباعة */
+    #tableWrapper, #tableWrapper.scrollable {
+        overflow: visible !important;
+        max-height: none !important;
+        border: none !important;
+        box-shadow: none !important;
+    }
+
+    /* إلغاء sticky الهيدر عند الطباعة */
+    #tableWrapper.scrollable thead th {
+        position: static !important;
+        box-shadow: none !important;
+    }
+
+    /* ضبط الجدول */
+    table {
+        width: 100% !important;
+        border-collapse: collapse !important;
+        page-break-inside: auto !important;
+    }
+    thead { display: table-header-group; }
+    tfoot { 
+        display: table-footer-group !important; 
+        page-break-inside: avoid !important;
+    }
+    tfoot td {
+        border: none !important;
+        padding: 0 !important;
+        vertical-align: top !important;
+        border-top: 2px solid #000 !important;
+    }
+    tr { page-break-inside: avoid; page-break-after: auto; }
+
+    /* ===== تصغير ارتفاع الصفوف في الطباعة فقط ===== */
+    th, td {
+        padding: 2px 4px !important;
+        font-size: 13px !important;
+        line-height: 1.3 !important;
+    }
+    .inner-table td {
+        padding: 2px 4px !important;
+        height: auto !important;
+        min-height: unset !important;
+        font-size: 13px !important;
+        line-height: 1.3 !important;
+    }
+    .auto-list ol {
+        margin: 0 !important;
+        padding-right: 12px !important;
+        line-height: 1.3 !important;
+    }
+    .plate-letters div, .plate-numbers {
+        min-height: unset !important;
+    }
+
+    /* تنسيق خلية بيان الأمر الصادر */
+    .order-cell {
+        vertical-align: middle !important;
+        text-align: center !important;
+        padding: 2px 3px !important;
+        overflow: hidden !important;
+    }
+    .order-cell-inner {
+        display: block !important;
+        text-align: center !important;
+        width: 100% !important;
+        position: static !important;
+    }
+    .order-cell-inner span,
+    .order-cell-inner .amount-span {
+        display: inline !important;
+        border: none !important;
+        white-space: normal !important;
+        position: static !important;
+    }
+
+    /* تنسيق لوحة السيارة */
+    .plate-grid {
+        border: none !important;
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        line-height: 2 !important;
+    }
+    .plate-letters {
+        border: none !important;
+        display: flex !important;
+        gap: 2px !important;
+    }
+    .plate-letters div, .plate-numbers { border: none !important; font-weight: bold !important; }
+
+    /* ===== الخلفية المائية في الطباعة ===== */
+    #watermark-img {
+        display: block !important;
+        position: fixed !important;
+        top: 50% !important;
+        left: 50% !important;
+        transform: translate(-50%, -50%) !important;
+        width: 100vw !important;
+        height: 100vh !important;
+        object-fit: contain !important;
+        opacity: 0.04 !important;
+        z-index: 9998 !important;
+        pointer-events: none !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+
+    /* حدود الجداول */
+    table, th, td { border: 1px solid #000 !important; }
+    .inner-table td { border: 1px solid #000 !important; }
+    .amount-span { border: none !important; }
+
+    /* تحريراً في والفوتر */
+    .edit-date-section {
+        display: block !important;
+        font-size: 12px !important;
+        margin: 4mm 0 2mm !important;
+        page-break-inside: avoid !important;
+        text-align: right !important;           /* محاذاة إلى اليمين */
+        padding-right: 10mm !important;         /* مسافة من اليمين لتبدو أفضل */
+    }
+
+     /* إخفاء نسخة تحريراً في تحت الجدول في الطباعة فقط */
+         #bodyEditDateSection {
+        display: none !important;
+    }
+
+    .no-print {
+        display: none !important;
+    }
+
+    .bottom-section {
+        display: block !important;
+        margin-top: 2mm !important;
+        page-break-inside: avoid !important;
+    }
+    .sig-box {
+        font-size: 12px !important;
+    }
+    .line {
+        margin-top: 6mm !important;
+    }
+}
+</style>
+</head>
+
+<body onload="initializePage()">
+
+<img id="watermark-img" src="logo.png" class="logo" alt="">
+
+<div class="container">
+<div class="header">
+    <div class="header-text">
+        <div style="text-align: center; font-size: 16.5px; font-weight: bold; margin-bottom: 5px;">النيابة العامة</div>
+        <div style="text-align: right; line-height: 1.65;">نيابة مرور القاهرة الكلية<br></div>
+        <div style="text-align: center; font-size: 16.5px; font-weight: bold; margin-bottom: 5px;">نيابة مرور عين الصيرة</div> 
+    </div>
+
+
+        <div style="text-align: left; font-size: 16.5px; font-weight: bold; margin-bottom: 5px;">رقم الصادر / </div>
+    <img src="logo.png" class="logo" alt="">
+</div>
+
+    <div class="title">كشف بالأوامر الجنائية</div>
+    <div id="printValues" class="print-values"></div>
+
+    <div class="controls">
+        <label>التاريخ:</label>
+        <div style="position:relative; display:inline-flex; align-items:center;">
+            <input type="text" id="dateInput" class="date-field" style="padding-left:28px;">
+            <input type="date" id="datePicker" style="position:absolute;left:2px;width:22px;height:22px;opacity:0;cursor:pointer;z-index:10;border:none;padding:0;margin:0;">
+            <span title="اختر التاريخ" style="position:absolute;left:4px;font-size:15px;user-select:none;pointer-events:none;line-height:1;">📅</span>
+        </div>
+        
+        <label>القسم:</label>
+        <select id="dept" onchange="handleDeptChange()">
+            <option value="">اختر القسم</option>
+            <option>السيدة زينب</option>
+            <option>مصر القديمة</option>
+            <option value="other">أخرى</option>
+        </select>
+        <input type="text" id="otherDept" placeholder="اسم القسم" style="display:none;">
+    </div>
+
+    <div class="action-btns">
+        <button class="add-btn" onclick="addRow()">+ إضافة صف ( + )</button>
+    </div>
+
+    <div id="tableWrapper">
+    <table id="mainTable">
+        <thead>
+            <tr>
+                <th style="width: 15px;" data-tip="رقم تسلسل الصف">م</th>
+                <th style="width: 40px;" data-tip="رقم المحضر / السنة">رقم المحضر</th>
+                <th style="width: 80px;" data-tip="اسم المتهم كاملاً">اسم المتهم</th>
+                <th style="width: 80px;" data-tip="وصف تهمة المتهم">وصف الاتهام</th>
+                <th style="width: 100px;" data-tip="الرقم القومي (14 رقم)">الرقم القومي</th>
+                <th style="width: 60px;" data-tip="حروف وأرقام لوحة المركبة">رقم المركبة</th>
+                <th style="width: 70px;" data-tip="المبلغ المحكوم به + المصاريف">بيان الامر الصادر</th>
+                <th style="width: 70px;" data-tip="مواد القانون المطبقة">مواد الاتهام</th>
+                <th style="width: 65px;" data-tip="تاريخ صدور الأمر">تاريخ الأمر</th>
+                <th style="width: 110px;" data-tip="قرار النيابة الكلية بشأن القضية">قرار النيابة الكلية</th>
+                <th style="width: 80px;" data-tip="أي ملاحظات إضافية">ملاحظات</th>
+                <th style="width: 30px;" class="del-col">تحكم</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+        
+        <tfoot>
+            <tr>
+                <td colspan="11" style="padding:0; border-top: none !important;">
+                    <div class="edit-date-section">تحريراً في: <span id="footerWrittenDate"></span></div>
+                    <div class="bottom-section">
+                        <div class="signatures">
+                            <div class="sig-box">الموظف المختص<br><span class="line"></span></div>
+                            <div class="sig-box">رئيس القلم<br><span class="line"></span></div>
+                            <div class="sig-box">مدير النيابة<br><span class="line"></span></div>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+        </tfoot>
+    </table>
+    </div>
+
+    <div class="action-btns">
+        <button class="remove-last-btn" onclick="removeRow()">- حذف آخر صف ( - )</button>
+    </div>
+
+    <div class="edit-date-section" id="bodyEditDateSection">
+        تحريراً في: <input type="text" id="writtenAtDate">
+    </div>
+
+    <div style="position: relative; display: flex; align-items: center; justify-content: center; margin-top: 6px;">
+        <span class="no-print dev-credit-fhs" style="position: absolute; left: 0; font-size: 12px; color: #888; font-style: italic; user-select: none;">إعداد و تطوير / ابراهيم احمد</span>
+        <div style="display: flex; gap: 8px; align-items: center;">
+            <button class="print-btn-main" style="margin:0;" onclick="printPage()">طباعة الكشف(CTRL+P)</button>
+            <button class="no-print" onclick="openRestoreModal()" title="استرجع كشف (CTRL+R)" style="background:linear-gradient(135deg,#6f42c1,#563d7c);color:#fff;border:none;border-radius:8px;padding:5px 12px;font-size:13px;font-weight:bold;cursor:pointer;font-family:inherit;"> استرجع كشف (ctrl+R)</button>
+        </div>
+    </div>
+</div>
+
+<button class="no-print" onclick="openShortcutsModal()" title="اختصارات لوحة المفاتيح" style="position:fixed;bottom:20px;left:20px;width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#17a2b8,#117a8b);color:#fff;border:none;font-size:18px;font-weight:bold;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,0.25);z-index:9998;display:flex;align-items:center;justify-content:center;">؟</button>
+
+<script>
+    function initializePage() {
+        const today = new Date();
+        const day = String(today.getDate()).padStart(2, '0');
+        const month = String(today.getMonth() + 1).padStart(2, '0');
+        const year = today.getFullYear();
+        const formattedDate = `${day} / ${month} / ${year}`;
+        
+        document.getElementById('dateInput').value = formattedDate;
+        document.getElementById('writtenAtDate').value = formattedDate;
+        
+        document.getElementById('dateInput').addEventListener('input', function() {
+            updatePrintValues();
+            syncOrderDates();
+        });
+
+        document.getElementById('datePicker').addEventListener('change', function() {
+            if (!this.value) return;
+            var parts = this.value.split('-');
+            var formatted = parts[2] + ' / ' + parts[1] + ' / ' + parts[0];
+            document.getElementById('dateInput').value = formatted;
+            updatePrintValues();
+            syncOrderDates();
+        });
+        document.getElementById('otherDept').addEventListener('input', updatePrintValues);
+        document.getElementById('writtenAtDate').addEventListener('input', syncFooterDate);
+
+        syncFooterDate();
+        addRow();
+        updatePrintValues();
+    }
+
+    function syncFooterDate() {
+        const date = document.getElementById("writtenAtDate").value;
+        const el = document.getElementById("footerWrittenDate");
+        if (el) el.innerText = date;
+    }
+
+    function syncOrderDates() {
+        var newDate = document.getElementById('dateInput').value;
+        var tbody = document.getElementById("mainTable").getElementsByTagName('tbody')[0];
+        for (var i = 0; i < tbody.rows.length; i++) {
+            var dateCell = tbody.rows[i].cells[8];
+            if (dateCell) {
+                var span = dateCell.querySelector('span[contenteditable]');
+                if (span) span.innerText = newDate;
+                else dateCell.innerText = newDate;
+            }
+        }
+    }
+
+    function checkScrollable() {
+        var tbody = document.getElementById("mainTable").getElementsByTagName('tbody')[0];
+        var wrapper = document.getElementById("tableWrapper");
+        if (tbody.rows.length > 4) {
+            wrapper.classList.add("scrollable");
+        } else {
+            wrapper.classList.remove("scrollable");
+        }
+    }
+
+    function addRow() {
+        var table = document.getElementById("mainTable").getElementsByTagName('tbody')[0];
+        var rowCount = table.rows.length;
+        var row = table.insertRow(rowCount);
+        
+        const headerDate = document.getElementById('dateInput').value;
+        const fixedText = "74 مكرر بند 1،2،3";
+
+        row.innerHTML = `
+            <td class="row-num">${rowCount + 1}</td>
+            <td style="padding:0;">
+                <table class="inner-table">
+                    <tr>
+                        <td contenteditable="true" 
+                            data-ph="رقم المحضر"
+                            oninput="formatCaseNumberForPrint(this)"
+                            onblur="formatCaseNumberForPrint(this)">
+                        </td>
+                    </tr>
+                    <tr><td class="year-cell">2026</td></tr>
+                </table>
+            </td>
+            <td class="ce-cell"><span contenteditable="true" data-ph="اسم المتهم"></span></td>
+            <td class="auto-list" style="min-height: 80px;"><ol contenteditable="true"><li></li></ol></td>
+            <td class="ce-cell"><span contenteditable="true" data-ph="00000000000000"></span></td>
+            <td style="padding:2px;">
+                <select class="plate-type-select" onchange="togglePlateMode(this)"><option value="both">حروف وأرقام</option><option value="numOnly">بدون لوحات</option></select>
+                <div class="plate-area"><div class="plate-grid"><div class="plate-letters"><div contenteditable="true" data-ph="أ" oninput="autoTab(this, 1)"></div><div contenteditable="true" data-ph="ب" oninput="autoTab(this, 2)"></div><div contenteditable="true" data-ph="ج" oninput="autoTab(this, 3)"></div></div><div class="plate-numbers" contenteditable="true" data-ph="0000"></div></div></div>
+            </td>
+            <td class="order-cell">
+                <div class="order-cell-inner">
+                    <span class="amount-span" contenteditable="true" data-ph="المبلغ"></span>
+                    <span>ج والمصاريف</span>
+                </div>
+            </td>
+            <td class="ce-cell"><span contenteditable="true">${fixedText}</span></td>
+            <td class="ce-cell"><span contenteditable="true">${headerDate}</span></td>
+            <td class="ce-cell"><span contenteditable="true" data-ph="قرار النيابة"></span></td>
+            <td class="ce-cell"><span contenteditable="true" data-ph="ملاحظات"></span></td>
+            <td class="del-col">
+                <div class="row-actions">
+                    <button class="move-btn" onclick="moveRowUp(this)" title="تحريك للأعلى">▲</button>
+                    <button class="move-btn" onclick="moveRowDown(this)" title="تحريك للأسفل">▼</button>
+                    <button class="copy-row-btn" onclick="copyRow(this)" title="نسخ الصف">⧉</button>
+                    <button class="del-row-btn" onclick="deleteSpecificRow(this)">❌</button>
+                </div>
+            </td>
+        `;
+        checkScrollable();
+
+        setTimeout(function() {
+            var caseCell = row.querySelector('td[contenteditable][data-ph="رقم المحضر"]');
+            if (caseCell) {
+                caseCell.focus();
+                var range = document.createRange();
+                var sel = window.getSelection();
+                range.setStart(caseCell, 0);
+                range.collapse(true);
+                sel.removeAllRanges();
+                sel.addRange(range);
+            }
+        }, 30);
+    }
+
+    function deleteSpecificRow(btn) {
+        var row = btn.closest('tr');
+        row.parentNode.removeChild(row);
+        updateRowNumbers();
+        checkScrollable();
+    }
+
+    function moveRowUp(btn) {
+        var row = btn.closest('tr');
+        var prev = row.previousElementSibling;
+        if (prev) {
+            row.parentNode.insertBefore(row, prev);
+            updateRowNumbers();
+        }
+    }
+
+    function moveRowDown(btn) {
+        var row = btn.closest('tr');
+        var next = row.nextElementSibling;
+        if (next) {
+            row.parentNode.insertBefore(next, row);
+            updateRowNumbers();
+        }
+    }
+
+    function copyRow(btn) {
+        var row = btn.closest('tr');
+        var newRow = row.cloneNode(true);
+        row.parentNode.insertBefore(newRow, row.nextSibling);
+        updateRowNumbers();
+        checkScrollable();
+    }
+
+    function updateRowNumbers() {
+        var table = document.getElementById("mainTable").getElementsByTagName('tbody')[0];
+        for (var i = 0; i < table.rows.length; i++) {
+            table.rows[i].cells[0].innerText = i + 1;
+        }
+    }
+
+    function removeRow() {
+        var table = document.getElementById("mainTable").getElementsByTagName('tbody')[0];
+        if(table.rows.length > 0) { 
+            table.deleteRow(table.rows.length - 1); 
+            updateRowNumbers();
+            checkScrollable();
+        }
+    }
+
+    // ===== نظام التنبيه السريع (Toast) =====
+    function showToast(message) {
+        let toast = document.getElementById('copy-toast');
+        if (!toast) {
+            toast = document.createElement('div');
+            toast.id = 'copy-toast';
+            toast.style.cssText = 'position:fixed; bottom:50px; left:50%; transform:translateX(-50%); background:rgba(0,0,0,0.8); color:#fff; padding:8px 20px; border-radius:20px; font-size:13px; z-index:10000; transition: opacity 0.3s; pointer-events:none;';
+            document.body.appendChild(toast);
+        }
+        toast.innerText = message;
+        toast.style.opacity = '1';
+        setTimeout(() => { toast.style.opacity = '0'; }, 1500);
+    }
+
+    /* ==================== اختصارات الكيبورد ==================== */
+    window.addEventListener('keydown', function(e) {
+        const active = document.activeElement;
+
+        // ===== CTRL+C نسخ محتوى الخلية تلقائياً بدون تحديد الكل =====
+        if (e.ctrlKey && (e.code === 'KeyC' || e.key === 'c' || e.key === 'C' || e.key === 'ؤ')) {
+            if (active && active.isContentEditable) {
+                e.preventDefault();
+                let textToCopy = active.innerText;
+                
+                // تنظيف النص إذا كانت قائمة (وصف الاتهام)
+                if (active.tagName === 'OL') {
+                    textToCopy = Array.from(active.querySelectorAll('li'))
+                                      .map(li => li.innerText)
+                                      .filter(t => t.trim() !== "")
+                                      .join('\n');
+                }
+
+                navigator.clipboard.writeText(textToCopy).then(function() {
+                    showToast("تم النسخ إلى الحافظة");
+                });
+            }
+        }
+
+        if (e.key === 'Delete') {
+            if (active.tagName === 'INPUT' || active.tagName === 'SELECT') return;
+            const td = active.closest('td');
+            if (!td) return;
+            const isInsidePlate = active.closest('.plate-area') !== null;
+            if (isInsidePlate || td.querySelector('.plate-area')) {
+                const container = isInsidePlate ? active.closest('td') : td;
+                const plateLetters = container.querySelectorAll('.plate-letters div[contenteditable]');
+                const plateNumbers = container.querySelector('.plate-numbers[contenteditable]');
+                plateLetters.forEach(function(cell) { cell.innerText = ''; });
+                if (plateNumbers) plateNumbers.innerText = '';
+                e.preventDefault();
+                if (plateLetters.length > 0) plateLetters[0].focus();
+                return;
+            }
+            if (active.isContentEditable) {
+                const ol = active.tagName === 'OL' ? active : active.querySelector('ol');
+                if (ol) {
+                    ol.innerHTML = '<li></li>';
+                    ol.focus();
+                } else {
+                    active.innerText = '';
+                }
+                e.preventDefault();
+                return;
+            }
+        }
+
+        if (e.ctrlKey && (e.keyCode === 221 || e.keyCode === 219)) {
+            const editableEl = active;
+            if (editableEl && (editableEl.isContentEditable || editableEl.tagName === 'SPAN')) {
+                e.preventDefault();
+                const current = parseFloat(window.getComputedStyle(editableEl).fontSize) || 13;
+                const step = 1;
+                const isUp = (e.keyCode === 221);
+                const newSize = Math.min(28, Math.max(7, current + (isUp ? step : -step)));
+                editableEl.style.fontSize = newSize + 'px';
+                showSizeHint(editableEl, newSize);
+            }
+        }
+
+        if (e.key === '+' || e.key === '-') {
+            const isInputtingNumbers = active.tagName === 'INPUT' && active.id !== 'writtenAtDate' && active.id !== 'dateInput';
+            if (!isInputtingNumbers) {
+                if (e.key === '+') { e.preventDefault(); addRow(); }
+                if (e.key === '-') { e.preventDefault(); removeRow(); }
+            }
+        }
+
+        if (e.ctrlKey && (e.code === 'KeyR' || e.key === 'r' || e.key === 'R' || e.key === 'ق')) {
+            e.preventDefault();
+            openRestoreModal();
+        }
+    });
+
+    var _sizeHintTimer = null;
+    function showSizeHint(el, size) {
+        var hint = document.getElementById('_fontSizeHint');
+        if (!hint) {
+            hint = document.createElement('div');
+            hint.id = '_fontSizeHint';
+            hint.style.cssText = 'position:fixed;bottom:18px;left:50%;transform:translateX(-50%);' +
+                'background:#2c3e50;color:#fff;padding:5px 14px;border-radius:20px;' +
+                'font-size:13px;z-index:9999;pointer-events:none;opacity:0;transition:opacity 0.2s;';
+            document.body.appendChild(hint);
+        }
+        hint.textContent = 'حجم الخط: ' + size + 'px';
+        hint.style.opacity = '1';
+        clearTimeout(_sizeHintTimer);
+        _sizeHintTimer = setTimeout(function() { hint.style.opacity = '0'; }, 1200);
+    }
+
+    function autoTab(element, index) {
+        if (element.innerText.length >= 1) {
+            element.innerText = element.innerText.charAt(0);
+            const lettersRow = element.parentElement;
+            const nextCell = (index < 3) ? lettersRow.children[index] : lettersRow.nextElementSibling;
+            if (nextCell) {
+                const range = document.createRange(); 
+                const sel = window.getSelection();
+                nextCell.focus(); 
+                range.selectNodeContents(nextCell); 
+                range.collapse(false);
+                sel.removeAllRanges(); 
+                sel.addRange(range);
+            }
+        }
+    }
+
+    document.addEventListener('keydown', function(e) {
+        if (e.key !== 'Backspace') return;
+        const active = document.activeElement;
+        if (!active) return;
+        const lettersRow = active.closest('.plate-letters');
+        const plateNumbers = active.classList.contains('plate-numbers');
+        if (lettersRow) {
+            if (active.innerText.length > 0) return;
+            e.preventDefault();
+            const cells = Array.from(lettersRow.children);
+            const idx = cells.indexOf(active);
+            if (idx > 0) {
+                const prevCell = cells[idx - 1];
+                prevCell.focus();
+                const range = document.createRange();
+                const sel = window.getSelection();
+                range.selectNodeContents(prevCell);
+                range.collapse(false);
+                sel.removeAllRanges();
+                sel.addRange(range);
+                prevCell.innerText = '';
+            }
+        } else if (plateNumbers) {
+            if (active.innerText.length > 0) return;
+            e.preventDefault();
+            const plateGrid = active.closest('.plate-grid');
+            if (!plateGrid) return;
+            const lettersDiv = plateGrid.querySelector('.plate-letters');
+            const letterCells = Array.from(lettersDiv.children);
+            const lastCell = letterCells[letterCells.length - 1];
+            if (lastCell) {
+                lastCell.focus();
+                const range = document.createRange();
+                const sel = window.getSelection();
+                range.selectNodeContents(lastCell);
+                range.collapse(false);
+                sel.removeAllRanges();
+                sel.addRange(range);
+                lastCell.innerText = '';
+            }
+        }
+    });
+
+    function togglePlateMode(select) {
+        const area = select.nextElementSibling;
+        if (select.value === "numOnly") {
+            area.innerHTML = '<div contenteditable="true" style="min-height:45px; display:flex; align-items:center; justify-content:center; outline:none; border: 1px solid #999;">بدون لوحات</div>';
+        } else {
+            area.innerHTML = `<div class="plate-grid"><div class="plate-letters"><div contenteditable="true" oninput="autoTab(this, 1)"></div><div contenteditable="true" oninput="autoTab(this, 2)"></div><div contenteditable="true" oninput="autoTab(this, 3)"></div></div><div class="plate-numbers" contenteditable="true"></div></div>`;
+        }
+    }
+
+    function updatePrintValues() {
+        var date = document.getElementById("dateInput").value;
+        var deptSelect = document.getElementById("dept");
+        var deptText = (deptSelect.value === "other") ? document.getElementById("otherDept").value : deptSelect.value;
+        var el = document.getElementById("printValues");
+        if(date && deptText) {
+            el.innerText = "الصادر بتاريخ (" + date + ") لقسم شرطة (" + deptText + ")";
+        } else if(date) {
+            el.innerText = "الصادر بتاريخ (" + date + ")";
+        } else {
+            el.innerText = "";
+        }
+    }
+
+    function handleDeptChange() {
+        var s = document.getElementById("dept");
+        document.getElementById("otherDept").style.display = (s.value === "other") ? "inline-block" : "none";
+        updatePrintValues();
+    }
+
+    function printPage() {
+        var date = document.getElementById("dateInput").value;
+        var deptSelect = document.getElementById("dept");
+        var deptText = (deptSelect.value === "other") ? document.getElementById("otherDept").value : deptSelect.value;
+        if(!date || !deptText) { alert("أكمل البيانات أولاً"); return; }
+        updatePrintValues();
+        saveSnapshot(deptText, date);
+        window.print();
+    }
+
+    function saveSnapshot(deptName, date) {
+        try {
+            var tableHTML = document.getElementById('mainTable').querySelector('tbody').innerHTML;
+            var writtenDate = document.getElementById('writtenAtDate').value;
+            var snapshot = {
+                dept: deptName,
+                date: date,
+                writtenDate: writtenDate,
+                tbody: tableHTML,
+                savedAt: new Date().toLocaleString('ar-EG')
+            };
+            var key = 'snapshot_' + deptName.trim();
+            localStorage.setItem(key, JSON.stringify(snapshot));
+        } catch(e) {}
+    }
+
+    function openRestoreModal() {
+        var snapshots = [];
+        for (var i = 0; i < localStorage.length; i++) {
+            var key = localStorage.key(i);
+            if (key && key.startsWith('snapshot_')) {
+                try {
+                    var snap = JSON.parse(localStorage.getItem(key));
+                    snap._key = key;
+                    snapshots.push(snap);
+                } catch(e) {}
+            }
+        }
+        if (snapshots.length === 0) { alert('لا توجد كشوفات محفوظة في الذاكرة'); return; }
+        var overlay = document.createElement('div');
+        overlay.id = 'restoreOverlay';
+        overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:9999;display:flex;align-items:center;justify-content:center;';
+        var modal = document.createElement('div');
+        modal.style.cssText = 'background:#fff;border-radius:12px;padding:25px;min-width:350px;max-width:500px;box-shadow:0 10px 30px rgba(0,0,0,0.3);direction:rtl;font-family:inherit;';
+        var html = '<h3 style="margin:0 0 15px;color:#1a237e;text-align:center;font-size:18px;">📂 استرجع كشف محفوظ</h3>';
+        html += '<p style="color:#666;font-size:13px;text-align:center;margin-bottom:15px;">اختر الكشف الذي تريد استرجاعه</p>';
+        snapshots.forEach(function(snap, idx) {
+            html += '<div onclick="restoreSnapshot(\'' + snap._key + '\')" style="cursor:pointer;border:2px solid #e0e0e0;border-radius:8px;padding:12px 15px;margin-bottom:10px;transition:0.2s;display:flex;justify-content:space-between;align-items:center;" onmouseover="this.style.borderColor=\'#007bff\';this.style.background=\'#f0f7ff\'" onmouseout="this.style.borderColor=\'#e0e0e0\';this.style.background=\'#fff\'">';
+            html += '<div><div style="font-weight:bold;font-size:15px;color:#2c3e50;">🏛️ ' + snap.dept + '</div>';
+            html += '<div style="font-size:12px;color:#888;margin-top:4px;">📅 تاريخ الكشف: ' + snap.date + '</div>';
+            html += '<div style="font-size:11px;color:#aaa;margin-top:2px;">⏱️ حُفظ: ' + snap.savedAt + '</div></div>';
+            html += '<div onclick="event.stopPropagation();deleteSnapshot(\'' + snap._key + '\')" title="حذف" style="color:#dc3545;font-size:20px;padding:4px 8px;border-radius:6px;" onmouseover="this.style.background=\'#ffeaea\'" onmouseout="this.style.background=\'transparent\'">🗑️</div></div>';
+        });
+        html += '<button onclick="document.getElementById(\'restoreOverlay\').remove()" style="width:100%;margin-top:10px;padding:10px;background:#6c757d;color:#fff;border:none;border-radius:8px;font-size:14px;cursor:pointer;font-family:inherit;">إلغاء</button>';
+        modal.innerHTML = html;
+        overlay.appendChild(modal);
+        document.body.appendChild(overlay);
+        overlay.addEventListener('click', function(e) { if (e.target === overlay) overlay.remove(); });
+    }
+
+    function restoreSnapshot(key) {
+        try {
+            var snap = JSON.parse(localStorage.getItem(key));
+            if (!snap) return;
+            if (!confirm('سيتم استبدال محتوى الجدول الحالي بكشف ' + snap.dept + '\nهل أنت متأكد؟')) return;
+            document.getElementById('mainTable').querySelector('tbody').innerHTML = snap.tbody;
+            document.getElementById('dateInput').value = snap.date;
+            document.getElementById('writtenAtDate').value = snap.writtenDate || '';
+            var deptSelect = document.getElementById('dept');
+            var found = false;
+            for (var i = 0; i < deptSelect.options.length; i++) {
+                if (deptSelect.options[i].value === snap.dept || deptSelect.options[i].text === snap.dept) {
+                    deptSelect.selectedIndex = i;
+                    found = true; break;
+                }
+            }
+            if (!found) {
+                deptSelect.value = 'other';
+                document.getElementById('otherDept').style.display = 'inline-block';
+                document.getElementById('otherDept').value = snap.dept;
+            }
+            updatePrintValues();
+            syncFooterDate();
+            reattachRowEvents();
+            updateRowNumbers();
+            document.getElementById('restoreOverlay').remove();
+        } catch(e) {}
+    }
+
+    function deleteSnapshot(key) {
+        try {
+            var snap = JSON.parse(localStorage.getItem(key));
+            if (confirm('هل تريد حذف كشف ' + snap.dept + ' من الذاكرة؟')) {
+                localStorage.removeItem(key);
+                document.getElementById('restoreOverlay').remove();
+                openRestoreModal();
+            }
+        } catch(e) {}
+    }
+
+    function reattachRowEvents() {
+        document.querySelectorAll('#mainTable tbody tr').forEach(function(row) {
+            var delBtn = row.querySelector('.del-row-btn');
+            if (delBtn) {
+                delBtn.onclick = function() {
+                    if (confirm('حذف هذا الصف؟')) { row.remove(); updateRowNumbers(); }
+                };
+            }
+        });
+    }
+
+    document.getElementById('mainTable').addEventListener('focusin', function(e) {
+        var row = e.target.closest('tr');
+        if (!row || row.closest('thead')) return;
+        document.querySelectorAll('#mainTable tbody tr').forEach(r => r.classList.remove('active-row'));
+        row.classList.add('active-row');
+
+        // ── auto-select عند التنقل بـ Tab ──
+        var t = e.target;
+        if (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA') {
+            setTimeout(function() { t.select(); }, 0);
+        } else if (t.tagName === 'SELECT') {
+            // select لا يحتاج select() لكن نضمن التركيز
+        } else if (t.isContentEditable) {
+            setTimeout(function() {
+                var range = document.createRange();
+                var sel   = window.getSelection();
+                range.selectNodeContents(t);
+                sel.removeAllRanges();
+                sel.addRange(range);
+            }, 0);
+        }
+    });
+
+    document.getElementById('mainTable').addEventListener('focusout', function(e) {
+        setTimeout(function() {
+            var focused = document.activeElement;
+            if (!focused || !focused.closest('#mainTable tbody')) {
+                document.querySelectorAll('#mainTable tbody tr').forEach(r => r.classList.remove('active-row'));
+            }
+        }, 100);
+    });
+
+document.addEventListener('keydown', function(e) {
+    if (e.key !== 'ArrowDown' && e.key !== 'ArrowUp') return;
+    const active = document.activeElement;
+    if (!active || !active.isContentEditable) return;
+    const currentTd = active.closest('td');
+    if (!currentTd) return;
+    const currentRow = currentTd.closest('tr');
+    if (!currentRow || currentRow.closest('thead') || currentRow.closest('tfoot')) return;
+    const tbody = document.getElementById("mainTable").getElementsByTagName('tbody')[0];
+    const rows = Array.from(tbody.rows);
+    let currentRowIndex = rows.indexOf(currentRow);
+    if (currentRowIndex === -1) return;
+    let targetRowIndex = currentRowIndex;
+    const ol = currentTd.querySelector('ol[contenteditable]');
+    if (ol) {
+        const sel = window.getSelection();
+        const range = sel.getRangeAt(0);
+        const isAtEnd = range.endOffset >= (range.endContainer.textContent || "").length - 1;
+        const isAtStart = range.startOffset === 0;
+        const isLastLi = ol.lastElementChild && (range.endContainer.closest && range.endContainer.closest('li') === ol.lastElementChild || range.endContainer === ol.lastElementChild);
+        const isFirstLi = ol.firstElementChild && (range.startContainer.closest && range.startContainer.closest('li') === ol.firstElementChild);
+        if (e.key === 'ArrowDown' && isAtEnd && isLastLi) { targetRowIndex++; e.preventDefault(); } 
+        else if (e.key === 'ArrowUp' && isAtStart && isFirstLi) { targetRowIndex--; e.preventDefault(); } 
+        else return;
+    } else {
+        if (e.key === 'ArrowDown') targetRowIndex++; else targetRowIndex--;
+        e.preventDefault();
+    }
+    if (targetRowIndex < 0 || targetRowIndex >= rows.length) return;
+    const targetRow = rows[targetRowIndex];
+    const currentColIndex = Array.from(currentRow.cells).indexOf(currentTd);
+    let targetTd = targetRow.cells[currentColIndex];
+    if (targetTd && (targetTd.style.padding === "0" || targetTd.querySelector('.inner-table'))) {
+        const innerEditable = targetTd.querySelector('td[contenteditable="true"]');
+        if (innerEditable) { innerEditable.focus(); document.querySelectorAll('#mainTable tbody tr').forEach(r => r.classList.remove('active-row')); targetRow.classList.add('active-row'); return; }
+    }
+    if (!targetTd) return;
+    targetTd.focus();
+    const targetEditable = targetTd.querySelector('span[contenteditable], ol[contenteditable], td[contenteditable="true"], [contenteditable]') || targetTd;
+    if (targetEditable) {
+        targetEditable.focus();
+        setTimeout(() => {
+            const range = document.createRange(); const sel = window.getSelection();
+            range.selectNodeContents(targetEditable); range.collapse(false);
+            sel.removeAllRanges(); sel.addRange(range);
+        }, 10);
+    }
+    document.querySelectorAll('#mainTable tbody tr').forEach(r => r.classList.remove('active-row'));
+    targetRow.classList.add('active-row');
+});
+
+document.getElementById('mainTable').addEventListener('click', function(e) {
+    if (e.target.tagName === 'SELECT' || e.target.closest('select')) return;
+    const td = e.target.closest('td');
+    if (!td || td.classList.contains('del-col') || td.closest('.del-col')) return;
+    let editableElement = td.querySelector('span[contenteditable="true"], ol[contenteditable="true"], td[contenteditable="true"], [contenteditable="true"]');
+    if (!editableElement && td.querySelector('.inner-table')) { editableElement = td.querySelector('td[contenteditable="true"]'); }
+    if (editableElement) {
+        editableElement.focus();
+        setTimeout(() => {
+            const range = document.createRange(); const sel = window.getSelection();
+            range.selectNodeContents(editableElement); range.collapse(false);
+            sel.removeAllRanges(); sel.addRange(range);
+        }, 10);
+    }
+});
+
+window.addEventListener('beforeprint', function(e) {
+    var date = document.getElementById("dateInput").value;
+    var deptSelect = document.getElementById("dept");
+    var deptText = (deptSelect.value === "other") ? document.getElementById("otherDept").value : deptSelect.value;
+    if (!date || !deptText) { alert("أكمل البيانات أولاً — التاريخ والقسم مطلوبان قبل الطباعة"); return; }
+    updatePrintValues();
+    saveSnapshot(deptText, date);
+});
+
+function openShortcutsModal() {
+    var overlay = document.createElement('div');
+    overlay.id = 'shortcutsOverlay';
+    overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:9999;display:flex;align-items:center;justify-content:center;';
+    var shortcuts = [
+        { key: '+', desc: 'إضافة صف جديد' },
+        { key: '−', desc: 'حذف آخر صف' },
+        { key: 'Delete', desc: 'مسح محتوى الخلية النشطة' },
+        { key: 'CTRL + C', desc: 'نسخ محتوى الخلية بالكامل' },
+        { key: '↑ / ↓', desc: 'التنقل بين الصفوف' },
+        { key: ' ( ق/R ) + ctrl ', desc: 'استرجاع كشف محفوظ' },
+        { key: 'CTRL + P', desc: 'طباعة الكشف وحفظه في الذاكرة' },
+        { key: 'F9', desc: 'مسح جميع البيانات' },
+    ];
+    var rows = shortcuts.map(function(s) {
+        return '<tr>' +
+            '<td style="padding:10px 15px;border-bottom:1px solid #f0f0f0;text-align:right;color:#555;font-size:14px;">' + s.desc + '</td>' +
+            '<td style="padding:10px 15px;border-bottom:1px solid #f0f0f0;text-align:center;">' +
+            '<kbd style="background:#f4f4f4;border:1px solid #ccc;border-radius:5px;padding:3px 10px;font-size:13px;font-family:inherit;color:#333;box-shadow:0 2px 0 #bbb;">' + s.key + '</kbd>' +
+            '</td></tr>';
+    }).join('');
+    var modal = document.createElement('div');
+    modal.style.cssText = 'background:#fff;border-radius:12px;padding:20px;width:300px;box-shadow:0 10px 30px rgba(0,0,0,0.3);direction:rtl;font-family:inherit;';
+    modal.innerHTML = '<h3 style="margin:0 0 18px;color:#1a237e;text-align:center;font-size:18px;">⌨️ اختصارات لوحة المفاتيح</h3><table style="width:100%;border-collapse:collapse;"><thead><tr><th style="padding:8px 15px;background:#f8f9fa;border-bottom:2px solid #dee2e6;text-align:right;color:#666;font-size:13px;">الوظيفة</th><th style="padding:8px 15px;background:#f8f9fa;border-bottom:2px solid #dee2e6;text-align:center;color:#666;font-size:13px;">المفتاح</th></tr></thead><tbody>' + rows + '</tbody></table><button onclick="document.getElementById(\'shortcutsOverlay\').remove()" style="width:100%;margin-top:18px;padding:10px;background:#6c757d;color:#fff;border:none;border-radius:8px;font-size:14px;cursor:pointer;font-family:inherit;">إغلاق</button>';
+    overlay.appendChild(modal);
+    document.body.appendChild(overlay);
+    overlay.addEventListener('click', function(e) { if (e.target === overlay) overlay.remove(); });
+}
+
+/* ===================================================
+   F9 — مسح جميع البيانات
+=================================================== */
+function clearAllData() {
+    // إعادة القسم
+    var deptEl = document.getElementById('dept');
+    if (deptEl) deptEl.selectedIndex = 0;
+
+    // إخفاء وتفريغ حقل القسم الآخر
+    var otherDept = document.getElementById('otherDept');
+    if (otherDept) { otherDept.value = ''; otherDept.style.display = 'none'; }
+
+    // مسح حقل تحريراً في
+    var writtenEl = document.getElementById('writtenAtDate');
+    if (writtenEl) writtenEl.value = '';
+
+    // مسح جميع صفوف الجدول وإضافة صف واحد فارغ
+    var tbody = document.querySelector('#mainTable tbody');
+    if (tbody) {
+        tbody.innerHTML = '';
+        addRow();
+    }
+
+    // مسح printValues
+    var pv = document.getElementById('printValues');
+    if (pv) pv.textContent = '';
+
+    // إشعار مرئي
+    showF9Toast();
+}
+
+function showF9Toast() {
+    var toast = document.getElementById('f9-toast');
+    if (!toast) {
+        toast = document.createElement('div');
+        toast.id = 'f9-toast';
+        toast.style.cssText = 'position:fixed;bottom:30px;left:50%;transform:translateX(-50%);background:#1a237e;color:#fff;padding:12px 28px;border-radius:10px;font-family:inherit;font-size:15px;font-weight:bold;box-shadow:0 4px 18px rgba(0,0,0,0.25);z-index:99999;opacity:0;transition:opacity 0.3s;pointer-events:none;';
+        document.body.appendChild(toast);
+    }
+    toast.textContent = '✓ تم مسح جميع البيانات (F9)';
+    toast.style.opacity = '1';
+    clearTimeout(toast._timer);
+    toast._timer = setTimeout(function() { toast.style.opacity = '0'; }, 2500);
+}
+
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'F9') {
+        e.preventDefault();
+        clearAllData();
+    }
+});
+
+function formatCaseNumberForPrint(cell) {
+    if (!cell) return;
+    let text = cell.innerText.trim();
+    if (text.includes('/') || text.includes('سنة') || text.includes('لسنة') || text.toLowerCase().includes('محضر')) { cell.dataset.printValue = text; return; }
+    if (/^\d+$/.test(text)) { cell.dataset.printValue = text + " / 2026"; } else { cell.dataset.printValue = text; }
+}
+</script>
+</body>
+</html>
