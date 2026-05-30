@@ -1438,7 +1438,7 @@
                 <div style="flex: 1; display: flex; flex-direction: column;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 3px;">
                         <label style="font-size: 12px; font-weight: bold;">نص قرار إخلاء السبيل</label>
-                        <button type="button" class="btn-add-q" onclick="addManualDecision('release')" title="إضافة قرار يدوي " style="padding: 2px 8px; font-size: 13px;font-weight: bold;">+ إضافة قرار يدوي </button>
+                        <button type="button" class="btn-add-q" onclick="addManualDecision('release')" title="إضافة قرار يدوي اسفل هذا القرار" style="padding: 2px 8px; font-size: 13px;font-weight: bold;">+ إضافة قرار يدوي </button>
                     </div>
                     <!-- wrapper نسبي لإتاحة وضع الشارة داخل المربع -->
                     <div style="position: relative; display: flex; flex-direction: column;">
@@ -1470,7 +1470,7 @@
                 <div style="flex: 1; display: flex; flex-direction: column;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 3px;">
                         <label style="font-size: 12px; font-weight: bold;">نص قرار العرض على الطب الشرعي</label>
-                        <button type="button" class="btn-add-q" onclick="addManualDecision('forensic')" title="إضافة قرار يدوي " style="padding: 2px 8px; font-size: 13px;font-weight: bold;">+ إضافة قرار يدوي </button>
+                        <button type="button" class="btn-add-q" onclick="addManualDecision('forensic')" title="إضافة قرار يدوي اسفل هذا القرار " style="padding: 2px 8px; font-size: 13px;font-weight: bold;">+ إضافة قرار يدوي </button>
                     </div>
                     <textarea id="forensic_decision_text" class="persist" placeholder="عند تركه فارغا لن يظهر في الطباعة" oninput="saveData()" style="height: 80px; font-family: inherit; resize: vertical;"></textarea>
                     <small style="color: #9ca3af; font-size: 11px; margin-top: 3px;"></small>
@@ -1490,7 +1490,7 @@
                 <div style="flex: 1; display: flex; flex-direction: column;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 3px;">
                         <label style="font-size: 12px; font-weight: bold;">نص قرار ندب مهندس الفحص</label>
-                        <button type="button" class="btn-add-q" onclick="addManualDecision('engineer')" title="إضافة قرار يدوي " style="padding: 2px 8px; font-size: 13px;font-weight: bold;">+ إضافة قرار يدوي </button>
+                        <button type="button" class="btn-add-q" onclick="addManualDecision('engineer')" title="إضافة قرار يدوي اسفل هذا القرار" style="padding: 2px 8px; font-size: 13px;font-weight: bold;">+ إضافة قرار يدوي </button>
                     </div>
                     <textarea id="engineer_decision_text" class="persist" placeholder="عند تركه فارغا لن يظهر في الطباعة" oninput="saveData()" style="height: 80px; font-family: inherit; resize: vertical;"></textarea>
                     <div id="manual_decisions_engineer_container"></div>
@@ -1510,7 +1510,7 @@
                 <div style="flex: 1; display: flex; flex-direction: column;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 3px;">
                         <label style="font-size: 12px; font-weight: bold;">نص قرار المركبة</label>
-                        <button type="button" class="btn-add-q" onclick="addManualDecision('vehicle')" title="إضافة قرار يدوي " style="padding: 2px 8px; font-size: 13px;font-weight: bold;">+ إضافة قرار يدوي </button>
+                        <button type="button" class="btn-add-q" onclick="addManualDecision('vehicle')" title="إضافة قرار يدوي اسفل هذا القرار " style="padding: 2px 8px; font-size: 13px;font-weight: bold;">+ إضافة قرار يدوي </button>
                     </div>
                     <textarea id="vehicle_decision_text" class="persist" placeholder="عند تركه فارغا لن يظهر في الطباعة" oninput="saveData()" style="height: 80px; font-family: inherit; resize: vertical;"></textarea>
                     <div id="manual_decisions_vehicle_container"></div>
@@ -3134,7 +3134,7 @@ window.onload = function() {
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
                             <label style="color: ${theme.labelColor}; font-size: 11px; font-weight: bold;">قرار يدوي إضافي</label>
                             <div style="display: flex; gap: 5px; align-items: center;">
-                                <button type="button" class="btn-add-q" onclick="addManualDecisionAfter('${decision.id}', '${section}')" title="إضافة قرار يدوي " style="padding: 1px 4px; font-size: 13px;font-weight: bold;">+ قرار</button>
+                                <button type="button" class="btn-add-q" onclick="addManualDecisionAfter('${decision.id}', '${section}')" title="إضافة قرار يدوي أخر اسفل هذا القرار " style="padding: 1px 4px; font-size: 13px;font-weight: bold;">+ قرار</button>
                                 <span onclick="removeManualDecision('${decision.id}')" 
                                       style="color: #e74c3c; cursor: pointer; font-weight: bold; font-size: 16px; padding: 0 4px;" 
                                       title="حذف">❌</span>
