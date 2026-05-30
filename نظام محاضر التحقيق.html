@@ -20,7 +20,11 @@
         
         /* تخطيط: المحتوى الرئيسي يملأ العرض، الشريط الجانبي عائم على اليمين */
         .main-layout { display: block; position: relative; }
-        .main-content { background: #ffffff; padding: 18px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); border: 1px solid #e1e5eb; box-sizing: border-box; }
+        .main-content { background: #ffffff; padding: 18px; border-radius: 12px;
+ box-shadow: 0 4px 20px rgba(0,0,0,0.08); border: 1px solid #e1e5eb; 
+box-sizing: border-box;
+ transition: opacity 0.20s ease, transform 0.50s cubic-bezier(0.34, 1.56, 0.64, 1); }
+.main-content.mode-switching { opacity: 0; transform: translateY(25px); }
 
         /* الشريط الجانبي المخفي على يمين الشاشة */
         .sidebar-panel {
@@ -342,17 +346,32 @@
         /* إخفاء الخلفية المائية على الشاشة */
         #watermark { display: none; }
 
-        /* ===== نافذة تحرير الديباجة ===== */
+        /* =====  نافذة تحرير الديباجة  ===== */
         #preamble-modal-overlay {
-            display: none;
+            display: flex;
             position: fixed;
             inset: 0;
             background: rgba(0,0,0,0.55);
             z-index: 9000;
             align-items: center;
             justify-content: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
         }
-        #preamble-modal-overlay.open { display: flex; }
+        #preamble-modal-overlay.open {
+            opacity: 1;
+            visibility: visible;
+        }
+        #preamble-modal {
+            transform: translateY(30px) scale(0.97);
+            transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        #preamble-modal-overlay.open #preamble-modal {
+            transform: translateY(0) scale(1);
+        }
+
+
         #preamble-modal {
             background: #fff;
             border-radius: 14px;
@@ -705,16 +724,28 @@
 
         /* الطبقة الشفافة خلف النافذة — تغطي كل الشاشة وتمنع التفاعل مع الخلفية */
         #detention-modal-overlay {
-            display: none;
+            display: flex;
             position: fixed;
             inset: 0;
             background: rgba(0,0,0,0.55);
             z-index: 9500;
             align-items: center;
             justify-content: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
         }
-        /* إظهار النافذة عند إضافة class="open" بواسطة JavaScript */
-        #detention-modal-overlay.open { display: flex; }
+        #detention-modal-overlay.open {
+            opacity: 1;
+            visibility: visible;
+        }
+        #detention-modal {
+            transform: translateY(30px) scale(0.97);
+            transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        #detention-modal-overlay.open #detention-modal {
+            transform: translateY(0) scale(1);
+        }
 
         /* صندوق النافذة الرئيسي — حجمه يتكيف مع الشاشة ولا يتجاوز 92% من الارتفاع */
         #detention-modal {
@@ -878,15 +909,30 @@
 
         /* ===== نافذة تحرير مذكرة الطب الشرعي ===== */
         #forensic-modal-overlay {
-            display: none;
+            display: flex;
             position: fixed;
             inset: 0;
             background: rgba(0,0,0,0.55);
             z-index: 9500;
             align-items: center;
             justify-content: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
         }
-        #forensic-modal-overlay.open { display: flex; }
+        #forensic-modal-overlay.open {
+            opacity: 1;
+            visibility: visible;
+        }
+        #forensic-modal {
+            transform: translateY(30px) scale(0.97);
+            transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        #forensic-modal-overlay.open #forensic-modal {
+            transform: translateY(0) scale(1);
+        }
+
+
         #forensic-modal {
             background: #fff;
             border-radius: 14px;
@@ -1853,7 +1899,10 @@ document.addEventListener('DOMContentLoaded', function() {
         return parts.length ? parts.join(' وكذا ') : '...';
     }
 
-    function switchMode(mode) {
+   function switchMode(mode) {
+        const mc = document.querySelector('.main-content');
+        mc.classList.add('mode-switching');
+        setTimeout(() => mc.classList.remove('mode-switching'), 260);
         const previousMode = reportMode; // حفظ المود السابق قبل تغييره
         reportMode = mode;
         localStorage.setItem('report_mode', mode);
