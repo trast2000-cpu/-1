@@ -1521,14 +1521,14 @@
         </div>
     </div>
 
-    <div class="actions-bar">
-        <button class="btn-generate" onclick="generateReport()">🖨️ طباعة المحضر</button>
-        <button class="btn-preamble" onclick="openPreambleModal()" title="تعديل نص الديباجة الافتتاحية">✏️ تحرير الديباجة</button>
-        <button class="btn-clear" onclick="clearAllData()">🗑️ مسح البيانات</button>
-        <button class="btn-save-file" onclick="downloadReport()">💾 حفظ المحضر   كملف TXT</button>
-        <button class="btn-open-file" onclick="triggerOpenFile()">📂 فتح محضر سابق</button>
-        <input type="file" id="file_input" style="display:none" onchange="handleFileSelect(event)" accept=".txt">
-    </div>
+<div class="actions-bar">
+    <button class="btn-generate" onclick="generateReport()" title="اضغط لطباعه المحضر">🖨️ طباعة  المحضر</button>
+    <button class="btn-preamble" onclick="openPreambleModal()" title="تعديل نص الديباجة الافتتاحية">✏️ تحرير الديباجة</button>
+    <button class="btn-clear" onclick="clearAllData()" title="حذف جميع البيانات المدخلة وإعادة تهيئة الحقول">🗑️ مسح البيانات</button>
+    <button class="btn-save-file" onclick="downloadReport()" title="حفظ بيانات المحضر كـ ملف ( تيكست txt)">💾 حفظ المحضر كملف TXT</button>
+    <button class="btn-open-file" onclick="triggerOpenFile()" title="فتح و تحميل بيانات ملف محضر سابق تم حفظه">📂 فتح محضر سابق</button>
+    <input type="file" id="file_input" style="display:none" onchange="handleFileSelect(event)" accept=".txt">
+</div>
 
 <div id="dev-credit-el" style="text-align:center; font-size:13px; color:#9ca3af; padding:8px 0 4px 0; cursor:default; display:block; width:100%; letter-spacing:1.5px; opacity:1.; transition: opacity 0.3s ease, letter-spacing 0.3s ease, color 0.3s ease;"
 onmouseover="this.style.opacity='1'; this.style.color='#2563eb'; this.style.letterSpacing='4px';"
