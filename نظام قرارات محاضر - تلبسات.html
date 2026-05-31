@@ -2170,12 +2170,63 @@ function updateAll() {
 /* ===================================================
    PRINT
 =================================================== */
+/* ===================================================
+   SAVE MAHDAR DATA TO LOCALSTORAGE (للربط مع ما بعد السداد)
+=================================================== */
+function saveMahdarData() {
+    const get = id => { const el = document.getElementById(id); return el ? el.value : ''; };
+    const caseNum = get('input-caseNum').trim();
+    const year    = get('input-year').trim();
+    const deptSel = document.getElementById('input-dept-select');
+    const dept    = deptSel ? (deptSel.value === 'أخرى' ? get('input-dept-other') : deptSel.value) : '';
+    if (!caseNum || !year || !dept) return; // لا نحفظ إذا المفتاح غير مكتمل
+    const plateType = get('plate-type');
+    const plate = plateType === 'no-plate'
+        ? 'بدون لوحات'
+        : (get('c1') + get('c2') + get('c3') + ' ' + get('n1')).trim();
+    const bossSel = document.getElementById('input-boss-select');
+    const boss = bossSel ? (bossSel.value === 'أخرى' ? get('input-boss-other') : bossSel.value) : '';
+    const vehDecSel  = document.getElementById('vehicle-decision-select');
+    const sabeelSel  = document.getElementById('sabeel-select');
+    const data = {
+        caseNum,
+        year,
+        dept,
+        deptOther:    get('input-dept-other'),
+        deptSelect:   deptSel ? deptSel.value : '',
+        name:         get('input-name'),
+        nationalId:   get('f-national-id'),
+        plateType,
+        plate,
+        c1: get('c1'), c2: get('c2'), c3: get('c3'), n1: get('n1'),
+        noPlateTxt:   get('input-no-plate'),
+        incidentDate: get('f-incident-date'),
+        fine:         get('f-fine'),
+        fineText:     get('fine-text'),
+        vehDecSelect: vehDecSel ? vehDecSel.value : '',
+        vehDecText:   get('vehicle-decision-text'),
+        sabeelSelect: sabeelSel ? sabeelSel.value : '',
+        sabeelText:   get('sabeel-text'),
+        violations:   getViolations(),
+        boss,
+        bossSelect:   bossSel ? bossSel.value : '',
+        bossOther:    get('input-boss-other'),
+        savedAt:      new Date().toLocaleString('ar-EG')
+    };
+    const key = 'mahdar_' + caseNum + '_' + year + '_' + dept;
+    localStorage.setItem(key, JSON.stringify(data));
+    // أيضاً نحدّث فهرس المحاضر المحفوظة
+    let index = JSON.parse(localStorage.getItem('mahdar_index') || '[]');
+    if (!index.includes(key)) { index.push(key); localStorage.setItem('mahdar_index', JSON.stringify(index)); }
+}
+
 function printDoc() {
     if (currentDecision === -1) {
         alert('الرجاء اختيار القرار المناسب من القائمة الجانبية قبل الطباعة');
         return;
     }
     updateAll();
+    saveMahdarData(); // ← حفظ البيانات قبل الطباعة
     window.print();
 }
 
