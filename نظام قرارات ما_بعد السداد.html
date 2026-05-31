@@ -720,6 +720,10 @@ option[data-category="dark"] {
                         <label>السنة</label>
                         <input type="number" id="input-year" value="2026" oninput="sync()" style="width:65px;">
                     </div>
+                    <div class="field-group" style="align-self:flex-end;">
+                        <label style="opacity:0; font-size:1px;">‎</label>
+                        <button onclick="lookupMahdar()" id="btn-lookup-mahdar" title="استرجاع بيانات المحضر من نظام قرارات المحاضر" style="background:linear-gradient(135deg,#1a6b3c,#2e7d52);color:#fff;border:none;border-radius:7px;padding:5px 10px;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;box-shadow:0 2px 6px rgba(0,0,0,0.18);display:inline-flex;align-items:center;gap:4px;height:32px;">🔍 استرجاع</button>
+                    </div>
                 </div>
                 <div style="display:flex; align-items:flex-end; gap:8px; flex-wrap:wrap; padding:10px; flex:1;">
                     <div class="field-group">
@@ -1707,6 +1711,10 @@ option[data-category="dark"] {
                 n1:        document.getElementById('n1').value,
                 noPlate:   document.getElementById('input-no-plate').value,
                 arrestItemsSaved: JSON.parse(JSON.stringify(arrestItems)),
+                fineAmount:       document.getElementById('fine-amount').value,
+                fineText:         document.getElementById('fine-text').value,
+                vehStatusType:    document.getElementById('vehicle-status-type').value,
+                vehStatusText:    document.getElementById('vehicle-status-text').value,
             };
 
             clearAll(true);
@@ -1741,6 +1749,8 @@ option[data-category="dark"] {
 
             if (type==='deliver') {
                 document.getElementById('fine-type').value='fine'; updateFineText();
+                if(_saved.fineAmount){document.getElementById('fine-amount').value=_saved.fineAmount; document.getElementById('fine-amount-row').style.display='flex';}
+                if(_saved.fineText) document.getElementById('fine-text').value=_saved.fineText;
                 document.getElementById('eng-type').value='call'; updateEngineerText();
                 document.getElementById('vehicle-status-type').value='deliver'; updateVehicleStatusText();
                 document.getElementById('violations-type').value='paid'; updateViolationsText();
@@ -1755,6 +1765,8 @@ option[data-category="dark"] {
 
             if (type==='keep') {
                 document.getElementById('fine-type').value='fine'; updateFineText();
+                if(_saved.fineAmount){document.getElementById('fine-amount').value=_saved.fineAmount; document.getElementById('fine-amount-row').style.display='flex';}
+                if(_saved.fineText) document.getElementById('fine-text').value=_saved.fineText;
                 document.getElementById('eng-type').value='call'; updateEngineerText();
                 document.getElementById('vehicle-status-type').value='keep'; updateVehicleStatusText();
                 document.getElementById('violations-type').value='other'; updateViolationsText();
@@ -1786,6 +1798,8 @@ option[data-category="dark"] {
 
             if (type==='receipt') {
                 document.getElementById('fine-type').value='fine'; updateFineText();
+                if(_saved.fineAmount){document.getElementById('fine-amount').value=_saved.fineAmount; document.getElementById('fine-amount-row').style.display='flex';}
+                if(_saved.fineText) document.getElementById('fine-text').value=_saved.fineText;
                 const fcR=document.getElementById('card-fine');
                 if(fcR){fcR.classList.remove('collapsed');const fb=fcR.querySelector('.card-body');if(fb)fb.style.display='flex';}
                 document.getElementById('eng-type').value='no-call'; updateEngineerText();
@@ -1927,6 +1941,136 @@ option[data-category="dark"] {
             }
         }
 
+        /* ===================================================
+           استرجاع بيانات المحضر من Local Storage
+        =================================================== */
+        function showLookupToast(text, success) {
+            let toast = document.getElementById('_lookup_toast');
+            if (!toast) {
+                toast = document.createElement('div');
+                toast.id = '_lookup_toast';
+                toast.style.cssText = [
+                    'position:fixed','bottom:28px','left:50%',
+                    'transform:translateX(-50%) translateY(60px)',
+                    'padding:11px 22px','border-radius:9px',
+                    'font-family:Cairo,sans-serif','font-size:14px','font-weight:700',
+                    'box-shadow:0 4px 18px rgba(0,0,0,0.22)',
+                    'z-index:99999','opacity:0',
+                    'transition:opacity 0.3s ease,transform 0.3s ease',
+                    'white-space:nowrap','pointer-events:none','max-width:90vw',
+                    'text-overflow:ellipsis','overflow:hidden'
+                ].join(';');
+                document.body.appendChild(toast);
+            }
+            toast.style.background = success ? '#1a5c2e' : '#8b1a1a';
+            toast.style.color = '#fff';
+            toast.textContent = text;
+            requestAnimationFrame(() => {
+                toast.style.opacity = '1';
+                toast.style.transform = 'translateX(-50%) translateY(0)';
+            });
+            clearTimeout(toast._t);
+            toast._t = setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateX(-50%) translateY(60px)';
+            }, success ? 3500 : 4000);
+        }
+
+        function lookupMahdar() {
+            const caseNum = (document.getElementById('input-caseNum') || {}).value.trim();
+            const year    = (document.getElementById('input-year')    || {}).value.trim();
+            const deptSel = document.getElementById('input-dept-select');
+            const dept    = deptSel
+                ? (deptSel.value === 'أخرى'
+                    ? ((document.getElementById('input-dept-other') || {}).value || '').trim()
+                    : deptSel.value.trim())
+                : '';
+
+            if (!caseNum) { showLookupToast('⚠️ يرجى كتابة رقم المحضر أولاً', false); return; }
+            if (!year)    { showLookupToast('⚠️ يرجى كتابة السنة أولاً', false); return; }
+            if (!dept)    { showLookupToast('⚠️ يرجى اختيار قسم الشرطة أولاً', false); return; }
+
+            const key = 'mahdar_' + caseNum + '_' + year + '_' + dept;
+            const raw = localStorage.getItem(key);
+            if (!raw) {
+                showLookupToast('❌ لا توجد بيانات لهذا المحضر: ' + caseNum + ' / ' + year + ' / ' + dept, false);
+                return;
+            }
+
+            let data;
+            try { data = JSON.parse(raw); } catch(e) { showLookupToast('❌ خطأ في قراءة البيانات المحفوظة', false); return; }
+
+            const setVal = (id, val) => { const el = document.getElementById(id); if (el && val !== undefined && val !== null) el.value = val; };
+
+            // ① الاسم
+            setVal('input-name', data.name);
+
+            // ② اللوحة
+            if (data.plateType) {
+                const ptEl = document.getElementById('plate-type');
+                if (ptEl) { ptEl.value = data.plateType; syncCustomSelectDisplay('plate-type'); }
+                if (typeof togglePlateInput === 'function') togglePlateInput();
+            }
+            setVal('c1', data.c1); setVal('c2', data.c2); setVal('c3', data.c3); setVal('n1', data.n1);
+            if (data.noPlateTxt) setVal('input-no-plate', data.noPlateTxt);
+
+            // ③ مدير النيابة
+            const bossEl = document.getElementById('input-boss-select');
+            if (bossEl && data.bossSelect) {
+                bossEl.value = data.bossSelect;
+                syncCustomSelectDisplay('input-boss-select');
+                if (typeof toggleOther === 'function') toggleOther('input-boss-select', 'boss-other-wrapper');
+                if (data.bossSelect === 'أخرى' && data.bossOther) setVal('input-boss-other', data.bossOther);
+            }
+
+            // ④ سبب الضبط (arrestItems) من violations المحفوظة في المحاضر
+            const arrestSrc = data.violations && data.violations.length > 0 ? data.violations : null;
+            if (arrestSrc && typeof arrestItems !== 'undefined') {
+                arrestItems.length = 0;
+                arrestSrc.forEach(label => { if (label && label.trim()) arrestItems.push({ label: label.trim(), isCustom: true }); });
+                if (typeof renderArrestItems === 'function') renderArrestItems();
+                if (typeof updateArrestText === 'function') updateArrestText();
+            }
+
+            // ⑤ قرار الغرامة — نملأ المبلغ والنص فقط، بدون تغيير fine-type لأن applyPreset ضبطه بالفعل
+            if (data.fine) {
+                const fineTypeEl = document.getElementById('fine-type');
+                // فقط إذا كان fine-type مضبوط على 'fine' بالفعل (من applyPreset)، نملأ المبلغ
+                if (fineTypeEl && fineTypeEl.value === 'fine') {
+                    setVal('fine-amount', data.fine);
+                    document.getElementById('fine-amount-row').style.display = 'flex';
+                } else if (fineTypeEl && fineTypeEl.value !== 'no-fine') {
+                    // لم يتم اختيار preset بعد — نضبط fine-type ونملأ
+                    fineTypeEl.value = 'fine';
+                    syncCustomSelectDisplay('fine-type');
+                    setVal('fine-amount', data.fine);
+                    document.getElementById('fine-amount-row').style.display = 'flex';
+                }
+                if (data.fineText) setVal('fine-text', data.fineText);
+                else if (typeof updateFineText === 'function') updateFineText();
+                // نعيد المبلغ بعد updateFineText لأنه يمسحه
+                if (data.fine) setVal('fine-amount', data.fine);
+            }
+
+            // ⑥ قرار المركبة — فقط إذا لم يكن هناك preset مختار
+            const activePreset = document.querySelector('.preset-btn.active');
+            if (!activePreset && (data.vehDecSelect || data.vehDecText)) {
+                const mapVeh = { 'deliver':'deliver', 'keep':'keep', 'stop':'other', 'other':'other' };
+                const mappedVeh = mapVeh[data.vehDecSelect] || '';
+                if (mappedVeh) {
+                    const vehEl = document.getElementById('vehicle-status-type');
+                    if (vehEl) { vehEl.value = mappedVeh; syncCustomSelectDisplay('vehicle-status-type'); }
+                    if (data.vehDecText) setVal('vehicle-status-text', data.vehDecText);
+                    else if (typeof updateVehicleStatusText === 'function') updateVehicleStatusText();
+                    if (typeof togglePaymentSection === 'function') togglePaymentSection();
+                }
+            }
+
+            // ⑦ sync نهائي
+            if (typeof sync === 'function') sync();
+
+            showLookupToast('✅ تم استرجاع بيانات المحضر ' + caseNum + ' — ' + (data.name || ''), true);
+        }
         document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('input-date').value='';
             updateFineText(); updateAllTexts(); updateViolationsText(); updateFineReceiptText();
