@@ -1563,6 +1563,26 @@ box-sizing: border-box;
                 </div>
             </div>
 
+            <!-- قرار العرض للتصرف -->
+            <div style="display: flex; gap: 8px; align-items: flex-start; margin-bottom: 8px; border-top: 1px dashed #ccc; padding-top: 8px;">
+                <div style="flex: 0 0 auto; width: 200px; display: flex; flex-direction: column; gap: 4px;">
+                    <label style="font-size: 12px; font-weight: bold;">العرض للتصرف</label>
+                    <select id="disposal_decision" class="persist" onchange="updateDisposalDecisionUI(); saveData();">
+                        <option value="">-- اختر --</option>
+                        <option value="yes" selected>العرض للتصرف</option>
+                        <option value="no">بدون عرض للتصرف</option>
+                    </select>
+                </div>
+                <div style="flex: 1; display: flex; flex-direction: column;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 3px;">
+                        <label style="font-size: 12px; font-weight: bold;">نص قرار العرض للتصرف</label>
+                        <button type="button" class="btn-add-q" onclick="addManualDecision('disposal')" title="إضافة قرار يدوي اسفل هذا القرار" style="padding: 2px 8px; font-size: 13px;font-weight: bold;">+ إضافة قرار يدوي </button>
+                    </div>
+                    <textarea id="disposal_decision_text" class="persist" placeholder="عند تركه فارغا لن يظهر في الطباعة" oninput="saveData()" style="height: 80px; font-family: inherit; resize: vertical;"></textarea>
+                    <div id="manual_decisions_disposal_container"></div>
+                </div>
+            </div>
+
             <!-- تم إلغاء الحاوية القديمة واستبدالها بحاويات تحت كل قرار -->
         </div>
     </div>
@@ -3057,6 +3077,18 @@ function updateReleaseDecisionUI() {
         applyStyle(getCurrentStyle(), true);
     }
 
+    // دالة تحديث نص قرار العرض للتصرف بناءً على الخيار المختار
+    function updateDisposalDecisionUI() {
+        const disposalDecision = document.getElementById('disposal_decision').value;
+        const textArea = document.getElementById('disposal_decision_text');
+        if (disposalDecision === 'yes') {
+            textArea.value = `تعرض الأوراق للتصرف.`;
+        } else {
+            textArea.value = '';
+        }
+        applyStyle(getCurrentStyle(), true);
+    }
+
 window.onload = function() {
     loadData();
     // تعيين تاريخ اليوم افتراضياً في حقل تاريخ الجلسة إذا كان فارغاً
@@ -3073,6 +3105,7 @@ window.onload = function() {
     updateVehicleDecisionUI();
     updateForensicDecisionUI();
     updateEngineerDecisionUI();
+    updateDisposalDecisionUI();
     // معاينة الخط المحفوظ
     const savedFont = document.getElementById('font_choice').value;
     if (savedFont) previewFont(savedFont);
@@ -3101,6 +3134,15 @@ window.onload = function() {
     if (savedForensicDecision === 'yes') {
         const fb = document.getElementById('forensic-btn-wrapper');
         if (fb) fb.style.display = 'block';
+    }
+
+    // تحديث واجهة قرار العرض للتصرف عند التحميل
+    const savedDisposalDecision = localStorage.getItem('disposal_decision');
+    if (!savedDisposalDecision) {
+        // القيمة الافتراضية: العرض للتصرف
+        const disposalSel = document.getElementById('disposal_decision');
+        if (disposalSel) disposalSel.value = 'yes';
+        updateDisposalDecisionUI();
     }
 
     // إظهار حقول الحبس إذا كان القرار محفوظاً كـ "حبس"
@@ -3166,7 +3208,7 @@ window.onload = function() {
 
     function renderManualDecisions() {
         const theme = getCurrentTheme();
-        const sections = ['release', 'forensic', 'engineer', 'vehicle'];
+        const sections = ['release', 'forensic', 'engineer', 'vehicle', 'disposal'];
         
         sections.forEach(section => {
             const container = document.getElementById(`manual_decisions_${section}_container`);
@@ -3292,7 +3334,13 @@ window.onload = function() {
         }
         addSectionManualDecisions('vehicle');
         
-        decisions.push(`${getArabicNumber(currentNum)}: تعرض الأوراق للتصرف.`);
+        const disposalDecision = document.getElementById('disposal_decision').value;
+        const disposalDecisionText = document.getElementById('disposal_decision_text').value;
+        if (disposalDecision === 'yes' && disposalDecisionText.trim()) {
+            decisions.push(`${getArabicNumber(currentNum)}: ${boldifyVariables(disposalDecisionText.trim())}`);
+            currentNum++;
+        }
+        addSectionManualDecisions('disposal');
         
         let decisionsHtml = decisions.map(d => `<p style="margin-top:10px; line-height: 1.6;">${d.replace(/^(أولاً|ثانياً|ثالثاً|رابعاً|خامساً|سادساً|سابعاً|ثامناً|تاسعاً|عاشراً)/, '<strong style="font-weight:900;">$1</strong>')}</p>`).join('');
         
@@ -3365,6 +3413,14 @@ window.onload = function() {
             currentNum++;
         }
         addSectionManualDecisions('vehicle');
+        
+        const disposalDecisionPol = document.getElementById('disposal_decision').value;
+        const disposalDecisionTextPol = document.getElementById('disposal_decision_text').value;
+        if (disposalDecisionPol === 'yes' && disposalDecisionTextPol.trim()) {
+            decisions.push(`${getArabicNumber(currentNum)}: ${boldifyVariables(disposalDecisionTextPol.trim())}`);
+            currentNum++;
+        }
+        addSectionManualDecisions('disposal');
         
         let decisionsHtml = decisions.map(d => `<p style="margin-top:8px; line-height: 1.5;">${d.replace(/^(أولاً|ثانياً|ثالثاً|رابعاً|خامساً|سادساً|سابعاً|ثامناً|تاسعاً|عاشراً)/, '<strong style="font-weight:900;">$1</strong>')}</p>`).join('');
         
@@ -3778,8 +3834,26 @@ let questionsHtml = "";
         renderViolations();
         renderQuestions();
         renderManualDecisions();
-        // تحديث واجهة قرار الإفراج (يُظهر/يُخفي حقول الحبس)
-        if (typeof updateReleaseDecisionUI === 'function') updateReleaseDecisionUI();
+        // تحديث واجهة قرار الإفراج (يُظهر/يُخفي حقول الكفالة والحبس فقط — دون المساس بالنص المحفوظ)
+        if (typeof updateReleaseDecisionUI === 'function') {
+            // حفظ النص المعدّل مؤقتاً قبل استدعاء الدالة
+            const savedReleaseText    = document.getElementById('release_decision_text')   ? document.getElementById('release_decision_text').value   : null;
+            const savedVehicleText    = document.getElementById('vehicle_decision_text')   ? document.getElementById('vehicle_decision_text').value   : null;
+            const savedForensicText2  = document.getElementById('forensic_decision_text')  ? document.getElementById('forensic_decision_text').value  : null;
+            const savedEngineerText   = document.getElementById('engineer_decision_text')  ? document.getElementById('engineer_decision_text').value  : null;
+            const savedDisposalText   = document.getElementById('disposal_decision_text')  ? document.getElementById('disposal_decision_text').value  : null;
+            updateReleaseDecisionUI();
+            updateVehicleDecisionUI();
+            updateForensicDecisionUI();
+            updateEngineerDecisionUI();
+            updateDisposalDecisionUI();
+            // استعادة النصوص المعدّلة بعد تنفيذ الدوال
+            if (savedReleaseText   !== null) document.getElementById('release_decision_text').value   = savedReleaseText;
+            if (savedVehicleText   !== null) document.getElementById('vehicle_decision_text').value   = savedVehicleText;
+            if (savedForensicText2 !== null) document.getElementById('forensic_decision_text').value  = savedForensicText2;
+            if (savedEngineerText  !== null) document.getElementById('engineer_decision_text').value  = savedEngineerText;
+            if (savedDisposalText  !== null) document.getElementById('disposal_decision_text').value  = savedDisposalText;
+        }
         // if (typeof generateReport === 'function') generateReport(); // تم تعطيل الطباعة التلقائية عند فتح الملف
         saveData(); // حفظ في localStorage أيضاً
     }
@@ -4142,7 +4216,7 @@ let questionsHtml = "";
             {
                 key: 'p2',
                 label: 'الفقرة الثانية — ورود محضر الاستعراض',
-                text: 'اليوم وإبان مباشرة عملنا بسراى {اسم_النيابة} ورد إلينا المحضر الرقيم {رقم_المحضر} لسنة {سنة_المحضر} جنح مرور {قسم_الشرطة} ورأينا اتخاذ إجراءات التحقيق والتصرف فيه عقب العرض على السيد الأستاذ رئيس نيابة مرور القاهرة الجزئية، وبمطالعته تبين أنه مؤرخ {تاريخ_الواقعة} الساعة {ساعة_الواقعة} ومحرر بمعرفة {رتبة_الضابط} / {اسم_الضابط} – {جهة_المحرر} مرور القاهرة – وثابت به رصد مقطع مصور متداول بتاريخ {تاريخ_الفيديو} عبر موقع التواصل الاجتماعي "فيس بوك" خلال الصفحة المسماة اخبار مرور مصر قيادة المتهم/ {اسم_المتهم} لـ {نوع_المركبة} الرقيمة ( {رقم_اللوحة} ) ويقوم بأداء حركات استعراضية بـ {مكان_الضبط} بدائرة قسم شرطة {قسم_الشرطة} وبإجراءه التحريات تم التوصل إلى بيانات المتهم و ( {نوع_المركبة} ) وتم استدعاؤه وبسؤاله {قول_المتهم_بالقسم} ارتكابه الواقعة {جملة_التحفظ}'
+                text: 'اليوم وإبان مباشرة عملنا بسراى {اسم_النيابة} ورد إلينا المحضر الرقيم {رقم_المحضر} لسنة {سنة_المحضر} جنح مرور {قسم_الشرطة} ورأينا اتخاذ إجراءات التحقيق والتصرف فيه عقب العرض على السيد الأستاذ رئيس نيابة مرور القاهرة الجزئية، وبمطالعته تبين أنه مؤرخ {تاريخ_الواقعة} الساعة {ساعة_الواقعة} ومحرر بمعرفة {رتبة_الضابط} / {اسم_الضابط} – {جهة_المحرر}  – وثابت به رصد مقطع مصور متداول بتاريخ {تاريخ_الفيديو} عبر موقع التواصل الاجتماعي "فيس بوك" خلال الصفحة المسماة اخبار مرور مصر قيادة المتهم/ {اسم_المتهم} لـ {نوع_المركبة} الرقيمة ( {رقم_اللوحة} ) ويقوم بأداء حركات استعراضية بـ {مكان_الضبط} بدائرة قسم شرطة {قسم_الشرطة} وبإجراءه التحريات تم التوصل إلى بيانات المتهم و ( {نوع_المركبة} ) وتم استدعاؤه وبسؤاله {قول_المتهم_بالقسم} ارتكابه الواقعة {جملة_التحفظ}'
             },
             {
                 key: 'p3',
