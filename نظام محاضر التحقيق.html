@@ -122,6 +122,10 @@ box-sizing: border-box;
         .section-title { font-weight: bold; font-size: 14px; margin-bottom: 8px; color: #1e40af; border-right: 3px solid #2563eb; padding-right: 8px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
         .section-title:hover { background: #e8f0fe; border-radius: 4px; }
         .section-title .toggle-icon { font-size: 11px; color: #6b7280; }
+        /* مربع اختيار بيانات المتهم */
+        .defendant-toggle-wrap { display: inline-flex; align-items: center; gap: 5px; margin-right: 10px; font-size: 12px; font-weight: normal; color: #374151; cursor: pointer; user-select: none; }
+        .defendant-toggle-wrap input[type="checkbox"] { width: 15px; height: 15px; cursor: pointer; accent-color: #2563eb; margin: 0; }
+        @media print { .defendant-toggle-wrap { display: none !important; } }
         .section-content { transition: all 0.3s ease; }
         .section-content.collapsed { display: none; }
         
@@ -327,6 +331,8 @@ box-sizing: border-box;
             /* تصغير بيانات المتهم */
             .defendant-info { margin: 8px 0; line-height: 1.1 !important; }
             .defendant-info p { margin: 0 !important; padding: 0; }
+            /* إخفاء بيانات المتهم عند الطباعة إذا أُلغي التحديد */
+            .defendant-info.hide-on-print { display: none !important; }
 
             /* الخلفية المائية — تظهر على كل ورقة مطبوعة */
             #watermark {
@@ -482,31 +488,57 @@ box-sizing: border-box;
         }
         /* ===== معاينة حية للديباجة ===== */
         .pm-preview-box {
-            background: #f0fdf4;
-            border: 1px solid #86efac;
+            background: #ffffff;
+            border: 1px solid #d1d5db;
             border-radius: 8px;
-            padding: 10px 14px;
-            font-size: 15px;
+            padding: 15px 20px;
+            font-size: 20px; /* حجم خط مقارب للطباعة */
             line-height: 1.8;
-            color: #14532d;
-            margin-bottom: 6px;
+            color: #15803d; /* أخضر للثابت */
+            margin-bottom: 12px;
             direction: rtl;
             text-align: justify;
+            white-space: pre-wrap; /* للحفاظ على تنسيق الأسطر والمسافات */
+            cursor: pointer;
+            transition: all 0.2s;
+            min-height: 60px;
+        }
+        .pm-preview-box:hover {
+            border-color: #2563eb;
+            background: #f0f9ff;
+            box-shadow: 0 0 0 3px rgba(37,99,235,0.1);
         }
         .pm-preview-label {
             font-size: 11px;
             font-weight: bold;
-            color: #166534;
+            color: #6b7280;
             margin-bottom: 4px;
             display: flex;
             align-items: center;
             gap: 5px;
         }
-        .pm-preview-label::before { content: '👁'; font-size: 13px; }
+        .pm-preview-label::before { content: '💡'; font-size: 13px; }
         .pm-preview-box .var-text {
             font-weight: 900;
-            color: #1d4ed8;
-            text-decoration: underline dotted;
+            color: #2563eb; /* أزرق للمتغيرات */
+            text-decoration: none;
+            border-bottom: 1px dashed #2563eb;
+        }
+        #preamble-modal-body textarea.pm-textarea {
+            width: 100%;
+            box-sizing: border-box;
+            border: 2px solid #2563eb;
+            border-radius: 8px;
+            padding: 15px 20px;
+            font-size: 20px !important; /* تثبيت حجم الخط الكبير */
+            line-height: 1.8 !important;
+            background: #ffffff;
+            color: #1f2937;
+            font-family: inherit;
+            white-space: pre-wrap;
+            margin-bottom: 12px;
+            overflow-y: auto !important; /* السماح بالتمرير إذا زاد النص جداً */
+            min-height: 350px !important; /* ارتفاع افتراضي كبير جداً ومريح */
         }
         .pm-toggle-view {
             font-size: 11px;
@@ -1045,7 +1077,7 @@ box-sizing: border-box;
     <div class="mode-toggle-bar" id="modeToggleBar">
         <span class="mode-label">📋 نوع التحقيق :</span>
         <button id="btn-mode-main" class="mode-btn active-mode" onclick="switchMode('main')">📄 تحقيق عكس الاتجاه </button>
-        <button id="btn-mode-bail" class="mode-btn" onclick="switchMode('bail_reduction')">📋  تخفيض الكفالة</button>
+        <button id="btn-mode-bail" class="mode-btn" onclick="switchMode('bail_reduction')">📋 فتحة محضر - تخفيض الكفالة -</button>
         <button id="btn-mode-objection" class="mode-btn" onclick="switchMode('objection')">⚖️ تحقيق حركات استعراضية</button>
     </div>
     <div class="main-layout">
@@ -1371,7 +1403,7 @@ box-sizing: border-box;
     </div>
 
     <div class="section">
-        <div class="section-title" onclick="toggleSection(this)">بيانات المتهم<span class="toggle-icon">▼</span></div>
+        <div class="section-title" onclick="toggleSection(this)">بيانات المتهم<span style="display:inline-flex;align-items:center;margin-right:auto;margin-left:6px;" onclick="event.stopPropagation()"><label class="defendant-toggle-wrap" title="عند إلغاء التحديد تُخفى بيانات المتهم من الطباعة"><input type="checkbox" id="show_defendant_data" checked onchange="toggleDefendantDataVisibility(this)"> عرض بيانات المتهم في الطباعه</label></span><span class="toggle-icon">▼</span></div>
         <div class="section-content form-grid">
             <div class="field"><label>اسم المتهم</label><input type="text" id="def_name" class="persist" value="" oninput="updateReleaseDecisionUI(); saveData();"></div>
             <div class="field"><label>السن</label><input type="text" id="def_age" class="persist" value=""></div>
@@ -1568,8 +1600,8 @@ box-sizing: border-box;
                 <div style="flex: 0 0 auto; width: 200px; display: flex; flex-direction: column; gap: 4px;">
                     <label style="font-size: 12px; font-weight: bold;">العرض للتصرف</label>
                     <select id="disposal_decision" class="persist" onchange="updateDisposalDecisionUI(); saveData();">
-                        <option value="">-- اختر --</option>
-                        <option value="yes" selected>العرض للتصرف</option>
+                        <option value="" >-- اختر --</option>
+                        <option value="yes" selected >العرض للتصرف</option>
                         <option value="no">بدون عرض للتصرف</option>
                     </select>
                 </div>
@@ -1745,6 +1777,18 @@ let sidebarPinned = false;
             icon.textContent = '◄';
         }
     }
+
+    // التحكم في إظهار/إخفاء بيانات المتهم في الطباعة
+    function toggleDefendantDataVisibility(checkbox) {
+        // حفظ الحالة
+        localStorage.setItem('show_defendant_data', checkbox.checked ? '1' : '0');
+        // تحديث مؤشر بصري على الشاشة فقط (تعتيم القسم)
+        const sectionContent = document.querySelector('#show_defendant_data').closest('.section').querySelector('.section-content');
+        if (sectionContent) {
+            sectionContent.style.opacity = checkbox.checked ? '1' : '0.4';
+            sectionContent.style.transition = 'opacity 0.3s';
+        }
+    }
 // دوال التحكم في القائمة الجانبية
 function togglePin() {
     sidebarPinned = !sidebarPinned;
@@ -1798,6 +1842,17 @@ document.addEventListener('DOMContentLoaded', function() {
         panel.classList.add('pinned');
         document.getElementById('pinBtn').classList.add('pinned');
     }
+
+    // استعادة حالة مربع اختيار بيانات المتهم
+    const savedDefDataState = localStorage.getItem('show_defendant_data');
+    if (savedDefDataState === '0') {
+        const chk = document.getElementById('show_defendant_data');
+        if (chk) {
+            chk.checked = false;
+            const sectionContent = chk.closest('.section').querySelector('.section-content');
+            if (sectionContent) sectionContent.style.opacity = '0.4';
+        }
+    }
     
     panel.addEventListener('mouseenter', keepSidebarOpen);
     panel.addEventListener('mouseleave', scheduleSidebarClose);
@@ -1827,13 +1882,15 @@ document.addEventListener('DOMContentLoaded', function() {
         { q: "ما مدى حملك لـ رخصة التسيير الخاصة بـ{v_type} إِبَّانَ ضبطك؟", a: "" },
         { q: "وما قولك فيما أثبته  {off_rank} / {off_name} بمحضر جمع الاستدلالات المُؤرخ في {event_date} ؟\"تلوناه عليه تفصيلاً\"", a: "محصلش و اللي حصل انا قولته" },
         { q: "هل توجد علاقة او خلافات سابقة فيما بينك وبين محرر المحضر؟", a: "لا ماعرفوش و مافيش بينا اي خلافات" },
-        { q: "هل توجد علاقة او خلافات سابقة فيما بينك وبين القائم بضبطك؟", a: "لا ماعرفوش و مافيش بينا اي خلافات" }
+        { q: "هل توجد علاقة او خلافات سابقة فيما بينك وبين القائم بضبطك؟", a: "لا ماعرفوش و مافيش بينا اي خلافات" },
+        { q: "هل لديك أقوال أخرى؟", a: "لا . تمت أقواله وتوقع منه............................................................../مدير النيابة", type: 'closing' }
     ];
 
     const bailReductionQuestionsTemplates = [
         { q: "وما سبب اعادة عرضك لسراي النيابة؟", a: "انا عجزت عن السداد عشان مش معايا فلوس" },
         { q: "مطلوب منك سداد المبلغ المالي المقرر لاخلاء سبيلك؟", a: "انا عاجز عن السداد" },
-        { q: "هل تتعهد بالسداد؟", a: "انا التمس تخفيض الكفالة" }
+        { q: "هل تتعهد بالسداد؟", a: "انا التمس تخفيض الكفالة" },
+        { q: "هل لديك أقوال أخرى؟", a: "لا . تمت أقواله وتوقع منه............................................................../مدير النيابة", type: 'closing' }
     ];
 
     // أسئلة تحقيق الحركات الاستعراضية
@@ -1856,7 +1913,8 @@ document.addEventListener('DOMContentLoaded', function() {
           note_footer: true },
         { q: "ما قولك فيما عرض عليك الان؟", a: "" },
         { q: "وما قولك فيما أثبته {off_rank} / {off_name} بمحضر جمع الاستدلالات المؤرخ في {event_date}؟ \"تلوناه عليه تفصيلاً\"", a: "" },
-        { q: "هل توجد علاقة او خلافات سابقة فيما بينك وبين محرر المحضر؟", a: "لا معرفوش ومفيش بنا أى خلافات" }
+        { q: "هل توجد علاقة او خلافات سابقة فيما بينك وبين محرر المحضر؟", a: "لا معرفوش ومفيش بنا أى خلافات" },
+        { q: "هل لديك أقوال أخرى؟", a: "لا . تمت أقواله وتوقع منه............................................................../مدير النيابة", type: 'closing' }
     ];
 
     // دوال مساعدة لقسم الحركات الاستعراضية
@@ -2022,7 +2080,8 @@ document.addEventListener('DOMContentLoaded', function() {
                         .replace('{off_name}', offNameO)
                         .replace('{event_date}', eventDateO);
                     const notes = tpl.mandatory_note ? [tpl.mandatory_note] : [];
-                    questions.push({ id: 'obj_fixed_' + index, q: qText, a: tpl.a, notes: notes, type: 'fixed', template: tpl.q, note_footer: !!tpl.note_footer });
+                    const qType = tpl.type || 'fixed';
+                    questions.push({ id: 'obj_fixed_' + index, q: qText, a: tpl.a, notes: notes, type: qType, template: tpl.q, note_footer: !!tpl.note_footer });
                 });
             }
 
@@ -2065,7 +2124,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 const offName = document.getElementById('off_name').value;
                 fixedQuestionsTemplates.forEach((tpl, index) => {
                     let qText = tpl.q.replace('{plate}', plate).replace('{event_date}', eventDate).replace('{off_rank}', offRank).replace('{off_name}', offName).replace(/\{v_type\}/g, vType);
-                    questions.push({ id: 'fixed_' + index, q: qText, a: tpl.a, notes: [], type: 'fixed', template: tpl.q });
+                    const qType = tpl.type || 'fixed';
+                    questions.push({ id: 'fixed_' + index, q: qText, a: tpl.a, notes: [], type: qType, template: tpl.q });
                 });
             }
         }
@@ -2474,15 +2534,16 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function initFixedQuestions() {
-        if (questions.length === 0 || !questions.some(q => q.type === 'fixed')) {
-            questions = questions.filter(q => q.type !== 'fixed');
+        if (questions.length === 0 || !questions.some(q => q.type === 'fixed' || q.type === 'closing')) {
+            questions = questions.filter(q => q.type !== 'fixed' && q.type !== 'closing');
 
             if (reportMode === 'bail_reduction') {
                 const reportNo = document.getElementById('report_no').value;
                 const reportYear = document.getElementById('report_year').value;
                 bailReductionQuestionsTemplates.forEach((tpl, index) => {
                     let qText = tpl.q.replace('{report_no}', reportNo).replace('{report_year}', reportYear);
-                    questions.push({ id: 'fixed_' + index, q: qText, a: tpl.a, notes: [], type: 'fixed', template: tpl.q });
+                    const qType = tpl.type || 'fixed';
+                    questions.push({ id: 'fixed_' + index, q: qText, a: tpl.a, notes: [], type: qType, template: tpl.q });
                 });
             } else {
                 const plate = getPlate();
@@ -2495,7 +2556,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 const vType = getVehicleType();
                 fixedQuestionsTemplates.forEach((tpl, index) => {
                     let qText = tpl.q.replace('{plate}', plate).replace('{event_date}', eventDate).replace('{off_rank}', offRank).replace('{off_name}', offName).replace(/\{v_type\}/g, vType);
-                    questions.push({ id: 'fixed_' + index, q: qText, a: tpl.a, notes: [], type: 'fixed', template: tpl.q });
+                    const qType = tpl.type || 'fixed';
+                    questions.push({ id: 'fixed_' + index, q: qText, a: tpl.a, notes: [], type: qType, template: tpl.q });
                 });
             }
         }
@@ -2593,6 +2655,7 @@ function removeQuestion(id) {
             let label = "سؤال يدوي";
             if (item.type === 'viol') { label = "سؤال اتهام تلقائي"; }
             if (item.type === 'fixed') { label = "سؤال تحقيق ثابت"; }
+            if (item.type === 'closing') { label = "✅ سؤال ختامي"; }
 
             // تحويل note القديم الى notes array اذا لزم الامر
             if (!Array.isArray(item.notes)) {
@@ -3414,12 +3477,8 @@ window.onload = function() {
         }
         addSectionManualDecisions('vehicle');
         
-        const disposalDecisionPol = document.getElementById('disposal_decision').value;
-        const disposalDecisionTextPol = document.getElementById('disposal_decision_text').value;
-        if (disposalDecisionPol === 'yes' && disposalDecisionTextPol.trim()) {
-            decisions.push(`${getArabicNumber(currentNum)}: ${boldifyVariables(disposalDecisionTextPol.trim())}`);
-            currentNum++;
-        }
+        // لا نضيف قرار "تعرض الأوراق للتصرف" في خطاب مأمور القسم
+        // هذا القرار يظهر فقط في قرارات النيابة العامة
         addSectionManualDecisions('disposal');
         
         let decisionsHtml = decisions.map(d => `<p style="margin-top:8px; line-height: 1.5;">${d.replace(/^(أولاً|ثانياً|ثالثاً|رابعاً|خامساً|سادساً|سابعاً|ثامناً|تاسعاً|عاشراً)/, '<strong style="font-weight:900;">$1</strong>')}</p>`).join('');
@@ -3435,6 +3494,8 @@ window.onload = function() {
     }
 
     function buildReportContent() {
+        const showDefData = document.getElementById('show_defendant_data') ? document.getElementById('show_defendant_data').checked : true;
+        const defDataClass = showDefData ? 'defendant-info' : 'defendant-info hide-on-print';
         const selectedSize = document.getElementById('font_size_choice').value;
         const sizeNum = parseInt(selectedSize);
         const pros = document.getElementById('prosecutor').value === 'other' ? document.getElementById('pros_other').value : document.getElementById('prosecutor').value;
@@ -3492,7 +3553,7 @@ let questionsHtml = "";
             return `
                 <div style="text-align:center; margin-bottom: 10px;"><h2 style="text-decoration: underline; font-size: 24px; margin: 0;">محضر تحقيق</h2></div>
                 ${buildCustomPreambleHTML('bail_reduction', { '{رقم_الملحق}': subReportNo })}
-                <div class="defendant-info">
+                <div class="${defDataClass}">
                     <p>اسمي/ <span class="var-text" style="font-size: ${sizeNum + 2}px;">${def}</span></p>
                     <p>السن/ <span class="var-text" style="font-size: ${sizeNum + 2}px;">${document.getElementById('def_age').value}</span></p>
                     <p>المهنة/ <span class="var-text" style="font-size: ${sizeNum + 2}px;">${document.getElementById('def_job').value}</span></p>
@@ -3501,8 +3562,6 @@ let questionsHtml = "";
                     <p>رقم هاتف محمول/ <span class="var-text" style="font-size: ${sizeNum + 2}px;">${document.getElementById('def_phone').value}</span></p>
                 </div>
                 ${questionsHtml}
-                <p style="margin-top: 10px; font-size: ${sizeNum + 1}px; font-weight: bold; border-right: 4px solid #000; padding-right: 10px;">س/ هل لديك أقوال أخرى؟</p>
-                <p style="font-size: ${sizeNum}px; padding-right: 30px; white-space: nowrap;">ج/ لا. تمت أقواله وتوقع منه/..............................................................مدير النيابة</p>
                 ${buildProsecutionDecision(def, vType, plate, sizeNum)}
                 ${buildPoliceDecision(def, vType, plate, sizeNum)}
             `;
@@ -3596,7 +3655,7 @@ let questionsHtml = "";
                       '{لحية_المتهم}': defFacialHair,
                       '{حذاء_المتهم}': defShoes
                   })}
-                  <div class="defendant-info">
+                  <div class="${defDataClass}">
                       <p>اسمي/ <span class="var-text" style="font-size: ${sizeNum + 2}px;">${def}</span></p>
                       <p>السن/ <span class="var-text" style="font-size: ${sizeNum + 2}px;">${document.getElementById('def_age').value}</span></p>
                       <p>المهنة/ <span class="var-text" style="font-size: ${sizeNum + 2}px;">${document.getElementById('def_job').value}</span></p>
@@ -3606,8 +3665,6 @@ let questionsHtml = "";
                   </div>
                   ${objQuestionsHtml}
                   ${objViolQuestionsHtml}
-                  <p style="margin-top: 10px; font-size: ${sizeNum + 1}px; font-weight: bold; border-right: 4px solid #000; padding-right: 10px;">س/ هل لديك أقوال أخرى؟</p>
-                  <p style="font-size: ${sizeNum}px; padding-right: 30px; white-space: nowrap;">ج/ لا. تمت أقواله وتوقع منه/..............................................................مدير النيابة</p>
                   ${buildProsecutionDecision(def, vType, plate, sizeNum)}
                   ${buildPoliceDecision(def, vType, plate, sizeNum)}
               `;
@@ -3616,7 +3673,7 @@ let questionsHtml = "";
         return `
             <div style="text-align:center; margin-bottom: 10px;"><h2 style="text-decoration: underline; font-size: 24px; margin: 0;">محضر تحقيق</h2></div>
             ${buildCustomPreambleHTML('main', {})}
-            <div class="defendant-info">
+            <div class="${defDataClass}">
                 <p>اسمي/ <span class="var-text" style="font-size: ${sizeNum + 2}px;">${def}</span></p>
                 <p>السن/ <span class="var-text" style="font-size: ${sizeNum + 2}px;">${document.getElementById('def_age').value}</span></p>
                 <p>المهنة/ <span class="var-text" style="font-size: ${sizeNum + 2}px;">${document.getElementById('def_job').value}</span></p>
@@ -3626,8 +3683,6 @@ let questionsHtml = "";
             </div>
             ${questionsHtml}
             ${violationQuestionsHtml}
-            <p style="margin-top: 10px; font-size: ${sizeNum + 1}px; font-weight: bold; border-right: 4px solid #000; padding-right: 10px;">س/ هل لديك أقوال أخرى؟</p>
-            <p style="font-size: ${sizeNum}px; padding-right: 30px; white-space: nowrap;">ج/ لا. تمت أقواله وتوقع منه/..............................................................مدير النيابة</p>
             ${buildProsecutionDecision(def, vType, plate, sizeNum)}
             ${buildPoliceDecision(def, vType, plate, sizeNum)}
         `;
@@ -3755,7 +3810,8 @@ let questionsHtml = "";
             detentionOrderCustomText: detentionOrderCustomText,
             forensicMemoCustomText: forensicMemoCustomText,
             fields: {},
-            selectedStyle: getCurrentStyle()
+            selectedStyle: getCurrentStyle(),
+            reportMode: reportMode
         };
         
         // حفظ قيم جميع الحقول
@@ -3829,6 +3885,11 @@ let questionsHtml = "";
                 styleSelect.value = data.selectedStyle;
                 applyStyle(data.selectedStyle);
             }
+        }
+        
+        // استعادة نوع التحقيق
+        if (data.reportMode && (data.reportMode === 'main' || data.reportMode === 'bail_reduction' || data.reportMode === 'objection')) {
+            switchMode(data.reportMode);
         }
         
         renderViolations();
@@ -4216,7 +4277,7 @@ let questionsHtml = "";
             {
                 key: 'p2',
                 label: 'الفقرة الثانية — ورود محضر الاستعراض',
-                text: 'اليوم وإبان مباشرة عملنا بسراى {اسم_النيابة} ورد إلينا المحضر الرقيم {رقم_المحضر} لسنة {سنة_المحضر} جنح مرور {قسم_الشرطة} ورأينا اتخاذ إجراءات التحقيق والتصرف فيه عقب العرض على السيد الأستاذ رئيس نيابة مرور القاهرة الجزئية، وبمطالعته تبين أنه مؤرخ {تاريخ_الواقعة} الساعة {ساعة_الواقعة} ومحرر بمعرفة {رتبة_الضابط} / {اسم_الضابط} – {جهة_المحرر}  – وثابت به رصد مقطع مصور متداول بتاريخ {تاريخ_الفيديو} عبر موقع التواصل الاجتماعي "فيس بوك" خلال الصفحة المسماة اخبار مرور مصر قيادة المتهم/ {اسم_المتهم} لـ {نوع_المركبة} الرقيمة ( {رقم_اللوحة} ) ويقوم بأداء حركات استعراضية بـ {مكان_الضبط} بدائرة قسم شرطة {قسم_الشرطة} وبإجراءه التحريات تم التوصل إلى بيانات المتهم و ( {نوع_المركبة} ) وتم استدعاؤه وبسؤاله {قول_المتهم_بالقسم} ارتكابه الواقعة {جملة_التحفظ}'
+                text: 'اليوم وإبان مباشرة عملنا بسراى {اسم_النيابة} ورد إلينا المحضر الرقيم {رقم_المحضر} لسنة {سنة_المحضر} جنح مرور {قسم_الشرطة} ورأينا اتخاذ إجراءات التحقيق والتصرف فيه عقب العرض على السيد الأستاذ رئيس نيابة مرور القاهرة الجزئية، وبمطالعته تبين أنه مؤرخ {تاريخ_الواقعة} الساعة {ساعة_الواقعة} ومحرر بمعرفة {رتبة_الضابط} / {اسم_الضابط} – {جهة_المحرر}  – وثابت به رصد مقطع مصور متداول بتاريخ {تاريخ_الفيديو} عبر موقع التواصل الاجتماعي "فيس بوك" خلال الصفحة المسماة اخبار مرور مصر قيادة المتهم/ {اسم_المتهم} لـ {نوع_المركبة} الرقيمة ( {رقم_اللوحة} ) ويقوم بأداء حركات استعراضية بـ {مكان_الضبط} بدائرة قسم شرطة {قسم_الشرطة} وبإجراء التحريات تم التوصل إلى بيانات المتهم و ( {نوع_المركبة} ) وتم استدعاؤه وبسؤاله {قول_المتهم_بالقسم} ارتكابه الواقعة {جملة_التحفظ}'
             },
             {
                 key: 'p3',
@@ -4258,7 +4319,7 @@ let questionsHtml = "";
         document.body.style.overflow = '';
     }
 
-    // رسم محتوى المحرر
+    // رسم محتوى المحرر - تعديل بسيط للمحرر المباشر
     function renderPreambleEditor(mode) {
         const paragraphs = getCurrentPreamble(mode);
         const container = document.getElementById('preamble-paragraphs-container');
@@ -4269,24 +4330,54 @@ let questionsHtml = "";
                 <div class="pm-para-label">
                     <span>${para.label}</span>
                     <span class="pm-tag">${idx + 1} / ${paragraphs.length}</span>
-                    <button class="pm-toggle-view" onclick="togglePmView(${idx})" id="pm_toggle_${idx}">✏️ تعديل النص</button>
                 </div>
-                <div class="pm-preview-label" id="pm_preview_label_${idx}">معاينة النص بالقيم الفعلية</div>
-                <div class="pm-preview-box" id="pm_preview_${idx}">${previewHtml}</div>
-                <textarea class="pm-textarea" id="pm_para_${idx}" rows="5" style="display:none;" oninput="updatePmPreview(${idx})">${para.text.replace(/</g,'&lt;').replace(/>/g,'&gt;')}</textarea>
+                <div class="pm-preview-label" id="pm_preview_label_${idx}">انقر على النص أدناه للتعديل المباشر</div>
+                <div class="pm-preview-box" id="pm_preview_${idx}" onclick="switchToEditMode(${idx})">${previewHtml}</div>
+                <textarea class="pm-textarea" id="pm_para_${idx}" style="display:none;" 
+                    onblur="switchToPreviewMode(${idx})" 
+                    oninput="updatePmPreview(${idx})">${para.text}</textarea>
             `;
         });
         container.innerHTML = html;
-        // auto-resize للـ textareas
-        container.querySelectorAll('textarea.pm-textarea').forEach(ta => {
-            ta.style.height = 'auto';
-            ta.style.height = (ta.scrollHeight + 6) + 'px';
-            ta.addEventListener('input', function() {
-                this.style.height = 'auto';
-                this.style.height = (this.scrollHeight + 6) + 'px';
-            });
-        });
     }
+
+    // وظيفة التحويل لوضع التعديل عند النقر - مع ضمان الارتفاع الكامل
+    window.switchToEditMode = function(idx) {
+        const preview = document.getElementById('pm_preview_' + idx);
+        const textarea = document.getElementById('pm_para_' + idx);
+        
+        preview.style.display = 'none';
+        textarea.style.display = 'block';
+        
+        // ضبط الارتفاع ليكون مساوياً لارتفاع النص الفعلي أو 350 بكسل كحد أدنى
+        const adjustHeight = () => {
+            textarea.style.height = 'auto';
+            const newHeight = Math.max(textarea.scrollHeight, 350);
+            textarea.style.height = (newHeight + 30) + 'px';
+        };
+
+        // التنفيذ الفوري والمتكرر لضمان الاستجابة في جميع المتصفحات
+        adjustHeight();
+        setTimeout(adjustHeight, 20);
+        setTimeout(adjustHeight, 150);
+        
+        if (!textarea.hasAttribute('data-auto-resize')) {
+            textarea.addEventListener('input', adjustHeight);
+            textarea.setAttribute('data-auto-resize', 'true');
+        }
+        
+        textarea.focus();
+    };
+
+    // وظيفة العودة لوضع المعاينة الملونة عند الخروج من المربع
+    window.switchToPreviewMode = function(idx) {
+        const preview = document.getElementById('pm_preview_' + idx);
+        const textarea = document.getElementById('pm_para_' + idx);
+        
+        preview.innerHTML = buildPreviewText(textarea.value);
+        preview.style.display = 'block';
+        textarea.style.display = 'none';
+    };
 
     // بناء نص المعاينة بالقيم الفعلية
     function buildPreviewText(text) {
@@ -4343,28 +4434,9 @@ let questionsHtml = "";
         return result || '<span style="color:#9ca3af;font-style:italic;">— لا يوجد نص —</span>';
     }
 
-    // تبديل المعاينة/التحرير لفقرة معينة
+    // تم استبدال togglePmView بالتحويل التلقائي المباشر أعلاه
     function togglePmView(idx) {
-        const preview = document.getElementById('pm_preview_' + idx);
-        const previewLabel = document.getElementById('pm_preview_label_' + idx);
-        const textarea = document.getElementById('pm_para_' + idx);
-        const btn = document.getElementById('pm_toggle_' + idx);
-        const isEditing = textarea.style.display !== 'none';
-        if (isEditing) {
-            preview.innerHTML = buildPreviewText(textarea.value);
-            preview.style.display = 'block';
-            previewLabel.style.display = 'flex';
-            textarea.style.display = 'none';
-            btn.textContent = '✏️ تعديل النص';
-        } else {
-            preview.style.display = 'none';
-            previewLabel.style.display = 'none';
-            textarea.style.display = 'block';
-            textarea.style.height = 'auto';
-            textarea.style.height = (textarea.scrollHeight + 6) + 'px';
-            btn.textContent = '👁 عرض المعاينة';
-            textarea.focus();
-        }
+        switchToEditMode(idx);
     }
 
     // تحديث المعاينة أثناء الكتابة
@@ -4383,8 +4455,14 @@ let questionsHtml = "";
             return { ...para, text: ta ? ta.value : para.text };
         });
         localStorage.setItem(getPreambleStorageKey(mode), JSON.stringify(updated));
-        closePreambleModal();
-        alert('✅ تم حفظ تعديلات الديباجة بنجاح!\nستُطبَّق عند الضغط على "طباعة المحضر".');
+        // لا نغلق النافذة ولا نعرض تنبيه — نفس نظام نافذة الحبس والطب الشرعي
+        const btn = document.querySelector('#preamble-modal-footer .pm-btn-save');
+        if (btn) {
+            const orig = btn.textContent;
+            btn.textContent = '✅ تم الحفظ';
+            btn.style.background = '#16a34a';
+            setTimeout(() => { btn.textContent = orig; btn.style.background = ''; }, 1800);
+        }
     }
 
     // استعادة الافتراضي
@@ -5172,6 +5250,63 @@ function saveDetentionOrder() {
     document.getElementById('forensic-modal-overlay').addEventListener('click', function(e) {
         if (e.target === this) closeForensicMemoModal();
     });
+
+    // ====== اختصار F9 — مسح البيانات بصمت بدون تنبيه ======
+    function clearAllDataSilent() {
+        const currentFont     = localStorage.getItem('font_choice');
+        const currentFontSize = localStorage.getItem('font_size_choice');
+        const currentStyle    = localStorage.getItem('selected_style');
+
+        localStorage.clear();
+
+        if (currentFont)     localStorage.setItem('font_choice',      currentFont);
+        if (currentFontSize) localStorage.setItem('font_size_choice', currentFontSize);
+        if (currentStyle)    localStorage.setItem('selected_style',   currentStyle);
+
+        document.querySelectorAll('input[type="text"]').forEach(input => {
+            if (input.id !== 'clerk_name') input.value = '';
+        });
+
+        document.querySelectorAll('select').forEach(select => {
+            if      (select.id === 'font_choice')       select.value = currentFont     || "'Arabic Typesetting', serif";
+            else if (select.id === 'font_size_choice')  select.value = currentFontSize || "26px";
+            else if (select.id === 'plate_mode')        select.value = "بدون لوحات";
+            else if (select.id === 'style_choice')      select.value = currentStyle    || "formal3";
+            else if (select.id === 'prosecution_name')  select.value = "نيابة مرور عين الصيرة";
+            else    select.selectedIndex = 0;
+        });
+
+        violations      = [];
+        questions       = [];
+        manualDecisions = [];
+
+        initFixedQuestions();
+        renderViolations();
+        renderQuestions();
+        renderManualDecisions();
+
+        document.getElementById('pros_other').style.display             = 'none';
+        document.getElementById('v_other').style.display                = 'none';
+        document.getElementById('plate_manual_container').style.display = 'none';
+        document.getElementById('police_station_other').style.display   = 'none';
+        document.getElementById('prosecution_name_other').style.display = 'none';
+
+        const todayNow = new Date();
+        document.getElementById('date').value = toArabicNumerals(
+            todayNow.getFullYear() + '/' + (todayNow.getMonth()+1) + '/' + todayNow.getDate()
+        );
+
+        applyStyle(currentStyle || 'formal3');
+        saveData();
+    }
+
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'F9') {
+            e.preventDefault();
+            clearAllDataSilent();
+        }
+    });
+    // =========================================================
 
 </script>
 </body>
