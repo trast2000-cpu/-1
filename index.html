@@ -48,7 +48,7 @@ body::after {
 #launcher.hiding { opacity:0; transform:scale(0.92) translateY(-30px); pointer-events:none; }
 #launcher.hidden  { display:none; }
 
-.lnc-header { text-align:center; margin-bottom:36px; animation:fadeUp .5s ease both; }
+.lnc-header { text-align:center; margin-bottom:20px; animation:fadeUp .5s ease both; }
 .emblem-ring {
   width:64px; height:64px; border:2px solid var(--gold); border-radius:50%;
   display:flex; align-items:center; justify-content:center;
@@ -64,16 +64,16 @@ body::after {
 .lnc-header p { font-size:13px; color:var(--muted); }
 
 .cards-grid {
-  display:grid; grid-template-columns:repeat(5,1fr);
-  gap:17px; width:100%; max-width:1176px; perspective:1000px;
-  zoom:1.1;
+  display:grid; grid-template-columns:repeat(3,1fr);
+  gap:15px; width:100%; max-width:1050px; perspective:1000px;
+  zoom:1;
 }
 
 .app-card {
   background:var(--card-bg); border:1px solid var(--card-border);
-  border-radius:var(--radius); padding:26px 17px 22px;
+  border-radius:var(--radius); padding:18px 14px 16px;
   cursor:pointer; display:flex; flex-direction:column;
-  align-items:center; gap:14px; text-align:center;
+  align-items:center; gap:10px; text-align:center;
   color:inherit; position:relative; overflow:hidden;
   transition:border-color .3s, transform .35s cubic-bezier(.34,1.56,.64,1), box-shadow .3s;
 }
@@ -99,15 +99,15 @@ body::after {
 .app-card.coming-soon::before, .app-card.coming-soon::after { display:none; }
 
 .card-icon-wrap {
-  width:67px; height:67px; border-radius:17px;
+  width:55px; height:55px; border-radius:14px;
   display:flex; align-items:center; justify-content:center;
-  font-size:31px; flex-shrink:0; position:relative;
+  font-size:26px; flex-shrink:0; position:relative;
   transition:transform .35s cubic-bezier(.34,1.56,.64,1);
 }
 .card-icon-wrap::after { content:''; position:absolute; inset:0; border-radius:17px; border:1px solid rgba(255,255,255,.08); }
 .card-body { flex:1; display:flex; flex-direction:column; gap:7px; align-items:center; width:100%; }
-.card-name { font-size:15px; font-weight:600; color:var(--white); line-height:1.4; transition:color .25s; }
-.card-desc { font-size:13px; color:var(--muted); line-height:1.5; flex:1; }
+.card-name { font-size:18px; font-weight:700; color:var(--white); line-height:1.3; transition:color .25s; }
+.card-desc { font-size:14px; color:var(--muted); line-height:1.4; flex:1; }
 .card-badge { display:inline-flex; align-items:center; gap:4px; font-size:11px; font-weight:500; padding:4px 11px; border-radius:20px; margin-top:auto; }
 .badge-active { background:rgba(34,197,94,.12); color:#4ade80; border:1px solid rgba(34,197,94,.2); animation:pulse-active 2.5s ease-in-out infinite; }
 
@@ -122,6 +122,7 @@ body::after {
 .c3 { --card-accent:#34d399; } .c3 .card-icon-wrap { background:rgba(52,211,153,.12); }
 .c4 { --card-accent:#f87171; } .c4 .card-icon-wrap { background:rgba(248,113,113,.12); }
 .c5 { --card-accent:#a78bfa; } .c5 .card-icon-wrap { background:rgba(167,139,250,.12); }
+.c6 { --card-accent:#00d2ff; } .c6 .card-icon-wrap { background:rgba(0,210,255,.12); }
 
 .lnc-footer { text-align:center; margin-top:28px; font-size:11px; color:rgba(138,154,181,.5); }
 
@@ -314,7 +315,16 @@ body::after {
       </div>
     </div>
 
-    <div class="app-card c2" onclick="openSystem(1)">
+    <div class="app-card c5" onclick="openSystem(1)">
+      <div class="card-icon-wrap">📋</div>
+      <div class="card-body">
+        <div class="card-name">قرارات المحاضر / التلبسات</div>
+        <div class="card-desc">إصدار قرارات المحاضر والتلبسات</div>
+        <span class="card-badge badge-active">● نشط</span>
+      </div>
+    </div>
+
+    <div class="app-card c2" onclick="openSystem(2)">
       <div class="card-icon-wrap">💳</div>
       <div class="card-body">
         <div class="card-name">قرارات ما بعد السداد</div>
@@ -323,7 +333,7 @@ body::after {
       </div>
     </div>
 
-    <div class="app-card c3" onclick="openSystem(2)">
+    <div class="app-card c3" onclick="openSystem(3)">
       <div class="card-icon-wrap">🔬</div>
       <div class="card-body">
         <div class="card-name">نظام محاضر الفحص</div>
@@ -332,7 +342,7 @@ body::after {
       </div>
     </div>
 
-    <div class="app-card c4" onclick="openSystem(3)">
+    <div class="app-card c4" onclick="openSystem(4)">
       <div class="card-icon-wrap">⚖️</div>
       <div class="card-body">
         <div class="card-name">عرائض الهيئة القضائية</div>
@@ -341,14 +351,16 @@ body::after {
       </div>
     </div>
 
-    <div class="app-card c5" onclick="openSystem(4)">
-      <div class="card-icon-wrap">📋</div>
+    <div class="app-card c6" onclick="openSystem(5)">
+      <div class="card-icon-wrap">🖨️</div>
       <div class="card-body">
-        <div class="card-name">قرارات المحاضر / التلبسات</div>
-        <div class="card-desc">القيد و الوصف و بأسم الشعب في محاضر التلبسات و اعلان الجلسات  </div>
+        <div class="card-name">مطبوعات</div>
+        <div class="card-desc">إدارة المطبوعات والنماذج الورقية</div>
         <span class="card-badge badge-active">● نشط</span>
       </div>
     </div>
+
+
   </div>
 
   <div class="lnc-footer">
@@ -371,24 +383,29 @@ body::after {
     <span class="tb-label">نظام محاضر التحقيق</span>
   </div>
 
-  <div class="tb-item" id="tb1" style="--tb-accent:#c9a84c" onclick="switchSystem(1)">
+  <div class="tb-item" id="tb1" style="--tb-accent:#a78bfa" onclick="switchSystem(1)">
     <span class="tb-icon">📋</span>
+    <span class="tb-label">قرارات المحاضر / التلبسات</span>
+  </div>
+
+  <div class="tb-item" id="tb2" style="--tb-accent:#c9a84c" onclick="switchSystem(2)">
+    <span class="tb-icon">💳</span>
     <span class="tb-label">قرارات بعد السداد</span>
   </div>
 
-  <div class="tb-item" id="tb2" style="--tb-accent:#34d399" onclick="switchSystem(2)">
+  <div class="tb-item" id="tb3" style="--tb-accent:#34d399" onclick="switchSystem(3)">
     <span class="tb-icon">🔬</span>
     <span class="tb-label">كشف المحاضر المرسلة للفحص</span>
   </div>
 
-  <div class="tb-item" id="tb3" style="--tb-accent:#f87171" onclick="switchSystem(3)">
+  <div class="tb-item" id="tb4" style="--tb-accent:#f87171" onclick="switchSystem(4)">
     <span class="tb-icon">⚖️</span>
     <span class="tb-label">عرائض الهيئات القضائية</span>
   </div>
 
-  <div class="tb-item" id="tb4" style="--tb-accent:#a78bfa" onclick="switchSystem(4)">
-    <span class="tb-icon">📋</span>
-    <span class="tb-label"> قرارات المحاضر / التلبسات </span>
+  <div class="tb-item" id="tb5" style="--tb-accent:#00d2ff" onclick="switchSystem(5)">
+    <span class="tb-icon">🖨️</span>
+    <span class="tb-label">مطبوعات</span>
   </div>
 </div>
 
@@ -404,16 +421,18 @@ body::after {
   <iframe id="frame-2" class="sys-frame"></iframe>
   <iframe id="frame-3" class="sys-frame"></iframe>
   <iframe id="frame-4" class="sys-frame"></iframe>
+  <iframe id="frame-5" class="sys-frame"></iframe>
 </div>
 
 
 <script>
 const SYSTEMS = [
   { file: 'نظام محاضر التحقيق.html'         },
+  { file: 'نظام قرارات محاضر - تلبسات.html' },
   { file: 'نظام قرارات ما_بعد السداد.html' },
   { file: 'نظام محاضر الفحص.html'           },
   { file: 'عريضه هيئه قضائيه.html'           },
-  { file: 'نظام قرارات محاضر - تلبسات.html' }
+  { file: 'مطبوعات النيابه.html' }
 ];
 let activeIdx = -1;
 const loadedFrames = {};
