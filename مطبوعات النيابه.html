@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>بوابة نيابة مرور عين الصيرة - نظام المطبوعات</title>
+    <style>
+        /* الخطوط */
+        @font-face {
+            font-family: 'Cairo';
+            src: url('data:font/truetype;base64,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AHQAcgBhAEwAaQBnAGgAdAAgAFMAbABhAG4AdAAgAEwAZQBmAHQARQB4AHQAcgBhAEIAbABhAGMAawAgAFMAbABhAG4AdAAgAFIAaQBnAGgAdABCAGwAYQBjAGsAIABTAGwAYQBuAHQAIABSAGkAZwBoAHQARQB4AHQAcgBhAEIAbwBsAGQAIABTAGwAYQBuAHQAIABSAGkAZwBoAHQAQgBvAGwAZAAgAFMAbABhAG4AdAAgAFIAaQBnAGgAdABTAGUAbQBpAEIAbwBsAGQAIABTAGwAYQBuAHQAIABSAGkAZwBoAHQATQBlAGQAaQB1AG0AIABTAGwAYQBuAHQAIABSAGkAZwBoAHQAUwBsAGEAbgB0ACAAUgBpAGcAaAB0AEwAaQBnAGgAdAAgAFMAbABhAG4AdAAgAFIAaQBnAGgAdABFAHgAdAByAGEATABpAGcAaAB0ACAAUwBsAGEAbgB0ACAAUgBpAGcAaAB0AEUAeAB0AHIAYQBCAGwAYQBjAGsAQgBsAGEAYwBrAEUAeAB0AHIAYQBCAG8AbABkAEIAbwBsAGQAUwBlAG0AaQBCAG8AbABkAE0AZQBkAGkAdQBtAEwAaQBnAGgAdABTAGwAYQBuAHQAVwBlAGkAZwBoAHQARQB4AHQAcgBhAEwAaQBnAGgAdABDAGEAaQByAG8AaAB0AHQAcAA6AC8ALwBzAGMAcgBpAHAAdABzAC4AcwBpAGwALgBvAHIAZwAvAE8ARgBMAFQAaABpAHMAIABGAG8AbgB0ACAAUwBvAGYAdAB3AGEAcgBlACAAaQBzACAAbABpAGMAZQBuAHMAZQBkACAAdQBuAGQAZQByACAAdABoAGUAIABTAEkATAAgAE8AcABlAG4AIABGAG8AbgB0ACAATABpAGMAZQBuAHMAZQAsACAAVgBlAHIAcwBpAG8AbgAgADEALgAxAC4AIABUAGgAaQBzACAAbABpAGMAZQBuAHMAZQAgAGkAcwAgAGEAdgBhAGkAbABhAGIAbABlACAAdwBpAHQAaAAgAGEAIABGAEEAUQAgAGEAdAA6ACAAaAB0AHQAcAA6AC8ALwBzAGMAcgBpAHAAdABzAC4AcwBpAGwALgBvAHIAZwAvAE8ARgBMAGgAdAB0AHAAcwA6AC8ALwBnAGEAYgBlAHIALgBkAGUAcwBpAGcAbgBNAG8AaABh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AqoC2gKgAq4CnwKsAqECogLhAt4C4AKmAscAAQAOAA8AFQAZACMAJAApACwANgA4ADoAPwBAAEYAUgBUAFUAWQBfAGQAbwBwAHUAdgB7ArcCrQK4AugCsgMVAIEAjgCPAJUAmQCjAKQAqQCsALYAuQC7AMAAwQDHANMA1QDWANoA4QDmAPUA9gD7APwBAQK1As8CtgLmAowCpQLUAtcC1QLYAtACygMTAssBBQK/AucCrwLMAx0CzgLkAoMChAMWAvACyQKoAx4CggEGAsACdQJ0AnYCpwAGAAIABAALAAUACQAMABIAIAAaAB0AHgAyAC0ALwAwABYARABLAEcASQBQAEoC3ABOAGkAZQBnAGgAdwBTAOAAhgCCAIQAiwCFAIkAjACSAKAAmgCdAJ4AsgCuALAAsQCWAMUAzADIAMoA0QDLAt0AzwDrAOcA6QDqAP0A1AD/AAcAhwADAIMACACIABAAkAATAJMAFACUABEAkQAXAJcAGACYACEAoQAbAJsAHwCfACIAogAcAJwAJgCmACUApQAoAKgAJwCnACsAqwAqAKoANQC1ADMAswAuAK8ANAC0ADEArQA3ALgAOQC6ADsAvAA9AL4APAC9AD4AvwBBAMIAQwDEAEIAwwBFAMYATQDOAEgAyQBMAM0AUQDSAFYA1wBYANkAVwDYAFoA2wBdAN4AXADdAFsA3ABiAOQAYQDjAGAA4gBuAPQAawDtAGYA6ABtAPMAagDsAGwA8gByAPgAeAD+AHkAfAECAH4BBAB9AQMACgCKAA0AjQBPANAAXgDfAGMA5QMsAysDGgMUAxsDHwMcAxcCmAKcAQgBDwELAbMBDQG7AQkBGQGtASMBJwEvATcBOwE/AUEBRQFHAU0BUQFVAVkBXQFhAWUBaQHHAW0BewGBAY0BkQGVAZ0BsQG1AbcDAgMDAwQDBQMGAwcDCAMQAxEC+QL6AvgCxgI9Aj4CmwETAXkC9wERAaEBpQGvAcMBxQKXAHQA+gBxAPcAcwD5AHoBAACAAPECvQK+ArkCuwK8AroC0QLSAqkC7gLbAuMC4gEeASABHwEsAS4BLQFyAXQBcwE0ATYBNQGGAYgBhwGKAYwBiwGiAaQBowGqAawBqwHGAo0CjgKRApIClQKWApMClAEiASEBwAHCAcEB1wIgAjcCOAI5AdEB0gHTAdQB1QHgAeEB4gHjAeQB5gHnAdgCIQHuAfACAAICAg4CEAIaAhwB+gHsAgYCFAHvAfECAQIDAg8CEQIbAh0B+wHtAgcCFQG8Ab4BvQEaARwBGwEkASYBJQEoASoBKQEwATIBMQE4AToBOQE8AT4BPQFOAVABTwFSAVQBUwFWAVgBVwFaAVwBWwFeAWABXwFiAWQBYwFmAWgBZwFqAWwBawFuAXABbwF8AX4BfQGCAYQBgwGOAZABjwGSAZQBkwGWAZgBlwGeAaABnwG4AboBuQHOAc8BygHLAcwBzQHIAckA6wAVAlAAHAJQABwCUAAcAlAAHAJQABwCUAAcAlAAHAJQABwCUAAcAlAAHAJQABwDbwAZA28AGQJsAFwCIQBDAiEAQwIhAEMCIQBDAiEAQwIhAEMCiQBcAosAEQKJAFwCiwARAigAXAIoAFwCKABcAigAXAIoAFwCKABcAigAXAIoAFwCKABcAigAXAILAFwCawBBAmsAQQJrAEECawBBAmsAQQKiAFwCrgAMAqIAXADcAFwA3AARANz/5gDc/9MA3P/6ANwAXADc/+4A3P/gANwACwDc/84BGAASARgAEgIpAFwCKQBcAeMAXAHjAFwB7ABcAeMAXAHlAAkDPABcApkAXAKZAFwCmQBcApkAXAKZAFwCnwBcApoAQQKaAEECmgBBApoAQQKaAEECmgBBApoAQQKaAEECmgBBApwAQQKaAEEDrABBAlMAXAJZAFwCmgBBAmUAXAJlAFwCZQBcAmUAXAIcADgCHAA4AhwAOAIcADgCHAA4AhwAOAIOAA0CEgAPAg4ADQIOAA0CDgANAn4AWAJ+AFgCfgBYAn4AWAJ+AFgCfgBYAn4AWAJ+AFgCfgBYAn4AWAJ+AFgCOAAeA1gAJgNYACYDWAAmA1gAJgNYACYCJwAZAg4AEQIOABECDgARAg4AEQIOABECGwAsAhsALAIbACwCGwAsAk4AHAIMABEB7wAwAe8AMAHvADAB7wAwAe8AMAHvADAB7wAwAe8AMAHvADAB7wAwAe8AMAMyADADMgAwAgIATgGtADwBrQA8Aa0APAGtADwBrQA8Aa0APAIDADoCFwAtAgMAOgIDADoB9gA6AfYAOgH2ADoB9gA6AfYAOgH2ADoB9gA6AfYAOgH2ADoB9gA6ATkAHQH1ADoB9QA6AfUAOgH1ADoB9QA6Ag4ATwIOAAgCDgBPAMEATwDBAE8AwQArAMH/1wDB/9kAwf/3AMH/xADB/9sAwf/9AMH/ywDA/8UAwP/FAMD/xQHHAE8BxwBPAM0AVQDNADsAxwBVAM0AKgEHAA4DQgBPAg8ATwIPAE8CDwBPAg8ATwIPAE8CEABPAg4APAIOADwCDgA8Ag4APAIOADwCDgA8Ag4APAIOADwCDgA8Ag4APAIOADwDaQA8AgQATwIDAE8CAgA6AUgATwFIAE8BSAAoAUgAKgHNADMBzQAzAc0AMwHNADMBzQAzAc0AMwIlAE8BVgAdAVsAHQGLAB0BVgAdAVYAHQIEAEoCBABKAgQASgIEAEoCBABKAgQASgIEAEoCBABKAe8AMAH2ADoCDgA8AdcAHwIEAEoCBABKAgQASgHWAB8C9AAkAvQAJAL0ACQC9AAkAvQAJAG1ABwB1wAfAdcAHwHXAB8B1wAfAdcAHwHHACoBxwAqAccAKgHHACoBbgA+AWEAPgIwABkB8gAoAOsAZADrAGQA6wAsAOsALADrACwA6wAsAOsAFgDrABYA6wAdAOsAHQL5ACgDAwAoAOv/7ADr/+wA4f/sAOH/7AL5ACgDAwAoAOv/7ADh/+wC+QAoAwMAKADr/+wA4f/sAOv/7ADh/+wC+QAoAwMAKADr/+wA4f/sAvkAKAMDACgA6//sAOH/7AL5ACgDAwAoAOv/7ADh/+wCOQAoAmEAKAJH/+wCH//sAjkAKAJhACgCR//sAh//7AI5ACgCYQAoAkf/7AIf/+wCOQAoAmEAKAJH/+wCH//sAecAKAIPACgB5wAoAg8AKAHnACgCDwAoAQP/xAEX/8QBA//EARf/xAED/8QBF//EAQP/xAEX/8QEiQAoBJ0AKAMN/+wC+f/sBIkAKASdACgDDf/sAvn/7ASSACgEpgAoAwL/7ALu/+wEkgAoBKYAKAMC/+wC7v/sAuEAFAL1ABQC0P/sAs3/7ALhABQC9QAUAtD/7ALN/+wCHQAoAlwAKAJl/+wCVP/sAh0AKAJcACgCZf/sAlT/7AP7ADYEBQA2AmP/7AJP/+wD+wA2BAUANgJj/+wCT//sA/sANgQFADYCY//sAk//7ANjACgDdwAoA2MAKAN3ACgCY//sAk//7ALvACgDAwAoAu8AKAMDACgCcv/sAl7/7ALvACgDAwAoAnL/7AJe/+wC7wAoAwMAKAKG/+wCcv/sAnsAKAKPACgA6//sANf/7AJMACgCYAAoAnz/7AJo/+wCewAoAo8AKADr/+wA4f/sAnsAKADr/+wA4f/sAo8AKAIsACgCHwAoAmX/7AMM/+wCLAAoAh8AKAIf/+wA4f/sAiwAKAIfACgCH//sAOH/7AL4ACgDDAAoAwz/7AMM/+wCLAAoAh8AKAIsACgCHwAoAgsAKAIfACgCCwAoAh8AKANtACgDXwAoA20AKANfACgA6//sAOH/7ANtABYDXwAWAOv/7ADh/+wDbQAoA18AKADr/+wA4f/sAsMAKAKoACgCwwAjAqgAIwD6/+wCWwAoAmUAKAJbACgCZQAoAlsAKAJlACgCWwAoAmUAKAJbACgCAv/EAgL/xAN6ACgD+QAoA/kAKAP5ABYDzQAoA+EAKAJlACgCAv/EAgL/xAN6ACgD+QAoA/kAKAP5ABYCAv/EAgL/xAN6ACgD+QAoA/kAKAP5ABYCAv/EAgL/xAN6ACgD+QAoA/kAKAP5ABYD/P/EBBD/xAXzACgGBwAoBfMAKAYHACgD/P/EBBD/xAV0ACgFiAAoBXQAKAWIACgF8wAWBgcAFgP8/8QEEP/EA/z/xAQQ/8QFdAAoBYgAKAXzACgGBwAoBfMAKAYHACgF8wAWBgcAFgQF/8QEGf/EBAX/xAQZ/8QFfQAoBZEAKAV9ACgFkQAoBfwAKAYQACgF/AAoBhAAKAX8ABYGEAAWBAX/xAQZ/8QEBf/EBBn/xAV9ACgFkQAoBfwAKAYQACgF/AAoBhAAKAX8ABYGEAAWA80AKAPhACgDzQAWA+EAFgIC/8QCAv/EA3oAKAP5ACgD+QAoA/kAFgIC/8QCAv/EAgL/xAN6ACgDegAoA/kAKAP5ACgCAv/EAgL/xAN6ACgD+QAoAgL/xAIC/8QDegAoA/kAKAP5ACgD+QAWBIYAKASGACgAxQAsALEALADYAFABEwB4AfUAeAKTAHgBxAAyApoASwHHAB4CRQAoAkUAKAH6ABQA2ABQARMAeAH1AHgCkwB4AmoAeAIcAEYBzgBGAkUAKAJFACgB+gAUAgsAZAGaAB4CMAAxAjAAgQIwAEgCMABCAjAAKAIwAEgCMAA8AjAAUwIwACICMAAyARgAHAEYAC4BGAAkARgAJQEYAB8BGAAvARgAJQEYACABGAAdARgAIQEYABwBGAAuARgAJAEYACUBGAAfARgALwEYACUBGAAgARgAHQEYACEAAP8gAjAALgIwAC4CMAAlARgAHAEYAC4BGAAkARgAJQEYAB8BGAAvARgAJQEYACABGAAdARgAIQEYABwBGAAuARgAJAEYACUBGAAfARgALwEYACUBGAAgARgAHQEYACEA3AAAANwAAAAAABQAAAAUAAAAFAAAABQAAAAEAAAABQAAABQAAAAUAAAAFAAAACQBIgBLAMEAPQDkAFMBxQAuAaEAQADFACwAxQAbAMUAGwC+AEsAxQAsAL8ASwDkAD4CugBLAOEAXQDMAFEBxQApAb8AKwC/AEwB6AB3AaEAQAIwAB4BeAAhAYsAHQHKAEwBywBMAoMASAR3AEgCgABqAOoAOwDqACwBWgAdAVoAKgE3AFYBNwArAMAAKwE9ACkBRgA+AU8APwDBAD4AvwA/AfEAMAHxAEsBIgAwASIASwFcAEoAuwBKAjAAIwIwAHED0wA8AqgALwJNACgB5wA+AocARAKHAEQCsQBjAjAAkADNAFUA0QBXAd0AJgIPAD8CMAAgAjAAbQIwAE0CMABQAjAAUwIwACMBeAAhAjAAOwIwAEUCMABRAjAAOgIwAEQCMABEAjAATgIwADkCMABGAjAAQQIwADsCMABEAjAARwIwAEcCMABSAjAAIAIwAFgCMAApAjAAOwIwAB4CMAA1AjAABgH7AEoCMAA6AjAAJgM8ACwCMAA8AAAAFAAAABQAAAAUAAAAFAAAABQAAAAUAAAAEgAAAA8AAAAUAAAAFAAAAB0AAAAUAAAAFAAAABQAAAAWAAAAFAAAABQAAAAUAAAAFAAA//sAAP/7AAD/+wAA//sAAP/7AAD/+wAA//wAAP/7AAAAHQAAAB4AAAAUAPUACgDXAFoA1wAKAQwAKAFuAAAA1//xANf/8QDX//EA1wAQANf/3QDX/+wBBwAyAbIAqADX//gA1wBaANcACgDXABQA1//MAb4ASgDX/+UA1//xANcAFwDX/+oA1//sAMUALADFACwAAAAAAMD/xQAAACoAMv/sAAEAAAAKAMIBmgADREZMVACSYXJhYgBCbGF0bgAUAIIAAU1PTCAACgAA//8ADwAAAAEAAwAEAAUABgAHAAgACgALAAwADQAOAA8AEAAuAAFVUkQgAAoAAP//AA8AAAABAAMABAAFAAYABwAJAAoACwAMAA0ADgAPABAAAP//AA4AAAACAAMABAAFAAYABwAKAAsADAANAA4ADwAQAAQAAAAA//8ADgAAAAEAAwAEAAUABgAHAAoACwAMAA0ADgAPABAAEWFhbHQA0GNjbXAAymNjbXAAwmRsaWcAvGRub20AtmZpbmEAsGZyYWMApmluaXQAoGxvY2wAmmxvY2wAlG1lZGkAjm51bXIAiG9yZG4AgnJsaWcAenNpbmYAdHN1YnMAbnN1cHMAaAAAAAEABwAAAAEABQAAAAEABgAAAAIAFQAWAAAAAQAPAAAAAQAIAAAAAQASAAAAAQAEAAAAAQADAAAAAQARAAAAAwAKAAsADAAAAAEAEwAAAAEACQAAAAEAFAAAAAIAAgACAAAAAQACAAAAAgAAAAEAFwwkCcoIlgh0CFYIPgg+CDAIIggUCAAIIge4B6oHqgdsB0oGpAZMBNIBEgDuADAABAAIAAEACAABAIwAEwRiBDAD/gOqA3gDPgMEAtICoAJmAiwB+gHIAFwALAFiA9wBQAEOAAgAKgAkAB4AGAF8ABIBdgFwAdAAAgESAc4AAgEQAcwAAgEOAcoAAgEMAcgAAgEKAAgAKgAkAB4AGAFmABIBYAFaAdkAAgESAc8AAgEQAc0AAgEOAcsAAgEMAckAAgEKAAEAEwEJARsBHwElASkBTwFQAVMBVAFXAVgBWwFcAY8BkAGXAbUBuQG9AAQAAAABAAgAAQAWAAEACAABAAQCPAAEAZABjwGeAAEAAQEJAAQACQABAAgAAQOOABMDgANOAxwC+gLIApYCXAIiAfABvgGEAUoBGADmAMwAsgCAAF4ALAAGACwAJgAgABoAFAAOAjYAAgFIAjoAAgG8AjkAAgG4AjUAAgFGAjcAAgGWAjgAAgG2AAQAHAAWABAACgIyAAIBSAI0AAIBuAIxAAIBRgIzAAIBlgAGACwAJgAgABoAFAAOAiUAAgFIAikAAgG8AigAAgG4AiQAAgFGAiYAAgGWAicAAgG2AAMAFAAOAAgCIgACAbwCIAACAbgB1wACAbYAAwAUAA4ACAIjAAIBvAIhAAIBuAHYAAIBtgAGACwAJgAgABoAFAAOAhYAAgFIAh4AAgG8AhwAAgG4AhQAAgFGAhgAAgGWAhoAAgG2AAYALAAmACAAGgAUAA4CFwACAUgCHwACAbwCHQACAbgCFQACAUYCGQACAZYCGwACAbYABwA0AC4AKAAiABwAFgAQAggAAgFIAhIAAgG8AhAAAgG4AgYAAgFGAgwAAgGcAgoAAgGWAg4AAgG2AAcANAAuACgAIgAcABYAEAIJAAIBSAITAAIBvAIRAAIBuAIHAAIBRgINAAIBnAILAAIBlgIPAAIBtgAGACwAJgAgABoAFAAOAfwAAgFIAgQAAgG8AgIAAgG4AfoAAgFGAf4AAgGWAgAAAgG2AAYALAAmACAAGgAUAA4B/QACAUgCBQACAbwCAwACAbgB+wACAUYB/wACAZYCAQACAbYABwA0AC4AKAAiABwAFgAQAfIAAgFIAfgAAgG8AfAAAgG4AewAAgFGAfYAAgGcAfQAAgGWAe4AAgG2AAcANAAuACgAIgAcABYAEAHzAAIBSAH5AAIBvAHxAAIBuAHtAAIBRgH3AAIBnAH1AAIBlgHvAAIBtgAGACwAJgAgABoAFAAOAecAAgFIAesAAgG8AeoAAgG4AeYAAgFGAegAA');
+        }
+
+        /* التصميم الأساسي */
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Cairo', sans-serif;
+            background-color: #f0f4f8;
+            color: #1e3a5f;
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* ===== القائمة الجانبية ===== */
+        .sidebar {
+            width: 270px;
+            background: linear-gradient(180deg, #1a3352 0%, #0f2138 100%);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 3px 0 15px rgba(0,0,0,0.2);
+            z-index: 100;
+            flex-shrink: 0;
+        }
+
+        .sidebar-header {
+            padding: 18px 20px;
+            text-align: center;
+            background: rgba(255,255,255,0.05);
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+        }
+
+        .sidebar-header h2 {
+            margin: 0;
+            font-size: 16px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            color: #c8d8f0;
+        }
+
+        /* شريط الحالة أسفل الهيدر */
+        .status-bar {
+            padding: 8px 16px;
+            background: rgba(74,144,226,0.15);
+            border-bottom: 1px solid rgba(74,144,226,0.2);
+            font-size: 12px;
+            color: #8ab4d8;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            min-height: 32px;
+        }
+        .status-bar .status-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: #64748b;
+            flex-shrink: 0;
+            transition: background 0.3s;
+        }
+        .status-bar.active-status .status-dot {
+            background: #4ade80;
+            box-shadow: 0 0 6px rgba(74,222,128,0.6);
+        }
+        .status-bar .status-text {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .sidebar-menu {
+            flex: 1;
+            overflow-y: auto;
+            padding: 8px 0;
+        }
+        .sidebar-menu::-webkit-scrollbar { width: 4px; }
+        .sidebar-menu::-webkit-scrollbar-track { background: transparent; }
+        .sidebar-menu::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 2px; }
+
+        .menu-item {
+            padding: 13px 18px;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            border-bottom: 1px solid rgba(255,255,255,0.04);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            position: relative;
+            overflow: hidden;
+        }
+        .menu-item::before {
+            content: '';
+            position: absolute;
+            right: 0;
+            top: 0;
+            height: 100%;
+            width: 0;
+            background: rgba(74,144,226,0.12);
+            transition: width 0.25s ease;
+        }
+        .menu-item:hover::before { width: 100%; }
+        .menu-item:hover {
+            padding-right: 24px;
+        }
+        .menu-item:hover .menu-item-icon {
+            transform: scale(1.2);
+        }
+
+        .menu-item.active {
+            background: linear-gradient(90deg, #4a90e2 0%, #357abd 100%);
+            font-weight: bold;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.15);
+        }
+        .menu-item.active::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 3px;
+            background: #7ec8ff;
+            border-radius: 0 2px 2px 0;
+        }
+
+        .menu-item-icon {
+            font-size: 17px;
+            transition: transform 0.2s;
+            flex-shrink: 0;
+        }
+
+        .menu-item-text {
+            font-size: 14px;
+        }
+
+        /* ===== المحتوى الرئيسي ===== */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            background: #f0f4f8;
+        }
+
+        .main-header {
+            background: white;
+            padding: 12px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+            border-bottom: 3px solid #1e3a5f;
+            flex-shrink: 0;
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-placeholder {
+            width: 44px;
+            height: 44px;
+            background: linear-gradient(135deg, #1e3a5f, #4a90e2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            box-shadow: 0 2px 8px rgba(30,58,95,0.3);
+        }
+
+        .header-titles h1 {
+            margin: 0;
+            font-size: 18px;
+            color: #1e3a5f;
+            font-weight: 700;
+        }
+
+        .header-titles p {
+            margin: 0;
+            font-size: 12px;
+            color: #94a3b8;
+        }
+
+        /* ===== منطقة العرض — لا scroll ===== */
+        .viewer-area {
+            flex: 1;
+            padding: 16px 20px 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;          /* ← لا scroll */
+            background: #edf2f7;
+            position: relative;
+        }
+
+        /* رسالة الترحيب */
+        .welcome-message {
+            text-align: center;
+            padding: 36px 40px;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.07);
+            max-width: 460px;
+            border: 1px solid #e2e8f0;
+        }
+        .welcome-message h3 {
+            font-size: 22px;
+            margin-bottom: 12px;
+            color: #1e3a5f;
+        }
+        .welcome-message p {
+            color: #64748b;
+            font-size: 15px;
+            line-height: 1.7;
+        }
+
+        /* ===== حاوية المعاينة — تملأ المساحة كاملاً ===== */
+        .preview-container {
+            width: 100%;
+            height: 100%;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+            overflow: hidden;         /* ← لا scroll */
+        }
+
+        /* غلاف الورقة: يأخذ كل المساحة المتبقية */
+        .pdf-page-wrapper {
+            position: relative;
+            flex: 1;                   /* ← يمتد ليملأ ما تبقى */
+            min-height: 0;             /* مهم جداً في flex */
+            transition: all 0.3s ease;
+            box-shadow: 0 6px 24px rgba(0,0,0,0.18);
+            border-radius: 5px;
+            overflow: hidden;
+            background: white;
+        }
+
+        /* portrait: عرض يتناسب مع الارتفاع بنسبة A4 */
+        .pdf-page-wrapper.portrait {
+            aspect-ratio: 210 / 297;
+            max-width: 100%;
+        }
+
+        /* landscape: عرض كامل */
+        .pdf-page-wrapper.landscape {
+            width: 100%;
+            aspect-ratio: 297 / 210;
+        }
+
+        .pdf-frame {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+            background: white;
+        }
+
+        /* شارة الاتجاه */
+        .page-orientation-badge {
+            position: absolute;
+            top: 8px;
+            left: 8px;
+            background: rgba(15,33,56,0.7);
+            backdrop-filter: blur(4px);
+            color: white;
+            font-size: 11px;
+            padding: 3px 9px;
+            border-radius: 20px;
+            pointer-events: none;
+            z-index: 5;
+            font-family: 'Cairo', sans-serif;
+            border: 1px solid rgba(255,255,255,0.15);
+        }
+
+        /* ===== الأزرار ===== */
+        .action-buttons {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-shrink: 0;
+            padding: 2px 0;
+        }
+
+        .btn {
+            padding: 10px 24px;
+            border-radius: 10px;
+            font-family: 'Cairo', sans-serif;
+            font-weight: 700;
+            font-size: 15px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.22s ease;
+            border: none;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.15);
+            position: relative;
+            overflow: hidden;
+        }
+        .btn::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: rgba(255,255,255,0);
+            transition: background 0.2s;
+        }
+        .btn:hover::after { background: rgba(255,255,255,0.1); }
+        .btn:active { transform: scale(0.97); }
+
+        .btn-word {
+            background: linear-gradient(135deg, #2b579a, #1e3e6d);
+            color: white;
+        }
+        .btn-word:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 18px rgba(43,87,154,0.4);
+        }
+
+        .btn-print {
+            background: linear-gradient(135deg, #1e3a5f, #0f2138);
+            color: white;
+        }
+        .btn-print:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 18px rgba(30,58,95,0.4);
+        }
+
+        /* العلامة المائية */
+        .watermark {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-30deg);
+            font-size: 100px;
+            color: rgba(0,0,0,0.025);
+            pointer-events: none;
+            white-space: nowrap;
+            font-weight: 900;
+            z-index: 0;
+        }
+
+        /* ===== Accordion ===== */
+        .accordion-section {
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+        }
+
+        .accordion-header {
+            padding: 13px 18px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            user-select: none;
+            transition: background 0.2s;
+            position: relative;
+        }
+        .accordion-header:hover {
+            background: rgba(255,255,255,0.06);
+        }
+        .accordion-header.open {
+            background: rgba(74,144,226,0.18);
+            border-right: 3px solid #4a90e2;
+        }
+
+        .accordion-icon { font-size: 16px; flex-shrink: 0; }
+
+        .accordion-label {
+            flex: 1;
+            font-size: 13px;
+            font-weight: 700;
+            color: #c8d8f0;
+            letter-spacing: 0.3px;
+        }
+
+        .accordion-arrow {
+            font-size: 11px;
+            color: #8ab4d8;
+            transition: transform 0.28s ease;
+            flex-shrink: 0;
+        }
+        .accordion-header.open .accordion-arrow {
+            transform: rotate(90deg);
+        }
+
+        /* محتوى الـ Accordion */
+        .accordion-body {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.32s ease;
+            background: rgba(0,0,0,0.15);
+        }
+        .accordion-body.open {
+            max-height: 500px;
+        }
+
+        /* العناصر داخل الـ Accordion */
+        .accordion-body .menu-item {
+            padding: 11px 18px 11px 30px;
+            font-size: 13px;
+            border-bottom: 1px solid rgba(255,255,255,0.03);
+        }
+        .accordion-body .menu-item::before { display: none; }
+        .accordion-body .menu-item:hover {
+            background: rgba(255,255,255,0.07);
+            padding-right: 36px;
+        }
+        .accordion-body .menu-item.active {
+            background: linear-gradient(90deg, #357abd, #2868a0);
+        }
+        .accordion-body .menu-item-icon { font-size: 14px; }
+        .accordion-body .menu-item-text { font-size: 13px; }
+
+        /* ===== شاشات صغيرة ===== */
+        @media (max-width: 768px) {
+            body { flex-direction: column; }
+            .sidebar { width: 100%; height: auto; }
+            .sidebar-menu { display: flex; overflow-x: auto; white-space: nowrap; }
+            .menu-item { padding: 10px 14px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- القائمة الجانبية -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h2>📋 قائمة المطبوعات</h2>
+        </div>
+        <!-- شريط الحالة -->
+        <div class="status-bar" id="statusBar">
+            <span class="status-dot"></span>
+            <span class="status-text" id="statusText">اختر مطبوعة للعرض</span>
+        </div>
+        <div class="sidebar-menu" id="sidebarMenu">
+
+            <!-- ===== قسم: المطبوعات العامة ===== -->
+            <div class="accordion-section">
+                <div class="accordion-header open" onclick="toggleAccordion(this)">
+                    <span class="accordion-icon">📁</span>
+                    <span class="accordion-label">المطبوعات العامة</span>
+                    <span class="accordion-arrow">▶</span>
+                </div>
+                <div class="accordion-body open">
+                    <div class="menu-item" onclick="selectPublication('تظلم', 'files/tazalom.pdf', 'files/tazalom.docx')">
+                        <span class="menu-item-icon">📝</span>
+                        <span class="menu-item-text">طلب تظلم</span>
+                    </div>
+                    <div class="menu-item" onclick="selectPublication('صرف لوحات', 'files/plates.pdf', 'files/plates.docx')">
+                        <span class="menu-item-icon">🔢</span>
+                        <span class="menu-item-text">بيان صرف لوحات</span>
+                    </div>
+                    <div class="menu-item" onclick="selectPublication('ورقة فارغة', 'files/blank.pdf', 'files/blank.docx')">
+                        <span class="menu-item-icon">📄</span>
+                        <span class="menu-item-text">ورقة ورد فارغة (بالديباجة)</span>
+                    </div>
+                    <div class="menu-item" onclick="selectPublication('كشف ارسال جلسات', 'files/sessions.pdf', 'files/sessions.docx')">
+                        <span class="menu-item-icon">📋</span>
+                        <span class="menu-item-text">كشف إرسال جلسات</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===== قسم: الإحصائيات ===== -->
+            <div class="accordion-section">
+                <div class="accordion-header" onclick="toggleAccordion(this)">
+                    <span class="accordion-icon">📊</span>
+                    <span class="accordion-label">الإحصائيات</span>
+                    <span class="accordion-arrow">▶</span>
+                </div>
+                <div class="accordion-body">
+                    <div class="menu-item" onclick="selectPublication('الإحصائية الشهرية', 'files/stats_monthly.pdf', 'files/stats_monthly.docx')">
+                        <span class="menu-item-icon">📅</span>
+                        <span class="menu-item-text">الإحصائية الشهرية</span>
+                    </div>
+                    <div class="menu-item" onclick="selectPublication('البيان العددي', 'files/stats_count.pdf', 'files/stats_count.docx')">
+                        <span class="menu-item-icon">🔢</span>
+                        <span class="menu-item-text">البيان العددي</span>
+                    </div>
+                    <div class="menu-item" onclick="selectPublication('إحصائية المطالبة', 'files/stats_claim.pdf', 'files/stats_claim.docx')">
+                        <span class="menu-item-icon">📑</span>
+                        <span class="menu-item-text">إحصائية المطالبة</span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- المحتوى الرئيسي -->
+<div class="main-content">
+        <div class="main-header">
+            <div class="logo-section">
+                <div class="logo-placeholder">
+                    <img src="logo.png" alt="شعار نيابة المرور" style="width: 50px; height: auto;">
+                </div>
+                <div class="header-titles">
+                    <h1>نيابة مرور عين الصيرة</h1>
+                    <p>نظام استدعاء وطباعة المطبوعات الرسمية</p>
+                </div>
+            </div>
+            <div style="text-align: left;">
+                <p id="currentDate" style="font-weight: bold;"></p>
+            </div>
+        </div>
+
+        <!-- منطقة العرض -->
+        <div class="viewer-area">
+            <div class="watermark">عين الصيرة</div>
+            
+            <!-- رسالة الترحيب الافتراضية -->
+            <div id="welcomeBox" class="welcome-message">
+                <h3>مرحباً بك</h3>
+                <p>يرجى اختيار المطبوعة المطلوبة من القائمة الجانبية لعرض المعاينة والبدء في الطباعة أو التعديل.</p>
+            </div>
+
+            <!-- حاوية المعاينة -->
+            <div id="previewBox" class="preview-container">
+
+                <!-- غلاف الورقة بحجم A4 -->
+                <div id="pdfPageWrapper" class="pdf-page-wrapper portrait">
+                    <span id="orientationBadge" class="page-orientation-badge">📄 A4 عمودي</span>
+                    <iframe id="pdfViewer" class="pdf-frame" src=""></iframe>
+                </div>
+
+                <div class="action-buttons">
+                    <button class="btn btn-word" id="btnWord" onclick="openWord()">
+                        <span>📄</span> فتح في Word للتعديل
+                    </button>
+                    <button class="btn btn-print" onclick="printPdf()">
+                        <span>🖨️</span> طباعة مباشرة
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentWordPath = '';
+        let currentPdfPath = '';
+
+        // ========== Accordion ==========
+        function toggleAccordion(header) {
+            const body = header.nextElementSibling;
+            const isOpen = header.classList.contains('open');
+
+            header.classList.toggle('open', !isOpen);
+            body.classList.toggle('open', !isOpen);
+        }
+
+        // تحديث التاريخ
+        document.getElementById('currentDate').textContent = new Date().toLocaleDateString('ar-EG', {
+            weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+        });
+
+        // ========== كشف اتجاه الـ PDF تلقائياً ==========
+        function detectPdfOrientation(pdfUrl) {
+            // نستخدم iframe مخفي لتحميل الـ PDF ونقرأ أبعاده
+            // الطريقة: نستعمل fetch + PDF.js أو نقرأ من الـ iframe بعد التحميل
+            // بما أننا لا نملك PDF.js، نعتمد على نسبة العرض/الارتفاع من iframe.contentDocument
+            // → الحل الأبسط: نضع timeout بسيط بعد التحميل ونقيس
+            const iframe = document.getElementById('pdfViewer');
+            const wrapper = document.getElementById('pdfPageWrapper');
+            const badge = document.getElementById('orientationBadge');
+
+            // الوضع الافتراضي = portrait أثناء التحميل
+            setOrientation('portrait');
+
+            iframe.onload = function() {
+                try {
+                    // محاولة قراءة أبعاد المستند من داخل الـ iframe
+                    const innerDoc = iframe.contentDocument || iframe.contentWindow?.document;
+                    if (innerDoc) {
+                        const body = innerDoc.body;
+                        const scrollW = body?.scrollWidth || 0;
+                        const scrollH = body?.scrollHeight || 0;
+                        if (scrollW > 0 && scrollH > 0) {
+                            if (scrollW > scrollH) {
+                                setOrientation('landscape');
+                            } else {
+                                setOrientation('portrait');
+                            }
+                            return;
+                        }
+                    }
+                } catch(e) {
+                    // قد يمنع CORS القراءة — نعتمد على اسم الملف كخطة بديلة
+                }
+
+                // الوضع الافتراضي portrait حتى يتم تحميل الملف الحقيقي
+                setOrientation('portrait');
+            };
+        }
+
+        function setOrientation(mode) {
+            const wrapper = document.getElementById('pdfPageWrapper');
+            const badge = document.getElementById('orientationBadge');
+            wrapper.classList.remove('portrait', 'landscape');
+            wrapper.classList.add(mode);
+            if (mode === 'landscape') {
+                badge.textContent = '🖼️ A4 أفقي';
+            } else {
+                badge.textContent = '📄 A4 عمودي';
+            }
+        }
+
+        // ========== اختيار المطبوعة ==========
+        function selectPublication(name, pdfPath, wordPath) {
+            // تحديث شريط الحالة
+            const statusBar = document.getElementById('statusBar');
+            const statusText = document.getElementById('statusText');
+            statusBar.classList.add('active-status');
+            statusText.textContent = '📂 ' + name;
+
+            // تحديث العناصر النشطة في القائمة
+            const items = document.querySelectorAll('.menu-item');
+            items.forEach(item => {
+                const txt = item.querySelector('.menu-item-text')?.textContent || '';
+                if (item.textContent.includes(name)) {
+                    item.classList.add('active');
+                } else {
+                    item.classList.remove('active');
+                }
+            });
+
+            // إخفاء رسالة الترحيب وإظهار المعاينة
+            document.getElementById('welcomeBox').style.display = 'none';
+            document.getElementById('previewBox').style.display = 'flex';
+
+            // تحديث المسارات
+            currentPdfPath = pdfPath;
+            currentWordPath = wordPath;
+
+            // تعيين الـ iframe ثم كشف الاتجاه
+            const viewer = document.getElementById('pdfViewer');
+            setOrientation('portrait');
+            viewer.src = pdfPath;
+            detectPdfOrientation(pdfPath);
+
+            console.log('جاري عرض: ' + name);
+        }
+
+        function printPdf() {
+            if (!currentPdfPath) return;
+            const popup = window.open(currentPdfPath, 'print_popup',
+                'width=800,height=600,toolbar=1,menubar=1,scrollbars=1');
+            if (popup) {
+                popup.onload = function () {
+                    popup.focus();
+                    popup.print();
+                };
+            }
+        }
+
+        function openWord() {
+            if (currentWordPath) {
+                const fullPath = window.location.href.replace(/[^\/]*$/, '') + currentWordPath;
+                window.location.href = 'ms-word:ofe|u|' + fullPath;
+            }
+        }
+    </script>
+</body>
+</html>
