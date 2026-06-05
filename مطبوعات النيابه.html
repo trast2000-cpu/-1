@@ -3,677 +3,1022 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>بوابة نيابة مرور عين الصيرة - نظام المطبوعات</title>
+    <title>نظام مطبوعات نيابة مرور عين الصيرة المطور</title>
+    <!-- Fonts & Icons -->
+    <link rel="stylesheet" href="fontawesome-free-6.4.0-web/css/all.min.css">
+    
     <style>
-        /* الخطوط */
-        @font-face {
-            font-family: 'Cairo';
-            src: url('data:font/truetype;base64,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AHQAcgBhAEwAaQBnAGgAdAAgAFMAbABhAG4AdAAgAEwAZQBmAHQARQB4AHQAcgBhAEIAbABhAGMAawAgAFMAbABhAG4AdAAgAFIAaQBnAGgAdABCAGwAYQBjAGsAIABTAGwAYQBuAHQAIABSAGkAZwBoAHQARQB4AHQAcgBhAEIAbwBsAGQAIABTAGwAYQBuAHQAIABSAGkAZwBoAHQAQgBvAGwAZAAgAFMAbABhAG4AdAAgAFIAaQBnAGgAdABTAGUAbQBpAEIAbwBsAGQAIABTAGwAYQBuAHQAIABSAGkAZwBoAHQATQBlAGQAaQB1AG0AIABTAGwAYQBuAHQAIABSAGkAZwBoAHQAUwBsAGEAbgB0ACAAUgBpAGcAaAB0AEwAaQBnAGgAdAAgAFMAbABhAG4AdAAgAFIAaQBnAGgAdABFAHgAdAByAGEATABpAGcAaAB0ACAAUwBsAGEAbgB0ACAAUgBpAGcAaAB0AEUAeAB0AHIAYQBCAGwAYQBjAGsAQgBsAGEAYwBrAEUAeAB0AHIAYQBCAG8AbABkAEIAbwBsAGQAUwBlAG0AaQBCAG8AbABkAE0AZQBkAGkAdQBtAEwAaQBnAGgAdABTAGwAYQBuAHQAVwBlAGkAZwBoAHQARQB4AHQAcgBhAEwAaQBnAGgAdABDAGEAaQByAG8AaAB0AHQAcAA6AC8ALwBzAGMAcgBpAHAAdABzAC4AcwBpAGwALgBvAHIAZwAvAE8ARgBMAFQAaABpAHMAIABGAG8AbgB0ACAAUwBvAGYAdAB3AGEAcgBlACAAaQBzACAAbABpAGMAZQBuAHMAZQBkACAAdQBuAGQAZQByACAAdABoAGUAIABTAEkATAAgAE8AcABlAG4AIABGAG8AbgB0ACAATABpAGMAZQBuAHMAZQAsACAAVgBlAHIAcwBpAG8AbgAgADEALgAxAC4AIABUAGgAaQBzACAAbABpAGMAZQBuAHMAZQAgAGkAcwAgAGEAdgBhAGkAbABhAGIAbABlACAAdwBpAHQAaAAgAGEAIABGAEEAUQAgAGEAdAA6ACAAaAB0AHQAcAA6AC8ALwBzAGMAcgBpAHAAdABzAC4AcwBpAGwALgBvAHIAZwAvAE8ARgBMAGgAdAB0AHAAcwA6AC8ALwBnAGEAYgBlAHIALgBkAGUAcwBpAGcAbgBNAG8AaABh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AqoC2gKgAq4CnwKsAqECogLhAt4C4AKmAscAAQAOAA8AFQAZACMAJAApACwANgA4ADoAPwBAAEYAUgBUAFUAWQBfAGQAbwBwAHUAdgB7ArcCrQK4AugCsgMVAIEAjgCPAJUAmQCjAKQAqQCsALYAuQC7AMAAwQDHANMA1QDWANoA4QDmAPUA9gD7APwBAQK1As8CtgLmAowCpQLUAtcC1QLYAtACygMTAssBBQK/AucCrwLMAx0CzgLkAoMChAMWAvACyQKoAx4CggEGAsACdQJ0AnYCpwAGAAIABAALAAUACQAMABIAIAAaAB0AHgAyAC0ALwAwABYARABLAEcASQBQAEoC3ABOAGkAZQBnAGgAdwBTAOAAhgCCAIQAiwCFAIkAjACSAKAAmgCdAJ4AsgCuALAAsQCWAMUAzADIAMoA0QDLAt0AzwDrAOcA6QDqAP0A1AD/AAcAhwADAIMACACIABAAkAATAJMAFACUABEAkQAXAJcAGACYACEAoQAbAJsAHwCfACIAogAcAJwAJgCmACUApQAoAKgAJwCnACsAqwAqAKoANQC1ADMAswAuAK8ANAC0ADEArQA3ALgAOQC6ADsAvAA9AL4APAC9AD4AvwBBAMIAQwDEAEIAwwBFAMYATQDOAEgAyQBMAM0AUQDSAFYA1wBYANkAVwDYAFoA2wBdAN4AXADdAFsA3ABiAOQAYQDjAGAA4gBuAPQAawDtAGYA6ABtAPMAagDsAGwA8gByAPgAeAD+AHkAfAECAH4BBAB9AQMACgCKAA0AjQBPANAAXgDfAGMA5QMsAysDGgMUAxsDHwMcAxcCmAKcAQgBDwELAbMBDQG7AQkBGQGtASMBJwEvATcBOwE/AUEBRQFHAU0BUQFVAVkBXQFhAWUBaQHHAW0BewGBAY0BkQGVAZ0BsQG1AbcDAgMDAwQDBQMGAwcDCAMQAxEC+QL6AvgCxgI9Aj4CmwETAXkC9wERAaEBpQGvAcMBxQKXAHQA+gBxAPcAcwD5AHoBAACAAPECvQK+ArkCuwK8AroC0QLSAqkC7gLbAuMC4gEeASABHwEsAS4BLQFyAXQBcwE0ATYBNQGGAYgBhwGKAYwBiwGiAaQBowGqAawBqwHGAo0CjgKRApIClQKWApMClAEiASEBwAHCAcEB1wIgAjcCOAI5AdEB0gHTAdQB1QHgAeEB4gHjAeQB5gHnAdgCIQHuAfACAAICAg4CEAIaAhwB+gHsAgYCFAHvAfECAQIDAg8CEQIbAh0B+wHtAgcCFQG8Ab4BvQEaARwBGwEkASYBJQEoASoBKQEwATIBMQE4AToBOQE8AT4BPQFOAVABTwFSAVQBUwFWAVgBVwFaAVwBWwFeAWABXwFiAWQBYwFmAWgBZwFqAWwBawFuAXABbwF8AX4BfQGCAYQBgwGOAZABjwGSAZQBkwGWAZgBlwGeAaABnwG4AboBuQHOAc8BygHLAcwBzQHIAckA6wAVAlAAHAJQABwCUAAcAlAAHAJQABwCUAAcAlAAHAJQABwCUAAcAlAAHAJQABwDbwAZA28AGQJsAFwCIQBDAiEAQwIhAEMCIQBDAiEAQwIhAEMCiQBcAosAEQKJAFwCiwARAigAXAIoAFwCKABcAigAXAIoAFwCKABcAigAXAIoAFwCKABcAigAXAILAFwCawBBAmsAQQJrAEECawBBAmsAQQKiAFwCrgAMAqIAXADcAFwA3AARANz/5gDc/9MA3P/6ANwAXADc/+4A3P/gANwACwDc/84BGAASARgAEgIpAFwCKQBcAeMAXAHjAFwB7ABcAeMAXAHlAAkDPABcApkAXAKZAFwCmQBcApkAXAKZAFwCnwBcApoAQQKaAEECmgBBApoAQQKaAEECmgBBApoAQQKaAEECmgBBApwAQQKaAEEDrABBAlMAXAJZAFwCmgBBAmUAXAJlAFwCZQBcAmUAXAIcADgCHAA4AhwAOAIcADgCHAA4AhwAOAIOAA0CEgAPAg4ADQIOAA0CDgANAn4AWAJ+AFgCfgBYAn4AWAJ+AFgCfgBYAn4AWAJ+AFgCfgBYAn4AWAJ+AFgCOAAeA1gAJgNYACYDWAAmA1gAJgNYACYCJwAZAg4AEQIOABECDgARAg4AEQIOABECGwAsAhsALAIbACwCGwAsAk4AHAIMABEB7wAwAe8AMAHvADAB7wAwAe8AMAHvADAB7wAwAe8AMAHvADAB7wAwAe8AMAMyADADMgAwAgIATgGtADwBrQA8Aa0APAGtADwBrQA8Aa0APAIDADoCFwAtAgMAOgIDADoB9gA6AfYAOgH2ADoB9gA6AfYAOgH2ADoB9gA6AfYAOgH2ADoB9gA6ATkAHQH1ADoB9QA6AfUAOgH1ADoB9QA6Ag4ATwIOAAgCDgBPAMEATwDBAE8AwQArAMH/1wDB/9kAwf/3AMH/xADB/9sAwf/9AMH/ywDA/8UAwP/FAMD/xQHHAE8BxwBPAM0AVQDNADsAxwBVAM0AKgEHAA4DQgBPAg8ATwIPAE8CDwBPAg8ATwIPAE8CEABPAg4APAIOADwCDgA8Ag4APAIOADwCDgA8Ag4APAIOADwCDgA8Ag4APAIOADwDaQA8AgQATwIDAE8CAgA6AUgATwFIAE8BSAAoAUgAKgHNADMBzQAzAc0AMwHNADMBzQAzAc0AMwIlAE8BVgAdAVsAHQGLAB0BVgAdAVYAHQIEAEoCBABKAgQASgIEAEoCBABKAgQASgIEAEoCBABKAe8AMAH2ADoCDgA8AdcAHwIEAEoCBABKAgQASgHWAB8C9AAkAvQAJAL0ACQC9AAkAvQAJAG1ABwB1wAfAdcAHwHXAB8B1wAfAdcAHwHHACoBxwAqAccAKgHHACoBbgA+AWEAPgIwABkB8gAoAOsAZADrAGQA6wAsAOsALADrACwA6wAsAOsAFgDrABYA6wAdAOsAHQL5ACgDAwAoAOv/7ADr/+wA4f/sAOH/7AL5ACgDAwAoAOv/7ADh/+wC+QAoAwMAKADr/+wA4f/sAOv/7ADh/+wC+QAoAwMAKADr/+wA4f/sAvkAKAMDACgA6//sAOH/7AL5ACgDAwAoAOv/7ADh/+wCOQAoAmEAKAJH/+wCH//sAjkAKAJhACgCR//sAh//7AI5ACgCYQAoAkf/7AIf/+wCOQAoAmEAKAJH/+wCH//sAecAKAIPACgB5wAoAg8AKAHnACgCDwAoAQP/xAEX/8QBA//EARf/xAED/8QBF//EAQP/xAEX/8QEiQAoBJ0AKAMN/+wC+f/sBIkAKASdACgDDf/sAvn/7ASSACgEpgAoAwL/7ALu/+wEkgAoBKYAKAMC/+wC7v/sAuEAFAL1ABQC0P/sAs3/7ALhABQC9QAUAtD/7ALN/+wCHQAoAlwAKAJl/+wCVP/sAh0AKAJcACgCZf/sAlT/7AP7ADYEBQA2AmP/7AJP/+wD+wA2BAUANgJj/+wCT//sA/sANgQFADYCY//sAk//7ANjACgDdwAoA2MAKAN3ACgCY//sAk//7ALvACgDAwAoAu8AKAMDACgCcv/sAl7/7ALvACgDAwAoAnL/7AJe/+wC7wAoAwMAKAKG/+wCcv/sAnsAKAKPACgA6//sANf/7AJMACgCYAAoAnz/7AJo/+wCewAoAo8AKADr/+wA4f/sAnsAKADr/+wA4f/sAo8AKAIsACgCHwAoAmX/7AMM/+wCLAAoAh8AKAIf/+wA4f/sAiwAKAIfACgCH//sAOH/7AL4ACgDDAAoAwz/7AMM/+wCLAAoAh8AKAIsACgCHwAoAgsAKAIfACgCCwAoAh8AKANtACgDXwAoA20AKANfACgA6//sAOH/7ANtABYDXwAWAOv/7ADh/+wDbQAoA18AKADr/+wA4f/sAsMAKAKoACgCwwAjAqgAIwD6/+wCWwAoAmUAKAJbACgCZQAoAlsAKAJlACgCWwAoAmUAKAJbACgCAv/EAgL/xAN6ACgD+QAoA/kAKAP5ABYDzQAoA+EAKAJlACgCAv/EAgL/xAN6ACgD+QAoA/kAKAP5ABYCAv/EAgL/xAN6ACgD+QAoA/kAKAP5ABYCAv/EAgL/xAN6ACgD+QAoA/kAKAP5ABYD/P/EBBD/xAXzACgGBwAoBfMAKAYHACgD/P/EBBD/xAV0ACgFiAAoBXQAKAWIACgF8wAWBgcAFgP8/8QEEP/EA/z/xAQQ/8QFdAAoBYgAKAXzACgGBwAoBfMAKAYHACgF8wAWBgcAFgQF/8QEGf/EBAX/xAQZ/8QFfQAoBZEAKAV9ACgFkQAoBfwAKAYQACgF/AAoBhAAKAX8ABYGEAAWBAX/xAQZ/8QEBf/EBBn/xAV9ACgFkQAoBfwAKAYQACgF/AAoBhAAKAX8ABYGEAAWA80AKAPhACgDzQAWA+EAFgIC/8QCAv/EA3oAKAP5ACgD+QAoA/kAFgIC/8QCAv/EAgL/xAN6ACgDegAoA/kAKAP5ACgCAv/EAgL/xAN6ACgD+QAoAgL/xAIC/8QDegAoA/kAKAP5ACgD+QAWBIYAKASGACgAxQAsALEALADYAFABEwB4AfUAeAKTAHgBxAAyApoASwHHAB4CRQAoAkUAKAH6ABQA2ABQARMAeAH1AHgCkwB4AmoAeAIcAEYBzgBGAkUAKAJFACgB+gAUAgsAZAGaAB4CMAAxAjAAgQIwAEgCMABCAjAAKAIwAEgCMAA8AjAAUwIwACICMAAyARgAHAEYAC4BGAAkARgAJQEYAB8BGAAvARgAJQEYACABGAAdARgAIQEYABwBGAAuARgAJAEYACUBGAAfARgALwEYACUBGAAgARgAHQEYACEAAP8gAjAALgIwAC4CMAAlARgAHAEYAC4BGAAkARgAJQEYAB8BGAAvARgAJQEYACABGAAdARgAIQEYABwBGAAuARgAJAEYACUBGAAfARgALwEYACUBGAAgARgAHQEYACEA3AAAANwAAAAAABQAAAAUAAAAFAAAABQAAAAEAAAABQAAABQAAAAUAAAAFAAAACQBIgBLAMEAPQDkAFMBxQAuAaEAQADFACwAxQAbAMUAGwC+AEsAxQAsAL8ASwDkAD4CugBLAOEAXQDMAFEBxQApAb8AKwC/AEwB6AB3AaEAQAIwAB4BeAAhAYsAHQHKAEwBywBMAoMASAR3AEgCgABqAOoAOwDqACwBWgAdAVoAKgE3AFYBNwArAMAAKwE9ACkBRgA+AU8APwDBAD4AvwA/AfEAMAHxAEsBIgAwASIASwFcAEoAuwBKAjAAIwIwAHED0wA8AqgALwJNACgB5wA+AocARAKHAEQCsQBjAjAAkADNAFUA0QBXAd0AJgIPAD8CMAAgAjAAbQIwAE0CMABQAjAAUwIwACMBeAAhAjAAOwIwAEUCMABRAjAAOgIwAEQCMABEAjAATgIwADkCMABGAjAAQQIwADsCMABEAjAARwIwAEcCMABSAjAAIAIwAFgCMAApAjAAOwIwAB4CMAA1AjAABgH7AEoCMAA6AjAAJgM8ACwCMAA8AAAAFAAAABQAAAAUAAAAFAAAABQAAAAUAAAAEgAAAA8AAAAUAAAAFAAAAB0AAAAUAAAAFAAAABQAAAAWAAAAFAAAABQAAAAUAAAAFAAA//sAAP/7AAD/+wAA//sAAP/7AAD/+wAA//wAAP/7AAAAHQAAAB4AAAAUAPUACgDXAFoA1wAKAQwAKAFuAAAA1//xANf/8QDX//EA1wAQANf/3QDX/+wBBwAyAbIAqADX//gA1wBaANcACgDXABQA1//MAb4ASgDX/+UA1//xANcAFwDX/+oA1//sAMUALADFACwAAAAAAMD/xQAAACoAMv/sAAEAAAAKAMIBmgADREZMVACSYXJhYgBCbGF0bgAUAIIAAU1PTCAACgAA//8ADwAAAAEAAwAEAAUABgAHAAgACgALAAwADQAOAA8AEAAuAAFVUkQgAAoAAP//AA8AAAABAAMABAAFAAYABwAJAAoACwAMAA0ADgAPABAAAP//AA4AAAACAAMABAAFAAYABwAKAAsADAANAA4ADwAQAAQAAAAA//8ADgAAAAEAAwAEAAUABgAHAAoACwAMAA0ADgAPABAAEWFhbHQA0GNjbXAAymNjbXAAwmRsaWcAvGRub20AtmZpbmEAsGZyYWMApmluaXQAoGxvY2wAmmxvY2wAlG1lZGkAjm51bXIAiG9yZG4AgnJsaWcAenNpbmYAdHN1YnMAbnN1cHMAaAAAAAEABwAAAAEABQAAAAEABgAAAAIAFQAWAAAAAQAPAAAAAQAIAAAAAQASAAAAAQAEAAAAAQADAAAAAQARAAAAAwAKAAsADAAAAAEAEwAAAAEACQAAAAEAFAAAAAIAAgACAAAAAQACAAAAAgAAAAEAFwwkCcoIlgh0CFYIPgg+CDAIIggUCAAIIge4B6oHqgdsB0oGpAZMBNIBEgDuADAABAAIAAEACAABAIwAEwRiBDAD/gOqA3gDPgMEAtICoAJmAiwB+gHIAFwALAFiA9wBQAEOAAgAKgAkAB4AGAF8ABIBdgFwAdAAAgESAc4AAgEQAcwAAgEOAcoAAgEMAcgAAgEKAAgAKgAkAB4AGAFmABIBYAFaAdkAAgESAc8AAgEQAc0AAgEOAcsAAgEMAckAAgEKAAEAEwEJARsBHwElASkBTwFQAVMBVAFXAVgBWwFcAY8BkAGXAbUBuQG9AAQAAAABAAgAAQAWAAEACAABAAQCPAAEAZABjwGeAAEAAQEJAAQACQABAAgAAQOOABMDgANOAxwC+gLIApYCXAIiAfABvgGEAUoBGADmAMwAsgCAAF4ALAAGACwAJgAgABoAFAAOAjYAAgFIAjoAAgG8AjkAAgG4AjUAAgFGAjcAAgGWAjgAAgG2AAQAHAAWABAACgIyAAIBSAI0AAIBuAIxAAIBRgIzAAIBlgAGACwAJgAgABoAFAAOAiUAAgFIAikAAgG8AigAAgG4AiQAAgFGAiYAAgGWAicAAgG2AAMAFAAOAAgCIgACAbwCIAACAbgB1wACAbYAAwAUAA4ACAIjAAIBvAIhAAIBuAHYAAIBtgAGACwAJgAgABoAFAAOAhYAAgFIAh4AAgG8AhwAAgG4AhQAAgFGAhgAAgGWAhoAAgG2AAYALAAmACAAGgAUAA4CFwACAUgCHwACAbwCHQACAbgCFQACAUYCGQACAZYCGwACAbYABwA0AC4AKAAiABwAFgAQAggAAgFIAhIAAgG8AhAAAgG4AgYAAgFGAgwAAgGcAgoAAgGWAg4AAgG2AAcANAAuACgAIgAcABYAEAIJAAIBSAITAAIBvAIRAAIBuAIHAAIBRgINAAIBnAILAAIBlgIPAAIBtgAGACwAJgAgABoAFAAOAfwAAgFIAgQAAgG8AgIAAgG4AfoAAgFGAf4AAgGWAgAAAgG2AAYALAAmACAAGgAUAA4B/QACAUgCBQACAbwCAwACAbgB+wACAUYB/wACAZYCAQACAbYABwA0AC4AKAAiABwAFgAQAfIAAgFIAfgAAgG8AfAAAgG4AewAAgFGAfYAAgGcAfQAAgGWAe4AAgG2AAcANAAuACgAIgAcABYAEAHzAAIBSAH5AAIBvAHxAAIBuAHtAAIBRgH3AAIBnAH1AAIBlgHvAAIBtgAGACwAJgAgABoAFAAOAecAAgFIAesAAgG8AeoAAgG4AeYAAgFGAegAA');
+        :root {
+            --primary-color: #3b6fd4;
+            --primary-dark: #2a52a8;
+            --secondary-color: #64748b;
+            --bg-light: #edf0f7;
+            --bg-white: #f5f7fc;
+            --sidebar-bg: #1e2d4a;
+            --sidebar-header-bg: #162238;
+            --sidebar-item-hover: #2a3f63;
+            --sidebar-item-active: #3b6fd4;
+            --sidebar-text: #c8d6f0;
+            --sidebar-text-muted: #7a92b8;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --sidebar-width: 320px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --border-color: #d1daea;
+            --shadow: 0 4px 12px rgba(30, 45, 74, 0.12);
+            --glass: rgba(245, 247, 252, 0.9);
+            --accent-orange: #f59e0b;
+            --header-bg: linear-gradient(135deg, #1e2d4a 0%, #2a3f63 100%);
         }
 
-        /* التصميم الأساسي */
-        body {
+        /* Dark Mode Variables */
+        [data-theme="dark"] {
+            --bg-light: #0f172a; /* Dark Navy */
+            --bg-white: #1e293b; /* Lighter Navy */
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --border-color: #334155;
+            --glass: rgba(15, 23, 42, 0.8);
+            --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+            --sidebar-bg: transparent;
+            --sidebar-header-bg: transparent;
+            --sidebar-item-hover: rgba(30, 41, 59, 0.7);
+            --sidebar-text: #f1f5f9;
+            --sidebar-text-muted: #64748b;
+            --header-bg: linear-gradient(135deg, #020617 0%, #0f172a 100%);
+        }
+
+        /* Dark mode: transparent sidebar, floating buttons */
+        [data-theme="dark"] .sidebar {
+            background: transparent;
+            border-left: none;
+            box-shadow: none;
+        }
+
+        [data-theme="dark"] .sidebar-header {
+            background: transparent;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+        }
+
+        /* Dark mode: fully transparent sidebar structure */
+        [data-theme="dark"] .accordion-item {
+            background: transparent;
+            border: none;
+            margin-bottom: 4px;
+        }
+
+        [data-theme="dark"] .accordion-header {
+            background: rgba(59,111,212,0.7);
+            backdrop-filter: blur(8px);
+            border-radius: 10px;
+            border: 1px solid rgba(59,111,212,0.5);
+            box-shadow: 0 6px 22px rgba(59,111,212,0.4), 0 2px 8px rgba(0,0,0,0.4);
+            margin-bottom: 4px;
+            color: white;
+        }
+
+        [data-theme="dark"] .accordion-header:hover {
+            background: rgba(59,111,212,0.85);
+            border-color: rgba(59,111,212,0.65);
+            box-shadow: 0 8px 28px rgba(59,111,212,0.55), 0 2px 10px rgba(0,0,0,0.45);
+            transform: translateX(-2px);
+        }
+
+        [data-theme="dark"] .accordion-header.open {
+            background: rgba(42,82,168,0.85);
+            border-color: rgba(42,82,168,0.6);
+            box-shadow: 0 4px 18px rgba(42,82,168,0.45), 0 2px 8px rgba(0,0,0,0.5), inset 0 2px 6px rgba(0,0,0,0.25);
+        }
+
+        /* أزل خلفية body الأكورديون تماماً */
+        [data-theme="dark"] .accordion-body {
+            background: transparent;
+        }
+
+        /* كل زر = بطاقة طافية منفصلة */
+        [data-theme="dark"] .menu-item {
+            background: rgba(255,255,255,0.04);
+            backdrop-filter: blur(6px);
+            margin: 3px 2px;
+            border-radius: 9px;
+            border: 1px solid rgba(255,255,255,0.07);
+            border-bottom: 1px solid rgba(255,255,255,0.07);
+            box-shadow: 0 3px 12px rgba(0,0,0,0.35), 0 1px 0 rgba(255,255,255,0.05) inset;
+            transition: var(--transition);
+        }
+
+        [data-theme="dark"] .menu-item:hover {
+            background: rgba(59,111,212,0.18);
+            border-color: rgba(59,111,212,0.35);
+            box-shadow: 0 6px 22px rgba(59,111,212,0.3), 0 2px 8px rgba(0,0,0,0.4);
+            transform: translateX(-3px);
+            padding-right: 35px;
+        }
+
+        [data-theme="dark"] .menu-item.active {
+            background: rgba(59,111,212,0.35);
+            border-color: rgba(59,111,212,0.55);
+            box-shadow: 0 6px 24px rgba(59,111,212,0.45), 0 2px 8px rgba(0,0,0,0.4);
+        }
+
+        /* أزرار فتح/طي الكل */
+        [data-theme="dark"] .accordion-controls button {
+            background: rgba(255,255,255,0.05);
+            backdrop-filter: blur(6px);
+            border: 1px solid rgba(255,255,255,0.08);
+            box-shadow: 0 3px 12px rgba(0,0,0,0.35), 0 1px 0 rgba(255,255,255,0.05) inset;
+        }
+
+        [data-theme="dark"] .accordion-controls button:hover {
+            background: rgba(59,111,212,0.6);
+            border-color: rgba(59,111,212,0.5);
+            box-shadow: 0 6px 20px rgba(59,111,212,0.4);
+        }
+
+        /* حقل البحث */
+        [data-theme="dark"] .search-input {
+            background: rgba(255,255,255,0.05);
+            backdrop-filter: blur(6px);
+            border: 1px solid rgba(255,255,255,0.09);
+            box-shadow: 0 3px 12px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.05);
+        }
+
+        * {
             margin: 0;
             padding: 0;
-            font-family: 'Cairo', sans-serif;
-            background-color: #f0f4f8;
-            color: #1e3a5f;
-            display: flex;
+            box-sizing: border-box;
+            font-family: 'Calibri', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-light);
+            color: var(--text-main);
             height: 100vh;
             overflow: hidden;
+            display: flex;
+            transition: var(--transition);
         }
 
-        /* ===== القائمة الجانبية ===== */
+        body[data-theme="dark"] {
+            background-color: #0f172a;
+            background-image: radial-gradient(rgba(248, 250, 252, 0.3) 1.2px, transparent 1.2px);
+            background-size: 32px 32px;
+            background-position: center;
+        }
+
+        /* Sidebar Styling */
         .sidebar {
-            width: 270px;
-            background: linear-gradient(180deg, #1a3352 0%, #0f2138 100%);
-            color: white;
+            width: var(--sidebar-width);
+            background-color: var(--sidebar-bg);
+            border-left: 1px solid rgba(255,255,255,0.07);
             display: flex;
             flex-direction: column;
-            box-shadow: 3px 0 15px rgba(0,0,0,0.2);
             z-index: 100;
-            flex-shrink: 0;
+            transition: var(--transition);
+            box-shadow: 4px 0 20px rgba(0,0,0,0.15);
         }
+
+
+          /* تكبير الواجهة على الشاشة فقط — لا يؤثر على الطباعة */
+              @media screen {
+               body {
+                 zoom: 1.;
+               }
+          }
+
 
         .sidebar-header {
-            padding: 18px 20px;
-            text-align: center;
-            background: rgba(255,255,255,0.05);
-            border-bottom: 1px solid rgba(255,255,255,0.08);
+            padding: 14px 16px;
+            background: var(--sidebar-header-bg);
+            border-bottom: 1px solid rgba(255,255,255,0.07);
         }
 
-        .sidebar-header h2 {
-            margin: 0;
-            font-size: 16px;
-            font-weight: 700;
-            letter-spacing: 0.5px;
-            color: #c8d8f0;
+        .search-container {
+            position: relative;
+            margin-top: 10px;
         }
 
-        /* شريط الحالة أسفل الهيدر */
-        .status-bar {
-            padding: 8px 16px;
-            background: rgba(74,144,226,0.15);
-            border-bottom: 1px solid rgba(74,144,226,0.2);
-            font-size: 12px;
-            color: #8ab4d8;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            min-height: 32px;
-        }
-        .status-bar .status-dot {
-            width: 7px;
-            height: 7px;
-            border-radius: 50%;
-            background: #64748b;
-            flex-shrink: 0;
-            transition: background 0.3s;
-        }
-        .status-bar.active-status .status-dot {
-            background: #4ade80;
-            box-shadow: 0 0 6px rgba(74,222,128,0.6);
-        }
-        .status-bar .status-text {
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
+        .search-input {
+            width: 100%;
+            padding: 10px 40px 10px 12px;
+            border-radius: 10px;
+            border: 1px solid rgba(255,255,255,0.1);
+            background: rgba(255,255,255,0.07);
+            color: var(--sidebar-text);
+            outline: none;
+            transition: var(--transition);
         }
 
-        .sidebar-menu {
+        .search-input::placeholder { color: var(--sidebar-text-muted); }
+
+        .search-input:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(59, 111, 212, 0.25);
+        }
+
+        .search-icon {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--sidebar-text-muted);
+        }
+
+        .sidebar-content {
             flex: 1;
             overflow-y: auto;
-            padding: 8px 0;
+            padding: 8px 10px;
         }
-        .sidebar-menu::-webkit-scrollbar { width: 4px; }
-        .sidebar-menu::-webkit-scrollbar-track { background: transparent; }
-        .sidebar-menu::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 2px; }
 
-        .menu-item {
-            padding: 13px 18px;
+        /* Accordion Controls */
+        .accordion-controls {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 8px;
+        }
+
+        .accordion-controls button {
+            flex: 1;
+            padding: 5px 8px;
+            font-size: 0.78rem;
+            font-family: 'Calibri', sans-serif;
+            border-radius: 8px;
+            border: 1px solid rgba(255,255,255,0.09);
+            background: rgba(255,255,255,0.05);
+            color: var(--sidebar-text-muted);
             cursor: pointer;
-            transition: all 0.25s ease;
-            border-bottom: 1px solid rgba(255,255,255,0.04);
             display: flex;
             align-items: center;
-            gap: 12px;
-            position: relative;
+            justify-content: center;
+            gap: 5px;
+            transition: var(--transition);
+            font-weight: 700;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.3), 0 1px 0 rgba(255,255,255,0.05) inset;
+        }
+
+        .accordion-controls button:hover {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+            box-shadow: 0 6px 18px rgba(59,111,212,0.4), 0 2px 8px rgba(0,0,0,0.3);
+        }
+
+        /* Accordion Styling */
+        .accordion-item {
+            margin-bottom: 6px;
+            border-radius: 10px;
+            overflow: visible;
+            border: none;
+            background: transparent;
+        }
+
+        .accordion-header {
+            padding: 9px 14px;
+            background: var(--primary-color);
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: var(--transition);
+            user-select: none;
+            border-radius: 10px;
+            border: 1px solid rgba(59,111,212,0.5);
+            box-shadow: 0 6px 22px rgba(59,111,212,0.45), 0 2px 8px rgba(0,0,0,0.3);
+            margin-bottom: 4px;
+        }
+
+        .accordion-header:hover {
+            background: var(--primary-dark);
+            box-shadow: 0 8px 28px rgba(59,111,212,0.6), 0 2px 10px rgba(0,0,0,0.35);
+            transform: translateX(-2px);
+        }
+
+        .accordion-header i.chevron {
+            transition: var(--transition);
+            font-size: 0.75rem;
+            color: rgba(255,255,255,0.7);
+        }
+
+        .accordion-header.open {
+            background: var(--primary-dark);
+            color: white;
+            border-color: rgba(42,82,168,0.7);
+            box-shadow: 0 4px 18px rgba(42,82,168,0.5), 0 2px 8px rgba(0,0,0,0.4), inset 0 2px 6px rgba(0,0,0,0.2);
+        }
+
+        .accordion-header.open i.chevron {
+            transform: rotate(180deg);
+            color: white;
+        }
+
+        .accordion-body {
+            max-height: 0;
             overflow: hidden;
+            transition: max-height 0.4s ease-out;
+            background: transparent;
+            padding: 0 2px;
         }
-        .menu-item::before {
-            content: '';
-            position: absolute;
-            right: 0;
-            top: 0;
-            height: 100%;
-            width: 0;
-            background: rgba(74,144,226,0.12);
-            transition: width 0.25s ease;
+
+        .accordion-body.open {
+            max-height: 1000px;
         }
-        .menu-item:hover::before { width: 100%; }
+
+        .menu-item {
+            padding: 8px 30px 8px 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: var(--transition);
+            font-size: 0.88rem;
+            color: var(--sidebar-text);
+            border-bottom: none;
+            border-radius: 9px;
+            margin: 3px 2px;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.07);
+            box-shadow: 0 3px 10px rgba(0,0,0,0.3), 0 1px 0 rgba(255,255,255,0.05) inset;
+        }
+
+        .menu-item:last-child { border-bottom: none; }
+
         .menu-item:hover {
-            padding-right: 24px;
-        }
-        .menu-item:hover .menu-item-icon {
-            transform: scale(1.2);
+            background: var(--sidebar-item-hover);
+            color: white;
+            padding-right: 35px;
+            border-color: rgba(255,255,255,0.12);
+            box-shadow: 0 6px 18px rgba(0,0,0,0.4), 0 2px 8px rgba(59,111,212,0.15);
+            transform: translateX(-3px);
         }
 
         .menu-item.active {
-            background: linear-gradient(90deg, #4a90e2 0%, #357abd 100%);
-            font-weight: bold;
-            box-shadow: inset 0 1px 0 rgba(255,255,255,0.15);
-        }
-        .menu-item.active::after {
-            content: '';
-            position: absolute;
-            left: 0;
-            top: 0;
-            height: 100%;
-            width: 3px;
-            background: #7ec8ff;
-            border-radius: 0 2px 2px 0;
+            background: var(--sidebar-item-active);
+            color: white;
+            font-weight: 600;
+            border-color: rgba(59,111,212,0.5);
+            box-shadow: 0 6px 22px rgba(59,111,212,0.4), 0 2px 8px rgba(0,0,0,0.3);
         }
 
-        .menu-item-icon {
-            font-size: 17px;
-            transition: transform 0.2s;
-            flex-shrink: 0;
-        }
-
-        .menu-item-text {
-            font-size: 14px;
-        }
-
-        /* ===== المحتوى الرئيسي ===== */
+        /* Main Content */
         .main-content {
             flex: 1;
             display: flex;
             flex-direction: column;
             overflow: hidden;
-            background: #f0f4f8;
+            position: relative;
         }
 
-        .main-header {
-            background: white;
-            padding: 12px 24px;
+        .top-bar {
+            height: 70px;
+            background: var(--header-bg);
+            border-bottom: 1px solid rgba(255,255,255,0.07);
             display: flex;
+            align-items: center;
             justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.07);
-            border-bottom: 3px solid #1e3a5f;
-            flex-shrink: 0;
+            padding: 0 30px;
+            z-index: 90;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.15);
         }
 
-        .logo-section {
+        .brand {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 15px;
         }
 
-        .logo-placeholder {
-            width: 44px;
-            height: 44px;
-            background: linear-gradient(135deg, #1e3a5f, #4a90e2);
+        .brand img {
+            width: 45px;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
+        }
+
+        .brand h1 {
+            font-size: 1.9rem;
+            font-weight: 800;
+            color: #ffffff;
+        }
+
+        .top-actions {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .theme-toggle {
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            width: 40px;
+            height: 40px;
             border-radius: 50%;
+            cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 22px;
-            box-shadow: 0 2px 8px rgba(30,58,95,0.3);
+            color: white;
+            transition: var(--transition);
         }
 
-        .header-titles h1 {
-            margin: 0;
-            font-size: 18px;
-            color: #1e3a5f;
-            font-weight: 700;
+        .theme-toggle:hover {
+            background: var(--primary-color);
+            color: white;
+            transform: rotate(20deg);
         }
 
-        .header-titles p {
-            margin: 0;
-            font-size: 12px;
-            color: #94a3b8;
-        }
-
-        /* ===== منطقة العرض — لا scroll ===== */
+        /* Viewer Area */
         .viewer-area {
             flex: 1;
-            padding: 16px 20px 12px;
+            padding: 20px;
+            overflow: hidden;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            overflow: hidden;          /* ← لا scroll */
-            background: #edf2f7;
-            position: relative;
+            background-color: var(--bg-light);
+            /* Grid dots effect */
+            background-image: radial-gradient(var(--primary-color) 1px, transparent 1px);
+            background-size: 32px 32px;
+            background-position: center;
+            opacity: 1;
+            transition: var(--transition);
+        }
+        
+        [data-theme="light"] .viewer-area {
+            background-image: radial-gradient(rgba(59, 111, 212, 0.15) 1.5px, transparent 1.5px);
         }
 
-        /* رسالة الترحيب */
-        .welcome-message {
+        [data-theme="dark"] .viewer-area {
+            /* Transparent — stars come from body background */
+            background-color: transparent;
+            background-image: none;
+        }
+
+        .welcome-card {
+            background: var(--bg-white);
+            padding: 60px;
+            border-radius: 24px;
             text-align: center;
-            padding: 36px 40px;
-            background: white;
-            border-radius: 16px;
-            box-shadow: 0 8px 30px rgba(0,0,0,0.07);
-            max-width: 460px;
-            border: 1px solid #e2e8f0;
-        }
-        .welcome-message h3 {
-            font-size: 22px;
-            margin-bottom: 12px;
-            color: #1e3a5f;
-        }
-        .welcome-message p {
-            color: #64748b;
-            font-size: 15px;
-            line-height: 1.7;
+            box-shadow: var(--shadow);
+            max-width: 600px;
+            margin-top: 100px;
+            border: 1px solid var(--border-color);
+            animation: fadeInUp 0.6s ease-out;
         }
 
-        /* ===== حاوية المعاينة — تملأ المساحة كاملاً ===== */
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .welcome-card i {
+            font-size: 4rem;
+            color: var(--primary-color);
+            margin-bottom: 20px;
+        }
+
         .preview-container {
-            width: 100%;
-            height: 100%;
             display: none;
-            flex-direction: column;
-            align-items: center;
-            gap: 12px;
-            overflow: hidden;         /* ← لا scroll */
-        }
-
-        /* غلاف الورقة: يأخذ كل المساحة المتبقية */
-        .pdf-page-wrapper {
-            position: relative;
-            flex: 1;                   /* ← يمتد ليملأ ما تبقى */
-            min-height: 0;             /* مهم جداً في flex */
-            transition: all 0.3s ease;
-            box-shadow: 0 6px 24px rgba(0,0,0,0.18);
-            border-radius: 5px;
-            overflow: hidden;
-            background: white;
-        }
-
-        /* portrait: عرض يتناسب مع الارتفاع بنسبة A4 */
-        .pdf-page-wrapper.portrait {
-            aspect-ratio: 210 / 297;
-            max-width: 100%;
-        }
-
-        /* landscape: عرض كامل */
-        .pdf-page-wrapper.landscape {
-            width: 100%;
-            aspect-ratio: 297 / 210;
-        }
-
-        .pdf-frame {
-            position: absolute;
-            inset: 0;
             width: 100%;
             height: 100%;
-            border: none;
-            background: white;
-        }
-
-        /* شارة الاتجاه */
-        .page-orientation-badge {
-            position: absolute;
-            top: 8px;
-            left: 8px;
-            background: rgba(15,33,56,0.7);
-            backdrop-filter: blur(4px);
-            color: white;
-            font-size: 11px;
-            padding: 3px 9px;
-            border-radius: 20px;
-            pointer-events: none;
-            z-index: 5;
-            font-family: 'Cairo', sans-serif;
-            border: 1px solid rgba(255,255,255,0.15);
-        }
-
-        /* ===== الأزرار ===== */
-        .action-buttons {
-            display: flex;
-            gap: 12px;
+            flex-direction: row-reverse;
+            align-items: center;
             justify-content: center;
-            flex-shrink: 0;
-            padding: 2px 0;
-        }
-
-        .btn {
-            padding: 10px 24px;
-            border-radius: 10px;
-            font-family: 'Cairo', sans-serif;
-            font-weight: 700;
-            font-size: 15px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            transition: all 0.22s ease;
-            border: none;
-            box-shadow: 0 3px 10px rgba(0,0,0,0.15);
+            gap: 30px;
+            padding: 20px;
             position: relative;
-            overflow: hidden;
-        }
-        .btn::after {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: rgba(255,255,255,0);
-            transition: background 0.2s;
-        }
-        .btn:hover::after { background: rgba(255,255,255,0.1); }
-        .btn:active { transform: scale(0.97); }
-
-        .btn-word {
-            background: linear-gradient(135deg, #2b579a, #1e3e6d);
-            color: white;
-        }
-        .btn-word:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 18px rgba(43,87,154,0.4);
+            animation: fadeInScale 0.5s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        .btn-print {
-            background: linear-gradient(135deg, #1e3a5f, #0f2138);
-            color: white;
-        }
-        .btn-print:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 18px rgba(30,58,95,0.4);
-        }
-
-        /* العلامة المائية */
-        .watermark {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%) rotate(-30deg);
-            font-size: 100px;
-            color: rgba(0,0,0,0.025);
-            pointer-events: none;
-            white-space: nowrap;
-            font-weight: 900;
-            z-index: 0;
-        }
-
-        /* ===== Accordion ===== */
-        .accordion-section {
-            border-bottom: 1px solid rgba(255,255,255,0.06);
-        }
-
-        .accordion-header {
-            padding: 13px 18px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            user-select: none;
-            transition: background 0.2s;
-            position: relative;
-        }
-        .accordion-header:hover {
-            background: rgba(255,255,255,0.06);
-        }
-        .accordion-header.open {
-            background: rgba(74,144,226,0.18);
-            border-right: 3px solid #4a90e2;
-        }
-
-        .accordion-icon { font-size: 16px; flex-shrink: 0; }
-
-        .accordion-label {
-            flex: 1;
-            font-size: 13px;
-            font-weight: 700;
-            color: #c8d8f0;
-            letter-spacing: 0.3px;
-        }
-
-        .accordion-arrow {
-            font-size: 11px;
-            color: #8ab4d8;
-            transition: transform 0.28s ease;
-            flex-shrink: 0;
-        }
-        .accordion-header.open .accordion-arrow {
-            transform: rotate(90deg);
-        }
-
-        /* محتوى الـ Accordion */
-        .accordion-body {
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.32s ease;
-            background: rgba(0,0,0,0.15);
-        }
-        .accordion-body.open {
-            max-height: 500px;
-        }
-
-        /* العناصر داخل الـ Accordion */
-        .accordion-body .menu-item {
-            padding: 11px 18px 11px 30px;
-            font-size: 13px;
-            border-bottom: 1px solid rgba(255,255,255,0.03);
-        }
-        .accordion-body .menu-item::before { display: none; }
-        .accordion-body .menu-item:hover {
-            background: rgba(255,255,255,0.07);
-            padding-right: 36px;
-        }
-        .accordion-body .menu-item.active {
-            background: linear-gradient(90deg, #357abd, #2868a0);
-        }
-        .accordion-body .menu-item-icon { font-size: 14px; }
-        .accordion-body .menu-item-text { font-size: 13px; }
-
-        /* ===== شاشات صغيرة ===== */
-        @media (max-width: 768px) {
-            body { flex-direction: column; }
-            .sidebar { width: 100%; height: auto; }
-            .sidebar-menu { display: flex; overflow-x: auto; white-space: nowrap; }
-            .menu-item { padding: 10px 14px; }
-        }
-    </style>
-</head>
-<body>
-
-    <!-- القائمة الجانبية -->
-    <div class="sidebar">
-        <div class="sidebar-header">
-            <h2>📋 قائمة المطبوعات</h2>
-        </div>
-        <!-- شريط الحالة -->
-        <div class="status-bar" id="statusBar">
-            <span class="status-dot"></span>
-            <span class="status-text" id="statusText">اختر مطبوعة للعرض</span>
-        </div>
-        <div class="sidebar-menu" id="sidebarMenu">
-
-            <!-- ===== قسم: المطبوعات العامة ===== -->
-            <div class="accordion-section">
-                <div class="accordion-header open" onclick="toggleAccordion(this)">
-                    <span class="accordion-icon">📁</span>
-                    <span class="accordion-label">المطبوعات العامة</span>
-                    <span class="accordion-arrow">▶</span>
-                </div>
-                <div class="accordion-body open">
-                    <div class="menu-item" onclick="selectPublication('تظلم', 'files/tazalom.pdf', 'files/tazalom.docx')">
-                        <span class="menu-item-icon">📝</span>
-                        <span class="menu-item-text">طلب تظلم</span>
-                    </div>
-                    <div class="menu-item" onclick="selectPublication('صرف لوحات', 'files/plates.pdf', 'files/plates.docx')">
-                        <span class="menu-item-icon">🔢</span>
-                        <span class="menu-item-text">بيان صرف لوحات</span>
-                    </div>
-                    <div class="menu-item" onclick="selectPublication('ورقة فارغة', 'files/blank.pdf', 'files/blank.docx')">
-                        <span class="menu-item-icon">📄</span>
-                        <span class="menu-item-text">ورقة ورد فارغة (بالديباجة)</span>
-                    </div>
-                    <div class="menu-item" onclick="selectPublication('كشف ارسال جلسات', 'files/sessions.pdf', 'files/sessions.docx')">
-                        <span class="menu-item-icon">📋</span>
-                        <span class="menu-item-text">كشف إرسال جلسات</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- ===== قسم: الإحصائيات ===== -->
-            <div class="accordion-section">
-                <div class="accordion-header" onclick="toggleAccordion(this)">
-                    <span class="accordion-icon">📊</span>
-                    <span class="accordion-label">الإحصائيات</span>
-                    <span class="accordion-arrow">▶</span>
-                </div>
-                <div class="accordion-body">
-                    <div class="menu-item" onclick="selectPublication('الإحصائية الشهرية', 'files/stats_monthly.pdf', 'files/stats_monthly.docx')">
-                        <span class="menu-item-icon">📅</span>
-                        <span class="menu-item-text">الإحصائية الشهرية</span>
-                    </div>
-                    <div class="menu-item" onclick="selectPublication('البيان العددي', 'files/stats_count.pdf', 'files/stats_count.docx')">
-                        <span class="menu-item-icon">🔢</span>
-                        <span class="menu-item-text">البيان العددي</span>
-                    </div>
-                    <div class="menu-item" onclick="selectPublication('إحصائية المطالبة', 'files/stats_claim.pdf', 'files/stats_claim.docx')">
-                        <span class="menu-item-icon">📑</span>
-                        <span class="menu-item-text">إحصائية المطالبة</span>
-                    </div>
-                </div>
-            </div>
-
-        </div>
-    </div>
-
-    <!-- المحتوى الرئيسي -->
-<div class="main-content">
-        <div class="main-header">
-            <div class="logo-section">
-                <div class="logo-placeholder">
-                    <img src="logo.png" alt="شعار نيابة المرور" style="width: 50px; height: auto;">
-                </div>
-                <div class="header-titles">
-                    <h1>نيابة مرور عين الصيرة</h1>
-                    <p>نظام استدعاء وطباعة المطبوعات الرسمية</p>
-                </div>
-            </div>
-            <div style="text-align: left;">
-                <p id="currentDate" style="font-weight: bold;"></p>
-            </div>
-        </div>
-
-        <!-- منطقة العرض -->
-        <div class="viewer-area">
-            <div class="watermark">عين الصيرة</div>
-            
-            <!-- رسالة الترحيب الافتراضية -->
-            <div id="welcomeBox" class="welcome-message">
-                <h3>مرحباً بك</h3>
-                <p>يرجى اختيار المطبوعة المطلوبة من القائمة الجانبية لعرض المعاينة والبدء في الطباعة أو التعديل.</p>
-            </div>
-
-            <!-- حاوية المعاينة -->
-            <div id="previewBox" class="preview-container">
-
-                <!-- غلاف الورقة بحجم A4 -->
-                <div id="pdfPageWrapper" class="pdf-page-wrapper portrait">
-                    <span id="orientationBadge" class="page-orientation-badge">📄 A4 عمودي</span>
-                    <iframe id="pdfViewer" class="pdf-frame" src=""></iframe>
-                </div>
-
-                <div class="action-buttons">
-                    <button class="btn btn-word" id="btnWord" onclick="openWord()">
-                        <span>📄</span> فتح في Word للتعديل
-                    </button>
-                    <button class="btn btn-print" onclick="printPdf()">
-                        <span>🖨️</span> طباعة مباشرة
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        let currentWordPath = '';
-        let currentPdfPath = '';
-
-        // ========== Accordion ==========
-        function toggleAccordion(header) {
-            const body = header.nextElementSibling;
-            const isOpen = header.classList.contains('open');
-
-            header.classList.toggle('open', !isOpen);
-            body.classList.toggle('open', !isOpen);
-        }
-
-        // تحديث التاريخ
-        document.getElementById('currentDate').textContent = new Date().toLocaleDateString('ar-EG', {
-            weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
-        });
-
-        // ========== كشف اتجاه الـ PDF تلقائياً ==========
-        function detectPdfOrientation(pdfUrl) {
-            // نستخدم iframe مخفي لتحميل الـ PDF ونقرأ أبعاده
-            // الطريقة: نستعمل fetch + PDF.js أو نقرأ من الـ iframe بعد التحميل
-            // بما أننا لا نملك PDF.js، نعتمد على نسبة العرض/الارتفاع من iframe.contentDocument
-            // → الحل الأبسط: نضع timeout بسيط بعد التحميل ونقيس
-            const iframe = document.getElementById('pdfViewer');
-            const wrapper = document.getElementById('pdfPageWrapper');
-            const badge = document.getElementById('orientationBadge');
-
-            // الوضع الافتراضي = portrait أثناء التحميل
-            setOrientation('portrait');
-
-            iframe.onload = function() {
-                try {
-                    // محاولة قراءة أبعاد المستند من داخل الـ iframe
-                    const innerDoc = iframe.contentDocument || iframe.contentWindow?.document;
-                    if (innerDoc) {
-                        const body = innerDoc.body;
-                        const scrollW = body?.scrollWidth || 0;
-                        const scrollH = body?.scrollHeight || 0;
-                        if (scrollW > 0 && scrollH > 0) {
-                            if (scrollW > scrollH) {
-                                setOrientation('landscape');
-                            } else {
-                                setOrientation('portrait');
-                            }
-                            return;
-                        }
-                    }
-                } catch(e) {
-                    // قد يمنع CORS القراءة — نعتمد على اسم الملف كخطة بديلة
-                }
-
-                // الوضع الافتراضي portrait حتى يتم تحميل الملف الحقيقي
-                setOrientation('portrait');
-            };
-        }
-
-        function setOrientation(mode) {
-            const wrapper = document.getElementById('pdfPageWrapper');
-            const badge = document.getElementById('orientationBadge');
-            wrapper.classList.remove('portrait', 'landscape');
-            wrapper.classList.add(mode);
-            if (mode === 'landscape') {
-                badge.textContent = '🖼️ A4 أفقي';
-            } else {
-                badge.textContent = '📄 A4 عمودي';
+        @keyframes fadeInScale {
+            from { 
+                opacity: 0; 
+                transform: scale(0.98) translateY(10px); 
+            }
+            to { 
+                opacity: 1; 
+                transform: scale(1) translateY(0); 
             }
         }
 
-        // ========== اختيار المطبوعة ==========
-        function selectPublication(name, pdfPath, wordPath) {
-            // تحديث شريط الحالة
-            const statusBar = document.getElementById('statusBar');
-            const statusText = document.getElementById('statusText');
-            statusBar.classList.add('active-status');
-            statusText.textContent = '📂 ' + name;
+        .pdf-wrapper {
+            flex: 0 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: var(--shadow);
+            position: relative;
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
 
-            // تحديث العناصر النشطة في القائمة
+        .pdf-wrapper.portrait { 
+            width: 600px; 
+            height: calc(100vh - 150px); 
+            max-height: 848px;
+        }
+        
+        .pdf-wrapper.landscape { 
+            width: calc(100% - 300px); 
+            max-width: 1000px;
+            height: auto;
+            aspect-ratio: 1.414 / 1; 
+        }
+
+        .pdf-frame {
+            width: 100%;
+            height: 100%;
+            border: none;
+            display: block;
+        }
+
+        .side-toolbar {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            background: var(--bg-white);
+            padding: 20px;
+            border-radius: 20px;
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow);
+            width: 240px;
+            height: fit-content;
+            transition: var(--transition);
+        }
+
+        .toolbar-divider {
+            height: 1px;
+            background: var(--border-color);
+            margin: 10px 0;
+            width: 100%;
+        }
+
+        .badge-orientation {
+            background: var(--primary-color);
+            color: white;
+            padding: 10px;
+            border-radius: 12px;
+            font-size: 0.9rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            text-align: center;
+            transition: var(--transition);
+            cursor: pointer;
+            user-select: none;
+        }
+        
+        .badge-orientation:hover {
+            filter: brightness(1.1);
+            transform: translateY(-2px);
+        }
+        
+        .badge-orientation.landscape {
+            background: var(--accent-orange);
+        }
+
+        .btn {
+            padding: 12px 28px;
+            border-radius: 12px;
+            border: none;
+            cursor: pointer;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: var(--transition);
+            font-size: 1rem;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(26, 86, 219, 0.3);
+        }
+
+        .btn-outline {
+            background: var(--bg-white);
+            border: 2px solid var(--primary-color);
+            color: var(--primary-color);
+        }
+
+        .btn-outline:hover {
+            background: rgba(26, 86, 219, 0.05);
+            transform: translateY(-2px);
+        }
+
+        /* Status Bar */
+        .status-bar {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--primary-color);
+            color: white;
+            padding: 10px 25px;
+            border-radius: 30px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+            display: none;
+            align-items: center;
+            gap: 12px;
+            z-index: 1000;
+            animation: slideUp 0.3s ease-out;
+        }
+
+        @keyframes slideUp {
+            from { bottom: -50px; }
+            to { bottom: 20px; }
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover { background: var(--secondary-color); }
+    </style>
+</head>
+<body data-theme="light">
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 20px;">
+                <i class="fas fa-print" style="font-size: 1.5rem; color: #7aaeff;"></i>
+                <h2 style="font-size: 1.2rem; font-weight: 900; color: white;">قائمة المطبوعات</h2>
+            </div>
+            <div class="search-container">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" class="search-input" id="searchInput" placeholder="بحث عن مطبوعة..." onkeyup="filterMenu()">
+            </div>
+        </div>
+
+        <div class="sidebar-content">
+            <div class="accordion-controls">
+                <button onclick="expandAll()"><i class="fas fa-expand-alt"></i> فتح الكل</button>
+                <button onclick="collapseAll()"><i class="fas fa-compress-alt"></i> طي الكل</button>
+            </div>
+            <div id="menuContainer">
+                <!-- سيتم توليد المطبوعات هنا برمجياً -->
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <header class="top-bar" style="display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; padding: 0 30px;">
+            <!-- Right Section: Texts -->
+            <div style="display: flex; align-items: center; justify-content: flex-start;">
+                <div style="text-align: right; border-left: 1px solid rgba(255,255,255,0.2); padding-left: 20px; margin-left: 20px; color: white;">
+                    <span style="font-size: 1.3rem; font-weight: 700; display: block;">مطبوعات النيابة</span>
+                    <span style="font-size: 1.rem; color: #7aaeff;">اختر من القائمه الجانبية</span>
+                </div>
+            </div>
+
+            <!-- Middle Section: Logo & Name -->
+            <div class="brand" style="display: flex;font-size: 1.2rem; align-items: center; gap: 15px; justify-content: center;">
+                <img src="logo.png" alt="شعار النيابة" onerror="this.src=''" style="width: 45px;">
+                <h1>نيابة مرور عين الصيرة</h1>
+            </div>
+
+            <!-- Left Section: Date & Theme Toggle -->
+            <div class="top-actions" style="display: flex; align-items: center; gap: 20px; justify-content: flex-end;">
+                <p style="font-size: 1.2rem; color: #7aaeff; font-weight: 900; margin: 0;" id="currentDate"></p>
+                <button class="theme-toggle" onclick="toggleTheme()" title="تبديل الوضع الليلي/النهاري">
+                    <i class="fas fa-moon" id="themeIcon"></i>
+                </button>
+            </div>
+        </header>
+
+        <div class="viewer-area">
+            <!-- Welcome Box -->
+            <div id="welcomeBox" class="welcome-card">
+                <i class="fas fa-file-invoice"></i>
+                <h2 style="margin-bottom: 15px;">مرحباً بك في نظام مطبوعات النيابة المطور</h2>
+                <p style="color: var(--text-muted); line-height: 1.6;">يرجى اختيار المطبوعة المطلوبة من القائمة الجانبية. يمكنك معاينة الملف، طباعته مباشرة، أو فتحه في برنامج Word للتعديل عليه.</p>
+                <div style="margin-top: 20px; padding: 15px; background: rgba(26, 86, 219, 0.1); border-radius: 12px; font-size: 0.9rem; color: var(--primary-color);">
+                    <i class="fas fa-info-circle"></i> النظام "ذكي" وسيتذكر اتجاه الورقة (طولي/عرضي) الذي اخترته لكل ملف بشكل مستقل.
+                </div>
+            </div>
+
+            <!-- Preview Box -->
+            <div id="previewBox" class="preview-container">
+                <div id="pdfWrapper" class="pdf-wrapper portrait">
+                    <iframe id="pdfViewer" class="pdf-frame" src=""></iframe>
+                </div>
+
+                <!-- Side Toolbar -->
+                <div class="side-toolbar">
+                    <div style="font-size: 0.8rem; color: var(--text-muted); font-weight: 700; margin-bottom: 5px; text-align: center;">اتجاه الورقة</div>
+                    <div id="orientationBadge" class="badge-orientation" onclick="manualToggleOrientation()" title="اضغط للتبديل اليدوي - سيتم حفظ اختيارك لهذا الملف">
+                        <i class="fas fa-arrows-alt-v"></i> <span>طولي (A4)</span>
+                    </div>
+                    
+                    <div class="toolbar-divider"></div>
+                    
+                    <div style="font-size: 0.8rem; color: var(--text-muted); font-weight: 700; margin-bottom: 5px; text-align: center;">إجراءات سريعة</div>
+                    <button class="btn btn-primary" onclick="printPdf()" style="width: 100%;">
+                        <i class="fas fa-print"></i> طباعة فورية
+                    </button>
+                    
+                    <div style="display: flex; gap: 8px;">
+                        <input type="file" id="wordFileInput" accept=".doc,.docx" style="display:none">
+                        <button class="btn btn-outline" onclick="document.getElementById('wordFileInput').click()" style="flex: 1; padding: 12px 10px; font-size: 0.9rem;">
+                            <i class="fas fa-file-word"></i> فتح في وورد
+                        </button>
+                        <button class="btn btn-outline" onclick="copyFolderPath()" title="نسخ مسار المجلد للصقه في برامج أخرى" style="width: 50px; padding: 0;">
+                            <i class="fas fa-copy"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="toolbar-divider"></div>
+                    
+                    <div style="font-size: 0.7rem; color: var(--text-muted); text-align: center; line-height: 1.4;">
+                        <i class="fas fa-save"></i> يتم حفظ اتجاه الورقة تلقائياً لكل ملف بمجرد تغييره.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Status Toast -->
+    <div id="statusToast" class="status-bar">
+        <i class="fas fa-check-circle"></i>
+        <span id="statusText">تم تحميل الملف بنجاح</span>
+    </div>
+
+    <script>
+        // بيانات المطبوعات
+        const publicationsData = [
+            {
+                category: "المطبوعات الأساسية",
+                items: [
+                    { name: "طلب تظلم", pdf: "files/طلب تظلم.pdf", word: "files/طلب تظلم.docx", orientation: "portrait" },
+                    { name: "بيان صرف لوحات", pdf: "files/بيان صرف لوحات.pdf", word: "files/بيان صرف لوحات.docx", orientation: "portrait" },
+                    { name: "ورقة فارغة", pdf: "files/فارغة.pdf", word: "files/فارغة.docx", orientation: "portrait" },
+                    { name: "كشف ارسال جلسات", pdf: "files/كشف ارسال جلسات.pdf", word: "files/كشف ارسال جلسات.docx", orientation: "portrait" },
+                    { name: "خطاب سداد رخصة مسحوبة", pdf: "files/خطاب سداد رخصة مسحوبة.pdf", word: "files/خطاب سداد رخصة مسحوبة.docx", orientation: "portrait" },
+                ]
+            },
+            {
+                category: "الإحصائيات والتقارير",
+                items: [
+                    { name: "الإحصائية الشهرية", pdf: "files/الإحصائية الشهرية.pdf", word: "files/الإحصائية الشهرية.docx", orientation: "landscape" },
+                    { name: "البيان العددي", pdf: "files/البيان العددي.pdf", word: "files/البيان العددي.docx", orientation: "portrait" },
+                    { name: "إحصائية المطالبة", pdf: "files/إحصائية المطالبة.pdf", word: "files/إحصائية المطالبة.docx", orientation: "landscape" }
+                ]
+            }
+        ];
+
+        let currentPdfPath = '';
+        let currentWordPath = '';
+        let currentPublicationName = '';
+        let currentOrientation = 'portrait';
+
+        // تهيئة القائمة
+        function initMenu() {
+            const container = document.getElementById('menuContainer');
+            container.innerHTML = '';
+
+            publicationsData.forEach((cat, index) => {
+                const item = document.createElement('div');
+                item.className = 'accordion-item';
+                item.innerHTML = `
+                    <div class="accordion-header" onclick="toggleAccordion(this)">
+                        <span style="font-weight: 700;"><i class="fas fa-folder-open" style="margin-left: 10px; color: var(--primary-color);"></i> ${cat.category}</span>
+                        <i class="fas fa-chevron-down chevron"></i>
+                    </div>
+                    <div class="accordion-body">
+                        ${cat.items.map(pub => `
+                            <div class="menu-item" onclick="selectPublication('${pub.name}', '${pub.pdf}', '${pub.word}', '${pub.orientation}', this)">
+                                <i class="far fa-file-alt"></i>
+                                <span>${pub.name}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+                container.appendChild(item);
+            });
+        }
+
+        function toggleAccordion(header) {
+            const body = header.nextElementSibling;
+            const isOpen = header.classList.contains('open');
+            
+            document.querySelectorAll('.accordion-header').forEach(h => {
+                h.classList.remove('open');
+                h.nextElementSibling.classList.remove('open');
+            });
+
+            if (!isOpen) {
+                header.classList.add('open');
+                body.classList.add('open');
+            }
+        }
+
+        function expandAll() {
+            document.querySelectorAll('.accordion-header').forEach(h => {
+                h.classList.add('open');
+                h.nextElementSibling.classList.add('open');
+            });
+        }
+
+        function collapseAll() {
+            document.querySelectorAll('.accordion-header').forEach(h => {
+                h.classList.remove('open');
+                h.nextElementSibling.classList.remove('open');
+            });
+        }
+
+        function filterMenu() {
+            const input = document.getElementById('searchInput').value.toLowerCase();
             const items = document.querySelectorAll('.menu-item');
+            const headers = document.querySelectorAll('.accordion-item');
+
             items.forEach(item => {
-                const txt = item.querySelector('.menu-item-text')?.textContent || '';
-                if (item.textContent.includes(name)) {
-                    item.classList.add('active');
+                const text = item.textContent.toLowerCase();
+                if (text.includes(input)) {
+                    item.style.display = 'flex';
+                    item.parentElement.classList.add('open');
+                    item.parentElement.previousElementSibling.classList.add('open');
                 } else {
-                    item.classList.remove('active');
+                    item.style.display = 'none';
                 }
             });
 
-            // إخفاء رسالة الترحيب وإظهار المعاينة
-            document.getElementById('welcomeBox').style.display = 'none';
-            document.getElementById('previewBox').style.display = 'flex';
+            headers.forEach(header => {
+                const hasVisibleItems = Array.from(header.querySelectorAll('.menu-item')).some(i => i.style.display !== 'none');
+                header.style.display = hasVisibleItems ? 'block' : 'none';
+            });
+        }
 
-            // تحديث المسارات
+        function selectPublication(name, pdfPath, wordPath, defaultOrientation, element) {
+            document.querySelectorAll('.menu-item').forEach(i => i.classList.remove('active'));
+            element.classList.add('active');
+            
+            const welcomeBox = document.getElementById('welcomeBox');
+            const previewBox = document.getElementById('previewBox');
+
+            if (welcomeBox.style.display !== 'none') {
+                welcomeBox.style.opacity = '0';
+                welcomeBox.style.transform = 'translateY(-20px)';
+                welcomeBox.style.transition = 'all 0.4s ease';
+                
+                setTimeout(() => {
+                    welcomeBox.style.display = 'none';
+                    previewBox.style.display = 'flex';
+                }, 400);
+            } else {
+                previewBox.style.animation = 'none';
+                void previewBox.offsetWidth;
+                previewBox.style.animation = 'fadeInScale 0.5s cubic-bezier(0.4, 0, 0.2, 1)';
+            }
+
             currentPdfPath = pdfPath;
             currentWordPath = wordPath;
+            currentPublicationName = name;
 
-            // تعيين الـ iframe ثم كشف الاتجاه
+            // تم إزالة تحديث رابط الوورد بناءً على الطلب الجديد
+
             const viewer = document.getElementById('pdfViewer');
-            setOrientation('portrait');
             viewer.src = pdfPath;
-            detectPdfOrientation(pdfPath);
+            
+            // البحث عن الاتجاه المحفوظ لهذا الملف تحديداً
+            const savedOrientation = localStorage.getItem('orient_' + name);
+            if (savedOrientation) {
+                updateOrientationBadge(savedOrientation, false); // false تعني عدم الحفظ مرة أخرى الآن
+            } else {
+                // إذا لم يوجد حفظ، نحاول الاكتشاف التلقائي للصور
+                const isImage = /\.(jpg|jpeg|png|webp|gif)$/i.test(pdfPath);
+                if (isImage) {
+                    detectImageOrientation(pdfPath);
+                } else {
+                    updateOrientationBadge(defaultOrientation, false);
+                }
+            }
 
-            console.log('جاري عرض: ' + name);
+            showToast(`📂 جاري عرض: ${name}`);
+        }
+        
+        function detectImageOrientation(url) {
+            const img = new Image();
+            img.onload = function() {
+                const orientation = (this.width > this.height) ? 'landscape' : 'portrait';
+                updateOrientationBadge(orientation, true); // حفظ الاكتشاف التلقائي
+            };
+            img.src = url;
+        }
+        
+        function manualToggleOrientation() {
+            const newOrientation = (currentOrientation === 'portrait') ? 'landscape' : 'portrait';
+            updateOrientationBadge(newOrientation, true); // true تعني حفظ الاختيار الجديد
+            showToast(`💾 تم حفظ تفضيلك لهذا الملف: ${newOrientation === 'landscape' ? 'عرضي' : 'طولي'}`);
+        }
+
+        function updateOrientationBadge(orientation, shouldSave) {
+            currentOrientation = orientation;
+            const badge = document.getElementById('orientationBadge');
+            const wrapper = document.getElementById('pdfWrapper');
+            
+            // حفظ في الذاكرة إذا طلب ذلك وكان هناك ملف مختار
+            if (shouldSave && currentPublicationName) {
+                localStorage.setItem('orient_' + currentPublicationName, orientation);
+            }
+            
+            wrapper.classList.remove('portrait', 'landscape');
+            
+            if (orientation === 'landscape') {
+                badge.className = 'badge-orientation landscape';
+                badge.innerHTML = '<i class="fas fa-arrows-alt-h"></i> <span>عرضي (A4)</span>';
+                wrapper.classList.add('landscape');
+            } else {
+                badge.className = 'badge-orientation';
+                badge.innerHTML = '<i class="fas fa-arrows-alt-v"></i> <span>طولي (A4)</span>';
+                wrapper.classList.add('portrait');
+            }
+        }
+
+        function showToast(text) {
+            const toast = document.getElementById('statusToast');
+            document.getElementById('statusText').textContent = text;
+            toast.style.display = 'flex';
+            setTimeout(() => { toast.style.display = 'none'; }, 3000);
+        }
+
+        function toggleTheme() {
+            const body = document.body;
+            const icon = document.getElementById('themeIcon');
+            if (body.getAttribute('data-theme') === 'light') {
+                body.setAttribute('data-theme', 'dark');
+                icon.className = 'fas fa-sun';
+                localStorage.setItem('theme', 'dark');
+            } else {
+                body.setAttribute('data-theme', 'light');
+                icon.className = 'fas fa-moon';
+                localStorage.setItem('theme', 'light');
+            }
         }
 
         function printPdf() {
             if (!currentPdfPath) return;
-            const popup = window.open(currentPdfPath, 'print_popup',
-                'width=800,height=600,toolbar=1,menubar=1,scrollbars=1');
-            if (popup) {
-                popup.onload = function () {
-                    popup.focus();
+            const viewer = document.getElementById('pdfViewer');
+            try {
+                viewer.contentWindow.focus();
+                viewer.contentWindow.print();
+            } catch (e) {
+                const popup = window.open(currentPdfPath, '_blank', 'width=900,height=700,left=100,top=50');
+                popup.onload = function() {
                     popup.print();
+                    setTimeout(() => popup.close(), 1000);
                 };
             }
         }
 
-        function openWord() {
-            if (currentWordPath) {
-                const fullPath = window.location.href.replace(/[^\/]*$/, '') + currentWordPath;
-                window.location.href = 'ms-word:ofe|u|' + fullPath;
-            }
+        function copyFolderPath() {
+            // استخراج المسار الكامل للمجلد من رابط الصفحة الحالي
+            let currentPath = window.location.pathname;
+            // إزالة اسم ملف الـ HTML من المسار
+            let folderPath = currentPath.substring(0, currentPath.lastIndexOf('/'));
+            // تحويل المسار من شكل الويب إلى شكل الويندوز (إذا لزم الأمر)
+            let windowsPath = folderPath.replace(/\//g, '\\').substring(1); 
+            // إضافة مجلد files
+            let finalPath = windowsPath + "\\files";
+            
+            // محاولة النسخ للحافظة
+            const tempInput = document.createElement("input");
+            tempInput.value = finalPath;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            document.execCommand("copy");
+            document.body.removeChild(tempInput);
+            
+            showToast("📋 تم نسخ مسار مجلد الملفات");
+        }
+
+        document.getElementById('currentDate').textContent = new Date().toLocaleDateString('ar-EG', {
+            weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+        });
+
+        if (localStorage.getItem('theme') === 'dark') {
+            document.body.setAttribute('data-theme', 'dark');
+            document.getElementById('themeIcon').className = 'fas fa-sun';
+        }
+
+        initMenu();
+        
+        const firstHeader = document.querySelector('.accordion-header');
+        if (firstHeader) {
+            firstHeader.classList.add('open');
+            firstHeader.nextElementSibling.classList.add('open');
         }
     </script>
 </body>

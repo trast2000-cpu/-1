@@ -3,11 +3,41 @@
 <head>
     <meta charset="UTF-8">
     <title>نظام التحقيق المتكامل - إبراهيم أحمد</title>
-    <style>
+        <link rel="stylesheet" href="fontawesome-free-6.4.0-web/css/all.min.css">
+<style>
         /* خطوط النظام فقط - لا تحتاج إنترنت */
 
         /* --- تنسيقات واجهة الإدخال المدمجة (Compact) - الوضع العصري --- */
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f0f2f5; margin: 0; padding: 5px; font-size: 16px; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #dce3ee; margin: 0; padding: 5px; font-size: 16px;
+            background-image: radial-gradient(rgba(30,58,95,0.20) 1.4px, transparent 1.4px);
+            background-size: 28px 28px;
+            background-position: center;
+        }
+
+        /* ── F9 Toast ── */
+        #f9-toast {
+            position: fixed;
+            bottom: -70px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, #1e3a5f, #2d5a8e);
+            color: #e2e8f0;
+            padding: 10px 24px;
+            border-radius: 30px;
+            font-size: 14px;
+            font-family: 'Cairo', 'Segoe UI', Arial, sans-serif;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            border: 1px solid rgba(74,122,181,0.4);
+            z-index: 99999;
+            transition: bottom 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+            white-space: nowrap;
+        }
+        #f9-toast.show {
+            bottom: 30px;
+        }
 
 /* تكبير الواجهة على الشاشة فقط — لا يؤثر على الطباعة */
 @media screen {
@@ -517,7 +547,7 @@ box-sizing: border-box;
             align-items: center;
             gap: 5px;
         }
-        .pm-preview-label::before { content: '💡'; font-size: 13px; }
+        .pm-preview-label::before { font-family: 'Font Awesome 6 Free'; font-weight: 900; content: '\f0eb'; font-size: 13px; }
         .pm-preview-box .var-text {
             font-weight: 900;
             color: #2563eb; /* أزرق للمتغيرات */
@@ -1075,17 +1105,17 @@ box-sizing: border-box;
 <div class="no-print">
     <h1> نظام إعداد محاضر التحقيق - اختر نوع التحقيق</h1>
     <div class="mode-toggle-bar" id="modeToggleBar">
-        <span class="mode-label">📋 نوع التحقيق :</span>
-        <button id="btn-mode-main" class="mode-btn active-mode" onclick="switchMode('main')">📄 تحقيق عكس الاتجاه </button>
-        <button id="btn-mode-bail" class="mode-btn" onclick="switchMode('bail_reduction')">📋 فتحة محضر - تخفيض الكفالة -</button>
-        <button id="btn-mode-objection" class="mode-btn" onclick="switchMode('objection')">⚖️ تحقيق حركات استعراضية</button>
+        <span class="mode-label"><i class="fa-solid fa-file-lines"></i> نوع التحقيق :</span>
+        <button id="btn-mode-main" class="mode-btn active-mode" onclick="switchMode('main')"><i class="fa-solid fa-file-alt"></i> تحقيق عكس الاتجاه </button>
+        <button id="btn-mode-bail" class="mode-btn" onclick="switchMode('bail_reduction')"><i class="fa-solid fa-file-contract"></i> فتحة محضر - تخفيض الكفالة -</button>
+        <button id="btn-mode-objection" class="mode-btn" onclick="switchMode('objection')"><i class="fa-solid fa-scale-balanced"></i> تحقيق حركات استعراضية</button>
     </div>
     <div class="main-layout">
         <!-- الشريط الجانبي الأيمن: إعدادات الخط والاستايل -->
         <div class="sidebar-panel" id="sidebarPanel">
-            <div class="sidebar-tab">⚙ إعدادات الخط و الاستايل </div>
-<button class="sidebar-pin-btn" id="pinBtn" onclick="togglePin()" title="تثبيت القائمة">📌</button>
-            <div class="sidebar-title">⚙️ إعدادات الخط والاستايل</div>
+            <div class="sidebar-tab"><i class="fa-solid fa-gear"></i> إعدادات الخط و الاستايل </div>
+<button class="sidebar-pin-btn" id="pinBtn" onclick="togglePin()" title="تثبيت القائمة"><i class="fa-solid fa-thumbtack"></i></button>
+            <div class="sidebar-title"><i class="fa-solid fa-gear"></i> إعدادات الخط والاستايل</div>
             <div class="field">
                 <label>اختر خط التحقيق</label>
                 <select id="font_choice" class="persist" onchange="previewFont(this.value)">
@@ -1254,7 +1284,7 @@ box-sizing: border-box;
 
 
     <div class="section" id="section_objection_extra" style="display:none;">
-        <div class="section-title" onclick="toggleSection(this)">⚖️ بيانات تحقيق الحركات الاستعراضية <span class="toggle-icon">▼</span></div>
+        <div class="section-title" onclick="toggleSection(this)"><i class="fa-solid fa-scale-balanced"></i> بيانات تحقيق الحركات الاستعراضية <span class="toggle-icon">▼</span></div>
         <div class="section-content form-grid">
             <div class="field">
                 <label>تاريخ نشر الفيديو</label>
@@ -1542,7 +1572,7 @@ box-sizing: border-box;
                         <option value="no">لا يعرض على الطب الشرعي</option>
                     </select>
                     <div id="forensic-btn-wrapper">
-                        <button type="button" class="btn-forensic-memo" onclick="openForensicMemoModal()" style="font-size: 15px;">📝 تحرير وطباعة المذكرة</button>
+                        <button type="button" class="btn-forensic-memo" onclick="openForensicMemoModal()" style="font-size: 15px;"><i class="fa-solid fa-pen-to-square"></i> تحرير وطباعة المذكرة</button>
                     </div>
                 </div>
                 <div style="flex: 1; display: flex; flex-direction: column;">
@@ -1620,11 +1650,11 @@ box-sizing: border-box;
     </div>
 
 <div class="actions-bar">
-    <button class="btn-generate" onclick="generateReport()" title="اضغط لطباعه المحضر">🖨️ طباعة  المحضر</button>
-    <button class="btn-preamble" onclick="openPreambleModal()" title="تعديل نص الديباجة الافتتاحية">✏️ تحرير الديباجة</button>
-    <button class="btn-clear" onclick="clearAllData()" title="حذف جميع البيانات المدخلة وإعادة تهيئة الحقول">🗑️ مسح البيانات</button>
-    <button class="btn-save-file" onclick="downloadReport()" title="حفظ بيانات المحضر كـ ملف ( تيكست txt)">💾 حفظ المحضر كملف TXT</button>
-    <button class="btn-open-file" onclick="triggerOpenFile()" title="فتح و تحميل بيانات ملف محضر سابق تم حفظه">📂 فتح محضر سابق</button>
+    <button class="btn-generate" onclick="generateReport()" title="اضغط لطباعه المحضر"><i class="fa-solid fa-print"></i> طباعة المحضر</button>
+    <button class="btn-preamble" onclick="openPreambleModal()" title="تعديل نص الديباجة الافتتاحية"><i class="fa-solid fa-pencil"></i> تحرير الديباجة</button>
+    <button class="btn-clear" onclick="clearAllData()" title="حذف جميع البيانات المدخلة وإعادة تهيئة الحقول"><i class="fa-solid fa-trash"></i> مسح البيانات</button>
+    <button class="btn-save-file" onclick="downloadReport()" title="حفظ بيانات المحضر كـ ملف ( تيكست txt)"><i class="fa-solid fa-floppy-disk"></i> حفظ المحضر كملف TXT</button>
+    <button class="btn-open-file" onclick="triggerOpenFile()" title="فتح و تحميل بيانات ملف محضر سابق تم حفظه"><i class="fa-solid fa-folder-open"></i> فتح محضر سابق</button>
     <input type="file" id="file_input" style="display:none" onchange="handleFileSelect(event)" accept=".txt">
 </div>
 
@@ -1658,9 +1688,9 @@ onmouseout="this.style.opacity='0.5'; this.style.color='#9ca3af'; this.style.let
 
         </div>
         <div id="preamble-modal-footer">
-            <button class="pm-btn-reset" onclick="resetPreambleToDefault()">🔄 استعادة البيانات الافتراضية</button>
-            <button class="pm-btn-cancel" onclick="closePreambleModal()">✖ إلغاء</button>
-            <button class="pm-btn-save" onclick="savePreamble()">✅ حفظ التعديلات</button>
+            <button class="pm-btn-reset" onclick="resetPreambleToDefault()"><i class="fa-solid fa-rotate-right"></i> استعادة البيانات الافتراضية</button>
+            <button class="pm-btn-cancel" onclick="closePreambleModal()"><i class="fa-solid fa-xmark"></i> إلغاء</button>
+            <button class="pm-btn-save" onclick="savePreamble()"><i class="fa-solid fa-check"></i> حفظ التعديلات</button>
         </div>
     </div>
 </div>
@@ -1681,10 +1711,10 @@ onmouseout="this.style.opacity='0.5'; this.style.color='#9ca3af'; this.style.let
             <textarea id="detention-order-textarea" placeholder="سيُملأ تلقائياً من بيانات المتهم عند فتح النافذة..."></textarea>
         </div>
         <div id="detention-modal-footer">
-            <button class="det-btn-refresh" onclick="refreshDetentionOrderText()">🔄 استعادة البيانات الافتراضية</button>
-            <button class="det-btn-cancel"  onclick="closeDetentionOrderModal()">✖ إلغاء</button>
-            <button class="det-btn-save"    onclick="saveDetentionOrder()">✅ حفظ التعديلات</button>
-            <button class="det-btn-print"   onclick="printDetentionOrder()">🖨️ طباعة الأمر</button>
+            <button class="det-btn-refresh" onclick="refreshDetentionOrderText()"><i class="fa-solid fa-rotate-right"></i> استعادة البيانات الافتراضية</button>
+            <button class="det-btn-cancel"  onclick="closeDetentionOrderModal()"><i class="fa-solid fa-xmark"></i> إلغاء</button>
+            <button class="det-btn-save"    onclick="saveDetentionOrder()"><i class="fa-solid fa-check"></i> حفظ التعديلات</button>
+            <button class="det-btn-print"   onclick="printDetentionOrder()"><i class="fa-solid fa-print"></i> طباعة الأمر</button>
         </div>
     </div>
 </div>
@@ -1696,7 +1726,7 @@ onmouseout="this.style.opacity='0.5'; this.style.color='#9ca3af'; this.style.let
 <div id="forensic-modal-overlay">
     <div id="forensic-modal">
         <div id="forensic-modal-header">
-            <span>🧪 تحرير مذكرة العرض على الطب الشرعي</span>
+            <span><i class="fa-solid fa-flask"></i> تحرير مذكرة العرض على الطب الشرعي</span>
             <button class="close-btn" onclick="closeForensicMemoModal()" title="إغلاق">&#10005;</button>
         </div>
         <div id="forensic-modal-body">
@@ -1708,10 +1738,10 @@ onmouseout="this.style.opacity='0.5'; this.style.color='#9ca3af'; this.style.let
             <textarea id="forensic-order-textarea" placeholder="سيُملأ تلقائياً من بيانات المتهم عند فتح النافذة..."></textarea>
         </div>
         <div id="forensic-modal-footer">
-            <button class="for-btn-refresh" onclick="refreshForensicMemoText()">🔄 استعادة البيانات الافتراضية</button>
-            <button class="for-btn-cancel"  onclick="closeForensicMemoModal()">✖ إلغاء</button>
-            <button class="for-btn-save"    onclick="saveForensicMemo()">✅ حفظ التعديلات</button>
-            <button class="for-btn-print"   onclick="printForensicMemo()">🖨️ طباعة المذكرة</button>
+            <button class="for-btn-refresh" onclick="refreshForensicMemoText()"><i class="fa-solid fa-rotate-right"></i> استعادة البيانات الافتراضية</button>
+            <button class="for-btn-cancel"  onclick="closeForensicMemoModal()"><i class="fa-solid fa-xmark"></i> إلغاء</button>
+            <button class="for-btn-save"    onclick="saveForensicMemo()"><i class="fa-solid fa-check"></i> حفظ التعديلات</button>
+            <button class="for-btn-print"   onclick="printForensicMemo()"><i class="fa-solid fa-print"></i> طباعة المذكرة</button>
         </div>
     </div>
 </div>
@@ -2655,7 +2685,7 @@ function removeQuestion(id) {
             let label = "سؤال يدوي";
             if (item.type === 'viol') { label = "سؤال اتهام تلقائي"; }
             if (item.type === 'fixed') { label = "سؤال تحقيق ثابت"; }
-            if (item.type === 'closing') { label = "✅ سؤال ختامي"; }
+            if (item.type === 'closing') { label = '<i class="fa-solid fa-check-circle"></i> سؤال ختامي'; }
 
             // تحويل note القديم الى notes array اذا لزم الامر
             if (!Array.isArray(item.notes)) {
@@ -3291,7 +3321,7 @@ window.onload = function() {
                                 <button type="button" class="btn-add-q" onclick="addManualDecisionAfter('${decision.id}', '${section}')" title="إضافة قرار يدوي أخر اسفل هذا القرار " style="padding: 1px 4px; font-size: 13px;font-weight: bold;">+ قرار</button>
                                 <span onclick="removeManualDecision('${decision.id}')" 
                                       style="color: #e74c3c; cursor: pointer; font-weight: bold; font-size: 16px; padding: 0 4px;" 
-                                      title="حذف">❌</span>
+                                      title="حذف"><i class="fa-solid fa-trash-can"></i></span>
                             </div>
                         </div>
                         <div style="display: flex; gap: 5px; align-items: center;">
@@ -3507,22 +3537,30 @@ window.onload = function() {
         const prosecutionName = getProsecutionName();
 
 let questionsHtml = "";
+        let closingQuestionHtml = "";
         questions.forEach(item => {
             if (item.q.trim() !== "") {
                 // تحويل "حياته" إلى "حياتك" في الأسئلة الموجهة للمتهم
                 const questionText = item.q.split('حياته').join('حياتك');
-                questionsHtml += `
+                const questionBlock = `
                     <span class="question-block" style="font-size: ${sizeNum + 1}px;">س/ ${questionText}</span>
                     <span class="answer-block" style="font-size: ${sizeNum}px;">ج/ ${item.a}</span>
                 `;
                 const notes = Array.isArray(item.notes) ? item.notes : (item.note ? [item.note] : []);
+                let notesBlock = "";
                 notes.forEach(note => {
                     if (note && note.trim() !== "") {
-                        questionsHtml += `
+                        notesBlock += `
                         <span class="note-block" style="font-size: ${sizeNum}px; font-style: normal;">ملحوظة :ـ ${note}</span>
                         `;
                     }
                 });
+                // السؤال الختامي يُؤجَّل ليأتي بعد أسئلة الاتهام مباشرةً
+                if (item.type === 'closing') {
+                    closingQuestionHtml += questionBlock + notesBlock;
+                } else {
+                    questionsHtml += questionBlock + notesBlock;
+                }
             }
         });
 
@@ -3562,6 +3600,8 @@ let questionsHtml = "";
                     <p>رقم هاتف محمول/ <span class="var-text" style="font-size: ${sizeNum + 2}px;">${document.getElementById('def_phone').value}</span></p>
                 </div>
                 ${questionsHtml}
+                ${violationQuestionsHtml}
+                ${closingQuestionHtml}
                 ${buildProsecutionDecision(def, vType, plate, sizeNum)}
                 ${buildPoliceDecision(def, vType, plate, sizeNum)}
             `;
@@ -3597,26 +3637,35 @@ let questionsHtml = "";
 
               // بناء أسئلة وضع الاعتراض مع دعم note_footer
               let objQuestionsHtml = '';
+              let objClosingQuestionHtml = '';
               questions.forEach(item => {
                   if (item.q.trim() !== '') {
-                      objQuestionsHtml += `
+                      const qBlock = `
                           <span class="question-block" style="font-size: ${sizeNum + 1}px;">س/ ${item.q}</span>
                           <span class="answer-block" style="font-size: ${sizeNum}px;">ج/ ${item.a}</span>
                       `;
                       const notes = Array.isArray(item.notes) ? item.notes : (item.note ? [item.note] : []);
                       let hasNote = false;
+                      let notesBlock = '';
                       notes.forEach(note => {
                           if (note && note.trim() !== '') {
                               hasNote = true;
-                              objQuestionsHtml += `
+                              notesBlock += `
                           <span class="note-block" style="font-size: ${sizeNum}px; font-style: normal;">ملحوظة :ـ ${note}</span>
                               `;
                           }
                       });
+                      let footerBlock = '';
                       if (item.note_footer && hasNote) {
-                          objQuestionsHtml += `
+                          footerBlock = `
                           <span class="note-block" style="font-size: ${sizeNum}px; font-style: normal; display: block; text-align: left;">تمت الملحوظة&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;مدير النيابة</span>
                           `;
+                      }
+                      // السؤال الختامي يُؤجَّل ليأتي بعد أسئلة الاتهام مباشرةً
+                      if (item.type === 'closing') {
+                          objClosingQuestionHtml += qBlock + notesBlock + footerBlock;
+                      } else {
+                          objQuestionsHtml += qBlock + notesBlock + footerBlock;
                       }
                   }
               });
@@ -3665,6 +3714,7 @@ let questionsHtml = "";
                   </div>
                   ${objQuestionsHtml}
                   ${objViolQuestionsHtml}
+                  ${objClosingQuestionHtml}
                   ${buildProsecutionDecision(def, vType, plate, sizeNum)}
                   ${buildPoliceDecision(def, vType, plate, sizeNum)}
               `;
@@ -3683,6 +3733,7 @@ let questionsHtml = "";
             </div>
             ${questionsHtml}
             ${violationQuestionsHtml}
+            ${closingQuestionHtml}
             ${buildProsecutionDecision(def, vType, plate, sizeNum)}
             ${buildPoliceDecision(def, vType, plate, sizeNum)}
         `;
@@ -3888,7 +3939,19 @@ let questionsHtml = "";
         }
         
         // استعادة نوع التحقيق
+        // *** إصلاح: نحفظ الأسئلة المحملة في المتغير المناسب قبل استدعاء switchMode
+        // حتى لا تُمسح الإجابات عند إعادة بناء الأسئلة داخل switchMode ***
         if (data.reportMode && (data.reportMode === 'main' || data.reportMode === 'bail_reduction' || data.reportMode === 'objection')) {
+            if (data.questions) {
+                const loadedQs = JSON.parse(JSON.stringify(data.questions));
+                if (data.reportMode === 'bail_reduction') {
+                    savedBailQuestions = loadedQs;
+                } else if (data.reportMode === 'objection') {
+                    savedObjectionQuestions = loadedQs;
+                } else {
+                    savedMainQuestions = loadedQs;
+                }
+            }
             switchMode(data.reportMode);
         }
         
@@ -4459,7 +4522,7 @@ let questionsHtml = "";
         const btn = document.querySelector('#preamble-modal-footer .pm-btn-save');
         if (btn) {
             const orig = btn.textContent;
-            btn.textContent = '✅ تم الحفظ';
+            btn.innerHTML = '<i class="fa-solid fa-check"></i> تم الحفظ';
             btn.style.background = '#16a34a';
             setTimeout(() => { btn.textContent = orig; btn.style.background = ''; }, 1800);
         }
@@ -4562,13 +4625,13 @@ let questionsHtml = "";
         const mode = reportMode || 'main';
         if (mode === 'bail_reduction') {
             badge.style.background = '#d97706';
-            badge.textContent = '📋 تخفيض كفالة';
+            badge.innerHTML = '<i class="fa-solid fa-file-contract"></i> تخفيض كفالة';
         } else if (mode === 'objection') {
             badge.style.background = '#7c3aed';
-            badge.textContent = '⚖️ حركات استعراضية';
+            badge.innerHTML = '<i class="fa-solid fa-scale-balanced"></i> حركات استعراضية';
         } else {
             badge.style.background = '#2563eb';
-            badge.textContent = '📄 أساسي';
+            badge.innerHTML = '<i class="fa-solid fa-file-alt"></i> أساسي';
         }
     }
 
@@ -4752,7 +4815,7 @@ function saveDetentionOrder() {
     const btn = document.querySelector('#detention-modal-footer .det-btn-save');
     if (btn) {
         const orig = btn.textContent;
-        btn.textContent = '✅ تم الحفظ';
+        btn.innerHTML = '<i class="fa-solid fa-check"></i> تم الحفظ';
         btn.style.background = '#16a34a';
         setTimeout(() => { btn.textContent = orig; btn.style.background = ''; }, 1800);
     }
@@ -5087,7 +5150,7 @@ function saveDetentionOrder() {
         const btn = document.querySelector('#forensic-modal-footer .for-btn-save');
         if (btn) {
             const orig = btn.textContent;
-            btn.textContent = '✅ تم الحفظ';
+            btn.innerHTML = '<i class="fa-solid fa-check"></i> تم الحفظ';
             btn.style.background = '#16a34a';
             setTimeout(() => { btn.textContent = orig; btn.style.background = ''; }, 1800);
         }
@@ -5252,6 +5315,12 @@ function saveDetentionOrder() {
     });
 
     // ====== اختصار F9 — مسح البيانات بصمت بدون تنبيه ======
+    function showF9Toast() {
+        const toast = document.getElementById('f9-toast');
+        toast.classList.add('show');
+        setTimeout(() => toast.classList.remove('show'), 2500);
+    }
+
     function clearAllDataSilent() {
         const currentFont     = localStorage.getItem('font_choice');
         const currentFontSize = localStorage.getItem('font_size_choice');
@@ -5298,6 +5367,7 @@ function saveDetentionOrder() {
 
         applyStyle(currentStyle || 'formal3');
         saveData();
+        showF9Toast();
     }
 
     document.addEventListener('keydown', function(e) {
@@ -5309,5 +5379,12 @@ function saveDetentionOrder() {
     // =========================================================
 
 </script>
+
+    <!-- F9 Toast -->
+    <div id="f9-toast">
+        <i class="fa-solid fa-trash"></i>
+        <span>تم مسح جميع البيانات</span>
+    </div>
+
 </body>
 </html>

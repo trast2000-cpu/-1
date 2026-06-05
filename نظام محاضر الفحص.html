@@ -3,15 +3,96 @@
 <head>
 <meta charset="UTF-8">
 <title>نظام كشوف الأوامر الجنائية المتطور 2026</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
 <style>
+/* ===== نظام المتغيرات والألوان المطور ===== */
+:root {
+    --primary: #1a3a6b;
+    --primary-light: #2d5a8c;
+    --accent: #c8a45a;
+    --bg-light: #dce4f0;
+    --bg-white: #ebf0f6;
+    --text-main: #1a2a44;
+    --text-muted: #4a5568;
+    --border-color: #cbd5e0;
+    --shadow: 0 4px 12px rgba(26, 45, 74, 0.15);
+    --grid-color: rgba(26, 58, 107, 0.2);
+    --input-bg: #ffffff;
+}
+
+/* وضع الليل (Dark Mode) الشامل */
+[data-theme="dark"] {
+    --bg-light: #0f172a;
+    --bg-white: #1e293b;
+    --text-main: #f8fafc;
+    --text-muted: #94a3b8;
+    --border-color: #334155;
+    --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+    --grid-color: rgba(248, 250, 252, 0.2);
+    --input-bg: #2a3f63;
+    --primary: #7aaeff;
+    --primary-light: #1e2d4a;
+}
+
+/* إصلاح حقل التاريخ في الوضع الليلي */
+[data-theme="dark"] #dateInput {
+    background-color: var(--input-bg) !important;
+    color: var(--text-main) !important;
+    border-color: var(--border-color) !important;
+}
+
+[data-theme="dark"] #tableWrapper {
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45), 0 2px 8px rgba(0, 0, 0, 0.30);
+}
+
+/* إصلاح شامل لكل الحقول في الداك مود */
+[data-theme="dark"] [contenteditable],
+[data-theme="dark"] [contenteditable] *,
+[data-theme="dark"] td[contenteditable],
+[data-theme="dark"] span[contenteditable],
+[data-theme="dark"] ol[contenteditable],
+[data-theme="dark"] ol[contenteditable] li {
+    color: var(--text-main) !important;
+}
+
+[data-theme="dark"] select,
+[data-theme="dark"] input[type="text"],
+[data-theme="dark"] input[type="date"] {
+    background-color: var(--input-bg) !important;
+    color: var(--text-main) !important;
+    border-color: var(--border-color) !important;
+}
+
+[data-theme="dark"] .auto-list {
+    background-color: var(--bg-white) !important;
+    color: var(--text-main) !important;
+}
+
+[data-theme="dark"] .plate-letters div,
+[data-theme="dark"] .plate-numbers,
+[data-theme="dark"] .case-num-top,
+[data-theme="dark"] .amount-span {
+    color: var(--text-main) !important;
+}
+
+[data-theme="dark"] .order-cell,
+[data-theme="dark"] .order-cell * {
+    color: var(--text-main) !important;
+}
+
 /* ===== التنسيق العام ===== */
 body {
     font-family: "Segoe UI", Tahoma, sans-serif;
     margin: 0;
     padding: 10px;
-    background: linear-gradient(135deg, #eef2f7, #dde5ee);
+    background-color: var(--bg-light);
+    background-image: radial-gradient(var(--grid-color) .8px, transparent 1.1px);
+    background-size: 32px 32px;
+    background-position: center;
+    color: var(--text-main);
     direction: rtl;
+    transition: background-color 0.3s, color 0.3s;
 }
 
 /* تكبير الواجهة على الشاشة فقط — لا يؤثر على الطباعة */
@@ -24,12 +105,17 @@ body {
 .container {
     max-width: 1150px;
     margin: auto;
-    background: #fff;
+    background: var(--bg-white);
+    background-image: radial-gradient(var(--grid-color) .8px, transparent 1.1px);
+    background-size: 32px 32px;
+    background-position: center;
+    color: var(--text-main);
     padding: 8px 14px;
     box-sizing: border-box;
-    border-radius: 12px;
-    box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+    border-radius: 10px;
+    box-shadow: var(--shadow);
     position: relative;
+    transition: background-color 0.3s;
 }
 
 /* ===== الهيدر ===== */
@@ -37,6 +123,38 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
+}
+
+.system-title-bar {
+    background: linear-gradient(135deg, #1a3a6b, #2a5298);
+    color: white;
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    padding: 6px 15px;
+    min-height: 48px;
+    border-radius: 12px 12px 0 0;
+    margin: -8px -14px 10px -14px;
+}
+
+.theme-toggle-btn {
+    background: rgba(255, 255, 255, 0.15);
+    border: 2px solid rgba(255, 255, 255, 0.25);
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1rem;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.theme-toggle-btn:hover {
+    background: rgba(255, 255, 255, 0.25);
+    transform: rotate(20deg) scale(1.05);
 }
 
 .header-text {
@@ -51,6 +169,13 @@ body {
     height: 70px;
     border-radius: 10px;
     object-fit: contain;
+}
+
+/* إخفاء عناصر على الشاشة فقط - تظهر في الطباعة */
+@media screen {
+    .screen-hidden {
+        display: none !important;
+    }
 }
 
 /* ===== العنوان ===== */
@@ -73,20 +198,23 @@ body {
 
 /* ===== شريط التحكم ===== */
 .controls {
-    background: #f1f5f9;
+    background: var(--bg-white);
+    color: var(--text-main);
     padding: 7px 10px;
     display: flex;
     justify-content: center;
     gap: 8px;
     margin-bottom: 8px;
     border-radius: 10px;
-    border: 1px solid #ddd;
+    border: 1px solid var(--border-color);
 }
 
 .date-field, select, input {
     font-family: inherit;
     font-size: 13px;
-    border: 1px solid #ccc;
+    border: 1px solid var(--border-color);
+    background-color: var(--input-bg);
+    color: var(--text-main);
     border-radius: 6px;
     padding: 4px 6px;
     transition: 0.2s;
@@ -103,7 +231,9 @@ input:focus, select:focus {
     overflow: visible;
     max-height: none;
     transition: max-height 0.3s ease;
-    border-radius: 6px;
+    border-radius: 10px;
+    box-shadow: 0 8px 32px rgba(26, 45, 74, 0.18), 0 2px 8px rgba(26, 45, 74, 0.10);
+    overflow: hidden;
 }
  
 #tableWrapper.scrollable {
@@ -127,7 +257,7 @@ table {
     width: 100%;
     border-collapse: collapse;
     table-layout: fixed;
-    margin-bottom: 5px;
+    margin-bottom: 0;
 }
 
 th, td {
@@ -175,51 +305,80 @@ tbody td.ce-cell span[contenteditable][data-ph]:empty::before {
 }
 
 th {
-    background: linear-gradient(135deg, #e3e9f0, #d4dce5) !important;
-    color: #2c3e50;
+    background: linear-gradient(135deg, #1a3a6b, #2a5298) !important;
+    color: white !important;
 }
 
 /* ===== تلوين الصفوف تلقائياً (زيبرا) ===== */
-tbody tr:nth-child(odd)  { background-color: #f4f8fd; }
-tbody tr:nth-child(even) { background-color: #eaf1f8; }
+tbody tr:nth-child(odd)  { background-color: var(--bg-white); }
+tbody tr:nth-child(even) { background-color: var(--bg-light); }
 
 /* hover يتغلب على الزيبرا */
-tbody tr:hover { background-color: #d9ecff !important; }
+tbody tr:hover td { background-color: rgba(45, 90, 140, 0.12) !important; color: var(--text-main) !important; }
+tbody tr:hover td.auto-list { background-color: rgba(45, 90, 140, 0.12) !important; }
 
-/* تأثير بسيط جدًا وهادئ للخلية النشطة */
+[data-theme="dark"] tbody tr:hover td { background-color: rgba(122, 174, 255, 0.10) !important; color: var(--text-main) !important; }
+
+/* الخلية النشطة — outline فقط بدون تلوين */
 td:focus-within,
 td.ce-cell:focus-within,
-.inner-table td:focus-within {
-    background-color: #f8f9fc !important;
-    box-shadow: 0 0 0 2px rgba(0, 100, 200, 0.25) !important;
-    transition: background-color 0.15s;
+.case-num-top:focus {
+    outline: 2px solid rgba(0, 100, 200, 0.35) !important;
+    outline-offset: -2px;
+    background-color: inherit !important;
+    box-shadow: none !important;
 }
 
 @media print {
     td:focus-within,
     td.ce-cell:focus-within,
-    .inner-table td:focus-within {
+    .case-num-top:focus {
         background-color: transparent !important;
         box-shadow: none !important;
     }
 }
 
-/* ===== الجداول الداخلية (رقم المحضر) ===== */
-.inner-table {
-    width: 100%;
-    height: 100%;
-    border-collapse: collapse;
-    margin: 0;
+/* ===== خلية رقم المحضر (div بدل inner-table) ===== */
+.case-num-cell {
+    padding: 0 !important;
+    overflow: hidden;
+    vertical-align: middle;
 }
 
-.inner-table td {
-    border: 1px solid #bbb !important;
-    padding: 5px;
-    height: 25px;
+.case-num-wrapper {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+}
+
+.case-num-top {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4px 3px;
+    outline: none;
+    min-height: 28px;
+    border-bottom: 1px solid var(--border-color);
+    box-sizing: border-box;
+    text-align: center;
+}
+
+.case-num-year {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 3px;
+    background-color: var(--bg-light);
+    font-weight: normal;
+    font-size: 13px;
+    min-height: 22px;
+    box-sizing: border-box;
 }
 
 .year-cell {
-    background-color: #f8f9fa;
+    background-color: var(--bg-light);
     font-weight: normal;
 }
 
@@ -227,7 +386,7 @@ td.ce-cell:focus-within,
 .auto-list {
     text-align: right !important;
     vertical-align: middle !important;
-    background-color: #f9fbfd;
+    background-color: inherit;
 }
 
 .auto-list ol {
@@ -407,11 +566,14 @@ td.ce-cell:focus-within,
     background: #e6f9ec;
 }
 
-/* ===== مؤشر الصف النشط ===== */
-tbody tr.active-row {
-    background-color: #fff8e1 !important;
-    box-shadow: inset 3px 0 0 #f5a623, inset -3px 0 0 #f5a623;
-}
+/* إصلاح radius آخر صف في الجدول */
+#mainTable tbody tr:last-child td:first-child { border-bottom-right-radius: 12px; }
+#mainTable tbody tr:last-child td:last-child  { border-bottom-left-radius: 12px; }
+#mainTable tbody tr:last-child td { border-bottom: none; }
+
+/* إصلاح radius أول صف في الهيدر */
+#mainTable thead tr th:first-child { border-top-right-radius: 12px; }
+#mainTable thead tr th:last-child  { border-top-left-radius: 12px; }
 
 /* ===== Tooltip على رؤوس الأعمدة ===== */
 thead th[data-tip] {
@@ -557,6 +719,11 @@ thead th[data-tip]:hover::before {
         display: none !important;
     }
 
+    /* إظهار العنوان المخفي في الطباعة */
+    .screen-hidden {
+        display: block !important;
+    }
+
     /* إظهار التوقيعات في الطباعة */
     .signatures {
         display: flex !important;
@@ -624,9 +791,15 @@ thead th[data-tip]:hover::before {
         font-size: 13px !important;
         line-height: 1.3 !important;
     }
-    .inner-table td {
+    .case-num-top {
         padding: 2px 4px !important;
-        height: auto !important;
+        min-height: unset !important;
+        font-size: 13px !important;
+        line-height: 1.3 !important;
+        border-bottom: 1px solid #000 !important;
+    }
+    .case-num-year {
+        padding: 2px 4px !important;
         min-height: unset !important;
         font-size: 13px !important;
         line-height: 1.3 !important;
@@ -695,8 +868,9 @@ thead th[data-tip]:hover::before {
 
     /* حدود الجداول */
     table, th, td { border: 1px solid #000 !important; }
-    .inner-table td { border: 1px solid #000 !important; }
     .amount-span { border: none !important; }
+    .case-num-cell { border: 1px solid #000 !important; }
+    .case-num-top { border-bottom: 1px solid #000 !important; }
 
     /* تحريراً في والفوتر */
     .edit-date-section {
@@ -737,6 +911,22 @@ thead th[data-tip]:hover::before {
 <img id="watermark-img" src="logo.png" class="logo" alt="">
 
 <div class="container">
+    <div class="no-print">
+        <div class="system-title-bar">
+            <div></div>
+            <div style="display: flex; align-items: center; gap: 10px; justify-content: center;">
+                <i class="fas fa-file-invoice" style="color: var(--accent); font-size: 1.4rem;"></i>
+                <span style="font-size: 1.2rem; font-weight: bold;">نظام كشوف الأوامر الجنائية</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 10px; justify-content: flex-end;">
+                <button id="themeToggle" class="theme-toggle-btn" onclick="toggleTheme()" title="تبديل الوضع">
+                    <i class="fas fa-moon" id="themeIcon"></i>
+                </button>
+                <span style="color: rgba(255,255,255,0.4);">|</span>
+                <span id="currentDateDisplay" style="font-size: 14px; font-weight: 700; color: #fff;"></span>
+            </div>
+        </div>
+    </div>
 <div class="header">
     <div class="header-text">
         <div style="text-align: center; font-size: 16.5px; font-weight: bold; margin-bottom: 5px;">النيابة العامة</div>
@@ -749,13 +939,13 @@ thead th[data-tip]:hover::before {
     <img src="logo.png" class="logo" alt="">
 </div>
 
-    <div class="title">كشف بالأوامر الجنائية</div>
-    <div id="printValues" class="print-values"></div>
+    <div class="title screen-hidden">كشف بالأوامر الجنائية</div>
+    <div id="printValues" class="print-values screen-hidden"></div>
 
     <div class="controls">
         <label>التاريخ:</label>
         <div style="position:relative; display:inline-flex; align-items:center;">
-            <input type="text" id="dateInput" class="date-field" style="padding-left:28px;">
+            <input type="text" id="dateInput" class="date-field" style="padding-left:28px; background: var(--input-bg); color: var(--text-main);">
             <input type="date" id="datePicker" style="position:absolute;left:2px;width:22px;height:22px;opacity:0;cursor:pointer;z-index:10;border:none;padding:0;margin:0;">
             <span title="اختر التاريخ" style="position:absolute;left:4px;font-size:15px;user-select:none;pointer-events:none;line-height:1;">📅</span>
         </div>
@@ -860,6 +1050,36 @@ thead th[data-tip]:hover::before {
         syncFooterDate();
         addRow();
         updatePrintValues();
+        initTheme();
+        updateHeaderDate();
+    }
+
+    function initTheme() {
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+        updateThemeIcon(savedTheme);
+    }
+
+    function toggleTheme() {
+        const currentTheme = document.documentElement.getAttribute('data-theme');
+        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-theme', newTheme);
+        localStorage.setItem('theme', newTheme);
+        updateThemeIcon(newTheme);
+    }
+
+    function updateThemeIcon(theme) {
+        const icon = document.getElementById('themeIcon');
+        if (icon) {
+            icon.className = theme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+        }
+    }
+
+    function updateHeaderDate() {
+        const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+        const today = new Date().toLocaleDateString('ar-EG', options);
+        const display = document.getElementById('currentDateDisplay');
+        if (display) display.innerText = today;
     }
 
     function syncFooterDate() {
@@ -901,17 +1121,16 @@ thead th[data-tip]:hover::before {
 
         row.innerHTML = `
             <td class="row-num">${rowCount + 1}</td>
-            <td style="padding:0;">
-                <table class="inner-table">
-                    <tr>
-                        <td contenteditable="true" 
-                            data-ph="رقم المحضر"
-                            oninput="formatCaseNumberForPrint(this)"
-                            onblur="formatCaseNumberForPrint(this)">
-                        </td>
-                    </tr>
-                    <tr><td class="year-cell">2026</td></tr>
-                </table>
+            <td class="case-num-cell">
+                <div class="case-num-wrapper">
+                    <div class="case-num-top"
+                         contenteditable="true"
+                         data-ph="رقم المحضر"
+                         oninput="formatCaseNumberForPrint(this)"
+                         onblur="formatCaseNumberForPrint(this)">
+                    </div>
+                    <div class="case-num-year">2026</div>
+                </div>
             </td>
             <td class="ce-cell"><span contenteditable="true" data-ph="اسم المتهم"></span></td>
             <td class="auto-list" style="min-height: 80px;"><ol contenteditable="true"><li></li></ol></td>
@@ -1378,7 +1597,7 @@ document.addEventListener('keydown', function(e) {
     const targetRow = rows[targetRowIndex];
     const currentColIndex = Array.from(currentRow.cells).indexOf(currentTd);
     let targetTd = targetRow.cells[currentColIndex];
-    if (targetTd && (targetTd.style.padding === "0" || targetTd.querySelector('.inner-table'))) {
+    if (targetTd && (targetTd.classList.contains('case-num-cell'))) {
         const innerEditable = targetTd.querySelector('td[contenteditable="true"]');
         if (innerEditable) { innerEditable.focus(); document.querySelectorAll('#mainTable tbody tr').forEach(r => r.classList.remove('active-row')); targetRow.classList.add('active-row'); return; }
     }
@@ -1402,7 +1621,7 @@ document.getElementById('mainTable').addEventListener('click', function(e) {
     const td = e.target.closest('td');
     if (!td || td.classList.contains('del-col') || td.closest('.del-col')) return;
     let editableElement = td.querySelector('span[contenteditable="true"], ol[contenteditable="true"], td[contenteditable="true"], [contenteditable="true"]');
-    if (!editableElement && td.querySelector('.inner-table')) { editableElement = td.querySelector('td[contenteditable="true"]'); }
+    if (!editableElement && td.classList.contains('case-num-cell')) { editableElement = td.querySelector('[contenteditable="true"]'); }
     if (editableElement) {
         editableElement.focus();
         setTimeout(() => {
