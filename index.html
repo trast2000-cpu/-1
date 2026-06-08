@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>بوابة نيابة مرور عين الصيرة</title>
-<link href="" rel="stylesheet">
+<link href="fontawesome-free-6.4.0-web/css/all.min.css" rel="stylesheet">
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -383,7 +383,7 @@ body::after {
     </div>
 
     <div class="app-card c5" onclick="openSystem(1)">
-      <div class="card-icon-wrap">📋</div>
+      <div class="card-icon-wrap"><i class="fa-solid fa-file-lines"></i></div>
       <div class="card-body">
         <div class="card-name">قرارات المحاضر / التلبسات</div>
         <div class="card-desc">إصدار قرارات المحاضر والتلبسات</div>
@@ -392,7 +392,7 @@ body::after {
     </div>
 
     <div class="app-card c2" onclick="openSystem(2)">
-      <div class="card-icon-wrap">💳</div>
+      <div class="card-icon-wrap"><i class="fa-solid fa-money-check"></i></div>
       <div class="card-body">
         <div class="card-name">قرارات ما بعد السداد</div>
         <div class="card-desc">إصدار قرارات التسليم و التحفظ عقب إتمام السداد</div>
@@ -401,7 +401,7 @@ body::after {
     </div>
 
     <div class="app-card c3" onclick="openSystem(3)">
-      <div class="card-icon-wrap">🔬</div>
+      <div class="card-icon-wrap"><i class="fa-solid fa-microscope"></i></div>
       <div class="card-body">
         <div class="card-name">نظام محاضر الفحص</div>
         <div class="card-desc">كشوف الأوامر الجنائية المرسله للفحص</div>
@@ -410,7 +410,7 @@ body::after {
     </div>
 
     <div class="app-card c4" onclick="openSystem(4)">
-      <div class="card-icon-wrap">⚖️</div>
+      <div class="card-icon-wrap"><i class="fa-solid fa-scale-balanced"></i></div>
       <div class="card-body">
         <div class="card-name">عرائض الهيئة القضائية</div>
         <div class="card-desc">مذكرات وعرائض الهيئات القضائيه</div>
@@ -419,7 +419,7 @@ body::after {
     </div>
 
     <div class="app-card c6" onclick="openSystem(5)">
-      <div class="card-icon-wrap">🖨️</div>
+      <div class="card-icon-wrap"><i class="fa-solid fa-print"></i></div>
       <div class="card-body">
         <div class="card-name">مطبوعات</div>
         <div class="card-desc">إدارة المطبوعات والنماذج الورقية</div>
@@ -439,39 +439,46 @@ body::after {
 <!-- ══ TOP BAR ══ -->
 <div id="topbar">
   <div class="tb-home" onclick="goHome()">
-    <span style="font-size:15px">🏠</span>
+    <span style="font-size:15px"><i class="fa-solid fa-house"></i></span>
     <span>الرئيسية</span>
   </div>
 
   <div class="tb-sep"></div>
 
   <div class="tb-item" id="tb0" style="--tb-accent:#4e8ef7" onclick="switchSystem(0)">
-    <span class="tb-icon">🔍</span>
+    <span class="tb-icon">
+      <svg width="20" height="20" viewBox="0 0 44 44" xmlns="http://www.w3.org/2000/svg">
+        <rect x="2" y="2" width="40" height="40" rx="10" fill="rgba(78,142,247,0.18)" stroke="rgba(78,142,247,0.45)" stroke-width="1.5"/>
+        <text x="22" y="17" text-anchor="middle" dominant-baseline="middle" font-family="Cairo,sans-serif" font-size="14" font-weight="700" fill="#7ab4fa">س</text>
+        <line x1="9" y1="23" x2="35" y2="23" stroke="rgba(78,142,247,0.35)" stroke-width="1"/>
+        <text x="22" y="33" text-anchor="middle" dominant-baseline="middle" font-family="Cairo,sans-serif" font-size="14" font-weight="700" fill="#7ab4fa">ج</text>
+      </svg>
+    </span>
     <span class="tb-label">نظام محاضر التحقيق</span>
   </div>
 
   <div class="tb-item" id="tb1" style="--tb-accent:#a78bfa" onclick="switchSystem(1)">
-    <span class="tb-icon">📋</span>
+    <span class="tb-icon"><i class="fa-solid fa-file-lines"></i></span>
     <span class="tb-label">قرارات المحاضر / التلبسات</span>
   </div>
 
   <div class="tb-item" id="tb2" style="--tb-accent:#c9a84c" onclick="switchSystem(2)">
-    <span class="tb-icon">💳</span>
+    <span class="tb-icon"><i class="fa-solid fa-money-check"></i></span>
     <span class="tb-label">قرارات بعد السداد</span>
   </div>
 
   <div class="tb-item" id="tb3" style="--tb-accent:#34d399" onclick="switchSystem(3)">
-    <span class="tb-icon">🔬</span>
+    <span class="tb-icon"><i class="fa-solid fa-microscope"></i></span>
     <span class="tb-label">كشف المحاضر المرسلة للفحص</span>
   </div>
 
   <div class="tb-item" id="tb4" style="--tb-accent:#f87171" onclick="switchSystem(4)">
-    <span class="tb-icon">⚖️</span>
+    <span class="tb-icon"><i class="fa-solid fa-scale-balanced"></i></span>
     <span class="tb-label">عرائض الهيئات القضائية</span>
   </div>
 
   <div class="tb-item" id="tb5" style="--tb-accent:#00d2ff" onclick="switchSystem(5)">
-    <span class="tb-icon">🖨️</span>
+    <span class="tb-icon"><i class="fa-solid fa-print"></i></span>
     <span class="tb-label">مطبوعات</span>
   </div>
 </div>
