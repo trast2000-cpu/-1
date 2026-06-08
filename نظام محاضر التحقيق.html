@@ -9,12 +9,16 @@
 
         /* --- تنسيقات واجهة الإدخال المدمجة (Compact) - الوضع العصري --- */
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #dce3ee; margin: 0; padding: 5px; font-size: 16px;
-            background-image: radial-gradient(rgba(30,58,95,0.20) 1.4px, transparent 1.4px);
+            background-image: radial-gradient(rgba(30,58,95,0.35) 1.8px, transparent 1.8px);
             background-size: 28px 28px;
             background-position: center;
         }
 
         /* ── F9 Toast ── */
+        @media print {
+            #f9-toast { display: none !important; }
+        }
+
         #f9-toast {
             position: fixed;
             bottom: -70px;
@@ -1567,9 +1571,10 @@ box-sizing: border-box;
                 <div style="flex: 0 0 auto; width: 200px; display: flex; flex-direction: column; gap: 4px;">
                     <label style="font-size: 12px; font-weight: bold;">العرض على الطب الشرعي</label>
                     <select id="forensic_decision" class="persist" onchange="updateForensicDecisionUI(); saveData();">
-                        <option value="">-- اختر --</option>
-                        <option value="yes">يعرض على الطب الشرعي</option>
-                        <option value="no">لا يعرض على الطب الشرعي</option>
+                        
+    <option value="no"selected>لا يعرض على الطب الشرعي</option>
+    <option value="yes">يعرض على الطب الشرعي</option>
+
                     </select>
                     <div id="forensic-btn-wrapper">
                         <button type="button" class="btn-forensic-memo" onclick="openForensicMemoModal()" style="font-size: 15px;"><i class="fa-solid fa-pen-to-square"></i> تحرير وطباعة المذكرة</button>
@@ -1630,7 +1635,6 @@ box-sizing: border-box;
                 <div style="flex: 0 0 auto; width: 200px; display: flex; flex-direction: column; gap: 4px;">
                     <label style="font-size: 12px; font-weight: bold;">العرض للتصرف</label>
                     <select id="disposal_decision" class="persist" onchange="updateDisposalDecisionUI(); saveData();">
-                        <option value="" >-- اختر --</option>
                         <option value="yes" selected >العرض للتصرف</option>
                         <option value="no">بدون عرض للتصرف</option>
                     </select>
@@ -3941,6 +3945,13 @@ let questionsHtml = "";
         // استعادة نوع التحقيق
         // *** إصلاح: نحفظ الأسئلة المحملة في المتغير المناسب قبل استدعاء switchMode
         // حتى لا تُمسح الإجابات عند إعادة بناء الأسئلة داخل switchMode ***
+        // *** إصلاح إضافي: حفظ نصوص القرارات قبل switchMode لأنها تستدعي updateVehicleDecisionUI داخلياً ***
+        const preSwitch_vehicleText   = document.getElementById('vehicle_decision_text')   ? document.getElementById('vehicle_decision_text').value   : null;
+        const preSwitch_releaseText   = document.getElementById('release_decision_text')   ? document.getElementById('release_decision_text').value   : null;
+        const preSwitch_forensicText  = document.getElementById('forensic_decision_text')  ? document.getElementById('forensic_decision_text').value  : null;
+        const preSwitch_engineerText  = document.getElementById('engineer_decision_text')  ? document.getElementById('engineer_decision_text').value  : null;
+        const preSwitch_disposalText  = document.getElementById('disposal_decision_text')  ? document.getElementById('disposal_decision_text').value  : null;
+
         if (data.reportMode && (data.reportMode === 'main' || data.reportMode === 'bail_reduction' || data.reportMode === 'objection')) {
             if (data.questions) {
                 const loadedQs = JSON.parse(JSON.stringify(data.questions));
@@ -3954,6 +3965,13 @@ let questionsHtml = "";
             }
             switchMode(data.reportMode);
         }
+
+        // استعادة النصوص التي ربما أعاد switchMode كتابتها
+        if (preSwitch_vehicleText  !== null) document.getElementById('vehicle_decision_text').value   = preSwitch_vehicleText;
+        if (preSwitch_releaseText  !== null) document.getElementById('release_decision_text').value   = preSwitch_releaseText;
+        if (preSwitch_forensicText !== null) document.getElementById('forensic_decision_text').value  = preSwitch_forensicText;
+        if (preSwitch_engineerText !== null) document.getElementById('engineer_decision_text').value  = preSwitch_engineerText;
+        if (preSwitch_disposalText !== null) document.getElementById('disposal_decision_text').value  = preSwitch_disposalText;
         
         renderViolations();
         renderQuestions();
@@ -4370,7 +4388,8 @@ let questionsHtml = "";
         const mode = reportMode || 'main';
         const modeLabel = mode === 'bail_reduction' ? 'تخفيض كفالة' : mode === 'objection' ? 'حركات استعراضية' : 'أساسي';
         document.getElementById('preamble-modal-title').innerHTML = '&#9998; تحرير الديباجة — وضع: ' + modeLabel;
-
+        // حفظ المود في النافذة لضمان الحفظ الصحيح حتى لو تغيّر reportMode
+        document.getElementById('preamble-modal').dataset.mode = mode;
         renderPreambleEditor(mode);
         document.getElementById('preamble-modal-overlay').classList.add('open');
         document.body.style.overflow = 'hidden';
@@ -4511,30 +4530,56 @@ let questionsHtml = "";
 
     // حفظ التعديلات
     function savePreamble() {
-        const mode = reportMode || 'main';
+        const modal = document.getElementById('preamble-modal');
+        const mode = (modal && modal.dataset.mode) ? modal.dataset.mode : (reportMode || 'main');
         const defaults = DEFAULT_PREAMBLES[mode] || DEFAULT_PREAMBLES.main;
         const updated = defaults.map((para, idx) => {
+            // نقرأ من الـ textarea سواء كانت ظاهرة أو مخفية — value دائماً موجودة
             const ta = document.getElementById('pm_para_' + idx);
             return { ...para, text: ta ? ta.value : para.text };
         });
         localStorage.setItem(getPreambleStorageKey(mode), JSON.stringify(updated));
-        // لا نغلق النافذة ولا نعرض تنبيه — نفس نظام نافذة الحبس والطب الشرعي
         const btn = document.querySelector('#preamble-modal-footer .pm-btn-save');
         if (btn) {
-            const orig = btn.textContent;
-            btn.innerHTML = '<i class="fa-solid fa-check"></i> تم الحفظ';
+            const origHTML = btn.innerHTML;
+            btn.innerHTML = '<i class="fa-solid fa-check"></i> تم الحفظ ✔';
             btn.style.background = '#16a34a';
-            setTimeout(() => { btn.textContent = orig; btn.style.background = ''; }, 1800);
+            setTimeout(() => { btn.innerHTML = origHTML; btn.style.background = ''; }, 1800);
         }
     }
 
     // استعادة الافتراضي
     function resetPreambleToDefault() {
-        const mode = reportMode || 'main';
-        if (!confirm('هل تريد استعادة الديباجة الافتراضية؟\nسيتم حذف جميع التعديلات المحفوظة.')) return;
+        const modal = document.getElementById('preamble-modal');
+        const mode = (modal && modal.dataset.mode) ? modal.dataset.mode : (reportMode || 'main');
+        const resetBtn = document.querySelector('#preamble-modal-footer .pm-btn-reset');
+        if (!resetBtn._confirmPending) {
+            resetBtn._confirmPending = true;
+            const origHTML = resetBtn.innerHTML;
+            resetBtn.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> اضغط مجدداً للتأكيد';
+            resetBtn.style.background = '#dc2626';
+            resetBtn.style.color = '#fff';
+            resetBtn._resetTimer = setTimeout(() => {
+                resetBtn._confirmPending = false;
+                resetBtn.innerHTML = origHTML;
+                resetBtn.style.background = '';
+                resetBtn.style.color = '';
+            }, 3000);
+            return;
+        }
+        clearTimeout(resetBtn._resetTimer);
+        resetBtn._confirmPending = false;
         localStorage.removeItem(getPreambleStorageKey(mode));
         renderPreambleEditor(mode);
-        alert('تم استعادة الديباجة الافتراضية.');
+        const origHTML2 = resetBtn.innerHTML;
+        resetBtn.innerHTML = '<i class="fa-solid fa-check"></i> تمت الاستعادة';
+        resetBtn.style.background = '#16a34a';
+        resetBtn.style.color = '#fff';
+        setTimeout(() => {
+            resetBtn.innerHTML = '<i class="fa-solid fa-rotate-right"></i> استعادة البيانات الافتراضية';
+            resetBtn.style.background = '';
+            resetBtn.style.color = '';
+        }, 2000);
     }
 
     // دالة مساعدة: تبديل المتغيرات داخل نص الديباجة بالقيم الفعلية
@@ -4585,8 +4630,12 @@ let questionsHtml = "";
     }
 
     // إغلاق النافذة بالضغط على الخلفية
-    document.getElementById('preamble-modal-overlay').addEventListener('click', function(e) {
+    document.getElementById('preamble-modal-overlay').addEventListener('mousedown', function(e) {
         if (e.target === this) closePreambleModal();
+    });
+    // منع bubbling من داخل النافذة
+    document.getElementById('preamble-modal').addEventListener('mousedown', function(e) {
+        e.stopPropagation();
     });
 
     // حفظ مفاتيح الديباجة عند مسح كل البيانات — لا نمسحها

@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <title>نظام كشوف الأوامر الجنائية المتطور 2026</title>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="stylesheet" href="fontawesome-free-6.4.0-web/css/all.min.css">
 
 <style>
 /* ===== نظام المتغيرات والألوان المطور ===== */
@@ -87,7 +87,7 @@ body {
     margin: 0;
     padding: 10px;
     background-color: var(--bg-light);
-    background-image: radial-gradient(var(--grid-color) .8px, transparent 1.1px);
+    background-image: radial-gradient(rgba(30,58,95,0.35) 1.8px, transparent 1.8px);
     background-size: 32px 32px;
     background-position: center;
     color: var(--text-main);
@@ -106,7 +106,7 @@ body {
     max-width: 1150px;
     margin: auto;
     background: var(--bg-white);
-    background-image: radial-gradient(var(--grid-color) .8px, transparent 1.1px);
+    background-image: radial-gradient(rgba(30,58,95,0.20) 1.4px, transparent 1.4px);
     background-size: 32px 32px;
     background-position: center;
     color: var(--text-main);
@@ -248,8 +248,8 @@ input:focus, select:focus {
     position: sticky;
     top: 0;
     z-index: 2;
-    background: linear-gradient(135deg, #e3e9f0, #d4dce5) !important;
-    box-shadow: inset 0 -1px 0 #aaa, inset 1px 0 0 #ddd;
+    background: linear-gradient(135deg, #1a3a6b, #2a5298) !important;
+    box-shadow: inset 0 -1px 0 rgba(255,255,255,0.15), inset 1px 0 0 rgba(255,255,255,0.08);
 }
 
 /* ===== الجدول ===== */
@@ -1127,7 +1127,7 @@ thead th[data-tip]:hover::before {
                          contenteditable="true"
                          data-ph="رقم المحضر"
                          oninput="formatCaseNumberForPrint(this)"
-                         onblur="formatCaseNumberForPrint(this)">
+                         onblur="formatCaseNumberForPrint(this); lookupFromTalbsat(this)">
                     </div>
                     <div class="case-num-year">2026</div>
                 </div>
@@ -1161,7 +1161,7 @@ thead th[data-tip]:hover::before {
         checkScrollable();
 
         setTimeout(function() {
-            var caseCell = row.querySelector('td[contenteditable][data-ph="رقم المحضر"]');
+            var caseCell = row.querySelector('[contenteditable][data-ph="رقم المحضر"]');
             if (caseCell) {
                 caseCell.focus();
                 var range = document.createRange();
@@ -1171,7 +1171,7 @@ thead th[data-tip]:hover::before {
                 sel.removeAllRanges();
                 sel.addRange(range);
             }
-        }, 30);
+        }, 200);
     }
 
     function deleteSpecificRow(btn) {
@@ -1728,6 +1728,106 @@ function formatCaseNumberForPrint(cell) {
     if (text.includes('/') || text.includes('سنة') || text.includes('لسنة') || text.toLowerCase().includes('محضر')) { cell.dataset.printValue = text; return; }
     if (/^\d+$/.test(text)) { cell.dataset.printValue = text + " / 2026"; } else { cell.dataset.printValue = text; }
 }
+
+/* ===================================================
+   استرجاع بيانات المحضر من نظام التلبسات
+=================================================== */
+function lookupFromTalbsat(caseNumEl) {
+    var caseNum = (caseNumEl.innerText || '').trim();
+    if (!caseNum) return;
+    var year = '2026';
+    var deptSel = document.getElementById('dept');
+    var dept = '';
+    if (deptSel) {
+        dept = deptSel.value === 'other'
+            ? (document.getElementById('otherDept').value || '').trim()
+            : deptSel.value.trim();
+    }
+    if (!dept) return;
+    var key = 'mahdar_' + caseNum + '_' + year + '_' + dept;
+    var raw = localStorage.getItem(key);
+    if (!raw) return;
+    var data;
+    try { data = JSON.parse(raw); } catch(e) { return; }
+    var row = caseNumEl.closest('tr');
+    if (!row) return;
+
+    function fillCell(td, text) {
+        if (!td || text === undefined || text === null) return;
+        var span = td.querySelector('span[contenteditable]');
+        if (span) { span.innerText = text; return; }
+        var ol = td.querySelector('ol[contenteditable]');
+        if (ol) {
+            ol.innerHTML = '';
+            var lines = Array.isArray(text) ? text : [text];
+            lines.forEach(function(line) {
+                if (line && line.trim()) {
+                    var li = document.createElement('li');
+                    li.innerText = line.trim();
+                    ol.appendChild(li);
+                }
+            });
+            if (!ol.children.length) ol.innerHTML = '<li></li>';
+            return;
+        }
+        if (td.isContentEditable) td.innerText = text;
+    }
+
+    var cells = row.cells;
+    if (data.name)       fillCell(cells[2], data.name);
+    if (data.violations && data.violations.length > 0) fillCell(cells[3], data.violations);
+    if (data.nationalId) fillCell(cells[4], data.nationalId);
+
+    var plateArea = cells[5] ? cells[5].querySelector('.plate-area') : null;
+    if (plateArea) {
+        var plateTypeSel = cells[5].querySelector('.plate-type-select');
+        if (plateTypeSel) {
+            if (data.plateType === 'no-plate') {
+                plateTypeSel.value = 'numOnly';
+                togglePlateMode(plateTypeSel);
+                var noPlateDiv = cells[5].querySelector('.plate-area [contenteditable]');
+                if (noPlateDiv) noPlateDiv.innerText = data.noPlateTxt || 'بدون لوحات';
+            } else {
+                plateTypeSel.value = 'both';
+                togglePlateMode(plateTypeSel);
+                var letters = cells[5].querySelectorAll('.plate-letters div[contenteditable]');
+                if (letters[0]) letters[0].innerText = data.c1 || '';
+                if (letters[1]) letters[1].innerText = data.c2 || '';
+                if (letters[2]) letters[2].innerText = data.c3 || '';
+                var nums = cells[5].querySelector('.plate-numbers');
+                if (nums) nums.innerText = data.n1 || '';
+            }
+        }
+    }
+
+    if (data.fine) {
+        var amountSpan = cells[6] ? cells[6].querySelector('.amount-span') : null;
+        if (amountSpan) amountSpan.innerText = data.fine;
+    }
+
+    showLookupSuccessToast(caseNum, data.name || '');
+}
+
+function showLookupSuccessToast(caseNum, name) {
+    var toast = document.getElementById('_fhs_lookup_toast');
+    if (!toast) {
+        toast = document.createElement('div');
+        toast.id = '_fhs_lookup_toast';
+        toast.style.cssText = 'position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(60px);background:#1a5c2e;color:#fff;padding:11px 22px;border-radius:9px;font-family:inherit;font-size:14px;font-weight:700;box-shadow:0 4px 18px rgba(0,0,0,0.22);z-index:99999;opacity:0;transition:opacity 0.3s ease,transform 0.3s ease;white-space:nowrap;pointer-events:none;';
+        document.body.appendChild(toast);
+    }
+    toast.textContent = '✔ تم استرجاع بيانات المحضر ' + caseNum + (name ? ' — ' + name : '');
+    requestAnimationFrame(function() {
+        toast.style.opacity = '1';
+        toast.style.transform = 'translateX(-50%) translateY(0)';
+    });
+    clearTimeout(toast._t);
+    toast._t = setTimeout(function() {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateX(-50%) translateY(60px)';
+    }, 3500);
+}
+
 </script>
 </body>
 </html>

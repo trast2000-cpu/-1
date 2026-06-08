@@ -950,7 +950,7 @@ textarea { resize: vertical; }
 
 /* ── شبكة الخلفية في الوضع الفاتح ── */
 body {
-    background-image: radial-gradient(rgba(30,58,95,0.20) 1.4px, transparent 1.4px);
+    background-image: radial-gradient(rgba(30,58,95,0.35) 1.8px, transparent 1.8px);
     background-size: 28px 28px;
     background-position: center;
 }
@@ -958,7 +958,7 @@ body {
 /* ── الوضع الليلي: الـ body ── */
 body[data-theme="dark"] {
     background-color: #0f172a !important;
-    background-image: radial-gradient(rgba(148,163,184,0.42) 1.5px, transparent 1.5px) !important;
+    background-image: radial-gradient(rgba(148,163,184,0.42) 1.8px, transparent 1.8px) !important;
     background-size: 28px 28px !important;
     background-position: center !important;
     color: #e2e8f0 !important;
@@ -2444,6 +2444,35 @@ function saveMahdarData() {
     if (!index.includes(key)) { index.push(key); localStorage.setItem('mahdar_index', JSON.stringify(index)); }
 }
 
+// ── حفظ تلقائي عند تغيير البيانات ──
+let _autoSaveTimer = null;
+function autoSave() {
+    clearTimeout(_autoSaveTimer);
+    _autoSaveTimer = setTimeout(function() {
+        saveMahdarData();
+    }, 800);
+}
+
+// تفعيل الحفظ التلقائي على جميع حقول الإدخال
+(function() {
+    const triggerIds = [
+        'input-caseNum','input-year','input-dept-select','input-dept-other',
+        'input-name','f-national-id','c1','c2','c3','n1','input-no-plate',
+        'f-incident-date','f-fine','vehicle-decision-text','sabeel-text',
+        'jalsa-extra-text','f-jalsa-date','input-boss-select','input-boss-other',
+        'fine-text','plate-type','vehicle-decision-select','sabeel-select'
+    ];
+    document.addEventListener('DOMContentLoaded', function() {
+        triggerIds.forEach(function(id) {
+            const el = document.getElementById(id);
+            if (el) {
+                el.addEventListener('input',  autoSave);
+                el.addEventListener('change', autoSave);
+            }
+        });
+    });
+})();
+
 function printDoc() {
     if (currentDecision === -1) {
         alert('الرجاء اختيار القرار المناسب من القائمة الجانبية قبل الطباعة');
@@ -2576,6 +2605,8 @@ function clearPlateFields() {
         if (el) el.value = '';
     });
     updateAll();
+    const c1 = document.getElementById('c1');
+    if (c1) { c1.focus(); c1.select(); }
 }
 
 function togglePlateInput() {

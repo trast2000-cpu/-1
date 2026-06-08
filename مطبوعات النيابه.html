@@ -161,7 +161,7 @@
 
         body[data-theme="dark"] {
             background-color: #0f172a;
-            background-image: radial-gradient(rgba(248, 250, 252, 0.3) 1.2px, transparent 1.2px);
+            background-image: radial-gradient(rgba(248, 250, 252, 0.3) 1.4px, transparent 1.4px);
             background-size: 32px 32px;
             background-position: center;
         }
@@ -443,7 +443,7 @@
         }
         
         [data-theme="light"] .viewer-area {
-            background-image: radial-gradient(rgba(59, 111, 212, 0.15) 1.5px, transparent 1.5px);
+            background-image: radial-gradient(rgba(59, 111, 212, 0.35) 1.8px, transparent 1.8px);
         }
 
         [data-theme="dark"] .viewer-area {
@@ -984,18 +984,10 @@
         }
 
         function copyFolderPath() {
-            // استخراج المسار الكامل للمجلد من رابط الصفحة الحالي
-            let currentPath = window.location.pathname;
-            // إزالة اسم ملف الـ HTML من المسار
-            let folderPath = currentPath.substring(0, currentPath.lastIndexOf('/'));
-            // تحويل المسار من شكل الويب إلى شكل الويندوز (إذا لزم الأمر)
-            let windowsPath = folderPath.replace(/\//g, '\\').substring(1); 
-            // إضافة مجلد files
-            let finalPath = windowsPath + "\\files";
+            const fixedPath = "E:\\بوابه نيابه مرور عين الصيره\\بوابه نيابه مرور عين الصيره  الزجاجيه\\files";
             
-            // محاولة النسخ للحافظة
             const tempInput = document.createElement("input");
-            tempInput.value = finalPath;
+            tempInput.value = fixedPath;
             document.body.appendChild(tempInput);
             tempInput.select();
             document.execCommand("copy");
