@@ -291,7 +291,7 @@ body {
 }
 .toggle-arrow { font-size: 11px; color: #8a9bb5; transition: transform 0.25s; }
 .card.collapsed .toggle-arrow { transform: rotate(-90deg); }
-.card.collapsed .card-body { display: none !important; }
+/* card-body animation via max-height */
 
 .card-body {
     background: #f4f6fb;
@@ -301,6 +301,17 @@ body {
     padding: 8px;
     flex-wrap: wrap;
     border-radius: 0 0 7px 7px;
+    overflow: hidden;
+    transition: max-height 0.42s cubic-bezier(0.4, 0, 0.2, 1),
+                padding-top 0.42s cubic-bezier(0.4, 0, 0.2, 1),
+                padding-bottom 0.42s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.card.collapsed .card-body {
+    max-height: 0 !important;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+    pointer-events: none;
 }
 
 /* ====== Form Fields ====== */
@@ -1982,43 +1993,43 @@ function selectDecision(idx) {
     const sabeelSel  = document.getElementById('sabeel-select');
 
     if (idx === 0) {
-        if (vehCard)    vehCard.classList.remove('collapsed');
-        if (violCard)   violCard.classList.remove('collapsed');
-        if (isdarCard)  isdarCard.classList.add('collapsed');
+        if (vehCard)    _openCard(vehCard);
+        if (violCard)   _openCard(violCard);
+        if (isdarCard)  _closeCard(isdarCard);
         if (jalsaDaySel) { jalsaDaySel.value = ''; toggleJalsaDayOther(); }
         if (vehDecSel)  { vehDecSel.value = 'keep';    updateVehicleDecisionText(); }
-        if (sabeelCard) sabeelCard.classList.remove('collapsed');
+        if (sabeelCard) _openCard(sabeelCard);
         if (sabeelSel)  { sabeelSel.value = 'qism'; updateSabeelText(); }
     } else if (idx === 1) {
-        if (vehCard)    vehCard.classList.remove('collapsed');
-        if (violCard)   violCard.classList.remove('collapsed');
-        if (isdarCard)  isdarCard.classList.add('collapsed');
+        if (vehCard)    _openCard(vehCard);
+        if (violCard)   _openCard(violCard);
+        if (isdarCard)  _closeCard(isdarCard);
         if (jalsaDaySel) { jalsaDaySel.value = ''; toggleJalsaDayOther(); }
         if (vehDecSel)  { vehDecSel.value = 'stop';    updateVehicleDecisionText(); }
-        if (sabeelCard) sabeelCard.classList.remove('collapsed');
+        if (sabeelCard) _openCard(sabeelCard);
         if (sabeelSel)  { sabeelSel.value = 'qism'; updateSabeelText(); }
     } else if (idx === 2) {
-        if (vehCard)    vehCard.classList.remove('collapsed');
-        if (violCard)   violCard.classList.remove('collapsed');
-        if (isdarCard)  isdarCard.classList.add('collapsed');
+        if (vehCard)    _openCard(vehCard);
+        if (violCard)   _openCard(violCard);
+        if (isdarCard)  _closeCard(isdarCard);
         if (jalsaDaySel) { jalsaDaySel.value = ''; toggleJalsaDayOther(); }
         if (vehDecSel)  { vehDecSel.value = 'deliver'; updateVehicleDecisionText(); }
-        if (sabeelCard) sabeelCard.classList.remove('collapsed');
+        if (sabeelCard) _openCard(sabeelCard);
         if (sabeelSel)  { sabeelSel.value = 'qism'; updateSabeelText(); }
     } else if (idx === 3) {
-        if (vehCard)   vehCard.classList.add('collapsed');
-        if (violCard)  violCard.classList.remove('collapsed');
-        if (isdarCard) isdarCard.classList.remove('collapsed');
-        if (sabeelCard) sabeelCard.classList.add('collapsed');
+        if (vehCard)   _closeCard(vehCard);
+        if (violCard)  _openCard(violCard);
+        if (isdarCard) _openCard(isdarCard);
+        if (sabeelCard) _closeCard(sabeelCard);
         if (sabeelSel)  { sabeelSel.value = 'other'; updateSabeelText(); }
         autoSelectJalsaDay();
         updateJalsaDecisionText();
     } else if (idx === 4) {
         // طلب حضور متهم — يطوي كل البطاقات غير الضرورية
-        if (vehCard)    vehCard.classList.add('collapsed');
-        if (violCard)   violCard.classList.add('collapsed');
-        if (isdarCard)  isdarCard.classList.remove('collapsed');
-        if (sabeelCard) sabeelCard.classList.add('collapsed');
+        if (vehCard)    _closeCard(vehCard);
+        if (violCard)   _closeCard(violCard);
+        if (isdarCard)  _openCard(isdarCard);
+        if (sabeelCard) _closeCard(sabeelCard);
         document.getElementById('card-fine').style.display = 'none';
         autoSelectJalsaDay();
         updateJalsaDecisionText();
@@ -2030,8 +2041,45 @@ function selectDecision(idx) {
 /* ===================================================
    CARD TOGGLE
 =================================================== */
+function _openCard(card) {
+    const body = card.querySelector('.card-body');
+    if (!body) return;
+    if (!card.classList.contains('collapsed')) return;
+    const h = body.scrollHeight;
+    body.style.maxHeight = '0';
+    body.style.paddingTop = '0';
+    body.style.paddingBottom = '0';
+    card.classList.remove('collapsed');
+    body.offsetHeight;
+    body.style.maxHeight = h + 'px';
+    body.style.paddingTop = '';
+    body.style.paddingBottom = '';
+    body.addEventListener('transitionend', function done() {
+        body.style.maxHeight = 'none';
+        body.removeEventListener('transitionend', done);
+    }, {once: true});
+}
+
+function _closeCard(card) {
+    const body = card.querySelector('.card-body');
+    if (!body) return;
+    if (card.classList.contains('collapsed')) return;
+    body.style.maxHeight = body.scrollHeight + 'px';
+    body.offsetHeight;
+    card.classList.add('collapsed');
+    body.style.maxHeight = '0';
+    body.style.paddingTop = '0';
+    body.style.paddingBottom = '0';
+}
+
 function toggleCard(id) {
-    document.getElementById(id).classList.toggle('collapsed');
+    const card = document.getElementById(id);
+    if (!card) return;
+    if (card.classList.contains('collapsed')) {
+        _openCard(card);
+    } else {
+        _closeCard(card);
+    }
 }
 
 /* ===================================================
