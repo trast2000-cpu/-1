@@ -479,11 +479,15 @@ textarea { resize: vertical; }
     margin-top: 1mm;
 }
 .viols-grid-u {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    gap: 0.5mm 3mm;
+    display: flex;
+    flex-wrap: wrap;
     padding-right: 2mm;
     margin-bottom: 1mm;
+}
+.viols-grid-u > div {
+    width: 33.33%;
+    box-sizing: border-box;
+    padding-left: 1mm;
 }
 
 /* Separator */
@@ -538,10 +542,14 @@ textarea { resize: vertical; }
     line-height: 1.4;
 }
 .viols-grid-l {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    gap: 0.5mm 3mm;
+    display: flex;
+    flex-wrap: wrap;
     margin-bottom: 0.5mm;
+}
+.viols-grid-l > div {
+    width: 33.33%;
+    box-sizing: border-box;
+    padding-left: 1mm;
 }
 
 /* --- Type 3: قيد وصف جلسة --- */
@@ -684,6 +692,11 @@ textarea { resize: vertical; }
     font-size: 6pt;
     transition: all 0.2s;
     padding: 0 4px;
+    display: inline-block;
+    min-width: 40mm;
+    vertical-align: bottom;
+    white-space: nowrap;
+    overflow: hidden;
 }
 .dynamic-field.has-data {
     font-weight: bold !important;
@@ -698,6 +711,11 @@ textarea { resize: vertical; }
     letter-spacing: 0.7px;
     transition: all 0.2s;
     font-family: monospace;
+    white-space: nowrap;
+    overflow: hidden;
+    display: inline-block;
+    min-width: 40mm;
+    vertical-align: bottom;
 }
 .dynamic-field-small-car {
     font-weight: normal;
@@ -705,6 +723,11 @@ textarea { resize: vertical; }
     letter-spacing: 1.5px;
     font-family: monospace;
     transition: all 0.2s;
+    white-space: nowrap;
+    overflow: hidden;
+    display: inline-block;
+    min-width: 40mm;
+    vertical-align: bottom;
 }
 .dynamic-field-small-name {
     font-weight: normal;
@@ -712,6 +735,11 @@ textarea { resize: vertical; }
     letter-spacing: 1px;
     font-family: monospace;
     transition: all 0.2s;
+    white-space: nowrap;
+    overflow: hidden;
+    display: inline-block;
+    min-width: 60mm;
+    vertical-align: bottom;
 }
 .dynamic-field-small.has-data,
 .dynamic-field-small-car.has-data,
@@ -1154,6 +1182,45 @@ body[data-theme="dark"] select option {
     .theme-toggle-btn, #currentDateDisplay { display: none !important; }
 }
 
+
+/* ── قفل مربعات النص ── */
+@media print { .ta-lock-row { display: none !important; } }
+.ta-lock-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 4px;
+}
+.ta-lock-lbl {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    cursor: pointer;
+    font-size: 12px;
+    color: #888;
+    user-select: none;
+}
+.ta-lock-lbl input { display: none; }
+.ta-lock-box {
+    width: 17px; height: 17px;
+    border: 2px solid #bbb;
+    border-radius: 4px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: #fff;
+    flex-shrink: 0;
+}
+.ta-lock-lbl input:checked + .ta-lock-box { border-color: #16a34a; background: #f0fdf4; }
+.ta-lock-mark { display: none; color: #16a34a; font-size: 11px; font-weight: bold; }
+.ta-lock-lbl input:checked + .ta-lock-box .ta-lock-mark { display: block; }
+textarea.ta-locked {
+    background: #f5f5f5 !important;
+    color: #bbb !important;
+    cursor: not-allowed !important;
+    pointer-events: all !important;
+    border-color: #e0e0e0 !important;
+}
 </style>
 
 </head>
@@ -1391,7 +1458,7 @@ body[data-theme="dark"] select option {
                     </div>
                 </div>
                 <div class="field-group" style="flex-grow:1;">
-                    <label>نص قرار إخلاء السبيل</label>
+                    <div class="ta-lock-row"><label style="margin-bottom:0;">نص قرار إخلاء السبيل</label><label class="ta-lock-lbl" title="( فتح التعديل )"><input type="checkbox" onchange="toggleTaLock(this,'sabeel-text')"><span class="ta-lock-box"><span class="ta-lock-mark">✔</span></span><span>( فتح التعديل )</span></label></div>
                     <textarea id="sabeel-text" rows="3" style="width:100%; height:75px; resize:vertical;" oninput="updateAll()" placeholder="( عند تركه فارغاً لن يظهر في الطباعة )"></textarea>
                 </div>
             </div>
@@ -1415,7 +1482,7 @@ body[data-theme="dark"] select option {
                     </div>
                 </div>
                 <div class="field-group" style="flex-grow:1;">
-                    <label>نص قرار الغرامة</label>
+                    <div class="ta-lock-row"><label style="margin-bottom:0;">نص قرار الغرامة</label><label class="ta-lock-lbl" title="( فتح التعديل )"><input type="checkbox" onchange="toggleTaLock(this,'fine-text')"><span class="ta-lock-box"><span class="ta-lock-mark">✔</span></span><span>( فتح التعديل )</span></label></div>
                     <textarea id="fine-text" rows="3" style="width:100%; height:70px; resize:vertical;" oninput="updateAll()" placeholder="عند ترك حقل المبلغ فارغاً سيظهر في الطباعه كالتالي /                                                                                              نأمر بتغريم المتهم مبلغ / ................................ جنيهًا والمصاريف"></textarea>
                 </div>
             </div>
@@ -1443,7 +1510,7 @@ body[data-theme="dark"] select option {
                     </div>
                 </div>
                 <div class="field-group" style="flex-grow:1;">
-                    <label>نص قرار المركبة</label>
+                    <div class="ta-lock-row"><label style="margin-bottom:0;">نص قرار المركبة</label><label class="ta-lock-lbl" title="( فتح التعديل )"><input type="checkbox" onchange="toggleTaLock(this,'vehicle-decision-text')"><span class="ta-lock-box"><span class="ta-lock-mark">✔</span></span><span>( فتح التعديل )</span></label></div>
                     <textarea id="vehicle-decision-text" rows="3" style="width:100%; height:85px; resize:vertical;" oninput="updateAll()" placeholder="( عند تركه فارغاً لن يظهر في الطباعة )"></textarea>
                 </div>
             </div>
@@ -1486,7 +1553,7 @@ body[data-theme="dark"] select option {
                     </div>
                 </div>
                 <div class="field-group" style="flex-grow:1;">
-                    <label>نص قرار الجلسة</label>
+                    <div class="ta-lock-row"><label style="margin-bottom:0;">نص قرار الجلسة</label><label class="ta-lock-lbl" title="( فتح التعديل )"><input type="checkbox" onchange="toggleTaLock(this,'jalsa-extra-text')"><span class="ta-lock-box"><span class="ta-lock-mark">✔</span></span><span>( فتح التعديل )</span></label></div>
                     <textarea id="jalsa-extra-text" rows="3" style="width:100%; height:50px; resize:vertical;" oninput="updateAll()" placeholder="( عند تركه فارغاً لن يظهر في الطباعة )"></textarea>
                 </div>
             </div>
@@ -2117,27 +2184,27 @@ function onFineInput() {
    FIELDS CONFIG
 =================================================== */
 const FIELDS_CONFIG = {
-    'p-mahdar-num-u':    { dots: '.............................................................' },
-    'p-qism-u':          { dots: '...............................................................................................................' },
+    'p-mahdar-num-u':    { dots: '........................................' },
+    'p-qism-u':          { dots: '........................................' },
     'p-qarar-date-u':    { dots: '...........................', dateField: true },
-    'p-director-u':      { dots: '........................................................................................................................' },
+    'p-director-u':      { dots: '........................................' },
     'p-director-sig-u':  { dots: '' },
-    'p-name-u':          { dots: '............................................................................................................................................................................' },
+    'p-name-u':          { dots: '........................................' },
     'p-incident-date-u': { dots: '...............................', dateField: true },
-    'p-car-u':           { dots: '......................................................................................................................................' },
-    'p-fine-u':          { dots: '................................................................................................................................................................................' },
+    'p-car-u':           { dots: '........................................' },
+    'p-fine-u':          { dots: '........................................' },
     'p-rabi3an-u':       { dots: '', plain: true },
     'p-year-u':          { dots: '2026', plain: true },
 
-    'p-mahdar-num-l':    { dots: '....................................................' },
-    'p-qism-l':          { dots: '....................................................' },
+    'p-mahdar-num-l':    { dots: '........................................' },
+    'p-qism-l':          { dots: '........................................' },
     'p-director-l':      { dots: '' },
     'p-director-sig-l':  { dots: '' },
-    'p-name-l':          { dots: '.........................................................................................................................................................................' },
-    'p-natid-l':         { dots: '..........................................................................................................................................' },
+    'p-name-l':          { dots: '........................................' },
+    'p-natid-l':         { dots: '........................................' },
     'p-incident-date-l': { dots: '...........................', dateField: true },
-    'p-da2ira-l':        { dots: '............................................................' },
-    'p-fine-l':          { dots: '...........................................................................................................................................................................................................................................................' },
+    'p-da2ira-l':        { dots: '........................................' },
+    'p-fine-l':          { dots: '........................................' },
     'p-qarar-date-l':    { dots: '...........................', dateField: true },
     'p-year-l':          { dots: '2026', plain: true },
 
@@ -2326,9 +2393,9 @@ function updateAll() {
     const violsU = document.getElementById('p-violations-u');
     if (violsU) {
         if (viols.length) {
-            violsU.innerHTML = viols.map((v, i) => `<div style="font-weight:bold;">${i+1}- ${v}</div>`).join('');
+            violsU.innerHTML = viols.map((v, i) => `<span style="display:inline-block;width:33.33%;font-weight:bold;box-sizing:border-box;padding-left:1mm;">${i+1}- ${v}</span>`).join('');
         } else {
-            violsU.innerHTML = [1,2,3,4,5,6].map(n => `<div>${n}- <span style="font-size:5pt">................................................................</span></div>`).join('');
+            violsU.innerHTML = [1,2,3,4,5,6].map(n => `<span style="display:inline-block;width:33.33%;box-sizing:border-box;padding-left:1mm;">${n}- <span style="font-size:5pt">................................</span></span>`).join('');
         }
     }
 
@@ -2348,9 +2415,9 @@ function updateAll() {
     const violsL = document.getElementById('p-violations-l');
     if (violsL) {
         if (viols.length) {
-            violsL.innerHTML = viols.map((v, i) => `<div>${i+1}- ${v}</div>`).join('');
+            violsL.innerHTML = viols.map((v, i) => `<span style="display:inline-block;width:33.33%;box-sizing:border-box;padding-left:1mm;">${i+1}- ${v}</span>`).join('');
         } else {
-            violsL.innerHTML = [1,2,3,4,5,6].map(n => `<div>${n}- <span style="font-size:5pt">...........................................................................</span></div>`).join('');
+            violsL.innerHTML = [1,2,3,4,5,6].map(n => `<span style="display:inline-block;width:33.33%;box-sizing:border-box;padding-left:1mm;">${n}- <span style="font-size:5pt">................................</span></span>`).join('');
         }
     }
 
@@ -2384,9 +2451,9 @@ function updateAll() {
     const jViols = document.getElementById('j-violations');
     if (jViols) {
         if (viols.length) {
-            jViols.innerHTML = viols.map((v, i) => `<div>${i+1}- ${v}</div>`).join('');
+            jViols.innerHTML = viols.map((v, i) => `<span style="display:inline-block;width:33.33%;box-sizing:border-box;padding-left:1mm;">${i+1}- ${v}</span>`).join('');
         } else {
-            jViols.innerHTML = [1,2,3,4,5,6].map(n => `<div>${n}- <span style="font-size:5pt">.......................................................................................................</span></div>`).join('');
+            jViols.innerHTML = [1,2,3,4,5,6].map(n => `<span style="display:inline-block;width:33.33%;box-sizing:border-box;padding-left:1mm;">${n}- <span style="font-size:5pt">................................</span></span>`).join('');
         }
     }
 }
@@ -2841,6 +2908,20 @@ function toggleTheme() {
     showDate();
     setInterval(showDate, 60000);
 })();
+
+
+function toggleTaLock(cb, taId) {
+    const ta = document.getElementById(taId);
+    if (!ta) return;
+    if (cb.checked) { ta.classList.remove('ta-locked'); ta.removeAttribute('readonly'); }
+    else            { ta.classList.add('ta-locked');    ta.setAttribute('readonly', true); }
+}
+document.addEventListener('DOMContentLoaded', function() {
+    ['sabeel-text','fine-text','vehicle-decision-text','jalsa-extra-text'].forEach(function(id) {
+        const ta = document.getElementById(id);
+        if (ta) { ta.classList.add('ta-locked'); ta.setAttribute('readonly', true); }
+    });
+});
 
 </script>
 </body>
