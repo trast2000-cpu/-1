@@ -1443,8 +1443,15 @@ thead th[data-tip]:hover::before {
                 tbody: tableHTML,
                 savedAt: new Date().toLocaleString('ar-EG')
             };
-            var key = 'snapshot_' + deptName.trim();
+            var key = 'snapshot_' + deptName.trim() + '_' + Date.now();
             localStorage.setItem(key, JSON.stringify(snapshot));
+            var allKeys = [];
+            for (var _i = 0; _i < localStorage.length; _i++) {
+                var _k = localStorage.key(_i);
+                if (_k && _k.startsWith('snapshot_' + deptName.trim() + '_')) allKeys.push(_k);
+            }
+            allKeys.sort(function(a,b){ return (parseInt(a.split('_').pop())||0)-(parseInt(b.split('_').pop())||0); });
+            while (allKeys.length > 10) localStorage.removeItem(allKeys.shift());
         } catch(e) {}
     }
 
@@ -1456,11 +1463,13 @@ thead th[data-tip]:hover::before {
                 try {
                     var snap = JSON.parse(localStorage.getItem(key));
                     snap._key = key;
+                    snap._ts = parseInt(key.split('_').pop()) || 0;
                     snapshots.push(snap);
                 } catch(e) {}
             }
         }
         if (snapshots.length === 0) { alert('لا توجد كشوفات محفوظة في الذاكرة'); return; }
+        snapshots.sort(function(a, b) { return b._ts - a._ts; });
         var overlay = document.createElement('div');
         overlay.id = 'restoreOverlay';
         overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:9999;display:flex;align-items:center;justify-content:center;';

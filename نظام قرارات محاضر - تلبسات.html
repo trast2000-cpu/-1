@@ -2099,6 +2099,7 @@ function onViolSelect(sel) {
     if (violItems.length >= 9) return;
     violItems.push({ label: val, isCustom: false });
     renderViolItems(); updateViolDisplay();
+    autoSave(); //
 }
 
 function addViolCustomItem(e) {
@@ -2110,6 +2111,7 @@ function addViolCustomItem(e) {
     input.value = '';
     document.getElementById('viol-other-wrapper').style.display = 'none';
     renderViolItems(); updateViolDisplay();
+     autoSave();
 }
 
 function addViolCustomItemBtn() {
@@ -2120,9 +2122,10 @@ function addViolCustomItemBtn() {
     input.value = '';
     document.getElementById('viol-other-wrapper').style.display = 'none';
     renderViolItems(); updateViolDisplay();
+    autoSave(); //
 }
 
-function removeViolItem(idx) { violItems.splice(idx, 1); renderViolItems(); updateViolDisplay(); }
+function removeViolItem(idx) { violItems.splice(idx, 1); renderViolItems(); updateViolDisplay();  autoSave();}
 
 function renderViolItems() {
     const violDisp  = document.getElementById('viol-display');
