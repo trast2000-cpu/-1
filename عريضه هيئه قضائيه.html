@@ -786,11 +786,11 @@
                 </div>
                 <div id="ownerNameContainer" class="form-group form-group-name">
                     <label id="label_ownerName">اسم العضو</label>
-                    <input type="text" id="ownerName" oninput="sync()">
+                    <input type="text" id="ownerName" oninput="sync()" placeholder="( اسم العضو بدون القاب )">
                 </div>
                 <div id="wifeInputContainer" class="form-group hidden">
                     <label>اسم الزوجة</label>
-                    <input type="text" id="wifeName" oninput="sync()">
+                    <input type="text" id="wifeName" oninput="sync()" placeholder="( اسم الزوجه بدون القاب )">
                 </div>
                 <div id="workPlaceContainer" class="form-group">
                     <label id="label_jobTitle">جهة العمل</label>
@@ -1124,6 +1124,7 @@
             document.getElementById('wifeInputContainer').classList.remove('hidden');
             document.getElementById('workPlaceContainer').classList.remove('hidden');
             document.getElementById('label_ownerName').innerText = "اسم الزوج";
+            document.getElementById('ownerName').placeholder = "( اسم الزوج بدون القاب )";
             document.getElementById('label_jobTitle').innerText = "وظيفة الزوج";
             if (job === 'أخرى') document.getElementById('otherInputContainer').classList.remove('hidden');
         } else if (type === 'جهه') {
@@ -1133,6 +1134,7 @@
             document.getElementById('ownerNameContainer').classList.remove('hidden');
             document.getElementById('workPlaceContainer').classList.remove('hidden');
             document.getElementById('label_ownerName').innerText = "اسم العضو";
+            document.getElementById('ownerName').placeholder = "( اسم العضو بدون القاب )";
             document.getElementById('label_jobTitle').innerText = "جهة العمل";
             if (job === 'أخرى') document.getElementById('otherInputContainer').classList.remove('hidden');
         }
