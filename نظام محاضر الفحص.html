@@ -336,6 +336,9 @@ td.ce-cell:focus-within,
         background-color: transparent !important;
         box-shadow: none !important;
     }
+    #_fhs_lookup_toast {
+        display: none !important;
+    }
 }
 
 /* ===== خلية رقم المحضر (div بدل inner-table) ===== */
@@ -1420,6 +1423,17 @@ thead th[data-tip]:hover::before {
         var s = document.getElementById("dept");
         document.getElementById("otherDept").style.display = (s.value === "other") ? "inline-block" : "none";
         updatePrintValues();
+        // إعادة محاولة استرجاع بيانات أي صفوف فيها رقم محضر مكتوب مسبقاً
+        retryLookupAllRows();
+    }
+
+    function retryLookupAllRows() {
+        var caseCells = document.querySelectorAll('#mainTable tbody tr [contenteditable][data-ph="رقم المحضر"]');
+        caseCells.forEach(function(cell) {
+            if ((cell.innerText || '').trim()) {
+                lookupFromTalbsat(cell);
+            }
+        });
     }
 
     function printPage() {
