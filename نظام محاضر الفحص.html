@@ -1488,9 +1488,10 @@ thead th[data-tip]:hover::before {
         overlay.id = 'restoreOverlay';
         overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:9999;display:flex;align-items:center;justify-content:center;';
         var modal = document.createElement('div');
-        modal.style.cssText = 'background:#fff;border-radius:12px;padding:25px;min-width:350px;max-width:500px;box-shadow:0 10px 30px rgba(0,0,0,0.3);direction:rtl;font-family:inherit;';
+        modal.style.cssText = 'background:#fff;border-radius:12px;padding:20px;min-width:350px;max-width:550px;max-height:60vh;display:flex;flex-direction:column;box-shadow:0 10px 30px rgba(0,0,0,0.3);direction:rtl;font-family:inherit;';
         var html = '<h3 style="margin:0 0 15px;color:#1a237e;text-align:center;font-size:18px;">📂 استرجع كشف محفوظ</h3>';
         html += '<p style="color:#666;font-size:13px;text-align:center;margin-bottom:15px;">اختر الكشف الذي تريد استرجاعه</p>';
+        html += '<div style="overflow-y:auto; flex:1; padding:5px; margin-bottom:10px; border-top:1px solid #eee; border-bottom:1px solid #eee; padding-top:15px;">';
         snapshots.forEach(function(snap, idx) {
             html += '<div onclick="restoreSnapshot(\'' + snap._key + '\')" style="cursor:pointer;border:2px solid #e0e0e0;border-radius:8px;padding:12px 15px;margin-bottom:10px;transition:0.2s;display:flex;justify-content:space-between;align-items:center;" onmouseover="this.style.borderColor=\'#007bff\';this.style.background=\'#f0f7ff\'" onmouseout="this.style.borderColor=\'#e0e0e0\';this.style.background=\'#fff\'">';
             html += '<div><div style="font-weight:bold;font-size:15px;color:#2c3e50;">🏛️ ' + snap.dept + '</div>';
@@ -1498,6 +1499,7 @@ thead th[data-tip]:hover::before {
             html += '<div style="font-size:11px;color:#aaa;margin-top:2px;">⏱️ حُفظ: ' + snap.savedAt + '</div></div>';
             html += '<div onclick="event.stopPropagation();deleteSnapshot(\'' + snap._key + '\')" title="حذف" style="color:#dc3545;font-size:20px;padding:4px 8px;border-radius:6px;" onmouseover="this.style.background=\'#ffeaea\'" onmouseout="this.style.background=\'transparent\'">🗑️</div></div>';
         });
+        html += '</div>';
         html += '<button onclick="document.getElementById(\'restoreOverlay\').remove()" style="width:100%;margin-top:10px;padding:10px;background:#6c757d;color:#fff;border:none;border-radius:8px;font-size:14px;cursor:pointer;font-family:inherit;">إلغاء</button>';
         modal.innerHTML = html;
         overlay.appendChild(modal);
