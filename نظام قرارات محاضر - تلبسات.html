@@ -87,6 +87,10 @@ body {
     body {
         zoom: 1.3;
     }
+    .sidebar {
+        height: calc((100vh / 1.3) - 44px);
+        max-height: calc((100vh / 1.3) - 44px);
+    }
 }
 
 /* ====== Layout ====== */
@@ -110,9 +114,12 @@ body {
     right: 5;
     height: calc(100vh - 58px);
     overflow-y: auto;
+    overflow-x: hidden;
     z-index: 1000;
     scrollbar-width: thin;
     scrollbar-color: #4a7ab5 #1e3a5f;
+    display: flex;
+    flex-direction: column;
 }
 .sidebar-title {
     color: #a8c4e0;
@@ -157,9 +164,10 @@ body {
 }
 
 .sidebar .btn-row {
-    margin-top: 12px;
-    padding-top: 10px;
+    margin-top: 10px;
+    padding-top: 8px;
     border-top: 1px solid #4a5f7f;
+    flex-shrink: 0;
 }
 .sidebar .btn-print {
     width: 100%;
@@ -202,6 +210,78 @@ body {
 }
 .sidebar .btn-print:hover { transform: translateY(-2px); box-shadow: 0 6px 14px rgba(44,74,110,0.5); filter: brightness(1.1); }
 .sidebar .btn-clear:hover { transform: translateY(-2px); box-shadow: 0 6px 14px rgba(176,58,46,0.5); filter: brightness(1.1); }
+
+.accordion-section {
+    margin-bottom: 5px;
+    border-radius: 7px;
+    overflow: hidden;
+    border: 1px solid rgba(255,255,255,0.12);
+    flex-shrink: 0;
+}
+
+.accordion-header {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 5px 9px;
+    background: rgba(255,255,255,0.10);
+    color: #fff;
+    font-size: 8.5pt;
+    font-weight: bold;
+    font-family: inherit;
+    border: none;
+    cursor: pointer;
+    border-radius: 7px;
+    transition: background 0.2s;
+    text-align: right;
+    direction: rtl;
+}
+
+.accordion-header.open {
+    background: rgba(255,255,255,0.18);
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+.accordion-header:hover {
+    background: rgba(255,255,255,0.22);
+}
+
+.accordion-arrow {
+    font-size: 8pt;
+    transition: transform 0.25s ease;
+}
+
+.accordion-body {
+    background: rgba(0,0,0,0.08);
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    overflow: hidden;
+    max-height: 600px;
+    padding: 5px 5px 3px;
+    opacity: 1;
+    transition: max-height 0.35s ease, padding 0.25s ease, opacity 0.25s ease;
+}
+
+.accordion-body.closed {
+    max-height: 0 !important;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+    opacity: 0;
+}
+
+.masai-btn {
+    /* نفس ألوان preset-btn العادية — لون التفعيل موحد */
+}
+
+.masai-btn.active {
+    background: #c9a200;
+    color: #1e3a5f;
+    border-color: #e6b800;
+    box-shadow: 0 2px 8px rgba(201,162,0,0.4);
+}
 
 .sidebar .developer-credit {
     text-align: center;
@@ -425,6 +505,76 @@ textarea { resize: vertical; }
     pointer-events: none;
     z-index: 0;
 }
+
+/* إخفاء الخلفية الكاملة من جميع قرارات القسم المسائي */
+#print-masai::before,
+#print-masai-jalsa::before {
+    display: none !important;
+}
+
+/* خلفية مائية مخصصة للنصف العلوي فقط في القسم المسائي */
+#print-masai .upper-section,
+#print-masai-jalsa .upper-section {
+    position: relative;
+    z-index: 1;
+}
+#print-masai .upper-section::before {
+    content: '';
+    position: absolute;
+    top: 62%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 75%;
+    height: 75%;
+    background-image: url('logo.png');
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
+    opacity: 0.08;
+    pointer-events: none;
+    z-index: -1;
+}
+#print-masai-jalsa .upper-section::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 75%;
+    height: 75%;
+    background-image: url('logo.png');
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
+    opacity: 0.08;
+    pointer-events: none;
+    z-index: -1;
+}
+
+/* خلفية مائية مخصصة للنصف السفلي فقط في القسم المسائي */
+#print-masai .lower-section,
+#print-masai-jalsa .lower-section {
+    position: relative;
+    z-index: 1;
+}
+#print-masai .lower-section::before,
+#print-masai-jalsa .lower-section::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 75%;
+    height: 75%;
+    background-image: url('logo.png'); 
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
+    opacity: 0.08;
+    pointer-events: none;
+    z-index: -1;
+}
+
 .page-qaid-wasf > * { position: relative; z-index: 1; }
 
 /* Upper section: قرار النيابة */
@@ -647,6 +797,14 @@ textarea { resize: vertical; }
 .d { font-weight: bold; }
 .d:not(.has-data) { font-size: 5pt; text-decoration: none; }
 .d.has-data { font-size: inherit; }
+
+/* ====== تمييز البيانات المتغيرة (المُدخلة من الواجهة) في القسم المسائي ====== */
+/* لون كحلي مميز + خط تحت منقط خفيف، يفرّق البيانات المتغيرة عن النص الثابت في الطباعة */
+.pm-data {
+    color: #1a3a6b !important;
+    font-weight: bold;
+}
+.pm-data:empty::before { content: ''; }
 .underline-blank {
     display: inline-block;
     border-bottom: 1pt solid #000;
@@ -709,6 +867,24 @@ textarea { resize: vertical; }
     white-space: nowrap;
     overflow: hidden;
 }
+.dynamic-field-masai {
+    font-weight: normal;
+    font-size: 6pt;
+    transition: all 0.2s;
+    padding: 0 2px;
+    display: inline-block;
+    min-width: 22mm;
+    vertical-align: bottom;
+    white-space: nowrap;
+    overflow: hidden;
+}
+.dynamic-field-masai.has-data {
+    font-weight: bold !important;
+    font-size: 13.5pt !important;
+    color: #1e3a5f;
+    border-bottom: 2px solid #1e3a5f;
+    padding-bottom: 1px;
+}
 .dynamic-field.has-data {
     font-weight: bold !important;
     font-size: 15.5pt !important;
@@ -742,9 +918,8 @@ textarea { resize: vertical; }
 }
 .dynamic-field-small-name {
     font-weight: normal;
-    font-size: 4pt !important;
-    letter-spacing: 1px;
-    font-family: monospace;
+    font-size: 5pt !important;
+    letter-spacing: 0px; /* السر هنا: لغينا المسافات الإجبارية بين النقاط */
     transition: all 0.2s;
     white-space: nowrap;
     overflow: hidden;
@@ -1190,7 +1365,18 @@ body[data-theme="dark"] select option {
         print-color-adjust: exact !important;
         -webkit-print-color-adjust: exact !important;
     }
+    /* استثناء لون البيانات المتغيرة المسائية — يجب أن يتغلب على قاعدة الإجبار الأسود أعلاه */
+    body[data-theme="dark"] .page-qaid-wasf .pm-data {
+        color: #1a3a6b !important;
+    }
     .theme-toggle-btn, #currentDateDisplay { display: none !important; }
+}
+
+/* ضمان لون البيانات المتغيرة المسائية في كل الأحوال (خارج الدارك مود أيضاً) */
+@media print {
+    .pm-data {
+        color: #1a3a6b !important;
+    }
 }
 
 
@@ -1232,6 +1418,10 @@ textarea.ta-locked {
     pointer-events: all !important;
     border-color: #e0e0e0 !important;
 }
+
+
+
+
 </style>
 
 </head>
@@ -1239,24 +1429,52 @@ textarea.ta-locked {
 
 <!-- ====== SIDEBAR ====== -->
 <div class="sidebar">
-    <div class="sidebar-title">▪ القرارات ▪</div>
 
-    <button class="preset-btn" onclick="selectDecision(0)">
-         قيد و وصف<br>يستمر التحفظ
-    </button>
-    <button class="preset-btn" onclick="selectDecision(1)">
-         قيد و وصف<br>إيقاف التعامل
-    </button>
-    <button class="preset-btn" onclick="selectDecision(2)">
-         قيد و وصف<br>تسلم المركبة
-    </button>
-    <button class="preset-btn" onclick="selectDecision(3)">
-         قيد و وصف<br>إعلان جلسة
-    </button>
-    <button class="preset-btn" onclick="selectDecision(4)">
-         طلب حضور<br>متهم
-    </button>
+    <!-- ===== قسم النيابة الصباحية (مفتوح افتراضياً) ===== -->
+    <div class="accordion-section" id="section-sabahi">
+        <button class="accordion-header open" onclick="toggleAccordion('section-sabahi')">
+            <span>☀️ النيابة الصباحية</span>
+            <span class="accordion-arrow">▲</span>
+        </button>
+        <div class="accordion-body">
+            <button class="preset-btn" onclick="selectDecision(0)">
+                قيد و وصف<br>يستمر التحفظ
+            </button>
+            <button class="preset-btn" onclick="selectDecision(1)">
+                قيد و وصف<br>إيقاف التعامل
+            </button>
+            <button class="preset-btn" onclick="selectDecision(2)">
+                قيد و وصف<br>تسلم المركبة
+            </button>
+            <button class="preset-btn" onclick="selectDecision(3)">
+                قيد و وصف<br>إعلان جلسة
+            </button>
+            <button class="preset-btn" onclick="selectDecision(4)">
+                طلب حضور<br>متهم
+            </button>
+        </div>
+    </div>
 
+    <!-- ===== قسم النيابة المسائية (مطوي افتراضياً) ===== -->
+    <div class="accordion-section" id="section-masai">
+        <button class="accordion-header" onclick="toggleAccordion('section-masai')">
+            <span>🌙 النيابة المسائية</span>
+            <span class="accordion-arrow">▼</span>
+        </button>
+        <div class="accordion-body closed">
+            <button class="preset-btn masai-btn" onclick="selectDecision(5)">
+                قيد و وصف<br>تسلم المركبة<br><span style="font-size:9px;opacity:0.85;"></span>
+            </button>
+            <button class="preset-btn masai-btn" onclick="selectDecision(6)">
+                قيد و وصف<br>يستمر التحفظ<br><span style="font-size:9px;opacity:0.85;"></span>
+            </button>
+            <button class="preset-btn masai-btn" onclick="selectDecision(7)">
+                قيد و وصف<br>إعلان جلسة<br><span style="font-size:9px;opacity:0.85;"></span>
+            </button>
+        </div>
+    </div>
+
+    <!-- ===== أزرار الطباعة والمسح ===== -->
     <div class="btn-row">
         <button class="btn-print" onclick="printDoc()">🖨️ طباعة القرار</button>
         <button class="btn-clear" onclick="clearAll()"><i class="fa-solid fa-trash-can" style="margin-left: 5px;"></i>مسح الكل</button>
@@ -1595,18 +1813,18 @@ textarea.ta-locked {
                 </div>
             </div>
 
-            <div style="text-align: center; width: 100%; margin-top: 0.5mm; margin-bottom: 1mm; font-family: 'Cairo', 'Segoe UI', Arial, sans-serif; font-size: 13pt; direction: rtl; line-height: 1.6;">
+            <div style="text-align: center;font-weight:bold; width: 100%; margin-top: 0.5mm; margin-bottom: 1mm; font-family: 'Cairo', 'Segoe UI', Arial, sans-serif; font-size: 15.5pt; direction: rtl; line-height: 1.6;">
                 قرار النيابة في المحضر رقم:
-                <span id="p-mahdar-num-u" class="dynamic-field"></span>
+                <span id="p-mahdar-num-u" class="d"></span>
                 لسنة
                 <span id="p-year-u" style="font-weight: bold;">2026</span>
                 جنح مرور
-                <span id="p-qism-u" class="dynamic-field"></span>
+                <span id="p-qism-u" class="d"></span>
             </div>
 
             <div style="width:100%; display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:2mm; font-size:10.5pt;">
                 <div style="text-align:right; padding-right: 12mm;">
-                    في &nbsp;
+                    في /&nbsp;
                     <span id="p-qarar-date-u" class="dynamic-field-small"></span>
                 </div>
                 <div style="text-align:left; padding-left: 12mm; white-space:nowrap;">
@@ -1614,7 +1832,7 @@ textarea.ta-locked {
                 </div>
             </div>
 
-            <div style="width:100%; display:flex; justify-content:space-between; align-items:flex-start; font-size:10.5pt;">
+            <div style="width:100%; display:flex; justify-content:space-between; align-items:flex-start; font-size:15.5pt;">
                 <div style="text-align:right; padding-right: 12mm;">
                     نحن /&nbsp;
                     <span id="p-director-u" class="dynamic-field-small"></span>
@@ -1627,7 +1845,7 @@ textarea.ta-locked {
             <div class="body-text">
                 <div class="line" style="text-align:center; font-weight:bold; text-decoration:underline; font-size:11pt; margin-bottom:2mm;">بعد الاطـلاع</div>
                 <div class="line">
-                    اولاً: تقيد الاوراق جنحة مرورية بالمادة 74 مكرر / 2 ، 3 ، 4 من القانون رقم 66 لسنة 1973
+                    <span style="font-weight:bold;font-size:12pt;">أولاً:</span> تقيد الاوراق جنحة مرورية بالمادة 74 مكرر / 2 ، 3 ، 4 من القانون رقم 66 لسنة 1973
                     والمعدل بالقانونين رقمي 121 لسنة 2008 ، 59 لسنة 2014.
                 </div>
                 <div class="line" style="text-align:center; margin: 2mm 0;">
@@ -1635,14 +1853,13 @@ textarea.ta-locked {
                     <span id="p-name-u" class="dynamic-field-small-name"></span>
                 </div>
                 <div class="line">
-                    لأنه في &nbsp;<span class="d" id="p-incident-date-u"><span class="date-dots">............</span><span class="date-slash">/</span><span class="date-dots">...........</span><span class="date-slash">/</span>2026</span>&nbsp;
+                    لأنه في /&nbsp;<span class="d" id="p-incident-date-u"><span class="date-dots">............</span><span class="date-slash">/</span><span class="date-dots">...........</span><span class="date-slash">/</span>2026</span>&nbsp;
                     قاد المركبة (&nbsp;<span id="p-car-u"></span>&nbsp;) مرتكباً الآتي:
                 </div>
                 <div id="p-violations-u" class="viols-grid-u"></div>
-                <div class="line" id="p-thaniyan-u">ثانياً : يخلى سبيل المتهم من ديوان القسم مالم يكن مطلوباً او محبوساً لسبب آخر</div>
+                <div class="line" id="p-thaniyan-u"><span style="font-weight:bold;font-size:12pt;">ثانياً:</span> يخلى سبيل المتهم من ديوان القسم مالم يكن مطلوباً او محبوساً لسبب آخر</div>
                 <div class="line" id="p-fine-line-u">
-                    <span id="p-thalithan-label">ثالثاً</span>: نأمر بتغريم المتهم مبلغ /&nbsp;
-                    <span class="d" id="p-fine-u"></span>&nbsp;جنيهاً والمصاريف
+                    <span id="p-thalithan-label" style="font-weight:bold;font-size:12pt;">ثالثاً</span>: نأمر بتغريم المتهم مبلغ /&nbsp;<span class="d" id="p-fine-u"></span>&nbsp;جنيهاً والمصاريف
                 </div>
                 <div class="line" id="p-rabi3an-u" style="font-size: 12pt !important; font-weight: bold !important; margin: 2.5mm 0 1.5mm 0; line-height: 1.75; color: #1e3a5f;"></div>
             </div>
@@ -1669,7 +1886,7 @@ textarea.ta-locked {
             </div>
             <div class="bisim-sub">أمر جنائي</div>
 
-            <div style="text-align:center; font-size:10.5pt; margin-bottom:1mm; line-height:1.6;">
+            <div style="text-align:center;font-weight:bold; font-size:10.5pt; margin-bottom:1mm; line-height:1.6;">
                 في قضية رقم:&nbsp;
                 <span class="d" id="p-mahdar-num-l"></span>
                 &nbsp;جنح مرور&nbsp;
@@ -1681,7 +1898,7 @@ textarea.ta-locked {
             <div class="body-text">
                 <table style="width:100%; border:none; border-collapse:collapse;" class="line">
                     <tr>
-                        <td style="text-align:right; font-size:10.5pt; white-space:nowrap; vertical-align:bottom;">
+                        <td style="text-align:right; font-size:11.5pt; white-space:nowrap; vertical-align:bottom;">
                             نحن /&nbsp;<span class="d" id="p-director-l" style="font-weight:bold;"></span>
                         </td>
                         <td style="text-align:left; font-size:10.5pt; font-weight:bold; white-space:nowrap; vertical-align:bottom; padding-right:15mm;">
@@ -1705,7 +1922,7 @@ textarea.ta-locked {
                 </div>
                 <div class="line">قاد مركبة مرتكباً:</div>
                 <div id="p-violations-l" class="viols-grid-l"></div><br>
-                <div class="line" style="font-size:9.5pt;">
+                <div class="line" style="font-size:9.5pt; margin-top:-5mm">
                     الأمر المعاقب عليه بالمادة 74 مكرراً / 2 ، 4 من القانون رقم 66 لسنة 1973 والمعدل بالقانونين رقمي 121
                     لسنة 2008 ، 59 لسنه 2014
                 </div>
@@ -1743,6 +1960,344 @@ textarea.ta-locked {
 
     </div><!-- end page-qaid-wasf -->
 
+    <!-- TYPE 5,6: قرارات النيابة المسائية -->
+    <div id="print-masai" class="page-qaid-wasf" style="display:none;">
+
+        <!-- النصف العلوي: القيد والوصف - نفس الصباحي تماماً -->
+        <div class="upper-section">
+            <div class="upper-section-rect"></div>
+
+            <div style="display: flex; align-items: center; justify-content: space-between; direction: rtl; margin-bottom: 2mm;">
+                <div style="text-align:center; padding-left: 110mm; padding-right: 3mm; font-weight:bold; font-size:11.5pt; line-height:1.55; flex: 1;">
+                    النيابـــــة العـــــامـة<br>
+                    نيابة مرور القاهرة المسائية
+                </div>
+                <div style="text-align: left; flex-shrink: 0; padding-left: 4mm;">
+                    <img src="logo.png" alt="شعار النيابة" style="width: 75px; height: auto;">
+                </div>
+            </div>
+
+            <div style="text-align: center;font-weight: bold; width: 100%; margin-top: -3.5mm; margin-bottom: 1mm; font-family: 'Cairo', 'Segoe UI', Arial, sans-serif; font-size: 15.5pt; direction: rtl; line-height: 1.5; white-space: nowrap;">
+                قرار النيابة في المحضر رقم:
+                <span id="pm-mahdar-num-u" class="d pm-data"></span>
+                لسنة
+                <span id="pm-year-u" class="pm-data" style="font-weight: bold;">2026</span>
+                جنح مرور
+                <span id="pm-qism-u" class="d pm-data"></span>
+            </div>
+
+            <div style="width:100%; display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:2mm; font-size:10.5pt;">
+                <div style="text-align:right; padding-right: 12mm;">
+                    في /&nbsp;
+                    <span id="pm-qarar-date-u" class="dynamic-field-small pm-data"></span>
+                </div>
+                <div style="text-align:left; padding-left: 12mm; white-space:nowrap;">
+                    بسراي النيابة
+                </div>
+            </div>
+
+            <div style="width:100%; display:flex; justify-content:space-between; align-items:flex-start; font-size:10.5pt;">
+                <div style="text-align:right; padding-right: 12mm;">
+                    نحن /&nbsp;<span id="pm-director-u" class="d pm-data"></span>
+                </div>
+                <div style="text-align:left; padding-left: 12mm; white-space:nowrap;">
+                    مديـر النيابـة
+                </div>
+            </div>
+
+            <div class="body-text">
+
+                <div class="line" style="position:relative; top:-5mm; text-align:center; font-weight:bold; text-decoration:underline; font-size:14pt; margin-bottom:2mm;">بعد الاطـلاع</div>
+
+                <div class="line" style="position: relative; top: -6mm;">
+    <span style="font-weight:bold;font-size:12pt;">أولاً:</span> تقيد الاوراق جنحة مرورية بالمادة 74 مكرر / 2 ، 3 ، 4 من القانون رقم 66 لسنة 1973
+    والمعدل بالقانونين رقمي 121 لسنة 2008 ، 59 لسنة 2014.
+</div>
+                <div class="line" style="text-align:center; margin: -8mm 0 2mm 0;">
+    <span style="font-size: 14pt; font-weight: bold;">ضد /&nbsp;</span><span id="pm-name-u" class="d pm-data" style="font-size:14pt;"></span>
+</div>
+                <div class="line">
+                    لأنه في /&nbsp;<span id="pm-incident-date-u" class="pm-data"><span style="font-size:5pt">................................</span><span style="font-size:14pt;font-weight:bold;">/</span><span style="font-size:5pt">................................</span><span style="font-size:14pt;font-weight:bold;">/</span><span style="font-size:14pt;font-weight:bold;">2026</span></span>&nbsp;
+                    قاد المركبة (&nbsp;<span id="pm-car-u" class="pm-data" style="font-size:13pt; font-weight:bold;"><span id="pm-car-dots-u" style="font-size:5pt;">.................................................</span></span>&nbsp;) مرتكباً الآتي:
+                </div>
+                <div id="pm-violations-u" class="viols-grid-u"></div>
+                <div class="line" id="pm-thaniyan-u"><span style="font-weight:bold;font-size:12pt;">ثانياً:</span> يخلى سبيل المتهم من ديوان القسم مالم يكن مطلوباً او محبوساً لسبب آخر</div>
+                <div class="line" id="pm-fine-line-u">
+                    <span id="pm-thalithan-label" style="font-weight:bold;font-size:12pt;">ثالثاً</span>: نأمر بتغريم المتهم مبلغ /&nbsp;<span class="d pm-data" style="font-size:13pt;" id="pm-fine-u"></span><span id="pm-fine-dots-u" style="font-size:5pt; font-weight:normal;">................................................................</span>&nbsp;جنيهاً والمصاريف
+                </div>
+                <div class="line" id="pm-rabi3an-u" style="font-size: 12pt !important; font-weight: bold !important; margin: 2.5mm 0 1.5mm 0; line-height: 1.75; color: #1e3a5f;"></div>
+            </div>
+
+<table style="width:100%; border:none; border-collapse:collapse; margin-top:0; margin-bottom:6mm; padding-left: 28mm;">
+                <tr>
+                    <td style="text-align:right; font-size:10.5pt; font-weight:bold;">الموظف المختص</td>
+                    <td style="text-align:left;padding-left: 10mm; font-size:10.5pt; font-weight:bold;">مديـر النيابـة</td>
+                </tr>
+                <tr>
+                    <td style="text-align:right; font-size:10pt; font-weight:bold; padding-top:2mm;">
+                        <span style="font-size:5pt; display:block; letter-spacing:0.5px;">...................................</span>
+                    </td>
+                    <td style="text-align:left; padding-left: 10mm; font-size:10pt; font-weight:bold; padding-top:2mm;">
+                        <span id="pm-director-sig-u" class="pm-data"></span>
+                        <span id="pm-director-dots-u" style="font-size:5pt; display:block; letter-spacing:0.5px;">...................................</span>
+                    </td>
+                </tr>
+            </table>
+        </div>
+
+        <!-- خط منقط فاصل — يقطع منه الورقة السفلية لمندوب القسم -->
+        <div style="border-top:1pt dashed #555; margin:2mm 0; flex-shrink:0; position:relative;">
+            <span style="position:absolute; left:50%; transform:translateX(-50%); top:-7px; background:white; padding:0 3mm; font-size:8pt; color:#666;">✂</span>
+        </div>
+
+        <!-- النصف الأسفل: موجّه لمأمور قسم الشرطة - النيابة المسائية -->
+        <div class="lower-section" style="padding: 3mm 5mm;">
+
+            <!-- هيدر النيابة المسائية - مطابق للنصف العلوي -->
+            <div style="display: flex; align-items: center; justify-content: space-between; direction: rtl; margin-bottom: 2mm;">
+                <div style="text-align:center; padding-left: 110mm; padding-right: 3mm; font-weight:bold; font-size:11.5pt; line-height:1.55; flex: 1;">
+                    النيابـــــة العـــــامـة<br>
+                    نيابة مرور القاهرة المسائية
+                </div>
+                <div style="text-align: left; flex-shrink: 0; padding-left: 8mm;">
+                    <img src="logo.png" alt="شعار النيابة" style="width: 75px; height: auto;">
+                </div>
+            </div>
+
+            <!-- المُرسَل إليه: مأمور القسم -->
+            <div style="text-align:center; font-weight:bold; font-size:16pt;margin-top: -6.5mm; margin-bottom:3mm; line-height:1.7; white-space:nowrap;">
+                السيد / مأمور قسم شرطة :
+                <span id="pm-qism-l" class="d pm-data"></span>
+            </div>
+
+            <!-- سطر القرار -->
+            <div style="font-size:15pt; margin-bottom:1.5mm; line-height:1.6; font-weight:bold; text-align:center; white-space:nowrap;">
+                قرار النيابة العامة في المحضر رقم /
+                <span id="pm-mahdar-num-l" class="d pm-data"></span>
+                لسنة
+                <span id="pm-year-l" class="pm-data" style="font-weight:bold;">2026</span>
+                جنح مرور
+            </div>
+
+
+
+
+
+               <!-- اسم المتهم ورقم المركبة — سطر واحد بمسافة كافية بينهما، نقاط طويلة -->
+            <div style="font-size:10.5pt; font-weight:bold; margin-bottom:2.5mm; line-height:1.7; display:flex; justify-content: flex-start; align-items:baseline;">
+    
+    <span style="flex: 0 0 60%;">
+        اسم المتهم /&nbsp;<span id="pm-name-l" class="pm-data" style="font-weight:bold; font-size:14pt;"></span><span id="pm-name-dots-l" style="font-size:5pt;">…………………………………………………………</span>
+    </span>
+    
+    <span style="white-space:nowrap; padding-right: 8mm;">
+        رقم المركبة /&nbsp;<span id="pm-car-l" class="pm-data" style="font-weight:bold; font-size:13pt;"></span><span id="pm-car-dots-l" style="font-size:5pt;">…………………………………………………………</span>
+    </span>
+    
+</div>
+               
+            <!-- القرارات: أولاً إخلاء السبيل، ثانياً الغرامة، ثالثاً المركبة -->
+            <div class="body-text">
+                <div class="line" id="pm-thaniyan-l"><span style="font-weight:bold;font-size:12pt;">أولاً:</span> يخلى سبيل المتهم من ديوان القسم مالم يكن مطلوباً او محبوساً لسبب آخر</div>
+            
+                <div class="line" id="pm-fine-line-l">
+                    <span id="pm-thalithan-label-l" style="font-weight:bold;font-size:12pt;">ثانياً</span>: نأمر بتغريم المتهم مبلغ /&nbsp;<span class="d pm-data" style="font-size:13pt;" id="pm-fine-l"></span><span id="pm-fine-dots-l" style="font-size:5pt; font-weight:normal;">................................................................</span>&nbsp;جنيهاً والمصاريف
+                </div>
+                <div class="line" id="pm-rabi3an-l" style="font-size: 12pt !important; font-weight: bold !important; margin: 2.5mm 0 1.5mm 0; line-height: 1.75; color: #1e3a5f;"></div>
+            </div>
+
+<table style="width:100%; border:none; border-collapse:collapse; margin-top:4mm; position: relative; top: -8mm;">
+                <tr>
+                    <td style="text-align:right; font-size:10.5pt;">
+                        تحريرا في /&nbsp;<span class="d pm-data" id="pm-qarar-date-l"><span class="date-dots">.......</span><span class="date-slash">/</span><span class="date-dots">.......</span><span class="date-slash">/</span>2026</span>
+                    </td>
+                    <td style="text-align:left;padding-left: 10mm; font-size:10.5pt; font-weight:bold; white-space:nowrap;">
+                        مدير النيابة
+                    </td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td style="text-align:left; padding-left: 8mm; font-size:10pt; font-weight:bold; padding-top:2mm;">
+                        <span id="pm-director-sig-l" class="pm-data"></span>
+                        <span id="pm-director-dots-l" style="font-size:5pt; display:block; letter-spacing:0.5px;">...................................</span>
+                    </td>
+                </tr>
+            </table>
+        </div>
+
+    </div><!-- end print-masai -->
+
+    <!-- TYPE 7: قيد وصف جلسة مسائي - نصفين -->
+    <div id="print-masai-jalsa" class="page-qaid-wasf" style="display:none;">
+
+        <!-- النصف العلوي: برواز واحد فقط — border:none يلغي برواز CSS class -->
+        <div class="upper-section" style="flex:1.35; border:none; padding:2mm 3mm; font-size:10.5pt; line-height:1.45; border-radius:0;">
+            <div style="border:2pt solid #000; flex:1; padding:2.5mm 4mm; display:flex; flex-direction:column; height:100%; box-sizing:border-box;">
+
+                <!-- الهيدر: نص يمين، شعار يسار — مطابق للنصف السفلي -->
+                <div style="display:flex; align-items:center; justify-content:space-between; direction:rtl; margin-bottom:2mm;">
+                    <div style="text-align:center; padding-left:110mm; padding-right:3mm; font-weight:bold; font-size:11pt; line-height:1.5; flex:1;">
+                        النيابـة العامـة<br>
+                        نيابة مرور القاهرة المسائية
+                    </div>
+                    <div style="text-align:left; flex-shrink:0; padding-left:6mm;">
+                        <img src="logo.png" alt="" style="width:65px; height:auto;">
+                    </div>
+                </div>
+
+                <!-- عنوان قيد و وصف جلسة -->
+                <div style="text-align:center; margin-top:-10.5mm;margin-bottom:2mm;">
+                    <span style="font-size:16pt; font-weight:bold; border-bottom:2px solid black; display:inline-block; padding-bottom:2px; letter-spacing:0.5px;">
+                        قيد و وصف جلسة
+                    </span>
+                </div>
+
+                <!-- بيانات المحضر -->
+                <div style="text-align:center;font-weight:bold; font-size:15.5pt; margin-bottom:1mm;">
+                    بشأن المحضر رقم&nbsp;<span class="d pm-data" id="mj-mahdar-num-u"></span>&nbsp;
+                    لسنة <span id="mj-year-u" class="pm-data" style="font-weight:bold;">2026</span> جنح مرور&nbsp;<span class="d pm-data" id="mj-qism-u"></span>
+                </div>
+                <div style="text-align:center;font-weight:bold; font-size:12.5pt; margin-bottom:1mm;">
+                    في /&nbsp;<span class="d pm-data" id="mj-qarar-date-u"></span>
+                </div>
+
+                <!-- نحن / مدير النيابة -->
+                <div style="display:flex; justify-content:space-between; font-size:10.5pt;font-weight:bold; margin-bottom:1mm; padding:0 6mm;">
+                    <span>نحن /&nbsp;<span id="mj-director-u" class="d pm-data"></span></span>
+                    <span style="font-weight:bold;">مديـر النيابة</span>
+                </div>
+
+                <div style="font-size:10pt; margin-bottom:1mm;">عقب مطالعة الأوراق وما تم فيها من تحقيقات.</div>
+
+                <!-- أولاً: تقيد الأوراق -->
+                <div style="font-size:11pt; margin-bottom:1.5mm; line-height:1.4; text-align:justify;">
+                    أولاً: تقيد الأوراق جنحة بالمواد 1 ، 3 ، 4 ، 74 مكرر بند 6 ، 74 مكرر (3) ، 74 مكرر (4) وجنحة بالمواد 11 ، 3 ، 4 ، 13/2،3 ، 15/2،3 ، 53 ، 77 وجنحة بالمادة 77 مكرر . 1 ، 2 ، 3 ، 4 ، 76 مكرر ، 78 من القانون رقم 66 لسنة 1973 والمعدل بالقوانين أرقام 210 لسنة 1980 ، 155 لسنة 1999 و 121 لسنة 2008 ، 25 لسنة 2014 ، 59 لسنة 2014
+                </div>
+
+                <!-- ضد -->
+                <div style="text-align:center; font-size:14pt; font-weight:bold; margin-bottom:1.5mm;">
+                    ضـد :&nbsp;<span class="d pm-data" id="mj-name-u"></span>
+                </div>
+
+                <!-- سطر الحادثة: تاريخ بنقاط وشرطات ورقم المركبة بأقواس -->
+                <div style="font-size:10.5pt;font-weight:bold; margin-bottom:1mm; text-align:center;">
+                    لأنه بتاريخ&nbsp;<span id="mj-incident-date-u" class="pm-data"><span style="font-size:5pt">................................</span><span style="font-size:14pt;font-weight:bold;">/</span><span style="font-size:5pt">................................</span><span style="font-size:14pt;font-weight:bold;">/</span><span style="font-size:14pt;font-weight:bold;">2026</span></span>&nbsp;
+                    قاد المركبة (&nbsp;<span id="mj-car-u" class="pm-data" style="font-size:13pt; font-weight:bold;"><span style="font-size:5pt">......................................................</span></span>&nbsp;)
+                </div>
+                <div style="font-size:10.5pt; margin-bottom:1mm; text-align:center;">
+                    بدائرة قسم شرطة&nbsp;<span class="d pm-data" id="mj-da2ira-u"></span>&nbsp;محافظة القاهرة
+                </div>
+                <div style="font-size:10pt;font-wight:bold; margin-bottom:1mm;"><strong>ارتكب الآتي/</strong></div>
+
+                <!-- المخالفات -->
+                <div id="mj-violations-u" style="margin-bottom:1.5mm; font-size:10pt;"></div>
+
+                <!-- ثانياً: إخلاء السبيل -->
+                <div id="mj-thaniyan-u" style="font-size:10.5pt; margin-bottom:1.5mm; line-height:1.45;"></div>
+
+                <!-- ثالثاً: قرار المركبة -->
+                <div id="mj-veh-u" style="font-size:10.5pt; font-weight:bold; margin-bottom:1.5mm; line-height:1.45;"></div>
+
+                <!-- رابعاً: قرار الجلسة -->
+                <div id="mj-jalsa-u" style="font-size:10.5pt; font-weight:bold; margin-bottom:2mm; line-height:1.45;"></div>
+
+                <!-- التوقيع: أعلنت بالجلسة + سطر نقاط طويل للتوقيع اليدوي، مرفوع عن القاع -->
+                <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-top:2mm; margin-bottom:8mm; padding:0 10mm;">
+    
+    <div style="text-align:right; font-size:10.5pt; font-weight:bold;">
+        أعلنت بالجلسة
+        <div style="margin-top:3mm; font-size:5pt; letter-spacing:0.5px;">...................................</div>
+    </div>
+    
+    <div style="text-align:left; font-size:10.5pt; font-weight:bold;">
+        <div style="display: inline-block; text-align: center;">
+            مديـر النيابة
+            <div style="margin-top:3mm; font-size:5pt;" id="mj-director-sig-u" class="pm-data"></div>
+            <div id="mj-director-dots-u" style="margin-top:0; font-size:5pt; letter-spacing:0.5px;">...................................</div>
+        </div>
+    </div>
+    
+</div>
+
+            </div><!-- end single border frame -->
+        </div><!-- end upper-section -->
+
+        <!-- خط فاصل بين النصفين — لقص الورقة بالقلم أو السكين -->
+        <div style="border-top:1pt dashed #555; margin:2mm 0; flex-shrink:0; position:relative;">
+            <span style="position:absolute; left:50%; transform:translateX(-50%); top:-7px; background:white; padding:0 3mm; font-size:8pt; color:#666;">✂</span>
+        </div>
+
+        <!-- النصف السفلي: قرار القسم -->
+        <div class="lower-section" style="flex:0.85; padding:2.5mm 4mm; border-radius:6px;">
+
+            <!-- الهيدر: نص يمين، شعار يسار -->
+            <div style="display:flex; align-items:center; justify-content:space-between; direction:rtl; margin-bottom:1mm;">
+                <div style="text-align:center; padding-left:110mm; padding-right:3mm; font-weight:bold; font-size:11.5pt; line-height:1.55; flex:1;">
+                    النيابـة العامـة<br>
+                    نيابة مرور القاهرة المسائية
+                </div>
+                <div style="text-align:left; flex-shrink:0; padding-left:8mm;">
+                    <img src="logo.png" alt="" style="width:75px; height:auto;">
+                </div>
+            </div>
+
+            <!-- المرسل إليه: أكبر، مرفوع أكثر -->
+            <div style="text-align:center; font-weight:bold; font-size:16pt; margin:-5mm 0 3mm 0; line-height:1.6; white-space:nowrap;">
+                السيد / مأمور قسم شرطة <span id="mj-qism-l" class="pm-data" style="font-weight:bold;"></span>
+            </div>
+
+            <div style="text-align:center; font-size:15pt; margin:2 0 1mm 0; line-height:1.6; font-weight:bold;">
+                قرار النيابة العامة في القضية رقم
+                <span id="mj-mahdar-num-l" class="pm-data" style="font-weight:bold;"></span>
+                جنح مرور
+            </div>
+
+            <!-- اسم المتهم ورقم المركبة — سطر واحد بمسافة كافية بينهما، نقاط طويلة -->
+            <div style="font-size:10.5pt; font-weight:bold; margin-bottom:2.5mm; line-height:1.7; display:flex; justify-content: flex-start; align-items:baseline;">
+    
+    <span style="flex: 0 0 60%;">
+        اسم المتهم /&nbsp;<span id="mj-name-l" class="pm-data" style="font-weight:bold; font-size:14pt;"></span><span id="mj-name-dots-l" style="font-size:5pt;">………………………………………………………………………</span>
+    </span>
+    
+    <span style="white-space:nowrap; padding-right: 8mm;">
+        رقم المركبة /&nbsp;<span id="mj-car-l" class="pm-data" style="font-weight:bold; font-size:13pt;"></span><span id="mj-car-dots-l" style="font-size:5pt;">…………………………………………………………</span>
+    </span>
+    
+</div>
+
+            <!-- القرارات -->
+            <div class="body-text">
+                <div id="mj-sabeel-l" style="margin-bottom:2mm; font-size:10.5pt; line-height:1.6;"></div>
+                <div id="mj-veh-l" style="font-weight:bold; margin-bottom:2mm; font-size:10.5pt; line-height:1.6;"></div>
+                <div id="mj-jalsa-l" style="font-weight:bold; margin-bottom:2mm; font-size:10.5pt; line-height:1.6;"></div>
+            </div>
+
+            <!-- التوقيع -->
+            <table style="width:100%; border:none; border-collapse:collapse; position: relative; top: -5mm;">
+                <tr>
+                    <td style="text-align:right; font-size:10.5pt;">
+                        تحريرا في /&nbsp;<span class="d pm-data" id="mj-qarar-date-l"><span class="date-dots">.......</span><span class="date-slash">/</span><span class="date-dots">.......</span><span class="date-slash">/</span>2026</span>
+                    </td>
+                    <td style="text-align:left; padding-left: 10mm; font-size:10.5pt; font-weight:bold; white-space:nowrap;">
+                        <div style="display: inline-block; text-align: center;">
+                            مدير النيابة
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td style="text-align:left; padding-left: 8mm; font-size:10pt; font-weight:bold; padding-top:2mm;">
+                        <div style="display: inline-block; text-align: center;">
+                            <span id="mj-director-sig-l" class="pm-data"></span>
+                            <span id="mj-director-dots-l" style="font-size:5pt; display:block; letter-spacing:0.5px;">...................................</span>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+
+    </div><!-- end print-masai-jalsa -->
+
     <!-- TYPE 3: قيد وصف جلسة -->
     <div id="print-jalsa" class="page-jalsa" style="display:none;">
         <div class="jalsa-border">
@@ -1773,7 +2328,7 @@ textarea.ta-locked {
                     لسنة 2026 جنح مرور&nbsp;<span class="d" id="j-qism"></span>
                 </div>
                 <div class="line" style="text-align: center; margin-top:1.5mm;">
-                    في&nbsp;<span class="d" id="j-qarar-date-new"></span>
+                    في /&nbsp;<span class="d" id="j-qarar-date-new"></span>
                 </div>
                 <div class="line">
                     <div class="line" style="margin-top: -5mm; padding-left: 8mm; padding-right: 8mm;">
@@ -1803,7 +2358,7 @@ textarea.ta-locked {
                     </div>
 
                     <div class="line" style="margin-top: -15px; margin-bottom: 8px; padding-right:5mm;">
-                        ارتكب الآتي:
+                        ارتكب الآتي/
                         <div id="j-violations" class="viols-grid-u" style="margin-top: 1mm;"></div>
                     </div>
 
@@ -1811,7 +2366,7 @@ textarea.ta-locked {
                         <span id="j-extra-text"></span>
                     </div>
 
-                    <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-top:10mm; padding-left:12mm; padding-right:12mm;">
+                    <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-top:-5mm; padding-left:12mm; padding-right:12mm;">
                         <div style="text-align:right;">
                             <div style="font-weight:bold;">أعلنت بالجلسة</div>
                             <div id="j-a3lanat-dots" style="font-size:5pt; margin-top:4mm;"></div>
@@ -1982,7 +2537,8 @@ function selectDecision(idx) {
 
     const isJalsa = (idx === 3);
 
-    document.getElementById('card-fine').style.display = isJalsa ? 'none' : '';
+    const fineCard = document.getElementById('card-fine');
+    if (fineCard) { isJalsa ? _closeCard(fineCard) : _openCard(fineCard); }
 
     const vehCard   = document.getElementById('card-veh-decision');
     const violCard  = document.getElementById('card-violations');
@@ -2000,6 +2556,8 @@ function selectDecision(idx) {
         if (vehDecSel)  { vehDecSel.value = 'keep';    updateVehicleDecisionText(); }
         if (sabeelCard) _openCard(sabeelCard);
         if (sabeelSel)  { sabeelSel.value = 'qism'; updateSabeelText(); }
+        const fineCard0 = document.getElementById('card-fine');
+        if (fineCard0) _openCard(fineCard0);
     } else if (idx === 1) {
         if (vehCard)    _openCard(vehCard);
         if (violCard)   _openCard(violCard);
@@ -2008,6 +2566,8 @@ function selectDecision(idx) {
         if (vehDecSel)  { vehDecSel.value = 'stop';    updateVehicleDecisionText(); }
         if (sabeelCard) _openCard(sabeelCard);
         if (sabeelSel)  { sabeelSel.value = 'qism'; updateSabeelText(); }
+        const fineCard1 = document.getElementById('card-fine');
+        if (fineCard1) _openCard(fineCard1);
     } else if (idx === 2) {
         if (vehCard)    _openCard(vehCard);
         if (violCard)   _openCard(violCard);
@@ -2016,12 +2576,16 @@ function selectDecision(idx) {
         if (vehDecSel)  { vehDecSel.value = 'deliver'; updateVehicleDecisionText(); }
         if (sabeelCard) _openCard(sabeelCard);
         if (sabeelSel)  { sabeelSel.value = 'qism'; updateSabeelText(); }
+        const fineCard2 = document.getElementById('card-fine');
+        if (fineCard2) _openCard(fineCard2);
     } else if (idx === 3) {
         if (vehCard)   _closeCard(vehCard);
         if (violCard)  _openCard(violCard);
         if (isdarCard) _openCard(isdarCard);
         if (sabeelCard) _closeCard(sabeelCard);
         if (sabeelSel)  { sabeelSel.value = 'other'; updateSabeelText(); }
+        const fineCard3 = document.getElementById('card-fine');
+        if (fineCard3) _closeCard(fineCard3);
         autoSelectJalsaDay();
         updateJalsaDecisionText();
     } else if (idx === 4) {
@@ -2030,7 +2594,43 @@ function selectDecision(idx) {
         if (violCard)   _closeCard(violCard);
         if (isdarCard)  _openCard(isdarCard);
         if (sabeelCard) _closeCard(sabeelCard);
-        document.getElementById('card-fine').style.display = 'none';
+        const fineCard4 = document.getElementById('card-fine');
+        if (fineCard4) _closeCard(fineCard4);
+        autoSelectJalsaDay();
+        updateJalsaDecisionText();
+    } else if (idx === 5) {
+        // قيد وصف تسلم المركبة — مسائي
+        if (vehCard)    _openCard(vehCard);
+        if (violCard)   _openCard(violCard);
+        if (isdarCard)  _closeCard(isdarCard);
+        if (jalsaDaySel) { jalsaDaySel.value = ''; toggleJalsaDayOther(); }
+        if (vehDecSel)  { vehDecSel.value = 'deliver'; updateVehicleDecisionText(); }
+        const fineCard5 = document.getElementById('card-fine');
+        if (fineCard5) _openCard(fineCard5);
+        if (sabeelCard) _openCard(sabeelCard);
+        if (sabeelSel)  { sabeelSel.value = 'qism'; updateSabeelText(); }
+    } else if (idx === 6) {
+        // قيد وصف يستمر التحفظ — مسائي
+        if (vehCard)    _openCard(vehCard);
+        if (violCard)   _openCard(violCard);
+        if (isdarCard)  _closeCard(isdarCard);
+        if (jalsaDaySel) { jalsaDaySel.value = ''; toggleJalsaDayOther(); }
+        if (vehDecSel)  { vehDecSel.value = 'keep'; updateVehicleDecisionText(); }
+        const fineCard6 = document.getElementById('card-fine');
+        if (fineCard6) _openCard(fineCard6);
+        if (sabeelCard) _openCard(sabeelCard);
+        if (sabeelSel)  { sabeelSel.value = 'qism'; updateSabeelText(); }
+    } else if (idx === 7) {
+        // قيد وصف إعلان جلسة — مسائي (نصفين)
+        if (vehCard)    _openCard(vehCard);
+        if (violCard)   _openCard(violCard);
+        if (isdarCard)  _openCard(isdarCard);
+        if (jalsaDaySel) { /* keep current day */ }
+        if (vehDecSel && !vehDecSel.value) { vehDecSel.value = 'keep'; updateVehicleDecisionText(); }
+        const fineCard7 = document.getElementById('card-fine');
+        if (fineCard7) _closeCard(fineCard7);
+        if (sabeelCard) _openCard(sabeelCard);
+        if (sabeelSel)  { sabeelSel.value = 'qism'; updateSabeelText(); }
         autoSelectJalsaDay();
         updateJalsaDecisionText();
     }
@@ -2240,10 +2840,10 @@ const FIELDS_CONFIG = {
     'p-qarar-date-u':    { dots: '...........................', dateField: true },
     'p-director-u':      { dots: '........................................' },
     'p-director-sig-u':  { dots: '' },
-    'p-name-u':          { dots: '........................................' },
+    'p-name-u':          { dots: '…………………………………………………………………………………………………' },
     'p-incident-date-u': { dots: '...............................', dateField: true },
     'p-car-u':           { dots: '........................................' },
-    'p-fine-u':          { dots: '........................................' },
+    'p-fine-u':          { dots: '…………………………………………………………………………………………………' },
     'p-rabi3an-u':       { dots: '', plain: true },
     'p-year-u':          { dots: '2026', plain: true },
 
@@ -2255,7 +2855,7 @@ const FIELDS_CONFIG = {
     'p-natid-l':         { dots: '........................................' },
     'p-incident-date-l': { dots: '...........................', dateField: true },
     'p-da2ira-l':        { dots: '........................................' },
-    'p-fine-l':          { dots: '........................................' },
+    'p-fine-l':          { dots: '…………………………………………………………………………………………………' },
     'p-qarar-date-l':    { dots: '...........................', dateField: true },
     'p-year-l':          { dots: '2026', plain: true },
 
@@ -2272,6 +2872,32 @@ const FIELDS_CONFIG = {
     'j-director-name':   { dots: '…………………………………………………………' },
     'j-director-sig-display': { dots: '…………………………………………………………' },
     'j-a3lanat-dots':    { dots: '…………………………………………………………' },
+
+    'pm-director-u':     { dots: '................................................................' },
+
+'pm-director-sig-u': { dots: '' },
+    'pm-director-sig-l': { dots: '' },
+
+    'pm-name-u':         { dots: '...................................................................................................', fontSize: '14pt' },
+    'pm-fine-u':         { dots: '......................................................................', fontSize: '13pt' },
+    'pm-fine-l':         { dots: '......................................................................', fontSize: '13pt' },
+    'pm-car-l':          { dots: '......................................................................', fontSize: '13pt' },
+    'pm-mahdar-num-u':   { dots: '........................................' },
+    'pm-qism-u':         { dots: '........................................' },
+    'pm-mahdar-num-l':   { dots: '........................................' },
+    'pm-qism-l':         { dots: '........................................' },
+
+    'mj-mahdar-num-u':   { dots: '........................................................' },
+    'mj-mahdar-num-l':   { dots: '........................................................' },
+    'mj-qism-u':         { dots: '........................................................' },
+    'mj-qism-l':         { dots: '........................................................' },
+    'mj-qarar-date-u':   { dots: '................................................', dateField: true },
+    'mj-qarar-date-l':   { dots: '................................................', dateField: true },
+    'mj-name-u':         { dots: '...............................................................................', fontSize: '14pt' },
+    'mj-director-u':     { dots: '………………………………………' },
+    'mj-director-sig-u': { dots: '' },
+    'mj-director-sig-l': { dots: '' },
+    'mj-da2ira-u':       { dots: '........................................................' },
 };
 
 /* ===================================================
@@ -2305,7 +2931,7 @@ function setText(id, val) {
     } else {
         el.textContent = val;
         el.classList.add('has-data');
-        el.style.fontSize = '';
+        el.style.fontSize = cfg.fontSize || '';
     }
 }
 
@@ -2336,13 +2962,17 @@ function updateAll() {
     const qararDate    = get('input-date')        || '';
     const name         = get('input-name')        || '.....................................';
     const nationalId   = get('f-national-id')     || '.....................................';
+    
     const car          = getPlateNumber();
+    // السر هنا: فحص ذكي يكتشف لو اللوحة فاضية أو عبارة عن نقاط فقط
+    const isCarEmpty   = (!car || car.trim() === '' || car.match(/^\.+$/)); 
+
     const incidentDate = get('f-incident-date')   || '';
     const da2ira       = qism;
     const jalsaDate    = get('f-jalsa-date')      || '';
     const jalsaDaySel  = document.getElementById('f-jalsa-day-select');
     const jalsaDay     = jalsaDaySel
-        ? (jalsaDaySel.value === 'أخرى' ? (get('f-jalsa-day-other') || '.........') : (jalsaDaySel.value || '.........'))
+        ? (jalsaDaySel.value === 'أخرى' ? (get('f-jalsa-day-other') || '.........') : (jalsaDaySel.value || '……………………'))
         : '.........';
 
     setText('j-director-name', director);
@@ -2371,6 +3001,10 @@ function updateAll() {
     /* ---- Show correct print page ---- */
     document.getElementById('print-qaid-wasf').style.display = [0,1,2].includes(currentDecision) ? '' : 'none';
     document.getElementById('print-jalsa').style.display      = currentDecision === 3 ? '' : 'none';
+    const masaiEl = document.getElementById('print-masai');
+    if (masaiEl) masaiEl.style.display = [5,6].includes(currentDecision) ? '' : 'none';
+    const masaiJalsaEl = document.getElementById('print-masai-jalsa');
+    if (masaiJalsaEl) masaiJalsaEl.style.display = currentDecision === 7 ? '' : 'none';
 
     /* ---- طلب حضور متهم ---- */
     const talabArea = document.getElementById('print-talab-area');
@@ -2395,14 +3029,14 @@ function updateAll() {
     setText('p-name-u', name);
     setText('p-incident-date-u', incidentDate);
 
-    const carDisplay = (car && car.trim() !== '' && car !== '...........')
+    const carDisplay = !isCarEmpty
                    ? `<span style="font-weight: bold; font-size: 13pt;">${car}</span>`
-                   : car;
+                   : `<span style="font-size:5pt;">.........................................................</span>`;
     const pCarU = document.getElementById('p-car-u');
     if (pCarU) {
         pCarU.innerHTML = carDisplay;
     } else {
-        setText('p-car-u', car);
+        setText('p-car-u', !isCarEmpty ? car : '');
     }
 
     setText('p-fine-u', fineAmountDisplay);
@@ -2468,8 +3102,229 @@ function updateAll() {
         if (viols.length) {
             violsL.innerHTML = viols.map((v, i) => `<span style="display:inline-block;width:33.33%;box-sizing:border-box;padding-left:1mm;">${i+1}- ${v}</span>`).join('');
         } else {
-            violsL.innerHTML = [1,2,3,4,5,6].map(n => `<span style="display:inline-block;width:33.33%;box-sizing:border-box;padding-left:1mm;">${n}- <span style="font-size:5pt">................................</span></span>`).join('');
+            violsL.innerHTML = [1,2,3,4,5,6].map(n => `<span style="display:inline-block;width:33.33%;box-sizing:border-box;padding-left:1mm;">${n}-<span style="font-size:5pt">.................................................</span></span>`).join('');
         }
+    }
+
+    /* ===== TYPE 5,6: قرارات النيابة المسائية ===== */
+    if ([5,6].includes(currentDecision)) {
+        setText('pm-year-u', year);
+        setText('pm-year-l', year);
+        setText('pm-mahdar-num-u', mahdarNum);
+        setText('pm-mahdar-num-l', mahdarNum);
+        setText('pm-qism-u', qism);
+        setText('pm-qism-l', qism);
+        setText('pm-qarar-date-u', qararDate);
+        setText('pm-qarar-date-l', qararDate);
+        setText('pm-name-u', name);
+        setText('pm-director-u', director);
+        setText('pm-director-sig-u', director);
+        setText('pm-director-sig-l', director);
+        
+        const pmHasDirector = director && director.trim() !== '' && !director.match(/^\.+$/);
+        const pmDirDotsL = document.getElementById('pm-director-dots-l');
+        const pmDirDotsU = document.getElementById('pm-director-dots-u');
+        if (pmDirDotsL) pmDirDotsL.style.display = pmHasDirector ? 'none' : '';
+        if (pmDirDotsU) pmDirDotsU.style.display = pmHasDirector ? 'none' : '';
+
+        const pmIncDateEl = document.getElementById('pm-incident-date-u');
+        if (pmIncDateEl && incidentDate && incidentDate.trim()) {
+            pmIncDateEl.textContent = incidentDate;
+        }
+
+        const pmCarU = document.getElementById('pm-car-u');
+        const carDisplayM = !isCarEmpty
+                       ? `<span style="font-weight: bold; font-size: 13pt;">${car}</span>`
+                       : `<span style="font-size:5pt;">.................................................</span>`;
+        if (pmCarU) pmCarU.innerHTML = carDisplayM;
+
+        const pmFineU = document.getElementById('pm-fine-u');
+        if (pmFineU) setText('pm-fine-u', fineAmountDisplay);
+        const pmFineL = document.getElementById('pm-fine-l');
+        if (pmFineL) setText('pm-fine-l', fineAmountDisplay);
+        
+        const pmFineDotsU = document.getElementById('pm-fine-dots-u');
+        const pmFineDotsL = document.getElementById('pm-fine-dots-l');
+        const hasFineAmount = fineAmountDisplay && fineAmountDisplay.trim();
+        if (pmFineDotsU) pmFineDotsU.style.display = hasFineAmount ? 'none' : '';
+        if (pmFineDotsL) pmFineDotsL.style.display = hasFineAmount ? 'none' : '';
+
+        const pmVehDecSel = document.getElementById('vehicle-decision-select');
+        const pmVehText   = get('vehicle-decision-text');
+        const pmRabi3anU  = document.getElementById('pm-rabi3an-u');
+        const pmRabi3anL  = document.getElementById('pm-rabi3an-l');
+        if (pmRabi3anU && pmRabi3anL) {
+            const vehT = pmVehText ? pmVehText.trim() : '';
+            if (vehT) {
+                let extraSp = '';
+                if (pmVehDecSel && (pmVehDecSel.value === 'keep' || pmVehDecSel.value === 'stop')) {
+                    extraSp = '<br><br>';
+                }
+                const ordMatch = vehT.match(/^(رابعاً|ثالثاً|ثانياً|أولاً|خامساً)\s*:/);
+                const pmVehOrd  = ordMatch ? ordMatch[1] + ':' : 'ثالثاً:';
+                const pmVehBody = vehT.replace(/^(رابعاً|ثالثاً|ثانياً|أولاً|خامساً)\s*:\s*/, '');
+                pmRabi3anU.innerHTML = `<span style="font-size:12.5pt;font-weight:bold;">${pmVehOrd}</span> <span style="font-size:12.5pt;font-weight:bold;">${pmVehBody}</span>${extraSp}`;
+                pmRabi3anU.style.display = '';
+                
+                const pmFineShown = (document.getElementById('pm-fine-line-l') || {}).style?.display !== 'none'
+                    && ((document.getElementById('pm-fine-l') || {}).textContent || '').trim() !== '';
+                const pmLabelL = pmFineShown ? 'ثالثاً:' : 'ثانياً:';
+                pmRabi3anL.innerHTML = `<span style="font-size:12.5pt;font-weight:bold;">${pmLabelL}</span> <span style="font-size:12.5pt;font-weight:bold;">${pmVehBody}</span>${extraSp}`;
+                pmRabi3anL.style.display = '';
+            } else {
+                pmRabi3anU.style.display = 'none';
+                pmRabi3anL.style.display = 'none';
+            }
+        }
+
+        const pmSabeelText = get('sabeel-text');
+        const pmThaniyanU  = document.getElementById('pm-thaniyan-u');
+        const pmThaniyanL  = document.getElementById('pm-thaniyan-l');
+        const makeBoldLabel = (label, body) =>
+            `<span style="font-weight:bold;font-size:12pt;">${label}</span> ${body}`;
+        [pmThaniyanU, pmThaniyanL].forEach((el, idx) => {
+            if (!el) return;
+            const lbl = idx === 0 ? 'ثانياً :' : 'أولاً :';
+            if (pmSabeelText && pmSabeelText.trim()) {
+                el.innerHTML = makeBoldLabel(lbl, pmSabeelText.replace(/^(رابعاً|ثالثاً|ثانياً|أولاً)\s*:\s*/, ''));
+                el.style.display = '';
+            } else {
+                const sabeelSel = document.getElementById('sabeel-select');
+                if (sabeelSel && sabeelSel.value === '') {
+                    el.innerHTML = makeBoldLabel(lbl, 'يخلى سبيل المتهم من ديوان القسم مالم يكن مطلوباً أو محبوساً لسبب آخر.');
+                    el.style.display = '';
+                } else {
+                    el.innerHTML = '';
+                    el.style.display = 'none';
+                }
+            }
+        });
+
+        const pmViolsU = document.getElementById('pm-violations-u');
+        if (pmViolsU) {
+            if (viols.length) {
+                pmViolsU.innerHTML = viols.map((v, i) => `<span style="display:inline-block;width:33.33%;font-weight:bold;box-sizing:border-box;padding-left:1mm;">${i+1}- ${v}</span>`).join('');
+            } else {
+                pmViolsU.innerHTML = [1,2,3,4,5,6].map(n => `<span style="display:inline-block;width:33.33%;box-sizing:border-box;padding-left:1mm;">${n}-<span style="font-size:5pt">.................................................</span></span>`).join('');
+            }
+        }
+    }
+
+    /* ===== التعديل الجذري هنا لبيانات النصف السفلي في كل القرارات المسائية ===== */
+    if ([5,6,7].includes(currentDecision)) {
+        const pmNameDotsL = document.getElementById('pm-name-dots-l');
+        const pmCarDotsL  = document.getElementById('pm-car-dots-l');
+        const hasPMName = name && name.trim() && !name.match(/^\.+$/);
+        const hasPMCar  = !isCarEmpty;
+
+        if (pmNameDotsL) pmNameDotsL.style.display = hasPMName ? 'none' : '';
+        if (pmCarDotsL)  pmCarDotsL.style.display  = hasPMCar  ? 'none' : '';
+        
+        const pmNameLEl = document.getElementById('pm-name-l');
+        const pmCarLEl  = document.getElementById('pm-car-l');
+        
+        if (pmNameLEl) { 
+            pmNameLEl.textContent = hasPMName ? name : ''; 
+            pmNameLEl.style.fontSize = hasPMName ? '14pt' : '5pt'; 
+        }
+        if (pmCarLEl)  { 
+            pmCarLEl.textContent  = hasPMCar  ? car  : ''; 
+            pmCarLEl.style.fontSize  = hasPMCar  ? '13pt' : '5pt'; 
+        }
+    }
+
+    /* ===== TYPE 7: قيد وصف جلسة مسائي ===== */
+    if (currentDecision === 7) {
+        setText('mj-mahdar-num-u', mahdarNum);
+        setText('mj-mahdar-num-l', mahdarNum);
+        setText('mj-year-u', year);
+        setText('mj-qism-u', qism);
+        setText('mj-qism-l', qism);
+        setText('mj-qarar-date-u', qararDate);
+        setText('mj-qarar-date-l', qararDate);
+        setText('mj-name-u', name);
+        setText('mj-director-u', director);
+        setText('mj-director-sig-u', director);
+        setText('mj-director-sig-l', director);
+        
+        const hasDirector = director && director.trim() !== '' && !director.match(/^\.+$/);
+        const mjDirDotsU = document.getElementById('mj-director-dots-u');
+        const mjDirDotsL = document.getElementById('mj-director-dots-l');
+        if (mjDirDotsU) mjDirDotsU.style.display = hasDirector ? 'none' : '';
+        if (mjDirDotsL) mjDirDotsL.style.display = hasDirector ? 'none' : '';
+        setText('mj-da2ira-u', da2ira);
+        
+        const mjIncDateEl = document.getElementById('mj-incident-date-u');
+        if (mjIncDateEl && incidentDate && incidentDate.trim()) {
+            mjIncDateEl.textContent = incidentDate;
+        }
+
+        const mjCarU = document.getElementById('mj-car-u');
+        if (mjCarU) {
+            if (!isCarEmpty) { 
+                mjCarU.textContent = car; 
+                mjCarU.style.fontSize = '13pt'; 
+            } else { 
+                mjCarU.innerHTML = '<span style="font-size:5pt">......................................................</span>'; 
+                mjCarU.style.fontSize = ''; 
+            }
+        }
+
+        const mjCarLEl   = document.getElementById('mj-car-l');
+        const mjCarDots  = document.getElementById('mj-car-dots-l');
+        if (mjCarLEl)  { mjCarLEl.textContent  = !isCarEmpty ? car : ''; mjCarLEl.style.fontSize = !isCarEmpty ? '13pt' : ''; }
+        if (mjCarDots) mjCarDots.style.display = !isCarEmpty ? 'none' : '';
+
+        const hasMJName  = name && name.trim() && name !== '.....................................';
+        const mjNameLEl  = document.getElementById('mj-name-l');
+        const mjNameDots = document.getElementById('mj-name-dots-l');
+        if (mjNameLEl)  { mjNameLEl.textContent  = hasMJName ? name : ''; mjNameLEl.style.fontSize = hasMJName ? '14pt' : '5pt'; }
+        if (mjNameDots) mjNameDots.style.display = hasMJName ? 'none' : '';
+
+        const mjViolsU = document.getElementById('mj-violations-u');
+        if (mjViolsU) {
+            if (viols.length) {
+                mjViolsU.innerHTML = viols.map((v, i) => `<span style="display:inline-block;width:33.33%;font-weight:bold;box-sizing:border-box;padding-left:1mm;">${i+1}- ${v}</span>`).join('');
+            } else {
+                mjViolsU.innerHTML = [1,2,3,4,5,6].map(n => `<span style="display:inline-block;width:33.33%;box-sizing:border-box;padding-left:1mm;">${n}-<span style="font-size:5pt">.................................................</span></span>`).join('');
+            }
+        }
+
+        const mjSabeelText = get('sabeel-text');
+        const mjThaniyanU = document.getElementById('mj-thaniyan-u');
+        const mjSabeelL   = document.getElementById('mj-sabeel-l');
+        const defaultSabeel = 'يخلى سبيل المتهم من ديوان القسم مالم يكن مطلوباً أو محبوساً لسبب آخر.';
+        const sabeelBody = mjSabeelText && mjSabeelText.trim()
+            ? mjSabeelText.replace(/^(رابعاً|ثالثاً|ثانياً|أولاً)\s*:\s*/, '')
+            : defaultSabeel;
+        if (mjThaniyanU) { mjThaniyanU.innerHTML = `<span style="font-weight:bold;font-size:12pt;">ثانياً:</span> ${sabeelBody}`; mjThaniyanU.style.display = ''; }
+        if (mjSabeelL)   { mjSabeelL.innerHTML   = `<span style="font-weight:bold;font-size:12pt;">أولاً:</span> ${sabeelBody}`;  mjSabeelL.style.display   = ''; }
+
+        const vehRaw = get('vehicle-decision-text');
+        const mjVehU = document.getElementById('mj-veh-u');
+        const mjVehL = document.getElementById('mj-veh-l');
+        if (vehRaw && vehRaw.trim()) {
+            const vehBody = vehRaw.replace(/^(رابعاً|ثالثاً|ثانياً|أولاً)\s*:\s*/, '');
+            if (mjVehU) { mjVehU.innerHTML = `<span style="font-weight:bold;font-size:12pt;">ثالثاً:</span> ${vehBody}`; mjVehU.style.display = ''; }
+            if (mjVehL) { mjVehL.innerHTML = `<span style="font-weight:bold;font-size:12pt;">ثانياً:</span> ${vehBody}`; mjVehL.style.display = ''; }
+        } else {
+            if (mjVehU) mjVehU.style.display = 'none';
+            if (mjVehL) mjVehL.style.display = 'none';
+        }
+
+        const mjJalsaU = document.getElementById('mj-jalsa-u');
+        const mjJalsaL = document.getElementById('mj-jalsa-l');
+        const jDay  = jalsaDay  
+            ? `<span class="pm-data" style="font-size:13pt;">${jalsaDay}</span>` 
+            : '<span style="font-size:5pt">................................................</span>';
+        const jDateParts = jalsaDate 
+            ? `<span class="pm-data" style="font-size:13pt;">${jalsaDate}</span>` 
+            : '<span style="font-size:5pt">................................................</span>/<span style="font-size:5pt">................................................</span>/2026';
+        const jalsaBody = `تقدم الأوراق لجلسة يوم ${jDay} الموافق ${jDateParts}`;
+        const jalsaLabelU = '<span style="font-weight:bold;font-size:12pt;">رابعاً:</span>';
+        const jalsaLabelL = '<span style="font-weight:bold;font-size:12pt;">ثالثاً:</span>';
+        if (mjJalsaU) { mjJalsaU.innerHTML = `${jalsaLabelU} ${jalsaBody}`; mjJalsaU.style.display = ''; }
+        if (mjJalsaL) { mjJalsaL.innerHTML = `${jalsaLabelL} ${jalsaBody}`; mjJalsaL.style.display = ''; }
     }
 
     /* ===== TYPE 3: قيد وصف جلسة ===== */
@@ -2479,9 +3334,7 @@ function updateAll() {
     setText('j-qarar-date-new', qararDate);
     setText('j-name', name);
     setText('j-incident-date', incidentDate);
-    const plateDisplay = (car && car.trim() !== '' && car !== '...........')
-                     ? `( ${car} )`
-                     : '...........';
+    const plateDisplay = !isCarEmpty ? `( ${car} )` : '...........';
     setText('j-car', plateDisplay);
     setText('j-da2ira', da2ira);
     setText('j-jalsa-day', jalsaDay);
@@ -2501,10 +3354,27 @@ function updateAll() {
 
     const jViols = document.getElementById('j-violations');
     if (jViols) {
+        let itemsCount = viols.length > 0 ? viols.length : 6;
+        let gap = '3mm 10mm';
+        let lineHeight = '1.4';
+        let fontSize = '16pt';
+
+        if (itemsCount === 7 || itemsCount === 8) {
+            gap = '1.5mm 10mm';
+            lineHeight = '1.2';
+            fontSize = '15.5pt';
+        } else if (itemsCount >= 9) {
+            gap = '0mm 10mm';
+            lineHeight = '1.1';
+            fontSize = '14.5pt';
+        }
+
+        jViols.style.cssText = `display: grid !important; grid-template-columns: 1fr 1fr !important; gap: ${gap} !important; margin-top: 2mm !important; width: 100% !important; height: 30mm !important; align-content: start !important;`;
+
         if (viols.length) {
-            jViols.innerHTML = viols.map((v, i) => `<span style="display:inline-block;width:33.33%;box-sizing:border-box;padding-left:1mm;">${i+1}- ${v}</span>`).join('');
+            jViols.innerHTML = viols.map((v, i) => `<span style="display: block; white-space: nowrap; font-size: ${fontSize}; font-weight: bold; line-height: ${lineHeight}; padding-left: 2mm;">${i+1}- ${v}</span>`).join('');
         } else {
-            jViols.innerHTML = [1,2,3,4,5,6].map(n => `<span style="display:inline-block;width:33.33%;box-sizing:border-box;padding-left:1mm;">${n}- <span style="font-size:5pt">................................</span></span>`).join('');
+            jViols.innerHTML = [1,2,3,4,5,6].map(n => `<span style="display: block; white-space: nowrap; font-size: ${fontSize}; font-weight: bold; line-height: ${lineHeight}; padding-left: 2mm;">${n}- <span style="font-size:5pt">.................................................</span></span>`).join('');
         }
     }
 }
@@ -2590,6 +3460,27 @@ function autoSave() {
         });
     });
 })();
+
+/* ===== Accordion: القائمة الجانبية القابلة للطي ===== */
+function toggleAccordion(sectionId) {
+    const sections = ['section-sabahi', 'section-masai'];
+    sections.forEach(id => {
+        const sec    = document.getElementById(id);
+        const header = sec.querySelector('.accordion-header');
+        const body   = sec.querySelector('.accordion-body');
+        const arrow  = header.querySelector('.accordion-arrow');
+        if (id === sectionId) {
+            const isOpen = !body.classList.contains('closed');
+            body.classList.toggle('closed', isOpen);
+            header.classList.toggle('open', !isOpen);
+            arrow.textContent = isOpen ? '▼' : '▲';
+        } else {
+            body.classList.add('closed');
+            header.classList.remove('open');
+            arrow.textContent = '▼';
+        }
+    });
+}
 
 function printDoc() {
     if (currentDecision === -1) {
@@ -2827,7 +3718,7 @@ function toggleJalsaDayOther() {
 }
 
 function autoSelectJalsaDay() {
-    if (currentDecision !== 3) return;
+    if (currentDecision !== 3 && currentDecision !== 7) return;
     const caseNum = get('input-caseNum');
     if (!caseNum) return;
     const lastDigit = parseInt(caseNum[caseNum.length - 1]);

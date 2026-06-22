@@ -223,7 +223,7 @@ option[data-category="dark"] {
             transition: transform 0.25s;
         }
         .card.collapsed .toggle-arrow { transform: rotate(-90deg); }
-        /* card-body animation via max-height */
+        .card.collapsed .card-body { display: none; }
 
         .card-body {
             background: #f4f6fb;
@@ -232,17 +232,6 @@ option[data-category="dark"] {
             gap: 8px; 
             padding: 8px;
             flex-wrap: wrap;
-            overflow: hidden;
-            transition: max-height 0.42s cubic-bezier(0.4, 0, 0.2, 1),
-                        padding-top 0.42s cubic-bezier(0.4, 0, 0.2, 1),
-                        padding-bottom 0.42s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .card.collapsed .card-body {
-            max-height: 0 !important;
-            padding-top: 0 !important;
-            padding-bottom: 0 !important;
-            pointer-events: none;
         }
 
         .field-group { display: flex; flex-direction: column; gap: 2px; }
@@ -517,7 +506,7 @@ option[data-category="dark"] {
 }
 
 #card-violations.collapsed .card-body {
-    /* handled by max-height animation */
+    display: none !important;
 }
 
 /* ===== Custom Dropdown ===== */
@@ -1554,44 +1543,13 @@ body {
     <script>
         const ordinalLabels = ["أولاً :-", "ثانياً :-", "ثالثاً :-"];
 
-        function _openCard(card) {
-            const body = card.querySelector('.card-body');
-            if (!body) return;
-            if (!card.classList.contains('collapsed')) return;
-            const h = body.scrollHeight;
-            body.style.maxHeight = '0';
-            body.style.paddingTop = '0';
-            body.style.paddingBottom = '0';
-            card.classList.remove('collapsed');
-            body.offsetHeight;
-            body.style.maxHeight = h + 'px';
-            body.style.paddingTop = '';
-            body.style.paddingBottom = '';
-            body.addEventListener('transitionend', function done() {
-                body.style.maxHeight = 'none';
-                body.removeEventListener('transitionend', done);
-            }, {once: true});
-        }
-
-        function _closeCard(card) {
-            const body = card.querySelector('.card-body');
-            if (!body) return;
-            if (card.classList.contains('collapsed')) return;
-            body.style.maxHeight = body.scrollHeight + 'px';
-            body.offsetHeight;
-            card.classList.add('collapsed');
-            body.style.maxHeight = '0';
-            body.style.paddingTop = '0';
-            body.style.paddingBottom = '0';
-        }
-
         function toggleCard(id) {
             const card = document.getElementById(id);
             if (!card) return;
-            if (card.classList.contains('collapsed')) {
-                _openCard(card);
-            } else {
-                _closeCard(card);
+            card.classList.toggle('collapsed');
+            const body = card.querySelector('.card-body');
+            if (body) {
+                body.style.display = card.classList.contains('collapsed') ? 'none' : 'flex';
             }
         }
 
@@ -1693,7 +1651,7 @@ body {
             ['card-basic','card-vehicle','card-fine','card-eng','card-veh-status',
              'card-violations','card-fine-receipt','card-arrest-reason','card-session'].forEach(id => {
                 const c = document.getElementById(id);
-                if (c) { _openCard(c); }
+                if (c) { c.classList.remove('collapsed'); const b = c.querySelector('.card-body'); if (b) b.style.display='flex'; }
             });
             if (!silent) document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
             document.getElementById('input-dept-select').value = '';
@@ -2128,7 +2086,7 @@ body {
             if(activeBtn) activeBtn.classList.add('active');
             ['card-basic','card-vehicle','card-fine','card-eng','card-veh-status','card-violations','card-fine-receipt','card-arrest-reason','card-session'].forEach(id=>{
                 const c=document.getElementById(id);
-                if(c){_openCard(c);}
+                if(c){c.classList.remove('collapsed');const b=c.querySelector('.card-body');if(b)b.style.display='flex';}
             });
 
             // حفظ البيانات الشخصية والمركبة قبل المسح
@@ -2195,8 +2153,8 @@ body {
                 document.getElementById('session-status').value='no';
                 document.getElementById('session-date-wrapper').style.display='none';
                 const sc=document.getElementById('card-session');
-                if(sc){_closeCard(sc);}
-                ['card-violations','card-fine-receipt'].forEach(id=>{const c=document.getElementById(id);if(c){_openCard(c);}});
+                if(sc){sc.classList.add('collapsed');const sb=sc.querySelector('.card-body');if(sb)sb.style.display='none';}
+                ['card-violations','card-fine-receipt'].forEach(id=>{const c=document.getElementById(id);if(c){c.classList.remove('collapsed');const b=c.querySelector('.card-body');if(b)b.style.display='flex';}});
                 ['fine-type','eng-type','vehicle-status-type','violations-type','violations-pay-method','fine-receipt-type'].forEach(id=>syncCustomSelectDisplay(id));
             }
 
@@ -2217,19 +2175,19 @@ body {
             if (type==='fine-only') {
                 document.getElementById('fine-type').value='no-fine'; updateFineText();
                 const fc=document.getElementById('card-fine');
-                if(fc){_closeCard(fc);}
+                if(fc){fc.classList.add('collapsed');const fb=fc.querySelector('.card-body');if(fb)fb.style.display='none';}
                 document.getElementById('eng-type').value='call'; updateEngineerText();
                 document.getElementById('vehicle-status-type').value='deliver'; updateVehicleStatusText();
                 document.getElementById('violations-type').value='paid'; updateViolationsText();
                 const vc=document.getElementById('card-violations');
-                if(vc){_openCard(vc);}
+                if(vc){vc.classList.remove('collapsed');const vb=vc.querySelector('.card-body');if(vb)vb.style.display='flex';}
                 document.getElementById('fine-receipt-type').value=''; updateFineReceiptText();
                 const frc=document.getElementById('card-fine-receipt');
-                if(frc){_closeCard(frc);}
+                if(frc){frc.classList.add('collapsed');const frb=frc.querySelector('.card-body');if(frb)frb.style.display='none';}
                 document.getElementById('session-status').value='yes';
                 document.getElementById('session-date-wrapper').style.display='flex';
                 const sc2=document.getElementById('card-session');
-                if(sc2){_openCard(sc2);}
+                if(sc2){sc2.classList.remove('collapsed');const sb2=sc2.querySelector('.card-body');if(sb2)sb2.style.display='flex';}
                 ['fine-type','eng-type','vehicle-status-type','violations-type','violations-pay-method','fine-receipt-type'].forEach(id=>syncCustomSelectDisplay(id));
             }
 
@@ -2238,23 +2196,23 @@ body {
                 if(_saved.fineAmount){document.getElementById('fine-amount').value=_saved.fineAmount; document.getElementById('fine-amount-row').style.display='flex';}
                 if(_saved.fineText) document.getElementById('fine-text').value=_saved.fineText;
                 const fcR=document.getElementById('card-fine');
-                if(fcR){_openCard(fcR);}
+                if(fcR){fcR.classList.remove('collapsed');const fb=fcR.querySelector('.card-body');if(fb)fb.style.display='flex';}
                 document.getElementById('eng-type').value='no-call'; updateEngineerText();
                 const ec=document.getElementById('card-eng');
-                if(ec){_closeCard(ec);}
+                if(ec){ec.classList.add('collapsed');const eb=ec.querySelector('.card-body');if(eb)eb.style.display='none';}
                 document.getElementById('vehicle-status-type').value='other'; updateVehicleStatusText();
                 const vc2=document.getElementById('card-veh-status');
-                if(vc2){_closeCard(vc2);}
+                if(vc2){vc2.classList.add('collapsed');const vb=vc2.querySelector('.card-body');if(vb)vb.style.display='none';}
                 document.getElementById('violations-type').value='other'; updateViolationsText();
                 const violcR=document.getElementById('card-violations');
-                if(violcR){_closeCard(violcR);}
+                if(violcR){violcR.classList.add('collapsed');const vob=violcR.querySelector('.card-body');if(vob)vob.style.display='none';}
                 document.getElementById('fine-receipt-type').value='paid'; updateFineReceiptText();
                 const frcR=document.getElementById('card-fine-receipt');
-                if(frcR){_openCard(frcR);}
+                if(frcR){frcR.classList.remove('collapsed');const frb=frcR.querySelector('.card-body');if(frb)frb.style.display='flex';}
                 document.getElementById('session-status').value='no';
                 document.getElementById('session-date-wrapper').style.display='none';
                 const scR=document.getElementById('card-session');
-                if(scR){_closeCard(scR);}
+                if(scR){scR.classList.add('collapsed');const srb=scR.querySelector('.card-body');if(srb)srb.style.display='none';}
                 ['fine-type','eng-type','vehicle-status-type','violations-type','fine-receipt-type'].forEach(id=>syncCustomSelectDisplay(id));
             }
             sync();
@@ -2370,11 +2328,11 @@ body {
             const sessionCard=document.getElementById('card-session');
             const sessionCardBody=sessionCard?sessionCard.querySelector('.card-body'):null;
             if(decision==='keep'){
-                _closeCard(paymentCard);
-                if(sessionCard) _closeCard(sessionCard);
+                paymentCard.classList.add('collapsed'); if(cardBody) cardBody.style.display='none';
+                if(sessionCard) sessionCard.classList.add('collapsed'); if(sessionCardBody) sessionCardBody.style.display='none';
             } else {
-                _openCard(paymentCard);
-                if(sessionCard) _openCard(sessionCard);
+                paymentCard.classList.remove('collapsed'); if(cardBody) cardBody.style.display='flex';
+                if(sessionCard) sessionCard.classList.remove('collapsed'); if(sessionCardBody) sessionCardBody.style.display='flex';
             }
         }
 
