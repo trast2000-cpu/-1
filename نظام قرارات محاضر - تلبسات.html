@@ -81,6 +81,13 @@ body {
 @media print {
     body { background: white; padding: 0; zoom: 1 !important; }
     .no-print, .sidebar, .app-layout, .system-title-bar { display: none !important; }
+    /* منع الورقة الفاضية بعد آخر قرار */
+    .page-qaid-wasf:last-of-type,
+    .print-area:last-of-type,
+    .page-container:last-of-type,
+    .page-jalsa:last-of-type {
+        page-break-after: avoid !important;
+    }
 }
 /* تكبير الواجهة على الشاشة فقط — لا يؤثر على الطباعة */
 @media screen {
@@ -521,11 +528,11 @@ textarea { resize: vertical; }
 #print-masai .upper-section::before {
     content: '';
     position: absolute;
-    top: 62%;
+    top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    width: 75%;
-    height: 75%;
+    width: 104mm;
+    height: 104mm;
     background-image: url('logo.png');
     background-size: contain;
     background-position: center;
@@ -540,8 +547,8 @@ textarea { resize: vertical; }
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    width: 75%;
-    height: 75%;
+    width: 104mm;
+    height: 104mm;
     background-image: url('logo.png');
     background-size: contain;
     background-position: center;
@@ -564,8 +571,8 @@ textarea { resize: vertical; }
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    width: 75%;
-    height: 75%;
+    width: 88mm;
+    height: 88mm;
     background-image: url('logo.png'); 
     background-size: contain;
     background-position: center;
@@ -625,7 +632,7 @@ textarea { resize: vertical; }
 }
 .upper-section-rect {
     position: absolute;
-    top: 52mm;
+    top: 58mm;
     left: 2mm;
     width: 17mm;
     height: 70mm;
@@ -1526,6 +1533,17 @@ textarea.ta-locked {
                     <div class="field-group">
                         <label>السنة</label>
                         <input type="number" id="input-year" value="2026" oninput="updateAll()" style="width:65px;">
+                    </div>
+                    <div class="field-group" style="justify-content:flex-end;">
+                        <label style="visibility:hidden;">استرجاع</label>
+                        <button onclick="loadMahdarFromStorage()" title="استرجاع بيانات محضر سابق" style="
+                            padding:6px 14px; background:linear-gradient(135deg,#1a3a6b,#2a5298);
+                            color:white; border:none; border-radius:8px;
+                            font-family:'Cairo',sans-serif; font-size:13px; font-weight:700;
+                            cursor:pointer; display:flex; align-items:center; gap:5px;
+                            box-shadow:0 2px 8px rgba(26,58,107,0.3); transition:all 0.2s;
+                        " onmouseover="this.style.transform='translateY(-1px)'"
+                           onmouseout="this.style.transform=''">↩ استرجاع</button>
                     </div>
                 </div>
                 <div style="display:flex; align-items:flex-end; gap:8px; flex-wrap:wrap; padding:10px; flex:1; border-right:1px solid #e2e8f0;">
@@ -2699,7 +2717,6 @@ function onViolSelect(sel) {
     if (violItems.length >= 9) return;
     violItems.push({ label: val, isCustom: false });
     renderViolItems(); updateViolDisplay();
-    autoSave(); //
 }
 
 function addViolCustomItem(e) {
@@ -2711,7 +2728,6 @@ function addViolCustomItem(e) {
     input.value = '';
     document.getElementById('viol-other-wrapper').style.display = 'none';
     renderViolItems(); updateViolDisplay();
-     autoSave();
 }
 
 function addViolCustomItemBtn() {
@@ -2722,10 +2738,9 @@ function addViolCustomItemBtn() {
     input.value = '';
     document.getElementById('viol-other-wrapper').style.display = 'none';
     renderViolItems(); updateViolDisplay();
-    autoSave(); //
 }
 
-function removeViolItem(idx) { violItems.splice(idx, 1); renderViolItems(); updateViolDisplay();  autoSave();}
+function removeViolItem(idx) { violItems.splice(idx, 1); renderViolItems(); updateViolDisplay(); }
 
 function renderViolItems() {
     const violDisp  = document.getElementById('viol-display');
@@ -3423,6 +3438,10 @@ function saveMahdarData() {
         boss,
         bossSelect:   bossSel ? bossSel.value : '',
         bossOther:    get('input-boss-other'),
+        jalsaDate:    get('f-jalsa-date'),
+        jalsaDay:     (document.getElementById('f-jalsa-day-select') || {}).value || '',
+        jalsaDayOther: get('f-jalsa-day-other'),
+        currentDecision: currentDecision,
         savedAt:      new Date().toLocaleString('ar-EG')
     };
     const key = 'mahdar_' + caseNum + '_' + year + '_' + dept;
@@ -3433,34 +3452,6 @@ function saveMahdarData() {
 }
 
 // ── حفظ تلقائي عند تغيير البيانات ──
-let _autoSaveTimer = null;
-function autoSave() {
-    clearTimeout(_autoSaveTimer);
-    _autoSaveTimer = setTimeout(function() {
-        saveMahdarData();
-    }, 800);
-}
-
-// تفعيل الحفظ التلقائي على جميع حقول الإدخال
-(function() {
-    const triggerIds = [
-        'input-caseNum','input-year','input-dept-select','input-dept-other',
-        'input-name','f-national-id','c1','c2','c3','n1','input-no-plate',
-        'f-incident-date','f-fine','vehicle-decision-text','sabeel-text',
-        'jalsa-extra-text','f-jalsa-date','input-boss-select','input-boss-other',
-        'fine-text','plate-type','vehicle-decision-select','sabeel-select'
-    ];
-    document.addEventListener('DOMContentLoaded', function() {
-        triggerIds.forEach(function(id) {
-            const el = document.getElementById(id);
-            if (el) {
-                el.addEventListener('input',  autoSave);
-                el.addEventListener('change', autoSave);
-            }
-        });
-    });
-})();
-
 /* ===== Accordion: القائمة الجانبية القابلة للطي ===== */
 function toggleAccordion(sectionId) {
     const sections = ['section-sabahi', 'section-masai'];
@@ -3490,6 +3481,87 @@ function printDoc() {
     updateAll();
     saveMahdarData(); // ← حفظ البيانات قبل الطباعة
     window.print();
+}
+
+/* ===================================================
+   LOAD — استرجاع بيانات محضر سابق (عند الضغط على الزرار)
+=================================================== */
+function loadMahdarFromStorage() {
+    const get = id => { const el = document.getElementById(id); return el ? el.value : ''; };
+    const caseNum = get('input-caseNum').trim();
+    const year    = get('input-year').trim();
+    const deptSel = document.getElementById('input-dept-select');
+    const dept    = deptSel ? (deptSel.value === 'أخرى' ? get('input-dept-other').trim() : deptSel.value) : '';
+
+    if (!caseNum || !year || !dept || dept === '--- اختر ---') {
+        alert('يرجى إدخال رقم المحضر والسنة وقسم الشرطة أولاً');
+        return;
+    }
+    const key = 'mahdar_' + caseNum + '_' + year + '_' + dept;
+    const raw = localStorage.getItem(key);
+    if (!raw) { alert('لا توجد بيانات محفوظة لهذا المحضر'); return; }
+    let d;
+    try { d = JSON.parse(raw); } catch(e) { alert('خطأ في قراءة البيانات'); return; }
+
+    // حقول نصية
+    const set = (id, val) => { const el = document.getElementById(id); if (el && val != null) el.value = val; };
+    set('input-name',            d.name);
+    set('f-national-id',         d.nationalId);
+    set('f-incident-date',       d.incidentDate);
+    set('f-fine',                d.fine);
+    set('fine-text',             d.fineText);
+    set('vehicle-decision-text', d.vehDecText);
+    set('sabeel-text',           d.sabeelText);
+    set('input-boss-other',      d.bossOther);
+    set('input-no-plate',        d.noPlateTxt);
+    set('c1', d.c1); set('c2', d.c2); set('c3', d.c3); set('n1', d.n1);
+    // تاريخ الجلسة ويومها
+    set('f-jalsa-date',          d.jalsaDate);
+    set('f-jalsa-day-other',     d.jalsaDayOther);
+    if (d.jalsaDay) {
+        const jDaySel = document.getElementById('f-jalsa-day-select');
+        if (jDaySel) { jDaySel.value = d.jalsaDay; if (typeof toggleJalsaDayOther === 'function') toggleJalsaDayOther(); }
+    }
+
+    // نوع اللوحة
+    if (d.plateType) { set('plate-type', d.plateType); if (typeof togglePlateInput === 'function') togglePlateInput(); }
+
+    // قوائم منسدلة بدون dispatchEvent
+    const selSet = (id, val) => { const el = document.getElementById(id); if (el && val != null) el.value = val; };
+    selSet('input-boss-select',       d.bossSelect);
+    selSet('vehicle-decision-select', d.vehDecSelect);
+    selSet('sabeel-select',           d.sabeelSelect);
+    if (typeof toggleOther === 'function') toggleOther('input-boss-select','boss-other-wrapper');
+    if (typeof updateVehicleDecisionText === 'function') updateVehicleDecisionText();
+    if (typeof updateSabeelText === 'function') updateSabeelText();
+
+    // المخالفات — تحويل من strings إلى objects {label, isCustom}
+    if (Array.isArray(d.violations) && d.violations.length) {
+        violItems = d.violations.map(v => typeof v === 'string' ? { label: v, isCustom: false } : v);
+        if (typeof renderViolItems === 'function') renderViolItems();
+        if (typeof updateViolDisplay === 'function') updateViolDisplay();
+    }
+
+    // استرجاع القرار المختار وتحديث القائمة الجانبية
+    if (d.currentDecision !== undefined && d.currentDecision !== -1) {
+        selectDecision(d.currentDecision);
+    } else {
+        updateAll();
+    }
+
+    // toast نجاح
+    const toast = document.createElement('div');
+    toast.className = 'no-print';
+    toast.textContent = '✔  تم استرجاع بيانات المحضر ' + caseNum;
+    toast.style.cssText = 'position:fixed;bottom:30px;left:50%;transform:translateX(-50%) translateY(80px);' +
+        'background:#1a3a6b;color:#fff;padding:14px 32px;border-radius:10px;' +
+        'font-family:Cairo,sans-serif;font-size:15px;font-weight:600;' +
+        'box-shadow:0 4px 18px rgba(0,0,0,0.25);z-index:99999;opacity:0;' +
+        'transition:opacity 0.35s,transform 0.35s;white-space:nowrap;';
+    document.body.appendChild(toast);
+    setTimeout(() => { toast.style.opacity='1'; toast.style.transform='translateX(-50%) translateY(0)'; }, 50);
+    setTimeout(() => { toast.style.opacity='0'; toast.style.transform='translateX(-50%) translateY(80px)';
+        setTimeout(() => toast.remove(), 400); }, 2550);
 }
 
 /* ===================================================
