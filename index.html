@@ -339,13 +339,14 @@ body::after {
    زر الترس وإعدادات النيابة
 ══════════════════════════════════════════ */
 
-/* زر الترس — ثابت في الزاوية */
+/* زر الترس الأساسي (في الشاشة الرئيسية) */
 #settings-btn {
   position: fixed;
-  top: 20px;
-  right: 20px;
-  width: 46px;
-  height: 46px;
+  top: 25px;
+  left: 30px; /* تثبيته على اليسار */
+  right: auto;
+  width: 48px;
+  height: 48px;
   border-radius: 50%;
   background: rgba(201,168,76,.12);
   border: 1.5px solid rgba(201,168,76,.35);
@@ -356,14 +357,29 @@ body::after {
   justify-content: center;
   cursor: pointer;
   z-index: 300;
-  transition: background .25s, border-color .25s, transform .4s cubic-bezier(.34,1.56,.64,1), box-shadow .25s;
+  /* تأثير حركي سلس جداً عند تغيير مكانه */
+  transition: top 0.6s cubic-bezier(.34,1.56,.64,1), 
+              left 0.6s cubic-bezier(.34,1.56,.64,1), 
+              width 0.6s, height 0.6s, background 0.25s, 
+              border-color 0.25s, transform 0.4s, box-shadow 0.25s;
   box-shadow: 0 4px 18px rgba(0,0,0,.35);
 }
+
 #settings-btn:hover {
   background: rgba(201,168,76,.22);
   border-color: var(--gold2);
   transform: rotate(72deg) scale(1.1);
   box-shadow: 0 6px 24px rgba(201,168,76,.25);
+}
+
+/* حالة الزرار لما يكون جوه الشريط العلوي */
+#settings-btn.in-topbar {
+  top: 6px;
+  left: 15px;
+  width: 42px;
+  height: 42px;
+  font-size: 18px;
+  box-shadow: 0 2px 8px rgba(0,0,0,.2);
 }
 
 /* الخلفية المعتمة للمودال */
@@ -670,6 +686,44 @@ body::after {
   line-height: 1.6;
 }
 
+
+/* حاوية لجمع العنوان والحقل في سطر واحد */
+.cfg-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+  margin-bottom: 16px;
+  background: rgba(255, 255, 255, 0.02);
+  padding: 10px 15px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* قسم المعلومات (العنوان والوصف) */
+.cfg-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+/* إلغاء الهوامش السفلية داخل الحاوية الجديدة لتوفير المساحة */
+.cfg-row .cfg-section-title {
+  margin-bottom: 2px;
+}
+
+.cfg-row .cfg-field-label {
+  margin-bottom: 0;
+  font-size: 12px !important;
+}
+
+/* تعديل مربع الإدخال ليناسب العرض الجديد */
+.cfg-row .cfg-input {
+  margin-bottom: 0;
+  width: 260px; /* يمكنك زيادة أو تقليل العرض كما يناسبك */
+}
+
+
 </style>
 <style>
 /* ══ تكبير نصوص نافذة الإعدادات ══ */
@@ -685,6 +739,17 @@ body::after {
 .cfg-note         { font-size: 13px !important; line-height: 1.7 !important; }
 .cfg-feedback     { font-size: 14px !important; padding: 10px 16px !important; }
 .agent-row .cfg-input { font-size: 15px !important; }
+
+
+/* حالة النجاح لزر الحفظ الجديد */
+.btn-save-cfg.btn-success {
+  background: linear-gradient(135deg, #10b981, #059669) !important;
+  color: #ffffff !important;
+  pointer-events: none; /* عشان نمنع الضغط عليه وهو بيحفظ */
+  transform: scale(0.98);
+}
+
+
 </style>
 </head>
 <body>
@@ -708,31 +773,51 @@ body::after {
     <div class="cfg-divider"></div>
 
     <!-- اسم النيابة والسنة القضائية -->
-    <div class="cfg-section-title">اسم النيابة</div>
-    <div class="cfg-field-label">يظهر في جميع الأنظمة والمستندات المطبوعة</div>
-    <input type="text" id="cfg-prosecution-name" class="cfg-input"
-           placeholder="مثال: نيابة مرور عين الصيرة">
+    <div class="cfg-row">
+      <div class="cfg-info">
+        <div class="cfg-section-title">اسم النيابة</div>
+        <div class="cfg-field-label">يظهر في جميع الأنظمة والمستندات المطبوعة</div>
+      </div>
+      <input type="text" id="cfg-prosecution-name" class="cfg-input"
+             placeholder="مثال: نيابة مرور عين الصيرة">
+    </div>
 
-    <div class="cfg-section-title" style="margin-top:14px">السنة القضائية</div>
-    <div class="cfg-field-label">تظهر كقيمة افتراضية في جميع حقول السنة بجميع الأنظمة</div>
-    <input type="number" id="cfg-fiscal-year" class="cfg-input"
-           placeholder="مثال: 2026" style="width:140px;">
+    <div class="cfg-row">
+      <div class="cfg-info">
+        <div class="cfg-section-title">السنة القضائية</div>
+        <div class="cfg-field-label">تظهر كقيمة افتراضية في جميع حقول السنة بجميع الأنظمة</div>
+      </div>
+      <input type="number" id="cfg-fiscal-year" class="cfg-input"
+             placeholder="مثال: 2026">
+    </div>
 
+    
     <!-- وكلاء النيابة -->
-    <div class="cfg-section-title">وكلاء النيابة</div>
-    <div class="cfg-field-label">أسماء الوكلاء تظهر في القرارات والعرائض — يمكن إضافة أو حذف وكيل</div>
-    <div class="agents-list" id="agents-list"></div>
-    <button class="btn-add-agent" onclick="addAgentRow()">
-      <i class="fa-solid fa-plus"></i> إضافة وكيل نيابة
-    </button>
+    <div class="cfg-row" style="align-items: flex-start;">
+      <div class="cfg-info">
+        <div class="cfg-section-title">وكلاء النيابة</div>
+        <div class="cfg-field-label">تظهر في القرارات والعرائض</div>
+      </div>
+      <div style="width: 260px;">
+        <div class="agents-list" id="agents-list"></div>
+        <button class="btn-add-agent" onclick="addAgentRow()">
+          <i class="fa-solid fa-plus"></i> إضافة وكيل نيابة
+        </button>
+      </div>
+    </div>
 
     <!-- أقسام الشرطة -->
-    <div class="cfg-section-title" style="margin-top:18px">أقسام الشرطة</div>
-    <div class="cfg-field-label">أسماء أقسام الشرطة تظهر في القرارات — يمكن إضافة أو حذف قسم</div>
-    <div class="agents-list" id="stations-list"></div>
-    <button class="btn-add-agent" onclick="addStationRow()" style="border-color:rgba(167,139,250,.4);color:#c4b5fd">
-      <i class="fa-solid fa-plus"></i> إضافة قسم شرطة
-    </button>
+    <div class="cfg-row" style="align-items: flex-start;">
+      <div class="cfg-info">
+        <div class="cfg-section-title">أقسام الشرطة</div>
+        <div class="cfg-field-label">تظهر في القرارات</div>
+      </div>
+      <div style="width: 260px;">
+        <div class="agents-list" id="stations-list"></div>
+        <button class="btn-add-agent" onclick="addStationRow()" style="border-color:rgba(167,139,250,.4);color:#c4b5fd">
+          <i class="fa-solid fa-plus"></i> إضافة قسم شرطه </button>
+      </div>
+    </div>
 
 
     <!-- أزرار الإجراءات -->
@@ -934,6 +1019,10 @@ const loadedFrames = {};
 function openSystem(idx) {
   const launcher = document.getElementById('launcher');
   launcher.classList.add('hiding');
+  
+  // نقل الزرار للشريط العلوي
+  document.getElementById('settings-btn').classList.add('in-topbar'); 
+  
   setTimeout(() => {
     launcher.classList.add('hidden');
     document.getElementById('topbar').classList.add('visible');
@@ -980,6 +1069,10 @@ function _load(idx) {
 function goHome() {
   document.getElementById('topbar').classList.remove('visible');
   document.getElementById('content-area').classList.remove('visible');
+  
+  // إرجاع الزرار للشاشة الرئيسية
+  document.getElementById('settings-btn').classList.remove('in-topbar'); 
+  
   const launcher = document.getElementById('launcher');
   launcher.classList.remove('hidden');
   requestAnimationFrame(() => requestAnimationFrame(() => launcher.classList.remove('hiding')));
@@ -1004,6 +1097,10 @@ window.addEventListener('DOMContentLoaded', function() {
       launcher.classList.add('hidden');
       document.getElementById('topbar').classList.add('visible');
       document.getElementById('content-area').classList.add('visible');
+      
+      // تأكيد وجود الزرار في الشريط العلوي عند التحديث
+      document.getElementById('settings-btn').classList.add('in-topbar'); 
+      
       _load(idx);
     }
   }
@@ -1138,13 +1235,30 @@ function getFormData() {
   };
 }
 
+
 /** حفظ الإعدادات */
 function saveSettings() {
   const data = getFormData();
   saveConfigToStorage(data);
   applyConfigToPortal(data);
   notifyFrames(data);
-  showFeedback('success', '✓ تم حفظ الإعدادات بنجاح — ستظهر في جميع الأنظمة فوراً');
+  
+  // تحديد الزرار وتغيير شكله
+  const saveBtn = document.querySelector('.btn-save-cfg');
+  const originalHTML = saveBtn.innerHTML; 
+  
+  // تحويل الزرار للون الأخضر وتغيير النص
+  saveBtn.classList.add('btn-success');
+  saveBtn.innerHTML = '<i class="fa-solid fa-check"></i> تم الحفظ بنجاح';
+  
+  // إخفاء الشارة القديمة
+  hideFeedback();
+  
+  // إرجاع الزرار لشكله الطبيعي بعد ثانيتين
+  setTimeout(function() {
+    saveBtn.classList.remove('btn-success');
+    saveBtn.innerHTML = originalHTML;
+  }, 2000);
 }
 
 /** تصدير ملف JSON احتياطي */
@@ -1245,77 +1359,6 @@ window.addEventListener('message', function(e) {
 });
 </script>
 
-  <!-- ══ زر الترس: سحب وإفلات ══ -->
-  <script>
-  (function(){
-    var btn = document.getElementById('settings-btn');
-    if(!btn) return;
 
-    /* إلغاء onclick الأصلي — نتحكم به بالكامل من هنا */
-    btn.onclick = null;
-
-    /* استرجاع الموضع المحفوظ */
-    try {
-      var saved = JSON.parse(localStorage.getItem('niabat-gear-pos'));
-      if(saved && saved.top !== undefined && saved.right !== undefined){
-        btn.style.top    = saved.top;
-        btn.style.right  = saved.right;
-        btn.style.bottom = 'auto';
-        btn.style.left   = 'auto';
-      }
-    } catch(e){}
-
-    btn.style.cursor = 'grab';
-    btn.title = 'إعدادات النيابة — اسحبني لأي مكان';
-
-    var dragging = false, moved = false;
-    var startX, startY, startRight, startTop;
-
-    btn.addEventListener('mousedown', function(e){
-      if(e.button !== 0) return;
-      e.preventDefault();
-      dragging = true; moved = false;
-      startX = e.clientX; startY = e.clientY;
-      var rect = btn.getBoundingClientRect();
-      startRight = window.innerWidth - rect.right;
-      startTop   = rect.top;
-      btn.style.transition = 'none';
-      btn.style.cursor = 'grabbing';
-    });
-
-    document.addEventListener('mousemove', function(e){
-      if(!dragging) return;
-      var dx = startX - e.clientX, dy = e.clientY - startY;
-      if(Math.abs(dx) > 8 || Math.abs(dy) > 8) moved = true;
-      var W = window.innerWidth, H = window.innerHeight, S = 54;
-      btn.style.right  = Math.max(0, Math.min(W-S, startRight + dx)) + 'px';
-      btn.style.top    = Math.max(0, Math.min(H-S, startTop   + dy)) + 'px';
-      btn.style.bottom = 'auto';
-      btn.style.left   = 'auto';
-    });
-
-    document.addEventListener('mouseup', function(){
-      if(!dragging) return;
-      dragging = false;
-      btn.style.cursor = 'grab';
-      btn.style.transition = '';
-      var wasMoved = moved;
-      moved = false;
-      try {
-        localStorage.setItem('niabat-gear-pos', JSON.stringify({
-          top: btn.style.top, right: btn.style.right
-        }));
-      } catch(e){}
-      if(!wasMoved){
-        setTimeout(function(){ openSettings(); }, 0);
-      }
-    });
-
-    /* التقاط click ومنعه — الفتح يتم عبر mouseup فقط */
-    btn.addEventListener('click', function(e){
-      e.stopImmediatePropagation();
-    }, true);
-  })();
-  </script>
 </body>
 </html>
