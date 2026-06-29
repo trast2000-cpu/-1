@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <title>نظام التحقيق المتكامل - إبراهيم أحمد</title>
         <link rel="stylesheet" href="fontawesome-free-6.4.0-web/css/all.min.css">
+<script src="niabat-config-loader.js"></script>
 <style>
         /* خطوط النظام فقط - لا تحتاج إنترنت */
 
@@ -1218,7 +1219,7 @@ box-sizing: border-box;
             <div class="field">
                 <label>وكيل النيابة</label>
                 <select id="prosecutor" class="persist" onchange="toggleOther(this, 'pros_other')">
-                    <option value="">-- اختر --</option><option>إِسلام ناجِي</option><option>نور المصري</option><option value="other">أخرى...</option>
+                    <option value="">-- اختر --</option><option value="other">أخرى...</option>
                 </select>
                 <input type="text" id="pros_other" class="other-input persist" placeholder="اسم وكيل النيابة">
             </div>
@@ -1237,7 +1238,7 @@ box-sizing: border-box;
             </div>
             <div class="field">
                 <label>قسم الشرطة</label>
-                <select id="police_station" class="persist" onchange="togglePoliceStationOther(this)"><option value="">-- اختر --</option><option>السيدة زينب</option><option>مصر القديمة</option><option value="other">إضافة قسم شرطة يدوي...</option></select>
+                <select id="police_station" class="persist" onchange="togglePoliceStationOther(this)"><option value="">-- اختر --</option><option value="other">إضافة قسم شرطة يدوي...</option></select>
                 <input type="text" id="police_station_other" class="other-input persist" placeholder="اكتب اسم قسم الشرطة">
             </div>
             <div class="field">
@@ -5435,5 +5436,84 @@ function saveDetentionOrder() {
         <span>تم مسح جميع البيانات</span>
     </div>
 
+
+  <!-- ══ إعدادات النيابة - محاضر التحقيق ══ -->
+  <script>
+  (function(){
+    var K='niabat_config';
+    function load(){try{return JSON.parse(localStorage.getItem(K));}catch(e){return null;}}
+
+    function replaceNiabatName(newName) {
+      var pat = /نيابة مرور (عيـن|عين) (الصيـرة|الصيرة|الصيره)/g;
+      var walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null, false);
+      var nodes = []; var n;
+      while ((n = walker.nextNode())) if (pat.test(n.nodeValue)) nodes.push(n);
+      nodes.forEach(function(nd) {
+        nd.nodeValue = nd.nodeValue.replace(/نيابة مرور (عيـن|عين) (الصيـرة|الصيرة|الصيره)/g, newName);
+      });
+      /* تحديث span الديباجة مباشرة */
+      var sp = document.getElementById('print-prosecution-name');
+      if (sp) sp.textContent = newName;
+    }
+
+    function fillSelect(sel, items, lastOptValue, lastOptText) {
+      if (!sel || !items || !items.length) return;
+      var cur = sel.value;
+      /* احتفظ بالخيار الأول (عادةً "-- اختر --" أو الفارغ) */
+      var first = sel.options[0] ? sel.options[0].cloneNode(true) : null;
+      sel.innerHTML = '';
+      if (first) sel.appendChild(first);
+      items.forEach(function(n) {
+        if (!n) return;
+        var o = document.createElement('option');
+        o.value = n; o.textContent = n; sel.appendChild(o);
+      });
+      /* آخر خيار ثابت (أخرى / يدوي) */
+      if (lastOptValue) {
+        var last = document.createElement('option');
+        last.value = lastOptValue; last.textContent = lastOptText || lastOptValue;
+        sel.appendChild(last);
+      }
+      if (cur) sel.value = cur;
+    }
+
+    function apply(cfg) {
+      if (!cfg) return;
+      /* 1. اسم النيابة في الديباجة وكل النصوص */
+      if (cfg.prosecutionName) replaceNiabatName(cfg.prosecutionName);
+      /* 2. خيار اسم النيابة في قائمة prosecution_name */
+      var pnSel = document.getElementById('prosecution_name');
+      if (pnSel && cfg.prosecutionName) {
+        var first = pnSel.options[0];
+        if (first && first.value !== 'other') {
+          first.value = cfg.prosecutionName;
+          first.textContent = cfg.prosecutionName;
+        }
+      }
+      /* 3. وكلاء النيابة */
+      fillSelect(document.getElementById('prosecutor'), cfg.agents, 'other', 'أخرى...');
+      /* 4. قسم الشرطة */
+      fillSelect(document.getElementById('police_station'), cfg.stations, 'other', 'إضافة قسم شرطة يدوي...');
+      
+      /* 5. تحديث السنة القضائية */
+      if (cfg.fiscalYear) {
+        var reportYearEl = document.getElementById('report_year');
+        if (reportYearEl) {
+            reportYearEl.value = cfg.fiscalYear;
+            // تشغيل دالة الحفظ عشان يسمّع في تقارير الطباعة
+            if (typeof saveData === 'function') saveData();
+        }
+      }
+    }
+
+    if (document.readyState === 'loading')
+      document.addEventListener('DOMContentLoaded', function() { apply(load()); });
+    else apply(load());
+    window.addEventListener('message', function(e) {
+      if (e.data && e.data.type === 'NIABAT_CONFIG_UPDATE') apply(e.data.config);
+    });
+    window.addEventListener('storage', function(e) { if (e.key === K) apply(load()); });
+  })();
+  </script>
 </body>
 </html>
