@@ -606,10 +606,27 @@
         <div class="viewer-area">
             <!-- Welcome Box -->
             <div id="welcomeBox" class="welcome-card">
-                <i class="fas fa-file-invoice"></i>
-                <h2 style="margin-bottom: 15px;">مرحباً بك في نظام مطبوعات النيابة المطور</h2>
-                <p style="color: var(--text-muted); line-height: 1.6;">يرجى اختيار المطبوعة المطلوبة من القائمة الجانبية.</p>
-            </div>
+    <i class="fas fa-file-invoice" style="font-size: 4rem; color: var(--primary-color); margin-bottom: 15px; display: inline-block;"></i>
+    <h2 style="margin-bottom: 10px;">مرحباً بك في نظام مطبوعات النيابة المطور</h2>
+    <p style="color: var(--text-muted); line-height: 1.5; margin-bottom: 20px;">يرجى اختيار المطبوعة المطلوبة من القائمة الجانبية.</p>
+
+    <div style="background: rgba(59, 111, 212, 0.05); border: 1px solid rgba(59, 111, 212, 0.2); border-radius: 12px; padding: 15px; text-align: right;">
+        <h3 style="color: var(--primary-color); font-size: 1.1rem; margin-bottom: 10px; display: flex; align-items: center; gap: 8px;">
+            <i class="fas fa-info-circle" style="font-size: 1.2rem; margin: 0; color: var(--primary-color);"></i>
+            دليل إدارة النظام
+        </h3>
+        <ul style="list-style: none; padding: 0; margin: 0; font-size: 0.9rem; line-height: 1.6; color: var(--text-main);">
+            <li style="margin-bottom: 10px; display: flex; align-items: center; gap: 10px;">
+                <i class="fas fa-lock" style="color: #fbbf24; font-size: 1.2rem; margin: 0; min-width: 20px; text-align: center;"></i>
+                <span>لتعديل القائمة (إضافة أو حذف)، قم بتفعيل <strong>"وضع التعديل"</strong> من الأعلى.</span>
+            </li>
+            <li style="display: flex; align-items: center; gap: 10px;">
+                <i class="fas fa-file-export" style="color: #10b981; font-size: 1.2rem; margin: 0; min-width: 20px; text-align: center;"></i>
+                <span>لحفظ التعديلات، اضغط على <strong>"تصدير الملف"</strong> لتحميل النسخة الجديدة.</span>
+            </li>
+        </ul>
+    </div>
+</div>
 
             <!-- Preview Box (PDFs) -->
             <div id="previewBox" class="preview-container">
@@ -1394,5 +1411,49 @@
         const firstHeader = document.querySelector('.accordion-header');
         if (firstHeader) { firstHeader.classList.add('open'); if(firstHeader.nextElementSibling) firstHeader.nextElementSibling.classList.add('open'); }
     </script>
+
+<script>
+    (function(){
+      var K='niabat_config';
+      function load(){try{return JSON.parse(localStorage.getItem(K));}catch(e){return null;}}
+
+      function replaceNiabatName(newName) {
+        /* تحديث العناوين اللي واخدة الكلاس أو الـ data-config */
+        var nameEls = document.querySelectorAll('[data-config="prosecution-name"]');
+        nameEls.forEach(function(el) {
+            el.textContent = newName;
+        });
+
+        /* مسح شامل للنص في الصفحة (التركاية بتاعتنا) */
+        var pat = /نيابة مرور (عيـن|عين) (الصيـرة|الصيرة|الصيره)/g;
+        var walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null, false);
+        var nodes = []; var n;
+        while ((n = walker.nextNode())) if (pat.test(n.nodeValue)) nodes.push(n);
+        nodes.forEach(function(nd) {
+          nd.nodeValue = nd.nodeValue.replace(/نيابة مرور (عيـن|عين) (الصيـرة|الصيرة|الصيره)/g, newName);
+        });
+      }
+
+      function apply(cfg) {
+        if (!cfg) return;
+        
+        /* تحديث اسم النيابة الشامل */
+        if (cfg.prosecutionName) replaceNiabatName(cfg.prosecutionName);
+      }
+
+      if (document.readyState === 'loading')
+        document.addEventListener('DOMContentLoaded', function() { apply(load()); });
+      else apply(load());
+      
+      /* استقبال الإعدادات أونلاين من البوابة */
+      window.addEventListener('message', function(e) {
+        if (e.data && e.data.type === 'NIABAT_CONFIG_UPDATE') apply(e.data.config);
+      });
+      
+      /* استقبال الإعدادات محلياً */
+      window.addEventListener('storage', function(e) { if (e.key === K) apply(load()); });
+    })();
+    </script>
+
 </body>
 </html>
