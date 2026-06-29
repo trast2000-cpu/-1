@@ -1033,7 +1033,7 @@ body {
 
         <div class="btn-row">
             <button class="btn-print" onclick="window.print()"><i class="fa-solid fa-print fa-icon-btn"></i> &nbsp; طباعة القرار</button>
-            <button class="btn-clear" onclick="clearAll()"><i class="fa-solid fa-trash fa-icon-btn"></i> &nbsp; مسح البيانات</button>
+            <button class="btn-clear" onclick="clearAll()"><i class="fa-solid fa-trash fa-icon-btn"></i> &nbsp; مسح البيانات ( f9 )</button>
         </div>
 <div class="developer-credit" id="_dev_cr"></div>
 
@@ -2927,6 +2927,15 @@ function toggleTheme() {
       rebuildSelect(document.getElementById('input-dept-select'), cfg.stations, true);
       /* اسم النيابة */
       if (cfg.prosecutionName) replaceNiabatName(cfg.prosecutionName);
+
+      /* تحديث السنة القضائية */
+      if (cfg.fiscalYear) {
+        var yearEl = document.getElementById('input-year');
+        if (yearEl) yearEl.value = cfg.fiscalYear;
+
+        /* تشغيل دالة التزامن عشان السنة تسمّع فوراً في ورقة الطباعة */
+        if (typeof sync === 'function') sync();
+      }
     }
 
     if (document.readyState === 'loading')
