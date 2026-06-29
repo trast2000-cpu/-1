@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>نظام قرارات المحاضر</title>
 <link rel="stylesheet" href="fontawesome-free-6.4.0-web/css/all.min.css">
+<script src="niabat-config-loader.js"></script>
 <!-- Cairo font embedded -->
 
 
@@ -1521,10 +1522,8 @@ textarea.ta-locked {
                         <label>قسم الشرطه</label>
                         <select id="input-dept-select" onchange="toggleOther('input-dept-select','dept-other-wrapper'); updateAll();" style="width:130px;">
                             <option value="">--- اختر ---</option>
-                            <option value="مصر القديمة">مصر القديمة</option>
-                            <option value="السيدة زينب">السيدة زينب</option>
-                            <option value="أخرى">أخرى</option>
-                        </select>
+                                <option value="أخرى">أخرى</option>
+                                </select>
                     </div>
                     <div class="field-group" id="dept-other-wrapper" style="display:none;">
                         <label>اسم القسم</label>
@@ -1560,10 +1559,8 @@ textarea.ta-locked {
                         <div style="display:flex; gap:6px; align-items:center;">
                             <select id="input-boss-select" onchange="toggleOther('input-boss-select','boss-other-wrapper'); updateAll();" style="width:130px;">
                                 <option value="">--- اختر ---</option>
-                                <option value="إسلام ناجي">إسلام ناجي</option>
-                                <option value="نور المصري">نور المصري</option>
                                 <option value="أخرى">أخرى</option>
-                            </select>
+                                </select>
                             <span id="boss-other-wrapper" style="display:none;">
                                 <input type="text" id="input-boss-other" oninput="updateAll()" style="width:120px;">
                             </span>
@@ -3938,5 +3935,79 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 </script>
+
+  <!-- ══ إعدادات النيابة ══ -->
+  <script>
+  (function(){
+    var K='niabat_config';
+    function load(){try{return JSON.parse(localStorage.getItem(K));}catch(e){return null;}}
+
+    function rebuildSelect(sel, items, addOther) {
+      if (!sel || !items || !items.length) return;
+      var cur = sel.value;
+      var selId = sel.id;
+      var oldW = document.getElementById(selId+'-cs-wrapper');
+      var oldD = document.getElementById(selId+'-cs-dropdown');
+      if (oldW) { sel.style.display = ''; oldW.parentNode.removeChild(oldW); }
+      if (oldD) { oldD.parentNode.removeChild(oldD); }
+      sel.innerHTML = '<option value="">--- اختر ---</option>';
+      items.forEach(function(n) {
+        if (!n) return;
+        var o = document.createElement('option');
+        o.value = n; o.textContent = n; sel.appendChild(o);
+      });
+      if (addOther) {
+        var oth = document.createElement('option');
+        oth.value = 'أخرى'; oth.textContent = 'أخرى'; sel.appendChild(oth);
+      }
+      if (cur) sel.value = cur;
+      if (typeof buildCustomSelect === 'function') buildCustomSelect(sel);
+      else if (typeof syncCustomSelectDisplay === 'function') syncCustomSelectDisplay(selId);
+    }
+
+    function replaceNiabatName(newName) {
+      var pat = /نيابة مرور (عيـن|عين) (الصيـرة|الصيرة|الصيره)/g;
+      var walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null, false);
+      var nodes = []; var n;
+      while ((n = walker.nextNode())) if (pat.test(n.nodeValue)) nodes.push(n);
+      nodes.forEach(function(nd) {
+        nd.nodeValue = nd.nodeValue.replace(/نيابة مرور (عيـن|عين) (الصيـرة|الصيرة|الصيره)/g, newName);
+      });
+      var sp = document.getElementById('niabat-prosecution-sub');
+      if (sp) sp.textContent = newName;
+    }
+
+    function apply(cfg) {
+      if (!cfg) return;
+      /* مدير النيابة */
+      rebuildSelect(document.getElementById('input-boss-select'), cfg.agents, true);
+      /* قسم الشرطة */
+      rebuildSelect(document.getElementById('input-dept-select'), cfg.stations, true);
+      /* اسم النيابة */
+      if (cfg.prosecutionName) replaceNiabatName(cfg.prosecutionName);
+      
+      /* تحديث السنة القضائية */
+      if (cfg.fiscalYear) {
+        var yearEl = document.getElementById('input-year');
+        if (yearEl) yearEl.value = cfg.fiscalYear;
+        
+        /* تشغيل دالة التزامن الخاصة بالتلبسات لتسميع التغيير في ورق الطباعة */
+        if (typeof updateAll === 'function') updateAll();
+      }
+    }
+
+    if (document.readyState === 'loading')
+      document.addEventListener('DOMContentLoaded', function() { apply(load()); });
+    else apply(load());
+    
+    /* استقبال الإعدادات أونلاين من البوابة */
+    window.addEventListener('message', function(e) {
+      if (e.data && e.data.type === 'NIABAT_CONFIG_UPDATE') apply(e.data.config);
+    });
+    
+    /* استقبال الإعدادات محلياً */
+    window.addEventListener('storage', function(e) { if (e.key === K) apply(load()); });
+  })();
+  </script>
 </body>
 </html>
