@@ -1048,19 +1048,31 @@ function _load(idx) {
     f.classList.remove('active-frame');
   });
 
-  if (sys.file) {
+if (sys.file) {
     ph.style.display = 'none';
 
     const frame = document.getElementById('frame-' + idx);
 
     if (!loadedFrames[idx]) {
+      // الحل الأونلاين: ننتظر الملف لحد ما يخلص تحميل بالكامل على جيت هب وبعدين نبعت له الكونفيج
+      frame.onload = function() {
+        const cfg = loadConfig();
+        frame.contentWindow.postMessage({ type: 'NIABAT_CONFIG_UPDATE', config: cfg }, '*');
+      };
       frame.src = sys.file;
       loadedFrames[idx] = true;
+    } else {
+      // لو الملف كان مفتوح وجاهز قبل كده، نبعت له علطول للتأكيد
+      const cfg = loadConfig();
+      frame.contentWindow.postMessage({ type: 'NIABAT_CONFIG_UPDATE', config: cfg }, '*');
     }
 
     void frame.offsetWidth;
     frame.classList.add('active-frame');
-  } else {
+  }
+  
+  
+  else {
     ph.style.display = 'flex';
     ph.innerHTML = '<div class="ph-icon">🚧</div><p>هذا النظام قيد التطوير</p>';
   }
