@@ -8,6 +8,7 @@
 
     
         <link rel="stylesheet" href="fontawesome-free-6.4.0-web/css/all.min.css">
+    <script src="niabat-config-loader.js"></script>
     <style>
 /* ===== نظام المتغيرات والألوان المطور ===== */
 :root {
@@ -762,10 +763,10 @@
                 <div class="form-group form-group-director">
                     <label>مدير النيابة</label>
                     <select id="directorSelect" onchange="onDirectorChange()">
-                        <option value="">--- اختر ---</option>
-                        <option value="إسلام ناجي">إسلام ناجي</option>
-                        <option value="نور المصري">نور المصري</option>
-                        <option value="أخرى">أخرى</option>
+                        <option value="" data-static="true">--- اختر ---</option>
+                        
+                        
+                        <option value="أخرى" data-static="true">أخرى (اكتب يدوياً)</option>
                     </select>
                 </div>
                 <div id="directorOtherContainer" class="form-group form-group-narrow hidden">
@@ -892,7 +893,7 @@
                         <div class="header-right">
                             <span class="entity-name">النيابة العامة</span><br>
                             <span class="sub-entity">نيابة مرور القاهرة</span><br>
-                            <span class="sub-entity">نيابة مرور عين الصيرة</span>
+                            <span class="sub-entity" id="niabat-prosecution-name">نيابة مرور عين الصيرة</span>
                         </div>
                         <div style="text-align:center; font-family:'Calibri',sans-serif; font-size:14px; color:#bbb; letter-spacing:0.5px; align-self:flex-start; padding-top:2px;">
                             رقم الصادر / ـــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــ
@@ -904,7 +905,7 @@
                     <div class="doc-main-title-wrap">
                         <div class="doc-title-box">مذكرة عرض</div>
                         <div class="doc-main-title">
-                            في العريضة رقم (<span id="v_pNum">....</span>) لسنة (<span id="v_pYear">....</span>) عرائض نيابة مرور عين الصيرة
+                            في العريضة رقم (<span id="v_pNum">....</span>) لسنة (<span id="v_pYear">....</span>) عرائض <span id="niabat-doc-title">نيابة مرور عين الصيرة</span>
                         </div>
                     </div>
                 </div>
@@ -1550,5 +1551,84 @@ document.getElementById('v_proxyText').innerText = pStr;
         setInterval(refreshDate, 60000);
     };
 </script>
+
+  <!-- ══ تحميل إعدادات النيابة من البوابة الرئيسية ══ -->
+  <script>
+  (function(){
+    var K='niabat_config';
+    function load(){try{return JSON.parse(localStorage.getItem(K));}catch(e){return null;}}
+
+    function rebuildSelect(sel, items, addOther) {
+      if (!sel || !items || !items.length) return;
+      var cur = sel.value;
+
+      /* الاحتفاظ بالخيارات الثابتة الأساسية */
+      var staticOpts = Array.from(sel.options).filter(function(o) {
+          return o.dataset.static === 'true' && o.value !== 'أخرى';
+      });
+
+      sel.innerHTML = '';
+      staticOpts.forEach(function(o) { sel.appendChild(o); });
+
+      /* إضافة الوكلاء الجداد */
+      items.forEach(function(n) {
+        if (!n) return;
+        var o = document.createElement('option');
+        o.value = n; o.textContent = n; sel.appendChild(o);
+      });
+
+      /* إضافة اختيار "أخرى" في النهاية */
+      if (addOther) {
+        var oth = document.createElement('option');
+        oth.value = 'أخرى'; oth.textContent = 'أخرى (اكتب يدوياً)';
+        oth.dataset.static = 'true';
+        sel.appendChild(oth);
+      }
+      
+      if (cur) sel.value = cur;
+    }
+
+    function replaceNiabatName(newName) {
+      /* تغيير الاسم في العناوين المباشرة */
+      var nameEl = document.getElementById('niabat-prosecution-name');
+      if (nameEl) nameEl.textContent = newName;
+
+      var titleEl = document.getElementById('niabat-doc-title');
+      if (titleEl) titleEl.textContent = newName;
+
+      /* مسح شامل للنص في الصفحة (التركاية) */
+      var pat = /نيابة مرور (عيـن|عين) (الصيـرة|الصيرة|الصيره)/g;
+      var walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null, false);
+      var nodes = []; var n;
+      while ((n = walker.nextNode())) if (pat.test(n.nodeValue)) nodes.push(n);
+      nodes.forEach(function(nd) {
+        nd.nodeValue = nd.nodeValue.replace(/نيابة مرور (عيـن|عين) (الصيـرة|الصيرة|الصيره)/g, newName);
+      });
+    }
+
+    function apply(cfg) {
+      if (!cfg) return;
+      
+      /* تحديث قائمة مدير النيابة */
+      rebuildSelect(document.getElementById('directorSelect'), cfg.agents, true);
+      
+      /* تحديث اسم النيابة الشامل */
+      if (cfg.prosecutionName) replaceNiabatName(cfg.prosecutionName);
+    }
+
+    if (document.readyState === 'loading')
+      document.addEventListener('DOMContentLoaded', function() { apply(load()); });
+    else apply(load());
+    
+    /* استقبال الإعدادات أونلاين من البوابة */
+    window.addEventListener('message', function(e) {
+      if (e.data && e.data.type === 'NIABAT_CONFIG_UPDATE') apply(e.data.config);
+    });
+    
+    /* استقبال الإعدادات محلياً */
+    window.addEventListener('storage', function(e) { if (e.key === K) apply(load()); });
+  })();
+  </script>
+  
 </body>
 </html>
