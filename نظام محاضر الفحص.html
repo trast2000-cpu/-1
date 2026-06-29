@@ -907,6 +907,7 @@ thead th[data-tip]:hover::before {
     }
 }
 </style>
+<script src="niabat-config-loader.js"></script>
 </head>
 
 <body onload="initializePage()">
@@ -934,7 +935,7 @@ thead th[data-tip]:hover::before {
     <div class="header-text">
         <div style="text-align: center; font-size: 16.5px; font-weight: bold; margin-bottom: 5px;">النيابة العامة</div>
         <div style="text-align: right; line-height: 1.65;">نيابة مرور القاهرة الكلية<br></div>
-        <div style="text-align: center; font-size: 16.5px; font-weight: bold; margin-bottom: 5px;">نيابة مرور عين الصيرة</div> 
+        <div style="text-align: center; font-size: 16.5px; font-weight: bold; margin-bottom: 5px;" data-config="prosecution-name">نيابة مرور عين الصيرة</div>
     </div>
 
 
@@ -954,7 +955,7 @@ thead th[data-tip]:hover::before {
         </div>
         
         <label>القسم:</label>
-        <select id="dept" onchange="handleDeptChange()">
+        <select id="dept" data-config="stations-select" onchange="handleDeptChange()">
             <option value="">اختر القسم</option>
             <option>السيدة زينب</option>
             <option>مصر القديمة</option>
@@ -1025,6 +1026,27 @@ thead th[data-tip]:hover::before {
 
 <script>
     function initializePage() {
+        // تحميل أقسام الشرطة من الـ config
+        (function loadStationsFromConfig() {
+            try {
+                var cfg = JSON.parse(localStorage.getItem('niabat_config') || '{}');
+                var stations = cfg.stations;
+                if (Array.isArray(stations) && stations.length) {
+                    var sel = document.getElementById('dept');
+                    if (!sel) return;
+                    sel.innerHTML = '<option value="">اختر القسم</option>';
+                    stations.forEach(function(s) {
+                        var opt = document.createElement('option');
+                        opt.value = s; opt.textContent = s;
+                        sel.appendChild(opt);
+                    });
+                    var optOther = document.createElement('option');
+                    optOther.value = 'other'; optOther.textContent = 'أخرى';
+                    sel.appendChild(optOther);
+                }
+            } catch(e) {}
+        })();
+
         const today = new Date();
         const day = String(today.getDate()).padStart(2, '0');
         const month = String(today.getMonth() + 1).padStart(2, '0');
@@ -1854,5 +1876,94 @@ function showLookupSuccessToast(caseNum, name) {
 }
 
 </script>
+<!-- ══ إعدادات النيابة (السمّاعة الذكية لمحاضر الفحص) ══ -->
+  <script>
+  (function(){
+    var K='niabat_config';
+    function load(){try{return JSON.parse(localStorage.getItem(K));}catch(e){return null;}}
+
+    function rebuildSelect(sel, items, addOther) {
+      if (!sel || !items || !items.length) return;
+      var cur = sel.value;
+      
+      sel.innerHTML = '<option value="">اختر القسم</option>';
+      items.forEach(function(n) {
+        if (!n) return;
+        var o = document.createElement('option');
+        o.value = n; o.textContent = n; sel.appendChild(o);
+      });
+      if (addOther) {
+        var oth = document.createElement('option');
+        oth.value = 'other'; oth.textContent = 'أخرى'; sel.appendChild(oth);
+      }
+      if (cur) sel.value = cur;
+    }
+
+    function replaceNiabatName(newName) {
+      /* تحديث اسم النيابة في الهيدر */
+      var nameEls = document.querySelectorAll('[data-config="prosecution-name"]');
+      nameEls.forEach(function(el) {
+          el.textContent = newName;
+      });
+      
+      /* تحديث أي نص في الصفحة */
+      var pat = /نيابة مرور (عيـن|عين) (الصيـرة|الصيرة|الصيره)/g;
+      var walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null, false);
+      var nodes = []; var n;
+      while ((n = walker.nextNode())) if (pat.test(n.nodeValue)) nodes.push(n);
+      nodes.forEach(function(nd) {
+        nd.nodeValue = nd.nodeValue.replace(/نيابة مرور (عيـن|عين) (الصيـرة|الصيرة|الصيره)/g, newName);
+      });
+    }
+
+    function apply(cfg) {
+      if (!cfg) return;
+      
+      /* تحديث قسم الشرطة */
+      rebuildSelect(document.getElementById('dept'), cfg.stations, true);
+      
+      /* تحديث اسم النيابة الشامل */
+      if (cfg.prosecutionName) replaceNiabatName(cfg.prosecutionName);
+      
+      /* تحديث السنة القضائية في الصفوف الحالية */
+      if (cfg.fiscalYear) {
+        // تحديث السنة في كل الصفوف الموجودة في الجدول
+        var yearCells = document.querySelectorAll('.case-num-year');
+        yearCells.forEach(function(cell) {
+            cell.textContent = cfg.fiscalYear;
+        });
+        
+        // تعديل الدالة الأصلية addRow عشان تاخد السنة الجديدة
+        if (typeof window.originalAddRow === 'undefined' && typeof window.addRow === 'function') {
+            window.originalAddRow = window.addRow;
+            window.addRow = function() {
+                window.originalAddRow();
+                // تحديث السنة في آخر صف تم إضافته
+                var rows = document.getElementById("mainTable").getElementsByTagName('tbody')[0].rows;
+                if(rows.length > 0) {
+                    var lastRowYearCell = rows[rows.length - 1].querySelector('.case-num-year');
+                    if(lastRowYearCell) {
+                        lastRowYearCell.textContent = cfg.fiscalYear;
+                    }
+                }
+            };
+        }
+      }
+    }
+
+    if (document.readyState === 'loading')
+      document.addEventListener('DOMContentLoaded', function() { apply(load()); });
+    else apply(load());
+    
+    /* استقبال الإعدادات أونلاين من البوابة */
+    window.addEventListener('message', function(e) {
+      if (e.data && e.data.type === 'NIABAT_CONFIG_UPDATE') apply(e.data.config);
+    });
+    
+    /* استقبال الإعدادات محلياً */
+    window.addEventListener('storage', function(e) { if (e.key === K) apply(load()); });
+  })();
+  </script>
+
 </body>
 </html>
