@@ -9,7 +9,7 @@
     
         <link rel="stylesheet" href="fontawesome-free-6.4.0-web/css/all.min.css">
     <script src="niabat-config-loader.js"></script>
-    <style>
+    <style>   
 /* ===== نظام المتغيرات والألوان المطور ===== */
 :root {
     --primary: #1a3a6b;
@@ -1614,6 +1614,15 @@ document.getElementById('v_proxyText').innerText = pStr;
       
       /* تحديث اسم النيابة الشامل */
       if (cfg.prosecutionName) replaceNiabatName(cfg.prosecutionName);
+
+      /* تحديث السنة القضائية للعريضة فقط (بدون التوكيل) */
+      if (cfg.fiscalYear) {
+        var pYearEl = document.getElementById('pYear');
+        if (pYearEl) pYearEl.value = cfg.fiscalYear;
+
+        /* تشغيل دالة التزامن عشان السنة تسمّع فوراً في ورقة الطباعة */
+        if (typeof sync === 'function') sync();
+      }
     }
 
     if (document.readyState === 'loading')
