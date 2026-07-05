@@ -661,6 +661,7 @@
                     <div class="leave-form-group"><label>مقدم الطلب</label><input type="text" id="leaveRequesterName" oninput="syncLeave()" placeholder="الاسم"></div>
                     <div class="leave-form-group"><label>القائم بالعمل</label><input type="text" id="leaveEmployeeName" oninput="syncLeave()" placeholder="الاسم"></div>
                     <div class="leave-form-group"><label>رئيس القلم</label><input type="text" id="leaveClerkName" oninput="syncLeave()" placeholder="الاسم"></div>
+                    <div class="leave-form-group"><label>تاريخ التحرير</label><input type="date" id="leaveWrittenDate" onchange="syncLeave()"></div>
                     <div class="leave-actions">
                         <button class="btn btn-primary" onclick="printLeaveRequest()"><i class="fas fa-print"></i> طباعة</button>
                         <button class="btn btn-outline" onclick="clearLeaveForm()"><i class="fas fa-eraser"></i> تفريغ</button>
@@ -682,9 +683,10 @@
                                 <p>الرجاء من سيادتكم الموافقة على اجازة (<span class="leave-highlight" id="lv_type2">اعتيادي</span>) لمدة <span id="lv_daysCountWrap">(<span class="leave-highlight" id="lv_days">....</span>) </span><span id="lv_daysWord">أيام</span></p>
                                 <p>تبدأ من يوم <span class="leave-highlight" id="lv_startDay">....</span> الموافق <span class="leave-highlight" id="lv_startDate">....../....../....</span></p>
                                 <p>و تنتهي في يوم <span class="leave-highlight" id="lv_endDay">....</span> الموافق <span class="leave-highlight" id="lv_endDate">....../....../....</span></p>
-                                <p class="leave-thanks">ولسيادتكم جزيل الشكر</p>
+                                <p class="leave-thanks" style="margin-top: 12px;">ولسيادتكم جزيل الشكر</p>
+                                <p style="font-size: 1rem; font-weight: 600; margin-top: 6px; margin-bottom: 0; text-align: right;">تحريراً في: <span id="lv_writtenDate">....../....../....</span></p>
                             </div>
-                            <div class="leave-footer-sigs">
+                            <div class="leave-footer-sigs" style="margin-top: 6px; gap: 6px; margin-bottom: 6px;">
                                 <div class="leave-sig-row" id="lv_requesterRow"><div class="leave-sig-block"><span class="leave-sig-title">مقدمه لسيادتكم</span><div class="leave-sig-name" id="lv_requesterName">...........................</div><div class="leave-sig-line">...........................</div></div></div>
                                 <div class="leave-sig-row leave-sig-row-left" id="lv_employeeRow"><div class="leave-sig-block"><span class="leave-sig-title">الموظف القائم بالعمل</span><div class="leave-sig-name" id="lv_employeeName">...........................</div><div class="leave-sig-line">...........................</div></div></div>
                                 <div class="leave-sig-row leave-sig-row-right"><div class="leave-sig-block"><span class="leave-sig-title">رئيس القلم</span><div class="leave-sig-name" id="lv_clerkName">...........................</div><div class="leave-sig-line">...........................</div></div></div>
@@ -1254,6 +1256,8 @@
             document.getElementById('lv_employeeName').textContent  = document.getElementById('leaveEmployeeName').value  || '...........................';
             document.getElementById('lv_clerkName').textContent     = document.getElementById('leaveClerkName').value     || '...........................';
             document.getElementById('lv_requesterName').textContent = document.getElementById('leaveRequesterName').value || '...........................';
+            const writtenDate = formatDateAr(document.getElementById('leaveWrittenDate').value);
+            document.getElementById('lv_writtenDate').textContent = writtenDate ? writtenDate.display : '....../....../.......';
             const employeeRow   = document.getElementById('lv_employeeRow');
             const requesterRow  = document.getElementById('lv_requesterRow');
             const employeeInput = document.getElementById('leaveEmployeeName').closest('.leave-form-group');
@@ -1264,7 +1268,7 @@
                 if (employeeRow) employeeRow.style.display = 'flex'; if (employeeInput) employeeInput.style.display = 'flex';
                 if (requesterRow) requesterRow.style.justifyContent = 'flex-end';
             }
-            try { localStorage.setItem(LEAVE_STORAGE_KEY, JSON.stringify({ type, days, startDate: document.getElementById('leaveStartDate').value, endDate: document.getElementById('leaveEndDate').value, employeeName: document.getElementById('leaveEmployeeName').value, clerkName: document.getElementById('leaveClerkName').value, requesterName: document.getElementById('leaveRequesterName').value })); } catch(e) {}
+            try { localStorage.setItem(LEAVE_STORAGE_KEY, JSON.stringify({ type, days, startDate: document.getElementById('leaveStartDate').value, endDate: document.getElementById('leaveEndDate').value, employeeName: document.getElementById('leaveEmployeeName').value, clerkName: document.getElementById('leaveClerkName').value, requesterName: document.getElementById('leaveRequesterName').value, writtenDate: document.getElementById('leaveWrittenDate').value })); } catch(e) {}
         }
 
         function loadLeaveData() {
@@ -1277,6 +1281,7 @@
                 if (data.employeeName) document.getElementById('leaveEmployeeName').value = data.employeeName;
                 if (data.clerkName)    document.getElementById('leaveClerkName').value = data.clerkName;
                 if (data.requesterName)document.getElementById('leaveRequesterName').value = data.requesterName;
+                if (data.writtenDate)  document.getElementById('leaveWrittenDate').value = data.writtenDate;
             } catch(e) {}
         }
 
@@ -1288,6 +1293,7 @@
             document.getElementById('leaveEmployeeName').value = '';
             document.getElementById('leaveClerkName').value = '';
             document.getElementById('leaveRequesterName').value = '';
+            document.getElementById('leaveWrittenDate').value = '';
             syncLeave(); showToast('🧹 تم تفريغ النموذج');
         }
 
