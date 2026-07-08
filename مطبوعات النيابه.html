@@ -1,9 +1,8 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
+<html lang="ar" dir="rtl"><head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>نظام مطبوعات نيابة مرور عين الصيرة المطور</title>
+    <title>نظام مطبوعات نيابة مرور عين الصيرة</title>
     <link rel="stylesheet" href="fontawesome-free-6.4.0-web/css/all.min.css">
     
     <style>
@@ -478,7 +477,7 @@
     </style>
 <script src="niabat-config-loader.js"></script>
 </head>
-<body data-theme="light">
+<body data-theme="light" class="edit-mode">
 
     <!-- ===== مودال إضافة قسم جديد ===== -->
     <div class="modal-overlay" id="modalAddCategory">
@@ -486,7 +485,7 @@
             <div class="modal-title"><i class="fas fa-folder-plus"></i> إضافة قسم جديد</div>
             <div class="modal-field">
                 <label>اسم القسم الجديد</label>
-                <input type="text" id="newCategoryName" placeholder="مثال: أحكام جلسات" />
+                <input type="text" id="newCategoryName" placeholder="مثال: أحكام جلسات">
             </div>
             <div class="modal-actions">
                 <button class="modal-btn-confirm" onclick="confirmAddCategory()"><i class="fas fa-plus"></i> إضافة</button>
@@ -501,13 +500,13 @@
             <div class="modal-title"><i class="fas fa-file-plus"></i> إضافة مطبوعة جديدة</div>
             <div class="modal-field">
                 <label>اسم المطبوعة</label>
-                <input type="text" id="newItemName" placeholder="مثال: نموذج التنفيذ" />
+                <input type="text" id="newItemName" placeholder="مثال: نموذج التنفيذ">
             </div>
             <div class="modal-field">
                 <label>اسم ملف PDF <span style="font-size:0.8em;color:#7aaeff;">(اكتب الاسم فقط بدون مسار أو امتداد)</span></label>
                 <div class="path-input-group" dir="ltr">
                     <span class="path-prefix">files/</span>
-                    <input type="text" id="newItemPdf" placeholder="اسم الملف" style="flex:1;border-radius:0;direction:ltr;" />
+                    <input type="text" id="newItemPdf" placeholder="اسم الملف" style="flex:1;border-radius:0;direction:ltr;">
                     <span class="path-suffix">.pdf</span>
                 </div>
                 <div class="modal-hint">ضع ملف PDF داخل مجلد <b>files</b> بجانب الملف الرئيسي، ثم اكتب اسمه هنا فقط</div>
@@ -516,7 +515,7 @@
                 <label>اسم ملف Word (اختياري) <span style="font-size:0.8em;color:#7aaeff;">(اكتب الاسم فقط)</span></label>
                 <div class="path-input-group" dir="ltr">
                     <span class="path-prefix">files/</span>
-                    <input type="text" id="newItemWord" placeholder="اسم الملف" style="flex:1;border-radius:0;direction:ltr;" />
+                    <input type="text" id="newItemWord" placeholder="اسم الملف" style="flex:1;border-radius:0;direction:ltr;">
                     <span class="path-suffix">.docx</span>
                 </div>
             </div>
@@ -569,7 +568,85 @@
                 <button onclick="expandAll()"><i class="fas fa-expand-alt"></i> فتح الكل</button>
                 <button onclick="collapseAll()"><i class="fas fa-compress-alt"></i> طي الكل</button>
             </div>
-            <div id="menuContainer"></div>
+            <div id="menuContainer"><div class="accordion-item"><div class="accordion-header" style="cursor: pointer;">
+                    <span style="font-weight:700; flex:1; pointer-events:none;">
+                        <i class="fas fa-folder-open" style="margin-left:8px; color:rgba(255,255,255,0.8);"></i>المطبوعات الأساسية
+                    </span>
+                    <div class="cat-action-btns">
+                        <button class="cat-btn-add" title="إضافة مطبوعة" onclick="openAddItemModal(0); event.stopPropagation();">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                        <button class="cat-btn-del" title="حذف القسم" onclick="openDeleteCategoryModal(0); event.stopPropagation();">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                        <i class="fas fa-chevron-down chevron" style="margin-right:4px; pointer-events:none;"></i>
+                    </div></div><div class="accordion-body"><div class="menu-item"><i class="far fa-file-alt"></i><span style="flex:1;">طلب تظلم</span>
+                            <button class="item-del-btn" title="حذف" onclick="openDeleteItemModal(0, 0); event.stopPropagation();">
+                                <i class="fas fa-times"></i>
+                            </button></div><div class="menu-item"><i class="far fa-file-alt"></i><span style="flex:1;">بيان صرف لوحات</span>
+                            <button class="item-del-btn" title="حذف" onclick="openDeleteItemModal(0, 1); event.stopPropagation();">
+                                <i class="fas fa-times"></i>
+                            </button></div><div class="menu-item"><i class="far fa-file-alt"></i><span style="flex:1;">ورقة فارغة</span>
+                            <button class="item-del-btn" title="حذف" onclick="openDeleteItemModal(0, 2); event.stopPropagation();">
+                                <i class="fas fa-times"></i>
+                            </button></div><div class="menu-item"><i class="far fa-file-alt"></i><span style="flex:1;">كشف ارسال جلسات</span>
+                            <button class="item-del-btn" title="حذف" onclick="openDeleteItemModal(0, 3); event.stopPropagation();">
+                                <i class="fas fa-times"></i>
+                            </button></div><div class="menu-item"><i class="far fa-file-alt"></i><span style="flex:1;">خطاب سداد رخصة مسحوبة</span>
+                            <button class="item-del-btn" title="حذف" onclick="openDeleteItemModal(0, 4); event.stopPropagation();">
+                                <i class="fas fa-times"></i>
+                            </button></div><div class="menu-item"><i class="far fa-file-alt"></i><span style="flex:1;">بيان المركبات المسلمة الشهري</span>
+                            <button class="item-del-btn" title="حذف" onclick="openDeleteItemModal(0, 5); event.stopPropagation();">
+                                <i class="fas fa-times"></i>
+                            </button></div></div></div><div class="accordion-item"><div class="accordion-header" style="cursor: pointer;">
+                    <span style="font-weight:700; flex:1; pointer-events:none;">
+                        <i class="fas fa-folder-open" style="margin-left:8px; color:rgba(255,255,255,0.8);"></i>الإحصائيات والتقارير
+                    </span>
+                    <div class="cat-action-btns">
+                        <button class="cat-btn-add" title="إضافة مطبوعة" onclick="openAddItemModal(1); event.stopPropagation();">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                        <button class="cat-btn-del" title="حذف القسم" onclick="openDeleteCategoryModal(1); event.stopPropagation();">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                        <i class="fas fa-chevron-down chevron" style="margin-right:4px; pointer-events:none;"></i>
+                    </div></div><div class="accordion-body"><div class="menu-item"><i class="far fa-file-alt"></i><span style="flex:1;">الإحصائية الشهرية</span>
+                            <button class="item-del-btn" title="حذف" onclick="openDeleteItemModal(1, 0); event.stopPropagation();">
+                                <i class="fas fa-times"></i>
+                            </button></div><div class="menu-item"><i class="far fa-file-alt"></i><span style="flex:1;">البيان العددي</span>
+                            <button class="item-del-btn" title="حذف" onclick="openDeleteItemModal(1, 1); event.stopPropagation();">
+                                <i class="fas fa-times"></i>
+                            </button></div><div class="menu-item"><i class="far fa-file-alt"></i><span style="flex:1;">إحصائية المطالبة</span>
+                            <button class="item-del-btn" title="حذف" onclick="openDeleteItemModal(1, 2); event.stopPropagation();">
+                                <i class="fas fa-times"></i>
+                            </button></div></div></div><div class="accordion-item"><div class="accordion-header" style="cursor: pointer;">
+                    <span style="font-weight:700; flex:1; pointer-events:none;">
+                        <i class="fas fa-folder-open" style="margin-left:8px; color:rgba(255,255,255,0.8);"></i>طلبات
+                    </span>
+                    <div class="cat-action-btns">
+                        <button class="cat-btn-add" title="إضافة مطبوعة" onclick="openAddItemModal(2); event.stopPropagation();">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                        <button class="cat-btn-del" title="حذف القسم" onclick="openDeleteCategoryModal(2); event.stopPropagation();">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                        <i class="fas fa-chevron-down chevron" style="margin-right:4px; pointer-events:none;"></i>
+                    </div></div><div class="accordion-body"><div class="menu-item"><i class="fas fa-edit"></i><span style="flex:1;">طلب اجازة</span></div><div class="menu-item"><i class="fas fa-edit"></i><span style="flex:1;">خطاب صادر</span></div></div></div><div class="accordion-item"><div class="accordion-header open" style="cursor: pointer;">
+                    <span style="font-weight:700; flex:1; pointer-events:none;">
+                        <i class="fas fa-folder-open" style="margin-left:8px; color:rgba(255,255,255,0.8);"></i>خاص بموظفي النيابة
+                    </span>
+                    <div class="cat-action-btns">
+                        <button class="cat-btn-add" title="إضافة مطبوعة" onclick="openAddItemModal(3); event.stopPropagation();">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                        <button class="cat-btn-del" title="حذف القسم" onclick="openDeleteCategoryModal(3); event.stopPropagation();">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                        <i class="fas fa-chevron-down chevron" style="margin-right:4px; pointer-events:none;"></i>
+                    </div></div><div class="accordion-body open"><div class="menu-item active"><i class="far fa-file-alt"></i><span style="flex:1;">جواب التأمين الصحى</span>
+                            <button class="item-del-btn" title="حذف" onclick="openDeleteItemModal(3, 0); event.stopPropagation();">
+                                <i class="fas fa-times"></i>
+                            </button></div></div></div></div>
         </div>
     </aside>
 
@@ -592,11 +669,11 @@
                 <button id="btnExport" class="btn-save-file" onclick="exportHtmlFile()" title="تصدير نسخة من الملف بكل التعديلات">
                     <i class="fas fa-file-export"></i> تصدير الملف
                 </button>
-                <button class="btn-edit-mode" id="btnEditMode" onclick="toggleEditMode()" title="تفعيل/إيقاف وضع التعديل">
-                    <i class="fas fa-lock" id="editModeIcon"></i>
-                    <span id="editModeLabel">وضع التعديل</span>
+                <button class="btn-edit-mode active" id="btnEditMode" onclick="toggleEditMode()" title="تفعيل/إيقاف وضع التعديل">
+                    <i class="fas fa-lock-open" id="editModeIcon"></i>
+                    <span id="editModeLabel">إيقاف وضع التعديل</span>
                 </button>
-                <p style="font-size: 1.2rem; color: #7aaeff; font-weight: 900; margin: 0;" id="currentDate"></p>
+                <p style="font-size: 1.2rem; color: #7aaeff; font-weight: 900; margin: 0;" id="currentDate">الاثنين، ٦ يوليو ٢٠٢٦</p>
                 <button class="theme-toggle" onclick="toggleTheme()" title="تبديل الوضع الليلي/النهاري">
                     <i class="fas fa-moon" id="themeIcon"></i>
                 </button>
@@ -605,7 +682,7 @@
 
         <div class="viewer-area">
             <!-- Welcome Box -->
-            <div id="welcomeBox" class="welcome-card">
+            <div id="welcomeBox" class="welcome-card" style="opacity: 0; transform: translateY(-20px); transition: 0.4s; display: none;">
     <i class="fas fa-file-invoice" style="font-size: 4rem; color: var(--primary-color); margin-bottom: 15px; display: inline-block;"></i>
     <h2 style="margin-bottom: 10px;">مرحباً بك في نظام مطبوعات النيابة المطور</h2>
     <p style="color: var(--text-muted); line-height: 1.5; margin-bottom: 20px;">يرجى اختيار المطبوعة المطلوبة من القائمة الجانبية.</p>
@@ -629,27 +706,25 @@
 </div>
 
             <!-- Preview Box (PDFs) -->
-            <div id="previewBox" class="preview-container">
+            <div id="previewBox" class="preview-container" style="display: flex; animation: 0.5s cubic-bezier(0.4, 0, 0.2, 1) 0s 1 normal none running fadeInScale;">
                 <div id="pdfWrapper" class="pdf-wrapper portrait">
-                    <iframe id="pdfViewer" class="pdf-frame" src=""></iframe>
+                    <iframe id="pdfViewer" class="pdf-frame" src="files/جواب التأمين الصحى.pdf"></iframe>
                 </div>
                 <div class="side-toolbar">
                     <div style="font-size: 0.8rem; color: var(--text-muted); font-weight: 700; margin-bottom: 5px; text-align: center;">اتجاه الورقة</div>
-                    <div id="orientationBadge" class="badge-orientation" onclick="manualToggleOrientation()">
-                        <i class="fas fa-arrows-alt-v"></i> <span>طولي (A4)</span>
-                    </div>
+                    <div id="orientationBadge" class="badge-orientation" onclick="manualToggleOrientation()"><i class="fas fa-arrows-alt-v"></i> <span>طولي (A4)</span></div>
                     <div class="toolbar-divider"></div>
                     <button class="btn btn-primary" onclick="printPdf()" style="width: 100%;"><i class="fas fa-print"></i> طباعة فورية</button>
                     <div style="display: flex; gap: 8px; margin-top: 10px;">
                         <input type="file" id="wordFileInput" accept=".doc,.docx" style="display:none">
                         <button class="btn btn-outline" onclick="document.getElementById('wordFileInput').click()" style="flex: 1; padding: 12px 10px; font-size: 0.9rem;"><i class="fas fa-file-word"></i> فتح في وورد</button>
-                        <button class="btn btn-outline" onclick="copyFolderPath()" style="width: 50px; padding: 0;"><i class="fas fa-copy"></i></button>
+                        <button class="btn btn-outline" onclick="copyFolderPath()" style="width: 70px; padding: 0;"><i class="fas fa-copy"></i>نسخ <br> مسار</button>
                     </div>
                 </div>
             </div>
 
             <!-- Leave Request Form View -->
-            <div id="leaveContainer" class="leave-container">
+            <div id="leaveContainer" class="leave-container" style="display: none;">
                 <div class="leave-form-panel no-print">
                     <h3><i class="fas fa-calendar-check"></i> بيانات طلب الإجازة</h3>
                     <div class="leave-form-group"><label>نوع الإجازة</label><select id="leaveType" onchange="syncLeave()"><option value="اعتيادي">اعتيادي</option><option value="عارضة">عارضة</option></select></div>
@@ -697,7 +772,7 @@
             </div>
 
             <!-- Outgoing Letter Form View -->
-            <div id="outgoingLetterContainer" class="leave-container">
+            <div id="outgoingLetterContainer" class="leave-container" style="display: none;">
                 <div class="leave-form-panel no-print">
                     <h3><i class="fas fa-envelope-open-text"></i> بيانات الخطاب الصادر</h3>
                     <div class="leave-form-group">
@@ -801,9 +876,9 @@
     </main>
 
     <!-- Status Toast -->
-    <div id="statusToast" class="status-bar">
+    <div id="statusToast" class="status-bar" style="display: none;">
         <i class="fas fa-check-circle"></i>
-        <span id="statusText">تم تحميل الملف بنجاح</span>
+        <span id="statusText">📂 جاري عرض: جواب التأمين الصحى</span>
     </div>
 
     <script>
@@ -811,23 +886,97 @@
         // بيانات المطبوعات — يتم تحديثها تلقائياً عند الحفظ
         // ============================================================
         const publicationsData = [
-            { category: "المطبوعات الأساسية", items: [
-                { name: "طلب تظلم", pdf: "files/طلب تظلم.pdf", word: "files/طلب تظلم.docx", orientation: "portrait" },
-                { name: "بيان صرف لوحات", pdf: "files/بيان صرف لوحات.pdf", word: "files/بيان صرف لوحات.docx", orientation: "portrait" },
-                { name: "ورقة فارغة", pdf: "files/فارغة.pdf", word: "files/فارغة.docx", orientation: "portrait" },
-                { name: "كشف ارسال جلسات", pdf: "files/كشف ارسال جلسات.pdf", word: "files/كشف ارسال جلسات.docx", orientation: "portrait" },
-                { name: "خطاب سداد رخصة مسحوبة", pdf: "files/خطاب سداد رخصة مسحوبة.pdf", word: "files/خطاب سداد رخصة مسحوبة.docx", orientation: "portrait" }
-            ]},
-            { category: "الإحصائيات والتقارير", items: [
-                { name: "الإحصائية الشهرية", pdf: "files/الإحصائية الشهرية.pdf", word: "files/الإحصائية الشهرية.docx", orientation: "landscape" },
-                { name: "البيان العددي", pdf: "files/البيان العددي.pdf", word: "files/البيان العددي.docx", orientation: "portrait" },
-                { name: "إحصائية المطالبة", pdf: "files/إحصائية المطالبة.pdf", word: "files/إحصائية المطالبة.docx", orientation: "landscape" }
-            ]},
-            { category: "طلبات", items: [
-                { name: "طلب اجازة", type: "form", formId: "leave" },
-                { name: "خطاب صادر", type: "form", formId: "outgoing_letter" }
-            ]}
-        ];
+          {
+                    "category": "المطبوعات الأساسية",
+                    "items": [
+                              {
+                                        "name": "طلب تظلم",
+                                        "pdf": "files/طلب تظلم.pdf",
+                                        "word": "files/طلب تظلم.docx",
+                                        "orientation": "portrait"
+                              },
+                              {
+                                        "name": "بيان صرف لوحات",
+                                        "pdf": "files/بيان صرف لوحات.pdf",
+                                        "word": "files/بيان صرف لوحات.docx",
+                                        "orientation": "portrait"
+                              },
+                              {
+                                        "name": "ورقة فارغة",
+                                        "pdf": "files/فارغة.pdf",
+                                        "word": "files/فارغة.docx",
+                                        "orientation": "portrait"
+                              },
+                              {
+                                        "name": "كشف ارسال جلسات",
+                                        "pdf": "files/كشف ارسال جلسات.pdf",
+                                        "word": "files/كشف ارسال جلسات.docx",
+                                        "orientation": "portrait"
+                              },
+                              {
+                                        "name": "خطاب سداد رخصة مسحوبة",
+                                        "pdf": "files/خطاب سداد رخصة مسحوبة.pdf",
+                                        "word": "files/خطاب سداد رخصة مسحوبة.docx",
+                                        "orientation": "portrait"
+                              },
+                              {
+                                        "name": "بيان المركبات المسلمة الشهري",
+                                        "pdf": "files/بيان المركبات المسلمة الشهري.pdf",
+                                        "word": "",
+                                        "orientation": "portrait"
+                              }
+                    ]
+          },
+          {
+                    "category": "الإحصائيات والتقارير",
+                    "items": [
+                              {
+                                        "name": "الإحصائية الشهرية",
+                                        "pdf": "files/الإحصائية الشهرية.pdf",
+                                        "word": "files/الإحصائية الشهرية.docx",
+                                        "orientation": "landscape"
+                              },
+                              {
+                                        "name": "البيان العددي",
+                                        "pdf": "files/البيان العددي.pdf",
+                                        "word": "files/البيان العددي.docx",
+                                        "orientation": "portrait"
+                              },
+                              {
+                                        "name": "إحصائية المطالبة",
+                                        "pdf": "files/إحصائية المطالبة.pdf",
+                                        "word": "files/إحصائية المطالبة.docx",
+                                        "orientation": "landscape"
+                              }
+                    ]
+          },
+          {
+                    "category": "طلبات",
+                    "items": [
+                              {
+                                        "name": "طلب اجازة",
+                                        "type": "form",
+                                        "formId": "leave"
+                              },
+                              {
+                                        "name": "خطاب صادر",
+                                        "type": "form",
+                                        "formId": "outgoing_letter"
+                              }
+                    ]
+          },
+          {
+                    "category": "خاص بموظفي النيابة",
+                    "items": [
+                              {
+                                        "name": "جواب التأمين الصحى",
+                                        "pdf": "files/جواب التأمين الصحى.pdf",
+                                        "word": "files/جواب التأمين الصحى.docx",
+                                        "orientation": "portrait"
+                              }
+                    ]
+          }
+];
 
         // ============================================================
         // متغيرات الحالة
@@ -1189,7 +1338,7 @@
 
         function copyFolderPath() {
             const tempInput = document.createElement("input");
-            tempInput.value = "E:\\بوابه نيابه مرور عين الصيره\\بوابه نيابه مرور عين الصيره  الزجاجيه\\files";
+            tempInput.value = "E:\\بوابه نيابه مرور عين الصيره\\نيابة_مرور_عين_الصيرة اللي فيها ترس الضبط\\files";
             document.body.appendChild(tempInput); tempInput.select(); document.execCommand("copy"); document.body.removeChild(tempInput);
             showToast("📋 تم نسخ مسار مجلد الملفات");
         }
@@ -1461,5 +1610,6 @@
     })();
     </script>
 
-</body>
-</html>
+
+
+</body></html>
