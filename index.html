@@ -629,7 +629,7 @@ body::after {
 .btn-import-cfg:hover { background: rgba(167,139,250,.15); border-color: rgba(167,139,250,.5); }
 
 .btn-close-cfg {
-  grid-column: 1 / -1;
+  
   background: rgba(255,255,255,.04);
   border: 1px solid rgba(255,255,255,.1);
   border-radius: 12px;
@@ -830,9 +830,7 @@ body::after {
       <button class="btn-export-cfg" onclick="exportConfig()">
         <i class="fa-solid fa-download"></i> تصدير ملف احتياطي
       </button>
-      <button class="btn-import-cfg" onclick="document.getElementById('import-input').click()">
-        <i class="fa-solid fa-upload"></i> استيراد من ملف
-      </button>
+      
       <button class="btn-close-cfg" onclick="closeSettings()">
         <i class="fa-solid fa-xmark"></i> إغلاق
       </button>
@@ -843,10 +841,10 @@ body::after {
     <div class="cfg-note">
       ● الحفظ يُخزّن الإعدادات في المتصفح ويُطبّقها فوراً على جميع الأنظمة المفتوحة<br>
       ● التصدير يُنشئ ملف احتياطي (JSON) — احفظه على جهازك لاستخدامه لاحقاً<br>
-      ● الاستيراد يُعيد الإعدادات من الملف الاحتياطي في حال مسح المتصفح
+       
     </div>
 
-    <input type="file" id="import-input" accept=".json" style="display:none" onchange="importConfig(this)">
+    
   </div>
 </div>
 
@@ -1002,15 +1000,12 @@ body::after {
 
 
 <script>
-/* ══════════════════════════════════════════
-   نظام التنقل بين الأنظمة (الكود الأصلي)
-══════════════════════════════════════════ */
 const SYSTEMS = [
   { file: 'نظام محاضر التحقيق.html'         },
   { file: 'نظام قرارات محاضر - تلبسات.html' },
   { file: 'نظام قرارات ما_بعد السداد.html' },
   { file: 'نظام محاضر الفحص.html'           },
-  { file: 'areda.html'           },
+  { file: 'عريضه هيئه قضائيه.html'           },
   { file: 'مطبوعات النيابه.html' }
 ];
 let activeIdx = -1;
@@ -1019,10 +1014,7 @@ const loadedFrames = {};
 function openSystem(idx) {
   const launcher = document.getElementById('launcher');
   launcher.classList.add('hiding');
-  
-  // نقل الزرار للشريط العلوي
   document.getElementById('settings-btn').classList.add('in-topbar'); 
-  
   setTimeout(() => {
     launcher.classList.add('hidden');
     document.getElementById('topbar').classList.add('visible');
@@ -1035,7 +1027,6 @@ function switchSystem(idx) {
   if (idx === activeIdx) return;
   _load(idx);
 }
-
 function _load(idx) {
   document.querySelectorAll('.tb-item').forEach((el, i) => el.classList.toggle('active', i === idx));
   activeIdx = idx;
@@ -1048,31 +1039,32 @@ function _load(idx) {
     f.classList.remove('active-frame');
   });
 
-if (sys.file) {
+  if (sys.file) {
     ph.style.display = 'none';
 
     const frame = document.getElementById('frame-' + idx);
 
     if (!loadedFrames[idx]) {
-      // الحل الأونلاين: ننتظر الملف لحد ما يخلص تحميل بالكامل على جيت هب وبعدين نبعت له الكونفيج
-      frame.onload = function() {
-        const cfg = loadConfig();
-        frame.contentWindow.postMessage({ type: 'NIABAT_CONFIG_UPDATE', config: cfg }, '*');
-      };
       frame.src = sys.file;
       loadedFrames[idx] = true;
-    } else {
-      // لو الملف كان مفتوح وجاهز قبل كده، نبعت له علطول للتأكيد
-      const cfg = loadConfig();
-      frame.contentWindow.postMessage({ type: 'NIABAT_CONFIG_UPDATE', config: cfg }, '*');
     }
+
+    // === الدفع المباشر والآمن للبيانات للتغلب على قيود المتصفح المتخفي ===
+    const pushConfig = () => {
+      try {
+        if (frame.contentWindow) {
+          frame.contentWindow.postMessage({ type: 'NIABAT_CONFIG_UPDATE', config: loadConfig() }, '*');
+        }
+      } catch(e) {}
+    };
+    
+    pushConfig(); 
+    frame.onload = pushConfig; 
+    // ===================================================================
 
     void frame.offsetWidth;
     frame.classList.add('active-frame');
-  }
-  
-  
-  else {
+  } else {
     ph.style.display = 'flex';
     ph.innerHTML = '<div class="ph-icon">🚧</div><p>هذا النظام قيد التطوير</p>';
   }
@@ -1081,8 +1073,6 @@ if (sys.file) {
 function goHome() {
   document.getElementById('topbar').classList.remove('visible');
   document.getElementById('content-area').classList.remove('visible');
-  
-  // إرجاع الزرار للشاشة الرئيسية
   document.getElementById('settings-btn').classList.remove('in-topbar'); 
   
   const launcher = document.getElementById('launcher');
@@ -1100,6 +1090,12 @@ function goHome() {
 }
 
 window.addEventListener('DOMContentLoaded', function() {
+  // === زرع الإعدادات في المتصفح الخفي ===
+  if (!localStorage.getItem('niabat_config')) {
+    localStorage.setItem('niabat_config', JSON.stringify(DEFAULT_CONFIG));
+  }
+  // ======================================
+
   const saved = sessionStorage.getItem('lastOpenedIdx');
   if (saved !== null) {
     const idx = parseInt(saved);
@@ -1109,21 +1105,12 @@ window.addEventListener('DOMContentLoaded', function() {
       launcher.classList.add('hidden');
       document.getElementById('topbar').classList.add('visible');
       document.getElementById('content-area').classList.add('visible');
-      
-      // تأكيد وجود الزرار في الشريط العلوي عند التحديث
       document.getElementById('settings-btn').classList.add('in-topbar'); 
-      
       _load(idx);
     }
   }
-  // تطبيق الإعدادات المحفوظة عند بدء التشغيل
   applyConfigToPortal(loadConfig());
 });
-
-
-/* ══════════════════════════════════════════
-   نظام إعدادات النيابة
-══════════════════════════════════════════ */
 
 const CFG_KEY = 'niabat_config';
 
@@ -1134,7 +1121,6 @@ const DEFAULT_CONFIG = {
   stations: []
 };
 
-/** قراءة الإعدادات من localStorage */
 function loadConfig() {
   try {
     const saved = localStorage.getItem(CFG_KEY);
@@ -1146,34 +1132,28 @@ function loadConfig() {
   return Object.assign({}, DEFAULT_CONFIG);
 }
 
-/** حفظ الإعدادات في localStorage */
 function saveConfigToStorage(data) {
   localStorage.setItem(CFG_KEY, JSON.stringify(data));
 }
 
-/** تطبيق الإعدادات على البوابة (العنوان + التبويب) */
 function applyConfigToPortal(cfg) {
   const title = document.getElementById('portal-title');
   if (title) title.textContent = 'بوابة ' + cfg.prosecutionName;
   document.title = 'بوابة ' + cfg.prosecutionName;
 }
 
-/** إرسال الإعدادات لجميع الـ iframes المحمّلة */
 function notifyFrames(cfg) {
   document.querySelectorAll('.sys-frame').forEach(function(frame) {
     try {
-      frame.contentWindow.postMessage(
-        { type: 'NIABAT_CONFIG_UPDATE', config: cfg },
-        '*'
-      );
+      if (frame.contentWindow) {
+        frame.contentWindow.postMessage({ type: 'NIABAT_CONFIG_UPDATE', config: cfg }, '*');
+      }
     } catch (e) {}
   });
 }
 
-/** فتح نافذة الإعدادات */
 function openSettings() {
   const cfg = loadConfig();
-
   document.getElementById('cfg-prosecution-name').value = cfg.prosecutionName || '';
   document.getElementById('cfg-fiscal-year').value = cfg.fiscalYear || new Date().getFullYear();
 
@@ -1187,24 +1167,20 @@ function openSettings() {
   const stations = (cfg.stations && cfg.stations.length > 0) ? cfg.stations : ['مصر القديمة', 'السيدة زينب'];
   stations.forEach(function(name) { addStationRow(name); });
 
-
   hideFeedback();
   document.getElementById('settings-overlay').classList.add('open');
 }
 
-/** إغلاق نافذة الإعدادات */
 function closeSettings() {
   document.getElementById('settings-overlay').classList.remove('open');
 }
 
-/** إغلاق عند الضغط على الخلفية */
 function handleOverlayClick(e) {
   if (e.target === document.getElementById('settings-overlay')) {
     closeSettings();
   }
 }
 
-/** إضافة صف وكيل جديد */
 function addAgentRow(value) {
   value = value || '';
   const list = document.getElementById('agents-list');
@@ -1216,7 +1192,6 @@ function addAgentRow(value) {
   list.appendChild(row);
 }
 
-/** إضافة صف قسم شرطة جديد */
 function addStationRow(value) {
   value = value || '';
   const list = document.getElementById('stations-list');
@@ -1228,8 +1203,6 @@ function addStationRow(value) {
   list.appendChild(row);
 }
 
-
-/** جمع بيانات النموذج */
 function getFormData() {
   const name = (document.getElementById('cfg-prosecution-name').value || '').trim();
   const fiscalYear = parseInt(document.getElementById('cfg-fiscal-year').value) || new Date().getFullYear();
@@ -1247,94 +1220,82 @@ function getFormData() {
   };
 }
 
-
-/** حفظ الإعدادات */
 function saveSettings() {
   const data = getFormData();
   saveConfigToStorage(data);
   applyConfigToPortal(data);
   notifyFrames(data);
   
-  // تحديد الزرار وتغيير شكله
   const saveBtn = document.querySelector('.btn-save-cfg');
   const originalHTML = saveBtn.innerHTML; 
   
-  // تحويل الزرار للون الأخضر وتغيير النص
   saveBtn.classList.add('btn-success');
   saveBtn.innerHTML = '<i class="fa-solid fa-check"></i> تم الحفظ بنجاح';
-  
-  // إخفاء الشارة القديمة
   hideFeedback();
   
-  // إرجاع الزرار لشكله الطبيعي بعد ثانيتين
   setTimeout(function() {
     saveBtn.classList.remove('btn-success');
     saveBtn.innerHTML = originalHTML;
   }, 2000);
 }
 
-/** تصدير ملف JSON احتياطي */
+/** تصدير ملف HTML محدث للبوابة */
 function exportConfig() {
   const data = getFormData();
   saveConfigToStorage(data);
   applyConfigToPortal(data);
 
-  const json = JSON.stringify(data, null, 2);
-  const blob = new Blob(['\uFEFF' + json], { type: 'application/json;charset=utf-8' });
+  const dataStr = JSON.stringify(data, null, 2);
+
+  // === إنشاء نسخة خفية من الواجهة وتنظيفها لضمان فتحها على البطاقات دائماً ===
+  const docClone = document.documentElement.cloneNode(true);
+
+  const overlay = docClone.querySelector('#settings-overlay');
+  if(overlay) overlay.classList.remove('open');
+  
+  const launcher = docClone.querySelector('#launcher');
+  if(launcher) launcher.classList.remove('hiding', 'hidden');
+  
+  const topbar = docClone.querySelector('#topbar');
+  if(topbar) topbar.classList.remove('visible');
+  
+  const contentArea = docClone.querySelector('#content-area');
+  if(contentArea) contentArea.classList.remove('visible');
+  
+  const settingsBtn = docClone.querySelector('#settings-btn');
+  if(settingsBtn) settingsBtn.classList.remove('in-topbar');
+  
+  docClone.querySelectorAll('.sys-frame').forEach(f => {
+      f.classList.remove('active-frame');
+      f.removeAttribute('src');
+  });
+  docClone.querySelectorAll('.tb-item').forEach(el => el.classList.remove('active'));
+
+  // أخذ نسخة الكود النظيفة تماماً
+  let html = '<!DOCTYPE html>\n' + docClone.outerHTML;
+
+  // استبدال الـ DEFAULT_CONFIG بالبيانات الجديدة
+  html = html.replace(
+    /const DEFAULT_CONFIG = \{[\s\S]*?\};/,
+    `const DEFAULT_CONFIG = ${dataStr};`
+  );
+
+  // إنشاء وتحميل الملف للمستخدم
+  const blob = new Blob(['\uFEFF' + html], { type: 'text/html;charset=utf-8' });
   const url  = URL.createObjectURL(blob);
   const a    = document.createElement('a');
   a.href     = url;
-  a.download = 'config_niabat.json';
+  a.download = 'بوابه_نيابه_مرور_عين_الصيره.html';
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
   URL.revokeObjectURL(url);
 
   showFeedback('info',
-    '⬇ تم تنزيل الملف الاحتياطي (config_niabat.json)\n' +
-    'احفظه في مجلد البرنامج فوق الملف القديم للرجوع إليه لاحقاً'
+    'تم تجهيز البوابة المحدثة بنجاح! قم باستبدال الملف القديم بالملف الجديد.'
   );
 }
 
-/** استيراد إعدادات من ملف JSON */
-function importConfig(input) {
-  const file = input.files[0];
-  if (!file) return;
-
-  const reader = new FileReader();
-  reader.onload = function(e) {
-    try {
-      // إزالة BOM إذا وُجد
-      const text = e.target.result.replace(/^\uFEFF/, '');
-      const data = JSON.parse(text);
-
-      if (!data.prosecutionName) {
-        throw new Error('الملف لا يحتوي على بيانات صحيحة');
-      }
-
-      saveConfigToStorage(data);
-      applyConfigToPortal(data);
-      notifyFrames(data);
-
-      // تحديث النموذج بالبيانات المستوردة
-      document.getElementById('cfg-prosecution-name').value = data.prosecutionName || '';
-      const list = document.getElementById('agents-list');
-      list.innerHTML = '';
-      (data.agents || []).forEach(function(name) { addAgentRow(name); });
-      const stList2 = document.getElementById('stations-list');
-      stList2.innerHTML = '';
-      (data.stations || []).forEach(function(name) { addStationRow(name); });
-
-      showFeedback('success', '✓ تم استيراد الإعدادات بنجاح من الملف الاحتياطي');
-    } catch (err) {
-      showFeedback('error', '✕ خطأ: الملف المحدد غير صحيح أو تالف — تأكد من اختيار ملف config_niabat.json');
-    }
-    input.value = '';
-  };
-  reader.readAsText(file, 'UTF-8');
-}
-
-/** إظهار رسالة تغذية راجعة */
 function showFeedback(type, msg) {
   const el = document.getElementById('cfg-feedback');
   el.className = 'cfg-feedback ' + type;
@@ -1345,13 +1306,11 @@ function showFeedback(type, msg) {
   }, 5000);
 }
 
-/** إخفاء رسالة التغذية الراجعة */
 function hideFeedback() {
   const el = document.getElementById('cfg-feedback');
   el.className = 'cfg-feedback';
 }
 
-/** دالة مساعدة لتجنب XSS */
 function escapeHtml(str) {
   return String(str)
     .replace(/&/g, '&amp;')
@@ -1360,7 +1319,6 @@ function escapeHtml(str) {
     .replace(/>/g, '&gt;');
 }
 
-/** استقبال تحديثات من النوافذ الفرعية (إن احتجنا) */
 window.addEventListener('message', function(e) {
   if (e.data && e.data.type === 'NIABAT_CONFIG_REQUEST') {
     const cfg = loadConfig();
