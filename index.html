@@ -1,6 +1,5 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
+<html lang="ar" dir="rtl"><head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>بوابة نيابة مرور عين الصيرة</title>
@@ -755,12 +754,12 @@ body::after {
 <body>
 
 <!-- ══ SETTINGS GEAR BUTTON ══ -->
-<button id="settings-btn" title="إعدادات النيابة" onclick="openSettings()">
+<button id="settings-btn" title="إعدادات النيابة" onclick="openSettings()" class="">
   <i class="fa-solid fa-gear"></i>
 </button>
 
 <!-- ══ SETTINGS MODAL ══ -->
-<div id="settings-overlay" onclick="handleOverlayClick(event)">
+<div id="settings-overlay" onclick="handleOverlayClick(event)" class="">
   <div id="settings-modal">
 
     <div class="cfg-modal-header">
@@ -778,8 +777,7 @@ body::after {
         <div class="cfg-section-title">اسم النيابة</div>
         <div class="cfg-field-label">يظهر في جميع الأنظمة والمستندات المطبوعة</div>
       </div>
-      <input type="text" id="cfg-prosecution-name" class="cfg-input"
-             placeholder="مثال: نيابة مرور عين الصيرة">
+      <input type="text" id="cfg-prosecution-name" class="cfg-input" placeholder="مثال: نيابة مرور عين الصيرة">
     </div>
 
     <div class="cfg-row">
@@ -787,8 +785,7 @@ body::after {
         <div class="cfg-section-title">السنة القضائية</div>
         <div class="cfg-field-label">تظهر كقيمة افتراضية في جميع حقول السنة بجميع الأنظمة</div>
       </div>
-      <input type="number" id="cfg-fiscal-year" class="cfg-input"
-             placeholder="مثال: 2026">
+      <input type="number" id="cfg-fiscal-year" class="cfg-input" placeholder="مثال: 2026">
     </div>
 
     
@@ -799,7 +796,7 @@ body::after {
         <div class="cfg-field-label">تظهر في القرارات والعرائض</div>
       </div>
       <div style="width: 260px;">
-        <div class="agents-list" id="agents-list"></div>
+        <div class="agents-list" id="agents-list"><div class="agent-row"><input type="text" class="cfg-input agent-input" placeholder="اسم وكيل النيابة / المسمى الوظيفي" value="اسلام ناجي"><button class="btn-remove-agent" onclick="this.parentElement.remove()" title="حذف هذا الوكيل"><i class="fa-solid fa-trash-can"></i></button></div><div class="agent-row"><input type="text" class="cfg-input agent-input" placeholder="اسم وكيل النيابة / المسمى الوظيفي" value="نور اللمصري"><button class="btn-remove-agent" onclick="this.parentElement.remove()" title="حذف هذا الوكيل"><i class="fa-solid fa-trash-can"></i></button></div></div>
         <button class="btn-add-agent" onclick="addAgentRow()">
           <i class="fa-solid fa-plus"></i> إضافة وكيل نيابة
         </button>
@@ -813,7 +810,7 @@ body::after {
         <div class="cfg-field-label">تظهر في القرارات</div>
       </div>
       <div style="width: 260px;">
-        <div class="agents-list" id="stations-list"></div>
+        <div class="agents-list" id="stations-list"><div class="agent-row"><input type="text" class="cfg-input station-input" placeholder="اسم قسم الشرطة" value="مصر القديمة"><button class="btn-remove-agent" onclick="this.parentElement.remove()" title="حذف هذا القسم"><i class="fa-solid fa-trash-can"></i></button></div><div class="agent-row"><input type="text" class="cfg-input station-input" placeholder="اسم قسم الشرطة" value="السيدة زينب"><button class="btn-remove-agent" onclick="this.parentElement.remove()" title="حذف هذا القسم"><i class="fa-solid fa-trash-can"></i></button></div></div>
         <button class="btn-add-agent" onclick="addStationRow()" style="border-color:rgba(167,139,250,.4);color:#c4b5fd">
           <i class="fa-solid fa-plus"></i> إضافة قسم شرطه </button>
       </div>
@@ -822,9 +819,7 @@ body::after {
 
     <!-- أزرار الإجراءات -->
     <div class="modal-actions">
-      <button class="btn-save-cfg" onclick="saveSettings()">
-        <i class="fa-solid fa-floppy-disk"></i> حفظ الإعدادات
-      </button>
+      <button class="btn-save-cfg btn-success" onclick="saveSettings()"><i class="fa-solid fa-check"></i> تم الحفظ بنجاح</button>
     </div>
     <div class="modal-actions-row2">
       <button class="btn-export-cfg" onclick="exportConfig()">
@@ -851,7 +846,7 @@ body::after {
 
 <!-- ══ LAUNCHER ══ -->
 
-<div id="launcher">
+<div id="launcher" class="">
 
   <div class="lnc-header">
 
@@ -869,9 +864,9 @@ body::after {
     <div class="app-card c1" onclick="openSystem(0)">
       <div class="card-icon-wrap">
         <svg width="34" height="34" viewBox="0 0 44 44" xmlns="http://www.w3.org/2000/svg">
-          <rect x="2" y="2" width="40" height="40" rx="10" fill="rgba(78,142,247,0.18)" stroke="rgba(78,142,247,0.45)" stroke-width="1.5"/>
+          <rect x="2" y="2" width="40" height="40" rx="10" fill="rgba(78,142,247,0.18)" stroke="rgba(78,142,247,0.45)" stroke-width="1.5"></rect>
           <text x="22" y="17" text-anchor="middle" dominant-baseline="middle" font-family="Cairo,sans-serif" font-size="14" font-weight="700" fill="#7ab4fa">س</text>
-          <line x1="9" y1="23" x2="35" y2="23" stroke="rgba(78,142,247,0.35)" stroke-width="1"/>
+          <line x1="9" y1="23" x2="35" y2="23" stroke="rgba(78,142,247,0.35)" stroke-width="1"></line>
           <text x="22" y="33" text-anchor="middle" dominant-baseline="middle" font-family="Cairo,sans-serif" font-size="14" font-weight="700" fill="#7ab4fa">ج</text>
         </svg>
       </div>
@@ -937,7 +932,7 @@ body::after {
 
 
 <!-- ══ TOP BAR ══ -->
-<div id="topbar">
+<div id="topbar" class="">
   <div class="tb-home" onclick="goHome()">
     <span style="font-size:15px"><i class="fa-solid fa-house"></i></span>
     <span>الرئيسية</span>
@@ -948,9 +943,9 @@ body::after {
   <div class="tb-item" id="tb0" style="--tb-accent:#4e8ef7" onclick="switchSystem(0)">
     <span class="tb-icon">
       <svg width="20" height="20" viewBox="0 0 44 44" xmlns="http://www.w3.org/2000/svg">
-        <rect x="2" y="2" width="40" height="40" rx="10" fill="rgba(78,142,247,0.18)" stroke="rgba(78,142,247,0.45)" stroke-width="1.5"/>
+        <rect x="2" y="2" width="40" height="40" rx="10" fill="rgba(78,142,247,0.18)" stroke="rgba(78,142,247,0.45)" stroke-width="1.5"></rect>
         <text x="22" y="17" text-anchor="middle" dominant-baseline="middle" font-family="Cairo,sans-serif" font-size="14" font-weight="700" fill="#7ab4fa">س</text>
-        <line x1="9" y1="23" x2="35" y2="23" stroke="rgba(78,142,247,0.35)" stroke-width="1"/>
+        <line x1="9" y1="23" x2="35" y2="23" stroke="rgba(78,142,247,0.35)" stroke-width="1"></line>
         <text x="22" y="33" text-anchor="middle" dominant-baseline="middle" font-family="Cairo,sans-serif" font-size="14" font-weight="700" fill="#7ab4fa">ج</text>
       </svg>
     </span>
@@ -985,8 +980,8 @@ body::after {
 
 
 <!-- ══ CONTENT ══ -->
-<div id="content-area">
-  <div id="content-placeholder">
+<div id="content-area" class="">
+  <div id="content-placeholder" style="display: none;">
     <div class="ph-icon">📂</div>
     <p>اختر نظاماً من الشريط العلوي</p>
   </div>
@@ -1005,7 +1000,7 @@ const SYSTEMS = [
   { file: 'نظام قرارات محاضر - تلبسات.html' },
   { file: 'نظام قرارات ما_بعد السداد.html' },
   { file: 'نظام محاضر الفحص.html'           },
-  { file: 'areda.html'           },
+  { file: 'عريضه هيئه قضائيه.html'           },
   { file: 'مطبوعات النيابه.html' }
 ];
 let activeIdx = -1;
@@ -1115,10 +1110,16 @@ window.addEventListener('DOMContentLoaded', function() {
 const CFG_KEY = 'niabat_config';
 
 const DEFAULT_CONFIG = {
-  prosecutionName: 'نيابة مرور عين الصيرة',
-  fiscalYear: new Date().getFullYear(),
-  agents: [],
-  stations: []
+  "prosecutionName": "نيابة مرور عين الصيرة",
+  "fiscalYear": 2026,
+  "agents": [
+    "اسلام ناجى",
+    "نور المصرى"
+  ],
+  "stations": [
+    "مصر القديمة",
+    "السيدة زينب"
+  ]
 };
 
 function loadConfig() {
@@ -1330,5 +1331,5 @@ window.addEventListener('message', function(e) {
 </script>
 
 
-</body>
-</html>
+
+</body></html>
