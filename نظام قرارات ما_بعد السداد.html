@@ -2485,13 +2485,13 @@ document.getElementById('violations-receipt').value = _saved.violReceipt;
                 controlPanel.addEventListener('input',autoFillDateOnce,{once:false});
                 controlPanel.addEventListener('change',autoFillDateOnce,{once:false});
             }
-            // بناء الـ custom selects
-            document.querySelectorAll('.control-panel select').forEach(sel=>{
-                if(sel.style.display==='none') return;
-                if(sel.closest('.date-input-wrapper')) return;
-                if(document.getElementById(sel.id+'-cs-wrapper')) return;
-                buildCustomSelect(sel);
-            });
+            // بناء الـ custom selects — معطّل، نستخدم <select> العادية
+            // document.querySelectorAll('.control-panel select').forEach(sel=>{
+            //     if(sel.style.display==='none') return;
+            //     if(sel.closest('.date-input-wrapper')) return;
+            //     if(document.getElementById(sel.id+'-cs-wrapper')) return;
+            //     buildCustomSelect(sel);
+            // });
             updateArrestText();
         });
 
@@ -2902,9 +2902,9 @@ function toggleTheme() {
         oth.value = 'أخرى'; oth.textContent = 'أخرى'; sel.appendChild(oth);
       }
       if (cur) sel.value = cur;
-      /* إعادة بناء custom select إن وُجد */
-      if (typeof buildCustomSelect === 'function') buildCustomSelect(sel);
-      else if (typeof syncCustomSelectDisplay === 'function') syncCustomSelectDisplay(selId);
+      /* إعادة بناء custom select — معطّلة */
+      // if (typeof buildCustomSelect === 'function') buildCustomSelect(sel);
+      // else if (typeof syncCustomSelectDisplay === 'function') syncCustomSelectDisplay(selId);
     }
 
     function replaceNiabatName(newName) {
