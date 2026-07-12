@@ -1428,8 +1428,149 @@ textarea.ta-locked {
 }
 
 
+/* ====== القائمة الجانبية اليسرى (الأرشيف - الشكل العائم) ====== */
+.left-sidebar {
+    width: 190px;
+    background: transparent;
+    position: fixed;
+    top: 20px;
+    left: 15px;
+    /* السر هنا: قسمة الطول على 1.3 ليتناسب مع التكبير (zoom) الموجود في ملفك */
+    height: calc((100vh / 1.3) - 40px);
+    max-height: calc((100vh / 1.3) - 40px);
+    display: flex;
+    flex-direction: column;
+    z-index: 1000;
+}
+.left-sidebar .sidebar-title {
+    background: #1e3a5f;
+    border-radius: 8px;
+    padding: 8px;
+    margin-bottom: 12px;
+    color: #a8c4e0;
+    font-size: 12px;
+    font-weight: bold;
+    text-align: center;
+    border-bottom: 2px solid #c9a200;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+}
+.tabs-container {
+    display: flex;
+    flex-direction: row;
+    gap: 5px;
+    margin-bottom: 15px;
+    flex-shrink: 0;
+}
+.tab-btn {
+    flex: 1;
+    background: #243f6b;
+    color: #c8dff5;
+    border: 1px solid #2d5a8e;
+    border-radius: 8px;
+    padding: 8px 2px;
+    font-family: 'Cairo', sans-serif;
+    font-size: 11px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+}
+.tab-btn:hover { 
+    background: #2d5a8e; 
+    color: #fff; 
+    transform: translateY(-2px);
+}
+.tab-btn.active {
+    background: #c9a200;
+    color: #1e3a5f;
+    border-color: #e6b800;
+    box-shadow: 0 4px 12px rgba(201,162,0,0.4);
+}
+.records-container {
+    flex: 1;
+    min-height: 0; /* هذا السطر إجباري جداً لإجبار المتصفح على إظهار شريط التمرير */
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: #4a7ab5 transparent;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    padding-right: 2px;
+    padding-bottom: 20px;
+}
 
+.records-container.collapsed {
+    display: none !important;
+}
+.left-sidebar .sidebar-title:hover {
+    filter: brightness(1.15);
+}
+.records-container::-webkit-scrollbar {
+    width: 4px;
+    display: block;
+}
+.records-container::-webkit-scrollbar-thumb {
+    background-color: #4a7ab5;
+    border-radius: 4px;
+}
+.record-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+    padding: 6px 8px;
+    background: #f4f6fb;
+    border: 1.5px solid #c8d3e3;
+    border-radius: 6px;
+    cursor: pointer;
+    text-align: right;
+    transition: all 0.2s;
+    font-family: inherit;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+}
+.record-btn:hover {
+    background: #fff;
+    border-color: #4a7ab5;
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 0 6px 15px rgba(30,58,95,0.15);
+}
+.record-title { 
+    font-size: 13px; 
+    font-weight: bold; 
+    color: #1e3a5f; 
+    margin-bottom: 2px; 
+}
+.record-sub-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+.rec-name { 
+    font-size: 11px; 
+    color: #5a6a82; 
+    white-space: nowrap; 
+    overflow: hidden; 
+    text-overflow: ellipsis; 
+    max-width: 65%; 
+}
+.rec-date {
+    font-size: 10px;
+    color: #8a9bb5;
+    white-space: nowrap;
+}
 
+/* الوضع الليلي للقائمة اليسرى */
+body[data-theme="dark"] .record-sub-row .rec-name { color: #94a3b8 !important; }
+body[data-theme="dark"] .record-sub-row .rec-date { color: #64748b !important; }
+body[data-theme="dark"] .left-sidebar .sidebar-title { background: #16253d !important; border-bottom-color: #2d4060 !important; color: #7aaeff !important;}
+body[data-theme="dark"] .tab-btn { background: rgba(26, 45, 69, 0.7) !important; backdrop-filter: blur(4px); border-color: rgba(74, 122, 181, 0.3) !important; color: #94a3b8 !important;}
+body[data-theme="dark"] .tab-btn.active { background: #c9a200 !important; color: #1e3a5f !important; }
+body[data-theme="dark"] .record-btn { background: rgba(30, 45, 69, 0.8) !important; backdrop-filter: blur(4px); border-color: #2d4060 !important; }
+body[data-theme="dark"] .record-btn:hover { background: #2d4060 !important; border-color: #4a7ab5 !important; }
+body[data-theme="dark"] .record-title { color: #7aaeff !important; }
+@media print { .left-sidebar { display: none !important; } }
 </style>
 
 </head>
@@ -1491,6 +1632,29 @@ textarea.ta-locked {
 </div>
 
 <!-- ====== SCREEN AREA ====== -->
+
+<!-- ====== القائمة الجانبية اليسرى (الأرشيف) ====== -->
+<div class="left-sidebar">
+    <div class="sidebar-title" onclick="toggleArchive()" style="cursor: pointer; user-select: none;" title="طي / إظهار القائمة">
+        🗄️ المحاضر المحفوظة
+        <!-- تم إضافة الدوران 180 درجة ليكون السهم لأسفل عند الفتح -->
+        <span id="archive-toggle-arrow" style="float: left; font-size: 10px; margin-top: 3px; transition: transform 0.2s; transform: rotate(180deg);">▲</span>
+    </div>
+    
+    <!-- الأزرار الثابتة (التبويبات) -->
+    <div class="tabs-container">
+        <button class="tab-btn active" onclick="switchArchiveTab('masr')">مصر القديمة</button>
+        <button class="tab-btn" onclick="switchArchiveTab('sayeda')">السيدة زينب</button>
+    </div>
+
+    <!-- مساحة العرض المتغيرة للمحاضر (تم إضافة كلمة collapsed هنا) -->
+    <div class="records-container collapsed" id="records-list">
+        <!-- سيتم ملء المحاضر هنا برمجياً -->
+    </div>
+</div>
+
+
+
 <div class="app-layout">
     <div class="control-panel">
 
@@ -3446,6 +3610,8 @@ function saveMahdarData() {
     // أيضاً نحدّث فهرس المحاضر المحفوظة
     let index = JSON.parse(localStorage.getItem('mahdar_index') || '[]');
     if (!index.includes(key)) { index.push(key); localStorage.setItem('mahdar_index', JSON.stringify(index)); }
+
+loadArchiveToSidebar();
 }
 
 // ── حفظ تلقائي عند تغيير البيانات ──
@@ -3933,6 +4099,147 @@ document.addEventListener('DOMContentLoaded', function() {
         if (ta) { ta.classList.add('ta-locked'); ta.setAttribute('readonly', true); }
     });
 });
+
+
+
+/* ===================================================
+   أكواد القائمة الجانبية اليسرى (الأرشيف)
+=================================================== */
+let currentArchiveTab = 'masr'; // جعل مصر القديمة الافتراضي // القسم الافتراضي عند الفتح
+
+// دالة التبديل بين القسمين
+// دالة التبديل بين القسمين
+function switchArchiveTab(tabName) {
+    currentArchiveTab = tabName;
+    recordsLimit = 30; // تصفير العدد عند تغيير التبويب
+    
+    // تلوين الزر النشط فقط
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('active');
+        if (btn.getAttribute('onclick').includes(tabName)) {
+            btn.classList.add('active');
+        }
+    });
+    
+    // --- الجديد: فتح القائمة تلقائياً عند الضغط على أي قسم ---
+    const container = document.getElementById('records-list');
+    const arrow = document.getElementById('archive-toggle-arrow');
+    if (container && container.classList.contains('collapsed')) {
+        container.classList.remove('collapsed'); // إزالة حالة الطي
+        if (arrow) arrow.style.transform = 'rotate(0deg)'; // تعديل السهم لأعلى
+    }
+    // --------------------------------------------------------
+
+    // إعادة عرض المحاضر لتناسب القسم المختار
+    loadArchiveToSidebar(); 
+}
+
+// دالة جلب المحاضر وعرضها كأزرار
+function loadArchiveToSidebar() {
+    const container = document.getElementById('records-list');
+    if (!container) return;
+    container.innerHTML = ''; // تفريغ القائمة قبل الملء
+    
+    let index = JSON.parse(localStorage.getItem('mahdar_index') || '[]');
+    if (index.length === 0) {
+        container.innerHTML = '<span style="color:#aaa; font-size:11px; text-align:center; padding:10px; background:#f4f6fb; border-radius:8px; border:1px solid #c8d3e3;">لا توجد محاضر محفوظة بعد</span>';
+        return;
+    }
+
+    let count = 0;
+    // عكس الترتيب لعرض الأحدث في الأعلى
+    [...index].reverse().forEach(key => {
+        const raw = localStorage.getItem(key);
+        if (!raw) return;
+        const d = JSON.parse(raw);
+        
+        // التحقق من أن المحضر يتبع القسم المختار حالياً
+        const isSayeda = d.dept && d.dept.includes('السيدة زينب');
+        const isMasr = d.dept && (d.dept.includes('مصر القديمة') || d.dept.includes('مصر القديمه'));
+        
+        if (currentArchiveTab === 'sayeda' && !isSayeda) return;
+        if (currentArchiveTab === 'masr' && !isMasr) return;
+
+        count++;
+        // اختصار اسم المتهم لثلاثة مقاطع فقط ليتناسب مع حجم الزر
+        const shortName = d.name ? d.name.split(' ').slice(0, 3).join(' ') : 'بدون اسم';
+        
+        // إنشاء زر المحضر
+        const btn = document.createElement('button');
+        btn.className = 'record-btn';
+        
+        // الحدث الأهم: عند الضغط يتم استدعاء دالة التعبئة
+        btn.onclick = () => loadRecordToWorkspace(key); 
+        
+        // الحصول على التاريخ فقط (بدون الوقت)
+        const dateOnly = d.savedAt ? d.savedAt.split(',')[0].trim() : '';
+
+        btn.innerHTML = `
+            <div class="record-title">📄 ${d.caseNum} / ${d.year}</div>
+            <div class="record-sub-row">
+                <span class="rec-name">👤 ${shortName}</span>
+                <span class="rec-date">${dateOnly}</span>
+            </div>
+        `;
+        container.appendChild(btn);
+    });
+
+    // رسالة في حال كان القسم فارغاً
+    if (count === 0) {
+        container.innerHTML = '<span style="color:#aaa; font-size:11px; text-align:center; padding:10px; background:#f4f6fb; border-radius:8px; border:1px solid #c8d3e3;">لا توجد محاضر محفوظة لهذا القسم</span>';
+    }
+}
+
+// دالة ملء منطقة العمل بالبيانات عند الضغط على زر محضر
+function loadRecordToWorkspace(key) {
+    const raw = localStorage.getItem(key);
+    if (!raw) return;
+    const d = JSON.parse(raw);
+
+    const set = (id, val) => { const el = document.getElementById(id); if (el && val != null) el.value = val; };
+    
+    // 1. نضع المفاتيح الأساسية (رقم المحضر، السنة) في الحقول
+    set('input-caseNum', d.caseNum);
+    set('input-year', d.year);
+    
+    // 2. ضبط القسم بدقة لضمان عمل دالة الاسترجاع الأصلية
+    const deptSel = document.getElementById('input-dept-select');
+    if (deptSel) {
+        let exists = Array.from(deptSel.options).some(opt => opt.value === d.deptSelect);
+        if(exists) {
+            deptSel.value = d.deptSelect;
+        } else {
+            deptSel.value = 'أخرى';
+            set('input-dept-other', d.dept);
+        }
+        if (typeof toggleOther === 'function') toggleOther('input-dept-select','dept-other-wrapper');
+    }
+
+    // 3. استدعاء الدالة الأصلية في نظامك التي تسترجع باقي البيانات بناءً على المفاتيح التي وضعناها للتو
+    loadMahdarFromStorage();
+}
+
+// تشغيل الدالة فور فتح الصفحة لتعبئة القائمة الجانبية
+document.addEventListener('DOMContentLoaded', loadArchiveToSidebar);
+
+
+// دالة طي وإظهار قائمة المحاضر
+function toggleArchive() {
+    const container = document.getElementById('records-list');
+    const arrow = document.getElementById('archive-toggle-arrow');
+    
+    if (!container) return;
+
+    if (container.classList.contains('collapsed')) {
+        // إظهار القائمة
+        container.classList.remove('collapsed');
+        if (arrow) arrow.style.transform = 'rotate(0deg)';
+    } else {
+        // إخفاء القائمة
+        container.classList.add('collapsed');
+        if (arrow) arrow.style.transform = 'rotate(180deg)'; // قلب السهم للأسفل
+    }
+}
 
 </script>
 

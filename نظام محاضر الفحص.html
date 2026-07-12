@@ -202,11 +202,13 @@ body {
     color: var(--text-main);
     padding: 7px 10px;
     display: flex;
-    justify-content: center;
-    gap: 8px;
+    justify-content: center; /* توسيط الحاوية الرئيسية */
+    align-items: center;
     margin-bottom: 8px;
     border-radius: 10px;
     border: 1px solid var(--border-color);
+    position: relative;
+    min-height: 48px;
 }
 
 .date-field, select, input {
@@ -906,6 +908,158 @@ thead th[data-tip]:hover::before {
         margin-top: 6mm !important;
     }
 }
+
+
+/* ====== القائمة العائمة للمحاضر المحفوظة ====== */
+.archive-dropdown-container {
+    position: relative;
+    display: inline-block;
+}
+
+.floating-archive-menu {
+    position: absolute;
+    top: 110%;
+    right: 0;
+    width: 340px;
+    max-height: calc((100vh / 1.3) - 110px); 
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    border: 1.5px solid #2d5a8e;
+    z-index: 9999;
+    display: none; 
+    flex-direction: column;
+    padding: 10px 10px 15px 10px; 
+    margin-top: 5px;
+}
+
+.floating-archive-menu.open {
+    display: flex;
+}
+
+.archive-tabs {
+    display: flex;
+    gap: 5px;
+    margin-bottom: 10px;
+    flex-shrink: 0;
+}
+
+.archive-tab-btn {
+    flex: 1;
+    background: #243f6b;
+    color: #c8dff5;
+    border: 1px solid #2d5a8e;
+    border-radius: 6px;
+    padding: 7px 2px;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.2s;
+    text-align: center;
+}
+
+.archive-tab-btn:hover {
+    background: #2d5a8e;
+    color: #fff;
+}
+
+.archive-tab-btn.active {
+    background: #c9a200;
+    color: #1e3a5f;
+    border-color: #e6b800;
+}
+
+.archive-records-list {
+    flex: 1; 
+    min-height: 0; 
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    scrollbar-width: thin;
+    margin-bottom: 10px;
+    padding-right: 2px;
+}
+
+.archive-record-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: #f4f6fb;
+    border: 1.5px solid #c8d3e3;
+    padding: 8px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.archive-record-item:hover {
+    border-color: #4a7ab5;
+    background: #e2e8f0;
+}
+
+.archive-checkbox {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+    accent-color: #28a745;
+}
+
+.archive-record-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.archive-record-title {
+    font-size: 13px;
+    font-weight: bold;
+    color: #1e3a5f;
+}
+
+.archive-record-sub {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    color: #5a6a82;
+}
+
+.bulk-insert-btn {
+    flex-shrink: 0; 
+    position: sticky; 
+    bottom: 0;
+    background: linear-gradient(135deg, #28a745, #218838);
+    color: white;
+    border: none;
+    padding: 10px;
+    border-radius: 6px;
+    font-weight: bold;
+    font-size: 14px;
+    cursor: pointer;
+    font-family: inherit;
+    transition: 0.2s;
+    text-align: center;
+    box-shadow: 0 -5px 15px rgba(255, 255, 255, 0.95), 0 4px 10px rgba(0,0,0,0.15); 
+    z-index: 10;
+}
+
+/* التوافق مع الوضع الليلي */
+[data-theme="dark"] .floating-archive-menu { background: #1a2744; border-color: #2d4060; }
+[data-theme="dark"] .archive-tab-btn { background: #1a2d45; border-color: #2d4060; color: #94a3b8; }
+[data-theme="dark"] .archive-tab-btn.active { background: #c9a200; color: #1e3a5f; }
+[data-theme="dark"] .archive-record-item { background: #1e2d45; border-color: #2d4060; }
+[data-theme="dark"] .archive-record-item:hover { background: #2d4060; border-color: #4a7ab5; }
+[data-theme="dark"] .archive-record-title { color: #7aaeff; }
+[data-theme="dark"] .archive-record-sub { color: #94a3b8; }
+
+/* إخفاء القائمة في الطباعة */
+@media print {
+    .archive-dropdown-container { display: none !important; }
+}
+
+
 </style>
 <script src="niabat-config-loader.js"></script>
 </head>
@@ -947,21 +1101,43 @@ thead th[data-tip]:hover::before {
     <div id="printValues" class="print-values screen-hidden"></div>
 
     <div class="controls">
-        <label>التاريخ:</label>
-        <div style="position:relative; display:inline-flex; align-items:center;">
-            <input type="text" id="dateInput" class="date-field" style="padding-left:28px; background: var(--input-bg); color: var(--text-main);">
-            <input type="date" id="datePicker" style="position:absolute;left:2px;width:22px;height:22px;opacity:0;cursor:pointer;z-index:10;border:none;padding:0;margin:0;">
-            <span title="اختر التاريخ" style="position:absolute;left:4px;font-size:15px;user-select:none;pointer-events:none;line-height:1;">📅</span>
+        <!-- مساحة فارغة للموازنة في جهة اليمين -->
+        <div style="flex: 1;"></div>
+
+        <!-- الحقول في المنتصف تماماً -->
+        <div style="display: flex; gap: 8px; align-items: center; justify-content: center; flex: 0 0 auto;">
+            <label>التاريخ:</label>
+            <div style="position:relative; display:inline-flex; align-items:center;">
+                <input type="text" id="dateInput" class="date-field" style="padding-left:28px; background: var(--input-bg); color: var(--text-main);">
+                <input type="date" id="datePicker" style="position:absolute;left:2px;width:22px;height:22px;opacity:0;cursor:pointer;z-index:10;border:none;padding:0;margin:0;">
+                <span style="position:absolute;left:4px;font-size:15px;user-select:none;pointer-events:none;line-height:1;">📅</span>
+            </div>
+            <label style="margin-right: 10px;">القسم:</label>
+            <select id="dept" data-config="stations-select" onchange="handleDeptChange()">
+                <option value="">اختر القسم</option>
+                <option>السيدة زينب</option>
+                <option>مصر القديمة</option>
+                <option value="other">أخرى</option>
+            </select>
+            <input type="text" id="otherDept" placeholder="اسم القسم" style="display:none;">
         </div>
-        
-        <label>القسم:</label>
-        <select id="dept" data-config="stations-select" onchange="handleDeptChange()">
-            <option value="">اختر القسم</option>
-            <option>السيدة زينب</option>
-            <option>مصر القديمة</option>
-            <option value="other">أخرى</option>
-        </select>
-        <input type="text" id="otherDept" placeholder="اسم القسم" style="display:none;">
+
+        <!-- الزر في جهة اليسار -->
+        <div style="flex: 1; display: flex; justify-content: flex-end;">
+            <div class="archive-dropdown-container">
+                <button class="add-btn" onclick="toggleFloatingArchive()" style="background: linear-gradient(135deg, #1e3a5f, #2a5298); display:flex; align-items:center; gap:5px;">
+                    <i class="fa-solid fa-folder-open"></i> المحاضر المحفوظة
+                </button>
+                <div class="floating-archive-menu" id="floatingArchiveMenu" style="left: 0; right: auto;">
+                    <div class="archive-tabs">
+                        <button class="archive-tab-btn active" onclick="switchFloatingTab('masr')">مصر القديمة</button>
+                        <button class="archive-tab-btn" onclick="switchFloatingTab('sayeda')">السيدة زينب</button>
+                    </div>
+                    <div class="archive-records-list" id="floatingRecordsList"></div>
+                    <button class="bulk-insert-btn" onclick="insertSelectedRecords()">✔️ إدراج المحاضر المحددة</button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <div class="action-btns">
@@ -1716,6 +1892,309 @@ function openShortcutsModal() {
     document.body.appendChild(overlay);
     overlay.addEventListener('click', function(e) { if (e.target === overlay) overlay.remove(); });
 }
+
+
+
+/* ===================================================
+   أكواد القائمة العائمة (المحاضر المحفوظة) - نظام الفحص
+=================================================== */
+let floatingArchiveTab = 'masr'; 
+let floatingRecordsLimit = 30;
+
+// فتح وإغلاق القائمة العائمة
+function toggleFloatingArchive() {
+    const menu = document.getElementById('floatingArchiveMenu');
+    if (!menu) return;
+    
+    if (menu.classList.contains('open')) {
+        menu.classList.remove('open');
+    } else {
+        menu.classList.add('open');
+        loadFloatingArchive(); // تحديث القائمة فوراً عند الفتح
+    }
+}
+
+// إغلاق القائمة عند الضغط بالماوس في أي مكان خارجها
+document.addEventListener('click', function(event) {
+    const container = document.querySelector('.archive-dropdown-container');
+    const menu = document.getElementById('floatingArchiveMenu');
+    if (container && menu && menu.classList.contains('open')) {
+        if (!container.contains(event.target)) {
+            menu.classList.remove('open');
+        }
+    }
+});
+
+// التبديل بين الأقسام داخل القائمة العائمة
+function switchFloatingTab(tabName) {
+    floatingArchiveTab = tabName;
+    floatingRecordsLimit = 30; // تصفير العدد
+    
+    document.querySelectorAll('.archive-tab-btn').forEach(btn => {
+        btn.classList.remove('active');
+        if (btn.getAttribute('onclick').includes(tabName)) {
+            btn.classList.add('active');
+        }
+    });
+    
+    loadFloatingArchive();
+}
+
+// جلب المحاضر من الذاكرة وعرضها مع مربعات الاختيار (Checkbox)
+function loadFloatingArchive() {
+    const container = document.getElementById('floatingRecordsList');
+    if (!container) return;
+    
+    let index = [];
+    try {
+        let parsed = JSON.parse(localStorage.getItem('mahdar_index'));
+        if (Array.isArray(parsed)) index = parsed;
+    } catch(e) {}
+
+    // تحديث الفهرس بالمحاضر القديمة (لضمان ظهور كل شيء)
+    let isIndexUpdated = false;
+    for (let i = 0; i < localStorage.length; i++) {
+        let k = localStorage.key(i);
+        if (k && k.startsWith('mahdar_') && k !== 'mahdar_index') {
+            if (!index.includes(k)) { index.push(k); isIndexUpdated = true; }
+        }
+    }
+    if (isIndexUpdated) localStorage.setItem('mahdar_index', JSON.stringify(index));
+
+    container.innerHTML = '';
+    
+    if (index.length === 0) {
+        container.innerHTML = '<span style="color:#aaa; font-size:11px; text-align:center; padding:10px;">لا توجد محاضر محفوظة بعد</span>';
+        return;
+    }
+
+    // فلترة المحاضر حسب القسم المختار
+    const filteredKeys = [...index].reverse().filter(key => {
+        const raw = localStorage.getItem(key);
+        if (!raw) return false;
+        try {
+            const d = JSON.parse(raw);
+            const isSayeda = d.dept && d.dept.includes('السيدة زينب');
+            const isMasr = d.dept && (d.dept.includes('مصر القديمة') || d.dept.includes('مصر القديمه'));
+            
+            if (floatingArchiveTab === 'sayeda' && !isSayeda) return false;
+            if (floatingArchiveTab === 'masr' && !isMasr) return false;
+            return true;
+        } catch(e) { return false; }
+    });
+
+    if (filteredKeys.length === 0) {
+        container.innerHTML = '<span style="color:#aaa; font-size:11px; text-align:center; padding:10px;">لا توجد محاضر لهذا القسم</span>';
+        return;
+    }
+
+    const keysToShow = filteredKeys.slice(0, floatingRecordsLimit);
+    
+    keysToShow.forEach(key => {
+        const raw = localStorage.getItem(key);
+        if (!raw) return;
+        try {
+            const d = JSON.parse(raw);
+            const shortName = d.name ? d.name.split(' ').slice(0, 3).join(' ') : 'بدون اسم';
+            const dateOnly = d.savedAt ? d.savedAt.split(',')[0].trim() : '';
+            
+            // استخدام <label> لتفعيل الاختيار عند الضغط على أي مكان في المربع
+            const itemDiv = document.createElement('label'); 
+            itemDiv.className = 'archive-record-item';
+            
+            itemDiv.innerHTML = `
+                <input type="checkbox" class="archive-checkbox" value="${key}">
+                <div class="archive-record-info">
+                    <div class="archive-record-title">📄 ${d.caseNum || ''} / ${d.year || ''}</div>
+                    <div class="archive-record-sub">
+                        <span class="rec-name">👤 ${shortName}</span>
+                        <span class="rec-date">${dateOnly}</span>
+                    </div>
+                </div>
+            `;
+            container.appendChild(itemDiv);
+        } catch(e) {}
+    });
+
+    // إضافة زر عرض المزيد
+    if (filteredKeys.length > floatingRecordsLimit) {
+        const loadMoreBtn = document.createElement('button');
+        loadMoreBtn.className = 'archive-tab-btn'; 
+        loadMoreBtn.style.marginTop = '5px';
+        loadMoreBtn.style.background = 'transparent';
+        loadMoreBtn.style.border = '1px dashed #4a7ab5';
+        loadMoreBtn.style.color = '#4a7ab5';
+        loadMoreBtn.textContent = 'عرض المزيد ▼';
+        loadMoreBtn.onclick = (e) => { 
+            e.preventDefault();
+            floatingRecordsLimit += 30; 
+            loadFloatingArchive(); 
+        };
+        container.appendChild(loadMoreBtn);
+    }
+}
+
+// الميزة الذهبية: إدراج المحاضر المحددة للجدول آلياً (النسخة الصامتة والمستقرة)
+function insertSelectedRecords() {
+    const checkboxes = document.querySelectorAll('.archive-checkbox:checked');
+    if (checkboxes.length === 0) {
+        alert('برجاء تحديد محضر واحد على الأقل للإدراج!');
+        return;
+    }
+
+    // 1. تغيير حقل القسم في الصفحة بهدوء (بدون تفعيل الاسترجاع الهيستيري)
+    const deptSel = document.getElementById('dept');
+    if (deptSel) {
+        const targetDept = floatingArchiveTab === 'sayeda' ? 'السيدة زينب' : 'مصر القديمة';
+        let exists = Array.from(deptSel.options).some(opt => opt.value === targetDept);
+        if(exists) {
+            deptSel.value = targetDept;
+            const otherDept = document.getElementById('otherDept');
+            if (otherDept) otherDept.style.display = 'none';
+        } else {
+            deptSel.value = 'other';
+            const otherDept = document.getElementById('otherDept');
+            if (otherDept) {
+                otherDept.value = targetDept;
+                otherDept.style.display = 'inline-block';
+            }
+        }
+        if (typeof updatePrintValues === 'function') updatePrintValues();
+    }
+
+    const tbody = document.querySelector('#mainTable tbody');
+    const headerDate = document.getElementById('dateInput') ? document.getElementById('dateInput').value : '';
+    const fixedText = "74 مكرر بند 1،2،3";
+    
+    // 2. حلقة المرور على كل محضر تم تحديده
+    checkboxes.forEach((cb) => {
+        const key = cb.value;
+        const raw = localStorage.getItem(key);
+        if (!raw) return;
+        try {
+            const data = JSON.parse(raw);
+            
+            // البحث عن أول صف فارغ تماماً
+            let targetRow = null;
+            const rows = tbody.rows;
+            for(let i=0; i<rows.length; i++) {
+                const caseNumCell = rows[i].querySelector('.case-num-top');
+                const nameSpan = rows[i].cells[2].querySelector('span');
+                if (caseNumCell && (!caseNumCell.innerText || caseNumCell.innerText.trim() === '') &&
+                    nameSpan && (!nameSpan.innerText || nameSpan.innerText.trim() === '')) {
+                    targetRow = rows[i];
+                    break;
+                }
+            }
+
+            // إضافة صف يدوياً وبصمت (بدون تحريك مؤشر الماوس)
+            if (!targetRow) {
+                const rowCount = rows.length;
+                targetRow = tbody.insertRow(rowCount);
+                targetRow.innerHTML = `
+                    <td class="row-num">${rowCount + 1}</td>
+                    <td class="case-num-cell">
+                        <div class="case-num-wrapper">
+                            <div class="case-num-top" contenteditable="true" data-ph="رقم المحضر" oninput="formatCaseNumberForPrint(this)" onblur="formatCaseNumberForPrint(this); lookupFromTalbsat(this)"></div>
+                            <div class="case-num-year">2026</div>
+                        </div>
+                    </td>
+                    <td class="ce-cell"><span contenteditable="true" data-ph="اسم المتهم"></span></td>
+                    <td class="auto-list" style="min-height: 80px;"><ol contenteditable="true"><li></li></ol></td>
+                    <td class="ce-cell"><span contenteditable="true" data-ph="00000000000000"></span></td>
+                    <td style="padding:2px;">
+                        <select class="plate-type-select" onchange="togglePlateMode(this)"><option value="both">حروف وأرقام</option><option value="numOnly">بدون لوحات</option></select>
+                        <div class="plate-area"><div class="plate-grid"><div class="plate-letters"><div contenteditable="true" data-ph="أ" oninput="autoTab(this, 1)"></div><div contenteditable="true" data-ph="ب" oninput="autoTab(this, 2)"></div><div contenteditable="true" data-ph="ج" oninput="autoTab(this, 3)"></div></div><div class="plate-numbers" contenteditable="true" data-ph="0000"></div></div></div>
+                    </td>
+                    <td class="order-cell">
+                        <div class="order-cell-inner"><span class="amount-span" contenteditable="true" data-ph="المبلغ"></span><span>ج والمصاريف</span></div>
+                    </td>
+                    <td class="ce-cell"><span contenteditable="true">${fixedText}</span></td>
+                    <td class="ce-cell"><span contenteditable="true">${headerDate}</span></td>
+                    <td class="ce-cell"><span contenteditable="true" data-ph="قرار النيابة"></span></td>
+                    <td class="ce-cell"><span contenteditable="true" data-ph="ملاحظات"></span></td>
+                    <td class="del-col">
+                        <div class="row-actions">
+                            <button class="move-btn" onclick="moveRowUp(this)" title="تحريك للأعلى">▲</button>
+                            <button class="move-btn" onclick="moveRowDown(this)" title="تحريك للأسفل">▼</button>
+                            <button class="copy-row-btn" onclick="copyRow(this)" title="نسخ الصف">⧉</button>
+                            <button class="del-row-btn" onclick="deleteSpecificRow(this)">❌</button>
+                        </div>
+                    </td>
+                `;
+            }
+
+            function fillCell(td, text) {
+                if (!td || text === undefined || text === null) return;
+                var span = td.querySelector('span[contenteditable]');
+                if (span) { span.innerText = text; return; }
+                var ol = td.querySelector('ol[contenteditable]');
+                if (ol) {
+                    ol.innerHTML = '';
+                    var lines = Array.isArray(text) ? text : [text];
+                    lines.forEach(function(line) {
+                        if (line && line.trim()) {
+                            var li = document.createElement('li');
+                            li.innerText = line.trim();
+                            ol.appendChild(li);
+                        }
+                    });
+                    if (!ol.children.length) ol.innerHTML = '<li></li>';
+                    return;
+                }
+                if (td.isContentEditable) td.innerText = text;
+            }
+
+            const cells = targetRow.cells;
+            
+            // تعبئة البيانات بصمت
+            const caseNumTop = targetRow.querySelector('.case-num-top');
+            const caseNumYear = targetRow.querySelector('.case-num-year');
+            if (caseNumTop) { caseNumTop.innerText = data.caseNum || ''; formatCaseNumberForPrint(caseNumTop); }
+            if (caseNumYear) caseNumYear.innerText = data.year || '2026';
+
+            if (data.name) fillCell(cells[2], data.name);
+            if (data.violations && data.violations.length > 0) fillCell(cells[3], data.violations);
+            if (data.nationalId) fillCell(cells[4], data.nationalId);
+
+            var plateArea = cells[5] ? cells[5].querySelector('.plate-area') : null;
+            if (plateArea) {
+                var plateTypeSel = cells[5].querySelector('.plate-type-select');
+                if (plateTypeSel) {
+                    if (data.plateType === 'no-plate') {
+                        plateTypeSel.value = 'numOnly';
+                        plateArea.innerHTML = '<div contenteditable="true" style="min-height:45px; display:flex; align-items:center; justify-content:center; outline:none; border: 1px solid #999;">' + (data.noPlateTxt || 'بدون لوحات') + '</div>';
+                    } else {
+                        plateTypeSel.value = 'both';
+                        plateArea.innerHTML = `<div class="plate-grid"><div class="plate-letters"><div contenteditable="true" data-ph="أ" oninput="autoTab(this, 1)">${data.c1||''}</div><div contenteditable="true" data-ph="ب" oninput="autoTab(this, 2)">${data.c2||''}</div><div contenteditable="true" data-ph="ج" oninput="autoTab(this, 3)">${data.c3||''}</div></div><div class="plate-numbers" contenteditable="true" data-ph="0000">${data.n1||''}</div></div>`;
+                    }
+                }
+            }
+
+            if (data.fine) {
+                var amountSpan = cells[6] ? cells[6].querySelector('.amount-span') : null;
+                if (amountSpan) amountSpan.innerText = data.fine;
+            }
+
+            // إزالة التحديد بعد الإدراج بنجاح
+            cb.checked = false;
+
+        } catch(e) {}
+    });
+
+    // إغلاق القائمة
+    toggleFloatingArchive();
+    
+    // إظهار إشعار أسود صغير بأسفل الشاشة (مرة واحدة فقط) بدلاً من الرسائل المزعجة
+    if (typeof showToast === 'function') {
+        showToast('تم إدراج ' + checkboxes.length + ' محاضر بنجاح! ✔️');
+    }
+    
+    // تحديث أرقام الصفوف وشريط التمرير للجدول
+    if (typeof updateRowNumbers === 'function') updateRowNumbers();
+    if (typeof checkScrollable === 'function') checkScrollable();
+}
+
 
 /* ===================================================
    F9 — مسح جميع البيانات
