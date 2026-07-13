@@ -4150,9 +4150,9 @@ function loadArchiveToSidebar() {
     
     let index = JSON.parse(localStorage.getItem('mahdar_index') || '[]');
     if (index.length === 0) {
-        container.innerHTML = '<span style="color:#aaa; font-size:11px; text-align:center; padding:10px; background:#f4f6fb; border-radius:8px; border:1px solid #c8d3e3;">لا توجد محاضر محفوظة بعد</span>';
-        return;
-    }
+    container.innerHTML = '<div style="color:#1e2b46; background-color:rgba(255,255,255,0.7); font-size:14px; font-weight:bold; text-align:center; padding:10px 20px; border-radius:8px; display:inline-block; margin-top:10px; border: 1px solid rgba(0,0,0,0.05);">لا توجد محاضر محفوظة</div>';
+    return;
+}
 
     let count = 0;
     // عكس الترتيب لعرض الأحدث في الأعلى
