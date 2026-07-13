@@ -1810,7 +1810,25 @@ body[data-theme="dark"] .rec-date { color: #64748b !important; }
             const violationsEl = document.getElementById('text-violations');
             if (violationsEl) violationsEl.style.lineHeight = presetType==='deliver' ? '2.6' : String(Math.min(lineH+0.4,3.0));
             const arrestEl = document.getElementById('text-arrest-reason');
-            if (arrestEl) arrestEl.style.lineHeight = presetType==='deliver' ? '2.4' : String(Math.min(lineH+0.3,2.8));
+            if (arrestEl) {
+                // 💡 التعديل الذكي: اكتشاف عدد البنود (إذا كان هناك 3 جداول فهذا يعني 7 إلى 9 بنود)
+                const tablesCount = arrestEl.querySelectorAll('table').length;
+                if (tablesCount > 2) {
+                    arrestEl.style.lineHeight = '1.3'; // ضغط المسافات بين السطور
+                    arrestEl.style.fontSize = '14.5px';  // تصغير الخط قليلاً لاستيعاب النص
+                    
+                    // تقليل الهوامش الخاصة بالقسم لتوفير مساحة أكبر للتوقيعات في الأسفل
+                    const itemArrest = document.getElementById('item-arrest-reason');
+                    if(itemArrest) {
+                        itemArrest.style.marginBottom = '0px';
+                        itemArrest.style.paddingTop = '4px';
+                    }
+                } else {
+                    // الحالة الطبيعية (6 بنود أو أقل)
+                    arrestEl.style.lineHeight = presetType==='deliver' ? '2.4' : String(Math.min(lineH+0.3,2.8));
+                    arrestEl.style.fontSize = '16px'; 
+                }
+            }
             const infoRight = document.getElementById('print-info-right');
             if (presetType==='keep') { if(infoRight) infoRight.style.marginTop='30px'; }
             else if (presetType==='deliver') { if(infoRight) infoRight.style.marginTop='10px'; }
