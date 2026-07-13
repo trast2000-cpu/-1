@@ -82,12 +82,20 @@ body {
 @media print {
     body { background: white; padding: 0; zoom: 1 !important; }
     .no-print, .sidebar, .app-layout, .system-title-bar { display: none !important; }
-    /* منع الورقة الفاضية بعد آخر قرار */
-    .page-qaid-wasf:last-of-type,
-    .print-area:last-of-type,
-    .page-container:last-of-type,
-    .page-jalsa:last-of-type {
+    
+    /* === الحل الجذري لمنع الورقة الثانية الفارغة === */
+    /* إلغاء أمر "ورقة جديدة" لأن كل قرار بيُطبع لوحده */
+    .page-qaid-wasf,
+    .page-jalsa,
+    .print-area {
         page-break-after: avoid !important;
+        break-after: avoid !important;
+    }
+    
+    /* تقليل طول الصفحة 1 ملليمتر عشان الطابعات اللي بتضيف هوامش إجبارية */
+    .page-qaid-wasf, .page-jalsa {
+        height: 296mm !important; 
+        margin: 0 auto !important;
     }
 }
 /* تكبير الواجهة على الشاشة فقط — لا يؤثر على الطباعة */
@@ -1806,7 +1814,7 @@ body[data-theme="dark"] .record-title { color: #7aaeff !important; }
                     <div class="decision-controls" style="flex-shrink:0; flex-grow:0; min-width:unset; width:290px;">
                         <div class="field-group">
                             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:2px;">
-                                <label style="margin-bottom:0;">بنود المخالفة</label>
+                                <label style="margin-bottom:0;">بنود الاتهام</label>
                                 <button type="button" onclick="clearViolItems()" title="مسح المخالفات" style="padding:1px 7px; font-size:10px; background:#f8d7da; color:#721c24; border:1px solid #f5c6cb; border-radius:4px; cursor:pointer; font-family:inherit; line-height:1.6;">🗑️ مسح</button>
                             </div>
                             <select id="viol-select" onchange="onViolSelect(this)" style="width:100%; padding:6px 8px; border:1.5px solid #c5cfe0; border-radius:6px; font-family:inherit; font-size:13px; background:#fff; color:#1e293b; cursor:pointer;">

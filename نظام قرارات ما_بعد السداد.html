@@ -1128,7 +1128,11 @@ body[data-theme="dark"] .tab-btn.active { background: #c9a200 !important; color:
 body[data-theme="dark"] .record-btn { background: rgba(30, 45, 69, 0.8) !important; backdrop-filter: blur(4px); border-color: #2d4060 !important; }
 body[data-theme="dark"] .record-btn:hover { background: #2d4060 !important; border-color: #4a7ab5 !important; }
 body[data-theme="dark"] .record-title { color: #7aaeff !important; }
-@media print { .left-sidebar { display: none !important; } }
+
+@media print { 
+    .left-sidebar { display: none !important; } 
+    #_lookup_toast { display: none !important; }
+}
 
 </style>
 </head>
@@ -1524,18 +1528,23 @@ body[data-theme="dark"] .record-title { color: #7aaeff !important; }
                         <button type="button" onclick="clearArrestReasons()" title="مسح بنود الاتهام" style="padding:1px 7px; font-size:10px; background:#f8d7da; color:#721c24; border:1px solid #f5c6cb; border-radius:4px; cursor:pointer; font-family:inherit; line-height:1.6;"><i class="fa-solid fa-trash-can"></i> مسح</button>
                     </div>
                     <select id="arrest-select" onchange="onArrestSelect(this)" style="width:100%; padding:6px 8px; border:1.5px solid #c5cfe0; border-radius:6px; font-family:inherit; font-size:13px; background:#fff; color:#1e293b; cursor:pointer; line-height: 1.2;">
-                        <option value="">-- اختر للإضافة --</option>
-                        <option value="بدون قيادة" data-category="light">* بدون قيادة</option>
-                        <option value="بدون تسيير" data-category="light">* بدون تسيير</option>
-                        <option value="انتهاء القيادة" data-category="dark">* انتهاء القيادة</option>
-                        <option value="انتهاء التسيير" data-category="dark">* انتهاء التسيير</option>
-                        <option value="عدم حمل قياده" data-category="light">* عدم حمل قياده</option>
-                        <option value="عدم حمل تسيير" data-category="light">* عدم حمل تسيير</option>
-                        <option value="زجاج ملون" data-category="dark">* زجاج ملون</option>
-                        <option value="السير وقت الحظر" data-category="light">* السير وقت الحظر</option>
-                        <option value="سير التوك توك في محور رئيسي" data-category="dark">* سير التوك توك في محور رئيسي</option>
-                        <option value="تعطيل حركة المرور" data-category="light">* تعطيل حركة المرور</option>
-                        <option value="__other__">* اضافة بند يدوي...</option>
+<!-- استبدل القائمة القديمة في "ما بعد السداد" بهذا الكود -->
+<option value="">-- اختر للإضافة --</option>
+<option value="بدون قيادة" data-category="light">* بدون قيادة</option>
+<option value="بدون تسيير" data-category="light">* بدون تسيير</option>
+<option value="إنتهاء القيادة" data-category="dark">* إنتهاء القيادة</option>
+<option value="إنتهاء التسيير" data-category="dark">* إنتهاء التسيير</option>
+<option value="عدم حمل قيادة" data-category="light">* عدم حمل قيادة</option>
+<option value="عدم حمل تسيير" data-category="light">* عدم حمل تسيير</option>
+<option value="زجاج ملون" data-category="dark">* زجاج ملون</option>
+<option value="السير وقت الحظر" data-category="light">* السير وقت الحظر</option>
+<option value="سير التوك توك في محور رئيسي" data-category="dark">* سير التوك توك في محور رئيسي</option>
+<option value="تعطيل حركة المرور" data-category="light">* تعطيل حركة المرور</option>
+<option value="عدم تركيب اللوحات" data-category="dark">* عدم تركيب اللوحات</option>
+<option value="طمس اللوحات" data-category="dark">* طمس اللوحات</option>
+<option value="عكس الاتجاه" data-category="dark">* عكس الاتجاه</option>
+<option value="تغيير في الاجزاء الجوهريه" data-category="dark">* تغيير في الاجزاء الجوهريه</option>
+<option value="__other__" data-category="light">* إضافة مخالفة يدوية...</option>
                     </select>
                 </div>
                 <div id="arrest-other-wrapper" style="display:none; margin-top:8px;">
@@ -2595,19 +2604,42 @@ document.getElementById('violations-receipt').value = _saved.violReceipt;
                 if (data.fine) setVal('fine-amount', data.fine);
             }
 
-            // ⑥ قرار المركبة — فقط إذا لم يكن هناك preset مختار
-            const activePreset = document.querySelector('.preset-btn.active');
-            if (!activePreset && (data.vehDecSelect || data.vehDecText)) {
-                const mapVeh = { 'deliver':'deliver', 'keep':'keep', 'stop':'other', 'other':'other' };
-                const mappedVeh = mapVeh[data.vehDecSelect] || '';
-                if (mappedVeh) {
-                    const vehEl = document.getElementById('vehicle-status-type');
-                    if (vehEl) { vehEl.value = mappedVeh; syncCustomSelectDisplay('vehicle-status-type'); }
-                    if (data.vehDecText) setVal('vehicle-status-text', data.vehDecText);
-                    else if (typeof updateVehicleStatusText === 'function') updateVehicleStatusText();
-                    if (typeof togglePaymentSection === 'function') togglePaymentSection();
+            
+
+// ⑥ تفعيل القرار الجاهز (القائمة اليمنى) بناءً على ما تم حفظه
+            let targetPreset = data.preset || data.presetType; 
+            
+            // 💡 هنا مربط الفرس: ترجمة القرار بين النظامين
+            // إذا كان القرار القادم من التلبسات هو "إيقاف تعامل" (stop) نحوله فوراً إلى "سداد محضر" (receipt)
+            if (targetPreset === 'stop' || targetPreset === 'qayd' || data.vehDecSelect === 'stop') {
+                targetPreset = 'receipt';
+            }
+
+            // استنتاج القرار من حالة المركبة إذا لم يكن القرار مسجلاً صراحةً
+            if (!targetPreset && data.vehDecSelect) {
+                if (data.vehDecSelect === 'deliver') targetPreset = 'deliver';
+                else if (data.vehDecSelect === 'keep') targetPreset = 'keep';
+            }
+
+            if (targetPreset && typeof applyPreset === 'function') {
+                // تفعيل الزر المناسب في القائمة اليمنى تلقائياً
+                applyPreset(targetPreset);
+            } else {
+                // الفولباك القديم في حالة عدم وجود قرار صريح
+                const activePreset = document.querySelector('.preset-btn.active');
+                if (!activePreset && (data.vehDecSelect || data.vehDecText)) {
+                    const mapVeh = { 'deliver':'deliver', 'keep':'keep', 'stop':'other', 'other':'other' };
+                    const mappedVeh = mapVeh[data.vehDecSelect] || '';
+                    if (mappedVeh) {
+                        const vehEl = document.getElementById('vehicle-status-type');
+                        if (vehEl) { vehEl.value = mappedVeh; syncCustomSelectDisplay('vehicle-status-type'); }
+                        if (data.vehDecText) setVal('vehicle-status-text', data.vehDecText);
+                        else if (typeof updateVehicleStatusText === 'function') updateVehicleStatusText();
+                        if (typeof togglePaymentSection === 'function') togglePaymentSection();
+                    }
                 }
             }
+
 
             // ⑦ sync نهائي
             if (typeof sync === 'function') sync();

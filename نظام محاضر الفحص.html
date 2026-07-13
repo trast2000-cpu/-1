@@ -338,10 +338,11 @@ td.ce-cell:focus-within,
         background-color: transparent !important;
         box-shadow: none !important;
     }
-    #_fhs_lookup_toast {
+    #_fhs_lookup_toast, #copy-toast, #f9-toast {
         display: none !important;
     }
 }
+
 
 /* ===== خلية رقم المحضر (div بدل inner-table) ===== */
 .case-num-cell {
@@ -1510,6 +1511,14 @@ thead th[data-tip]:hover::before {
                 if (e.key === '-') { e.preventDefault(); removeRow(); }
             }
         }
+
+
+// ===== CTRL+P طباعة الكشف بنفس إعدادات الزر =====
+        if (e.ctrlKey && (e.code === 'KeyP' || e.key === 'p' || e.key === 'P' || e.key === 'ح')) {
+            e.preventDefault(); // منع المتصفح من الطباعة العشوائية
+            printPage(); // تشغيل زر الطباعة الخاص بالنظام
+        }
+
 
         if (e.ctrlKey && (e.code === 'KeyR' || e.key === 'r' || e.key === 'R' || e.key === 'ق')) {
             e.preventDefault();

@@ -477,7 +477,7 @@
     </style>
 <script src="niabat-config-loader.js"></script>
 </head>
-<body data-theme="light" class="edit-mode">
+<body data-theme="light">
 
     <!-- ===== مودال إضافة قسم جديد ===== -->
     <div class="modal-overlay" id="modalAddCategory">
@@ -669,10 +669,10 @@
                 <button id="btnExport" class="btn-save-file" onclick="exportHtmlFile()" title="تصدير نسخة من الملف بكل التعديلات">
                     <i class="fas fa-file-export"></i> تصدير الملف
                 </button>
-                <button class="btn-edit-mode active" id="btnEditMode" onclick="toggleEditMode()" title="تفعيل/إيقاف وضع التعديل">
-                    <i class="fas fa-lock-open" id="editModeIcon"></i>
-                    <span id="editModeLabel">إيقاف وضع التعديل</span>
-                </button>
+                <button class="btn-edit-mode" id="btnEditMode" onclick="toggleEditMode()" title="تفعيل/إيقاف وضع التعديل">
+    <i class="fas fa-lock" id="editModeIcon"></i>
+    <span id="editModeLabel">وضع التعديل</span>
+</button>
                 <p style="font-size: 1.2rem; color: #7aaeff; font-weight: 900; margin: 0;" id="currentDate">الاثنين، ٦ يوليو ٢٠٢٦</p>
                 <button class="theme-toggle" onclick="toggleTheme()" title="تبديل الوضع الليلي/النهاري">
                     <i class="fas fa-moon" id="themeIcon"></i>
