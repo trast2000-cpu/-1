@@ -1469,26 +1469,32 @@ textarea.ta-locked {
 .floating-archive-menu {
     position: absolute;
     top: calc(100% + 5px);
-    left: 0;
+    left: 0; 
     width: 220px;
-    max-height: 400px;
+    max-height: calc((100vh / 1.3) - 80px); /* الارتفاع الذكي الجديد */
     background: #edf0f7;
     border-radius: 12px;
     box-shadow: 0 15px 45px rgba(0,0,0,0.3);
     border: 1.5px solid #c5cfe0;
     z-index: 2000;
-    display: none;
     flex-direction: column;
     padding: 12px;
-    animation: slideDownArchive 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+    
+    /* 💡 أكواد الأنيميشن المزدوج (فتح وإغلاق) */
+    display: flex;
+    visibility: hidden;
+    opacity: 0;
+    transform: translateY(-15px) scale(0.95);
+    pointer-events: none;
+    transition: visibility 0.3s, opacity 0.3s ease, transform 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28);
 }
 
-@keyframes slideDownArchive {
-    from { opacity: 0; transform: translateY(-10px) scale(0.95); }
-    to { opacity: 1; transform: translateY(0) scale(1); }
+.floating-archive-menu.open { 
+    visibility: visible;
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    pointer-events: auto;
 }
-
-.floating-archive-menu.open { display: flex; }
 
 .archive-tabs {
     display: flex;
@@ -4231,16 +4237,19 @@ function loadArchiveToSidebar() {
         } catch(e) {}
     });
 
-    if (filteredKeys.length > recordsLimit) {
-        const loadMoreBtn = document.createElement("button");
-        loadMoreBtn.className = "tab-btn";
-        loadMoreBtn.style.marginTop = "5px";
-        loadMoreBtn.style.background = "transparent";
-        loadMoreBtn.textContent = "عرض المزيد ▼";
-        loadMoreBtn.onclick = (e) => {
+   if (filteredKeys.length > recordsLimit) {
+        const loadMoreBtn = document.createElement('button');
+        loadMoreBtn.className = 'tab-btn'; 
+        loadMoreBtn.style.marginTop = '5px';
+        loadMoreBtn.style.background = 'transparent';
+        loadMoreBtn.style.border = '1.5px dashed #4a7ab5'; /* إضافة إطار أزرق متقطع */
+        loadMoreBtn.style.color = '#2d5a8e'; /* تغيير لون النص لأزرق داكن ليظهر على الأبيض */
+        loadMoreBtn.style.fontWeight = 'bold';
+        loadMoreBtn.textContent = 'عرض المزيد ▼';
+        loadMoreBtn.onclick = (e) => { 
             e.stopPropagation();
-            recordsLimit += 30;
-            loadArchiveToSidebar();
+            recordsLimit += 30; 
+            loadArchiveToSidebar(); 
         };
         container.appendChild(loadMoreBtn);
     }

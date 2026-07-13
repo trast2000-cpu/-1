@@ -928,14 +928,24 @@ thead th[data-tip]:hover::before {
     box-shadow: 0 10px 30px rgba(0,0,0,0.3);
     border: 1.5px solid #2d5a8e;
     z-index: 9999;
-    display: none; 
     flex-direction: column;
     padding: 10px 10px 15px 10px; 
     margin-top: 5px;
+    
+    /* 💡 أكواد الأنيميشن المزدوج (فتح وإغلاق) */
+    display: flex;
+    visibility: hidden;
+    opacity: 0;
+    transform: translateY(-15px) scale(0.95); /* البداية مرفوعة للأعلى ومصغرة */
+    pointer-events: none; /* منع التفاعل وهي مخفية */
+    transition: visibility 0.3s, opacity 0.3s ease, transform 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28);
 }
 
-.floating-archive-menu.open {
-    display: flex;
+.floating-archive-menu.open { 
+    visibility: visible;
+    opacity: 1;
+    transform: translateY(0) scale(1); /* النزول لمكانها الطبيعي بسلاسة */
+    pointer-events: auto;
 }
 
 .archive-tabs {
