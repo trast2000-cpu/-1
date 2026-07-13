@@ -1348,6 +1348,9 @@ body[data-theme="dark"] select option {
     min-height: 50px !important;
     text-align: unset !important;
 }
+.system-title-bar > .archive-dropdown-container {
+    justify-self: end;
+}
 
 /* ── إلغاء الداركمود عند الطباعة لضمان ظهور العلامة المائية ── */
 @media print {
@@ -1436,33 +1439,58 @@ textarea.ta-locked {
 }
 
 
-/* ====== القائمة الجانبية اليسرى (الأرشيف - الشكل العائم) ====== */
-.left-sidebar {
-    width: 190px;
-    background: transparent;
-    position: fixed;
-    top: 20px;
-    left: 15px;
-    /* السر هنا: قسمة الطول على 1.3 ليتناسب مع التكبير (zoom) الموجود في ملفك */
-    height: calc((100vh / 1.3) - 40px);
-    max-height: calc((100vh / 1.3) - 40px);
-    display: flex;
-    flex-direction: column;
-    z-index: 1000;
+/* ====== القائمة العائمة (الأرشيف) — موحّدة مع نظام قرارات ما بعد السداد ====== */
+.archive-dropdown-container {
+    position: relative;
+    display: inline-block;
 }
-.left-sidebar .sidebar-title {
-    background: #1e3a5f;
+
+.archive-trigger-btn {
+    background: rgba(255, 255, 255, 0.15);
+    border: 1.5px solid rgba(255, 255, 255, 0.3);
+    color: #fff;
+    padding: 6px 12px;
     border-radius: 8px;
-    padding: 8px;
-    margin-bottom: 12px;
-    color: #a8c4e0;
-    font-size: 12px;
+    font-family: inherit;
+    font-size: 13px;
     font-weight: bold;
-    text-align: center;
-    border-bottom: 2px solid #c9a200;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s;
 }
-.tabs-container {
+
+.archive-trigger-btn:hover {
+    background: rgba(255, 255, 255, 0.25);
+    transform: translateY(-1px);
+}
+
+.floating-archive-menu {
+    position: absolute;
+    top: calc(100% + 5px);
+    left: 0;
+    width: 220px;
+    max-height: 400px;
+    background: #edf0f7;
+    border-radius: 12px;
+    box-shadow: 0 15px 45px rgba(0,0,0,0.3);
+    border: 1.5px solid #c5cfe0;
+    z-index: 2000;
+    display: none;
+    flex-direction: column;
+    padding: 12px;
+    animation: slideDownArchive 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+}
+
+@keyframes slideDownArchive {
+    from { opacity: 0; transform: translateY(-10px) scale(0.95); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.floating-archive-menu.open { display: flex; }
+
+.archive-tabs {
     display: flex;
     flex-direction: row;
     gap: 5px;
@@ -1495,30 +1523,21 @@ textarea.ta-locked {
     border-color: #e6b800;
     box-shadow: 0 4px 12px rgba(201,162,0,0.4);
 }
-.records-container {
+.archive-records-list {
     flex: 1;
-    min-height: 0; /* هذا السطر إجباري جداً لإجبار المتصفح على إظهار شريط التمرير */
     overflow-y: auto;
-    scrollbar-width: thin;
-    scrollbar-color: #4a7ab5 transparent;
     display: flex;
     flex-direction: column;
     gap: 5px;
-    padding-right: 2px;
-    padding-bottom: 20px;
+    padding-right: 4px;
+    scrollbar-width: thin;
+    scrollbar-color: #4a7ab5 transparent;
 }
-
-.records-container.collapsed {
-    display: none !important;
-}
-.left-sidebar .sidebar-title:hover {
-    filter: brightness(1.15);
-}
-.records-container::-webkit-scrollbar {
+.archive-records-list::-webkit-scrollbar {
     width: 4px;
     display: block;
 }
-.records-container::-webkit-scrollbar-thumb {
+.archive-records-list::-webkit-scrollbar-thumb {
     background-color: #4a7ab5;
     border-radius: 4px;
 }
@@ -1572,13 +1591,13 @@ textarea.ta-locked {
 /* الوضع الليلي للقائمة اليسرى */
 body[data-theme="dark"] .record-sub-row .rec-name { color: #94a3b8 !important; }
 body[data-theme="dark"] .record-sub-row .rec-date { color: #64748b !important; }
-body[data-theme="dark"] .left-sidebar .sidebar-title { background: #16253d !important; border-bottom-color: #2d4060 !important; color: #7aaeff !important;}
+body[data-theme="dark"] .floating-archive-menu { background: #1a2744 !important; border-color: #2d4060 !important; }
 body[data-theme="dark"] .tab-btn { background: rgba(26, 45, 69, 0.7) !important; backdrop-filter: blur(4px); border-color: rgba(74, 122, 181, 0.3) !important; color: #94a3b8 !important;}
 body[data-theme="dark"] .tab-btn.active { background: #c9a200 !important; color: #1e3a5f !important; }
 body[data-theme="dark"] .record-btn { background: rgba(30, 45, 69, 0.8) !important; backdrop-filter: blur(4px); border-color: #2d4060 !important; }
 body[data-theme="dark"] .record-btn:hover { background: #2d4060 !important; border-color: #4a7ab5 !important; }
 body[data-theme="dark"] .record-title { color: #7aaeff !important; }
-@media print { .left-sidebar { display: none !important; } }
+@media print { .archive-dropdown-container, .floating-archive-menu { display: none !important; } }
 </style>
 
 </head>
@@ -1641,38 +1660,30 @@ body[data-theme="dark"] .record-title { color: #7aaeff !important; }
 
 <!-- ====== SCREEN AREA ====== -->
 
-<!-- ====== القائمة الجانبية اليسرى (الأرشيف) ====== -->
-<div class="left-sidebar">
-    <div class="sidebar-title" onclick="toggleArchive()" style="cursor: pointer; user-select: none;" title="طي / إظهار القائمة">
-        🗄️ المحاضر المحفوظة
-        <!-- تم إضافة الدوران 180 درجة ليكون السهم لأسفل عند الفتح -->
-        <span id="archive-toggle-arrow" style="float: left; font-size: 10px; margin-top: 3px; transition: transform 0.2s; transform: rotate(180deg);">▲</span>
-    </div>
-    
-    <!-- الأزرار الثابتة (التبويبات) -->
-    <div class="tabs-container">
-        <button class="tab-btn active" onclick="switchArchiveTab('masr')">مصر القديمة</button>
-        <button class="tab-btn" onclick="switchArchiveTab('sayeda')">السيدة زينب</button>
-    </div>
-
-    <!-- مساحة العرض المتغيرة للمحاضر (تم إضافة كلمة collapsed هنا) -->
-    <div class="records-container collapsed" id="records-list">
-        <!-- سيتم ملء المحاضر هنا برمجياً -->
-    </div>
-</div>
-
-
-
 <div class="app-layout">
     <div class="control-panel">
 
         <div class="system-title-bar">
-            <div></div>
-            <div><i class="fa-solid fa-scale-balanced" style="margin-left: 10px;"></i>نظام قرارات المحاضر — التلبسات</div>
-            <div style="display:flex;align-items:center;gap:9px;justify-content:flex-end;">
-                <button id="themeToggle" class="theme-toggle-btn" onclick="toggleTheme()" title="تبديل الوضع الليلي/النهاري"><span id="themeIcon">🌙</span></button>
-                <span style="color:rgba(255,255,255,0.3);">|</span>
+            <div style="display:flex;align-items:center;gap:9px;justify-content:flex-start;">
                 <span id="currentDateDisplay" style="font-size:11.5px;font-weight:700;color:#fff;white-space:nowrap;"></span>
+                <span style="color:rgba(255,255,255,0.3);">|</span>
+                <button id="themeToggle" class="theme-toggle-btn" onclick="toggleTheme()" title="تبديل الوضع الليلي/النهاري"><span id="themeIcon">🌙</span></button>
+            </div>
+            <div><i class="fa-solid fa-scale-balanced" style="margin-left: 10px;"></i>نظام قرارات المحاضر — التلبسات</div>
+            <div class="archive-dropdown-container">
+                <button class="archive-trigger-btn" onclick="toggleArchiveMenu()" title="عرض المحاضر المحفوظة">
+                    <i class="fa-solid fa-box-archive"></i>
+                    <span>المحاضر المحفوظة</span>
+                </button>
+                <div class="floating-archive-menu" id="floatingArchiveMenu">
+                    <div class="archive-tabs">
+                        <button class="tab-btn active" id="tab-masr" onclick="switchArchiveTab('masr')">مصر القديمة</button>
+                        <button class="tab-btn" id="tab-sayeda" onclick="switchArchiveTab('sayeda')">السيدة زينب</button>
+                    </div>
+                    <div class="archive-records-list" id="records-list">
+                        <!-- سيتم ملء المحاضر هنا برمجياً -->
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -4111,90 +4122,127 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
 /* ===================================================
-   أكواد القائمة الجانبية اليسرى (الأرشيف)
+   أكواد القائمة العائمة (الأرشيف) — موحّدة مع نظام قرارات ما بعد السداد
 =================================================== */
-let currentArchiveTab = 'masr'; // جعل مصر القديمة الافتراضي // القسم الافتراضي عند الفتح
+var currentArchiveTab = "masr";
+var recordsLimit = 30;
 
-// دالة التبديل بين القسمين
-// دالة التبديل بين القسمين
+function toggleArchiveMenu() {
+    const menu = document.getElementById("floatingArchiveMenu");
+    if (!menu) return;
+
+    if (menu.classList.contains("open")) {
+        menu.classList.remove("open");
+    } else {
+        menu.classList.add("open");
+        loadArchiveToSidebar();
+    }
+}
+
+// إغلاق القائمة عند الضغط خارجها
+document.addEventListener("click", function(event) {
+    const container = document.querySelector(".archive-dropdown-container");
+    const menu = document.getElementById("floatingArchiveMenu");
+    if (container && menu && menu.classList.contains("open")) {
+        if (!container.contains(event.target)) {
+            menu.classList.remove("open");
+        }
+    }
+});
+
 function switchArchiveTab(tabName) {
     currentArchiveTab = tabName;
-    recordsLimit = 30; // تصفير العدد عند تغيير التبويب
-    
-    // تلوين الزر النشط فقط
-    document.querySelectorAll('.tab-btn').forEach(btn => {
-        btn.classList.remove('active');
-        if (btn.getAttribute('onclick').includes(tabName)) {
-            btn.classList.add('active');
-        }
+    recordsLimit = 30;
+
+    document.querySelectorAll(".archive-tabs .tab-btn").forEach(btn => {
+        btn.classList.remove("active");
     });
-    
-    // --- الجديد: فتح القائمة تلقائياً عند الضغط على أي قسم ---
-    const container = document.getElementById('records-list');
-    const arrow = document.getElementById('archive-toggle-arrow');
-    if (container && container.classList.contains('collapsed')) {
-        container.classList.remove('collapsed'); // إزالة حالة الطي
-        if (arrow) arrow.style.transform = 'rotate(0deg)'; // تعديل السهم لأعلى
-    }
-    // --------------------------------------------------------
+    const activeBtn = document.getElementById("tab-" + tabName);
+    if (activeBtn) activeBtn.classList.add("active");
 
-    // إعادة عرض المحاضر لتناسب القسم المختار
-    loadArchiveToSidebar(); 
+    loadArchiveToSidebar();
 }
 
-// دالة جلب المحاضر وعرضها كأزرار
 function loadArchiveToSidebar() {
-    const container = document.getElementById('records-list');
+    const container = document.getElementById("records-list");
     if (!container) return;
-    container.innerHTML = ''; // تفريغ القائمة قبل الملء
-    
-    let index = JSON.parse(localStorage.getItem('mahdar_index') || '[]');
-    if (index.length === 0) {
-    container.innerHTML = '<div style="color:#1e2b46; background-color:rgba(255,255,255,0.7); font-size:14px; font-weight:bold; text-align:center; padding:10px 20px; border-radius:8px; display:inline-block; margin-top:10px; border: 1px solid rgba(0,0,0,0.05);">لا توجد محاضر محفوظة</div>';
-    return;
-}
 
-    let count = 0;
-    // عكس الترتيب لعرض الأحدث في الأعلى
-    [...index].reverse().forEach(key => {
+    let index = [];
+    try {
+        let parsed = JSON.parse(localStorage.getItem("mahdar_index"));
+        if (Array.isArray(parsed)) index = parsed;
+    } catch(e) {}
+
+    let isIndexUpdated = false;
+    for (let i = 0; i < localStorage.length; i++) {
+        let k = localStorage.key(i);
+        if (k && k.startsWith("mahdar_") && k !== "mahdar_index") {
+            if (!index.includes(k)) {
+                index.push(k);
+                isIndexUpdated = true;
+            }
+        }
+    }
+    if (isIndexUpdated) localStorage.setItem("mahdar_index", JSON.stringify(index));
+
+    container.innerHTML = "";
+
+    if (index.length === 0) {
+        container.innerHTML = "<div style=\"color:#1e2b46; background-color:rgba(255,255,255,0.7); font-size:14px; font-weight:bold; text-align:center; padding:10px 20px; border-radius:8px; display:inline-block; margin-top:10px; border: 1px solid rgba(0,0,0,0.05);\">لا توجد محاضر محفوظة</div>";
+        return;
+    }
+
+    const filteredKeys = [...index].reverse().filter(key => {
+        const raw = localStorage.getItem(key);
+        if (!raw) return false;
+        try {
+            const d = JSON.parse(raw);
+            const isSayeda = d.dept && d.dept.includes("السيدة زينب");
+            const isMasr = d.dept && (d.dept.includes("مصر القديمة") || d.dept.includes("مصر القديمه"));
+
+            if (currentArchiveTab === "sayeda" && !isSayeda) return false;
+            if (currentArchiveTab === "masr" && !isMasr) return false;
+            return true;
+        } catch(e) { return false; }
+    });
+
+    if (filteredKeys.length === 0) {
+        container.innerHTML = "<span style=\"color:#aaa; font-size:11px; text-align:center; padding:10px; background:#f4f6fb; border-radius:8px; border:1px solid #c8d3e3;\">لا توجد محاضر محفوظة لهذا القسم</span>";
+        return;
+    }
+
+    const keysToShow = filteredKeys.slice(0, recordsLimit);
+    keysToShow.forEach(key => {
         const raw = localStorage.getItem(key);
         if (!raw) return;
-        const d = JSON.parse(raw);
-        
-        // التحقق من أن المحضر يتبع القسم المختار حالياً
-        const isSayeda = d.dept && d.dept.includes('السيدة زينب');
-        const isMasr = d.dept && (d.dept.includes('مصر القديمة') || d.dept.includes('مصر القديمه'));
-        
-        if (currentArchiveTab === 'sayeda' && !isSayeda) return;
-        if (currentArchiveTab === 'masr' && !isMasr) return;
+        try {
+            const d = JSON.parse(raw);
+            const shortName = d.name ? d.name.split(" ").slice(0, 3).join(" ") : "بدون اسم";
+            const dateOnly = d.savedAt ? d.savedAt.split(",")[0].trim() : "";
 
-        count++;
-        // اختصار اسم المتهم لثلاثة مقاطع فقط ليتناسب مع حجم الزر
-        const shortName = d.name ? d.name.split(' ').slice(0, 3).join(' ') : 'بدون اسم';
-        
-        // إنشاء زر المحضر
-        const btn = document.createElement('button');
-        btn.className = 'record-btn';
-        
-        // الحدث الأهم: عند الضغط يتم استدعاء دالة التعبئة
-        btn.onclick = () => loadRecordToWorkspace(key); 
-        
-        // الحصول على التاريخ فقط (بدون الوقت)
-        const dateOnly = d.savedAt ? d.savedAt.split(',')[0].trim() : '';
-
-        btn.innerHTML = `
-            <div class="record-title">📄 ${d.caseNum} / ${d.year}</div>
-            <div class="record-sub-row">
-                <span class="rec-name">👤 ${shortName}</span>
-                <span class="rec-date">${dateOnly}</span>
-            </div>
-        `;
-        container.appendChild(btn);
+            const btn = document.createElement("button");
+            btn.className = "record-btn";
+            btn.onclick = () => {
+                loadRecordToWorkspace(key);
+                // تبقى القائمة مفتوحة عند الاختيار (نفس سلوك الأرشيف الموحّد)
+            };
+            btn.innerHTML = `<div class="record-title">📄 ${d.caseNum || ""} / ${d.year || ""}</div><div class="record-sub-row"><span class="rec-name">👤 ${shortName}</span><span class="rec-date">${dateOnly}</span></div>`;
+            container.appendChild(btn);
+        } catch(e) {}
     });
 
-    // رسالة في حال كان القسم فارغاً
-    if (count === 0) {
-        container.innerHTML = '<span style="color:#aaa; font-size:11px; text-align:center; padding:10px; background:#f4f6fb; border-radius:8px; border:1px solid #c8d3e3;">لا توجد محاضر محفوظة لهذا القسم</span>';
+    if (filteredKeys.length > recordsLimit) {
+        const loadMoreBtn = document.createElement("button");
+        loadMoreBtn.className = "tab-btn";
+        loadMoreBtn.style.marginTop = "5px";
+        loadMoreBtn.style.background = "transparent";
+        loadMoreBtn.textContent = "عرض المزيد ▼";
+        loadMoreBtn.onclick = (e) => {
+            e.stopPropagation();
+            recordsLimit += 30;
+            loadArchiveToSidebar();
+        };
+        container.appendChild(loadMoreBtn);
     }
 }
 
@@ -4202,52 +4250,30 @@ function loadArchiveToSidebar() {
 function loadRecordToWorkspace(key) {
     const raw = localStorage.getItem(key);
     if (!raw) return;
-    const d = JSON.parse(raw);
+    try {
+        const d = JSON.parse(raw);
+        const set = (id, val) => { const el = document.getElementById(id); if (el && val != null) el.value = val; };
 
-    const set = (id, val) => { const el = document.getElementById(id); if (el && val != null) el.value = val; };
-    
-    // 1. نضع المفاتيح الأساسية (رقم المحضر، السنة) في الحقول
-    set('input-caseNum', d.caseNum);
-    set('input-year', d.year);
-    
-    // 2. ضبط القسم بدقة لضمان عمل دالة الاسترجاع الأصلية
-    const deptSel = document.getElementById('input-dept-select');
-    if (deptSel) {
-        let exists = Array.from(deptSel.options).some(opt => opt.value === d.deptSelect);
-        if(exists) {
-            deptSel.value = d.deptSelect;
-        } else {
-            deptSel.value = 'أخرى';
-            set('input-dept-other', d.dept);
+        set("input-caseNum", d.caseNum);
+        set("input-year", d.year);
+
+        const deptSel = document.getElementById("input-dept-select");
+        if (deptSel) {
+            let exists = Array.from(deptSel.options).some(opt => opt.value === d.deptSelect);
+            if (exists) {
+                deptSel.value = d.deptSelect;
+            } else {
+                deptSel.value = "أخرى";
+                set("input-dept-other", d.dept);
+            }
+            if (typeof toggleOther === "function") toggleOther("input-dept-select","dept-other-wrapper");
         }
-        if (typeof toggleOther === 'function') toggleOther('input-dept-select','dept-other-wrapper');
-    }
 
-    // 3. استدعاء الدالة الأصلية في نظامك التي تسترجع باقي البيانات بناءً على المفاتيح التي وضعناها للتو
-    loadMahdarFromStorage();
+        loadMahdarFromStorage();
+    } catch(e) {}
 }
 
-// تشغيل الدالة فور فتح الصفحة لتعبئة القائمة الجانبية
-document.addEventListener('DOMContentLoaded', loadArchiveToSidebar);
-
-
-// دالة طي وإظهار قائمة المحاضر
-function toggleArchive() {
-    const container = document.getElementById('records-list');
-    const arrow = document.getElementById('archive-toggle-arrow');
-    
-    if (!container) return;
-
-    if (container.classList.contains('collapsed')) {
-        // إظهار القائمة
-        container.classList.remove('collapsed');
-        if (arrow) arrow.style.transform = 'rotate(0deg)';
-    } else {
-        // إخفاء القائمة
-        container.classList.add('collapsed');
-        if (arrow) arrow.style.transform = 'rotate(180deg)'; // قلب السهم للأسفل
-    }
-}
+document.addEventListener("DOMContentLoaded", loadArchiveToSidebar);
 
 </script>
 

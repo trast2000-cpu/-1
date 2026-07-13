@@ -155,8 +155,10 @@ option[data-category="dark"] {
         .system-title-bar {
             background: linear-gradient(135deg, #475569, #1e293b);
             color: #3cd6ff;
-            text-align: center;
-            padding: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 12px;
             font-size: 20px;
             font-weight: bold;
             letter-spacing: 1px;
@@ -168,6 +170,10 @@ option[data-category="dark"] {
             z-index: 10;
             box-shadow: 0 4px 15px rgba(30, 41, 59, 0.25);
         }
+        .system-title-bar > div { flex: 1; }
+        .system-title-bar > div:nth-child(1) { text-align: right; } /* التاريخ والوقت في اليمين */
+        .system-title-bar > div:nth-child(2) { text-align: center; } /* العنوان في المنتصف */
+        .system-title-bar > div:nth-child(3) { text-align: left; display: flex; justify-content: flex-end; } /* الأرشيف في اليسار */
 
         .control-panel {
             background: #edf0f7;
@@ -224,7 +230,7 @@ option[data-category="dark"] {
             transition: transform 0.25s;
         }
         .card.collapsed .toggle-arrow { transform: rotate(-90deg); }
-        .card.collapsed .card-body { display: none; }
+        .card.collapsed .card-header { border-radius: 7px; border-bottom: none; }
 
         .card-body {
             background: #f4f6fb;
@@ -233,6 +239,17 @@ option[data-category="dark"] {
             gap: 8px; 
             padding: 8px;
             flex-wrap: wrap;
+            border-radius: 0 0 7px 7px;
+            overflow: hidden;
+            transition: max-height 0.42s cubic-bezier(0.4, 0, 0.2, 1),
+                        padding-top 0.42s cubic-bezier(0.4, 0, 0.2, 1),
+                        padding-bottom 0.42s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .card.collapsed .card-body {
+            max-height: 0 !important;
+            padding-top: 0 !important;
+            padding-bottom: 0 !important;
+            pointer-events: none;
         }
 
         .field-group { display: flex; flex-direction: column; gap: 2px; }
@@ -496,19 +513,6 @@ option[data-category="dark"] {
     float: none;
 }
 
-
-#card-violations {
-    overflow: visible;
-    transition: max-height 0.4s ease, opacity 0.3s ease;
-}
-
-#card-violations.collapsed .card-content {
-    display: none;
-}
-
-#card-violations.collapsed .card-body {
-    display: none !important;
-}
 
 /* ===== Custom Dropdown ===== */
 .custom-select-wrapper {
@@ -1018,38 +1022,63 @@ body {
 
 
 /* ====== القائمة الجانبية اليسرى (الأرشيف - الشكل العائم) ====== */
-.left-sidebar {
-    width: 190px;
-    background: transparent;
-    position: fixed;
-    top: 20px;
-    left: 15px;
-    height: calc((100vh / 1.3) - 40px);
-    max-height: calc((100vh / 1.3) - 40px);
-    padding-bottom: 10px;
-    display: flex;
-    flex-direction: column;
-    z-index: 1000;
+/* ====== نظام القائمة العائمة (الأرشيف) ====== */
+.archive-dropdown-container {
+    position: relative;
+    display: inline-block;
 }
-.left-sidebar .sidebar-title {
-    background: #1e3a5f;
+
+.archive-trigger-btn {
+    background: rgba(255, 255, 255, 0.15);
+    border: 1.5px solid rgba(255, 255, 255, 0.3);
+    color: #fff;
+    padding: 6px 12px;
     border-radius: 8px;
-    padding: 8px;
-    margin-bottom: 12px;
-    color: #a8c4e0;
-    font-size: 12px;
+    font-family: inherit;
+    font-size: 13px;
     font-weight: bold;
-    text-align: center;
-    border-bottom: 2px solid #c9a200;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s;
 }
-.left-sidebar .sidebar-title:hover { filter: brightness(1.15); }
-.tabs-container {
+
+.archive-trigger-btn:hover {
+    background: rgba(255, 255, 255, 0.25);
+    transform: translateY(-1px);
+}
+
+.floating-archive-menu {
+    position: absolute;
+    top: calc(100% + 5px);
+    left: 0; /* بما أن الزر في أقصى اليسار، نجعل القائمة تبدأ من يسار الزر */
+    width: 220px;
+    max-height: 400px; /* تقليل الارتفاع لضمان الظهور بالكامل */
+    background: #edf0f7;
+    border-radius: 12px;
+    box-shadow: 0 15px 45px rgba(0,0,0,0.3);
+    border: 1.5px solid #c5cfe0;
+    z-index: 2000;
+    display: none;
+    flex-direction: column;
+    padding: 12px;
+    animation: slideDown 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+}
+
+@keyframes slideDown {
+    from { opacity: 0; transform: translateY(-10px) scale(0.95); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.floating-archive-menu.open { display: flex; }
+
+/* استعادة شكل التبويبات والأزرار الأصلية */
+.archive-tabs {
     display: flex;
     flex-direction: row;
     gap: 5px;
     margin-bottom: 15px;
-    flex-shrink: 0;
 }
 .tab-btn {
     flex: 1;
@@ -1073,21 +1102,18 @@ body {
     border-color: #e6b800;
     box-shadow: 0 4px 12px rgba(201,162,0,0.4);
 }
-.records-container {
+
+.archive-records-list {
     flex: 1;
-    min-height: 0;
     overflow-y: auto;
-    scrollbar-width: thin;
-    scrollbar-color: #4a7ab5 transparent;
     display: flex;
     flex-direction: column;
     gap: 5px;
-    padding-right: 2px;
-    padding-bottom: 20px;
+    padding-right: 4px;
+    scrollbar-width: thin;
+    scrollbar-color: #4a7ab5 transparent;
 }
-.records-container.collapsed { display: none !important; }
-.records-container::-webkit-scrollbar { width: 4px; display: block; }
-.records-container::-webkit-scrollbar-thumb { background-color: #4a7ab5; border-radius: 4px; }
+
 .record-btn {
     display: flex;
     flex-direction: column;
@@ -1106,7 +1132,7 @@ body {
 .record-btn:hover {
     background: #fff;
     border-color: #4a7ab5;
-    transform: translateY(-1.5px) scale(1.0);
+    transform: translateY(-1.5px);
     box-shadow: 0 6px 15px rgba(30,58,95,0.15);
 }
 .record-title { font-size: 13px; font-weight: bold; color: #1e3a5f; margin-bottom: 2px; }
@@ -1119,19 +1145,15 @@ body {
 .rec-name { font-size: 11px; color: #5a6a82; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 65%; }
 .rec-date { font-size: 10px; color: #8a9bb5; white-space: nowrap; }
 
-/* الوضع الليلي للقائمة اليسرى */
-body[data-theme="dark"] .record-sub-row .rec-name { color: #94a3b8 !important; }
-body[data-theme="dark"] .record-sub-row .rec-date { color: #64748b !important; }
-body[data-theme="dark"] .left-sidebar .sidebar-title { background: #16253d !important; border-bottom-color: #2d4060 !important; color: #7aaeff !important;}
-body[data-theme="dark"] .tab-btn { background: rgba(26, 45, 69, 0.7) !important; backdrop-filter: blur(4px); border-color: rgba(74, 122, 181, 0.3) !important; color: #94a3b8 !important;}
-body[data-theme="dark"] .tab-btn.active { background: #c9a200 !important; color: #1e3a5f !important; }
-body[data-theme="dark"] .record-btn { background: rgba(30, 45, 69, 0.8) !important; backdrop-filter: blur(4px); border-color: #2d4060 !important; }
-body[data-theme="dark"] .record-btn:hover { background: #2d4060 !important; border-color: #4a7ab5 !important; }
+/* الوضع الليلي */
+body[data-theme="dark"] .floating-archive-menu { background: #1a2744 !important; border-color: #2d4060 !important; }
+body[data-theme="dark"] .record-btn { background: rgba(30, 45, 69, 0.8) !important; border-color: #2d4060 !important; }
 body[data-theme="dark"] .record-title { color: #7aaeff !important; }
+body[data-theme="dark"] .rec-name { color: #94a3b8 !important; }
+body[data-theme="dark"] .rec-date { color: #64748b !important; }
 
 @media print { 
-    .left-sidebar { display: none !important; } 
-    #_lookup_toast { display: none !important; }
+    .archive-dropdown-container, .floating-archive-menu, #_lookup_toast, #f9-clear-toast { display: none !important; } 
 }
 
 </style>
@@ -1141,24 +1163,7 @@ body[data-theme="dark"] .record-title { color: #7aaeff !important; }
     <div class="app-layout">
 
 
-<!-- ====== القائمة الجانبية اليسرى (الأرشيف) ====== -->
-        <div class="left-sidebar">
-            <div class="sidebar-title" onclick="toggleArchive()" style="cursor: pointer; user-select: none;" title="طي / إظهار القائمة">
-                🗄️ المحاضر المحفوظة
-                <span id="archive-toggle-arrow" style="float: left; font-size: 10px; margin-top: 3px; transition: transform 0.2s; transform: rotate(180deg);">▲</span>
-            </div>
-            
-            <!-- الأزرار الثابتة (التبويبات) -->
-            <div class="tabs-container">
-                <button class="tab-btn active" onclick="switchArchiveTab('masr')">مصر القديمة</button>
-                <button class="tab-btn" onclick="switchArchiveTab('sayeda')">السيدة زينب</button>
-            </div>
-
-            <!-- مساحة العرض المتغيرة للمحاضر -->
-            <div class="records-container collapsed" id="records-list">
-                <!-- سيتم ملء المحاضر هنا برمجياً -->
-            </div>
-        </div>
+<!-- تم نقل الأرشيف إلى البار العلوي -->
 
 
 
@@ -1183,12 +1188,26 @@ body[data-theme="dark"] .record-title { color: #7aaeff !important; }
         <div class="control-panel">
 
         <div class="system-title-bar">
-            <div></div>
-            <div><i class="fa-solid fa-credit-card fa-icon-btn"></i> قرارات ما بعد السداد</div>
-            <div style="display:flex;align-items:center;gap:9px;justify-content:flex-end;">
-                <button id="themeToggle" class="theme-toggle-btn" onclick="toggleTheme()" title="تبديل الوضع الليلي/النهاري"><span id="themeIcon"><i class="fa-solid fa-moon"></i></span></button>
-                <span style="color:rgba(255,255,255,0.3);">|</span>
+            <div style="display:flex;align-items:center;gap:9px;justify-content:flex-start;">
                 <span id="currentDateDisplay" style="font-size:11.5px;font-weight:700;color:#fff;white-space:nowrap;"></span>
+                <span style="color:rgba(255,255,255,0.3);">|</span>
+                <button id="themeToggle" class="theme-toggle-btn" onclick="toggleTheme()" title="تبديل الوضع الليلي/النهاري"><span id="themeIcon"><i class="fa-solid fa-moon"></i></span></button>
+            </div>
+            <div><i class="fa-solid fa-credit-card fa-icon-btn"></i> قرارات ما بعد السداد</div>
+            <div class="archive-dropdown-container">
+                <button class="archive-trigger-btn" onclick="toggleArchiveMenu()" title="عرض المحاضر المحفوظة">
+                    <i class="fa-solid fa-box-archive"></i>
+                    <span>المحاضر المحفوظة</span>
+                </button>
+                <div class="floating-archive-menu" id="floatingArchiveMenu">
+                    <div class="archive-tabs">
+                        <button class="tab-btn active" id="tab-masr" onclick="switchArchiveTab('masr')">مصر القديمة</button>
+                        <button class="tab-btn" id="tab-sayeda" onclick="switchArchiveTab('sayeda')">السيدة زينب</button>
+                    </div>
+                    <div class="archive-records-list" id="records-list">
+                        <!-- سيتم ملء المحاضر هنا برمجياً -->
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -1686,13 +1705,44 @@ body[data-theme="dark"] .record-title { color: #7aaeff !important; }
     <script>
         const ordinalLabels = ["أولاً :-", "ثانياً :-", "ثالثاً :-"];
 
+        function _openCard(card) {
+            const body = card.querySelector('.card-body');
+            if (!body) return;
+            if (!card.classList.contains('collapsed')) return;
+            const h = body.scrollHeight;
+            body.style.maxHeight = '0';
+            body.style.paddingTop = '0';
+            body.style.paddingBottom = '0';
+            card.classList.remove('collapsed');
+            body.offsetHeight;
+            body.style.maxHeight = h + 'px';
+            body.style.paddingTop = '';
+            body.style.paddingBottom = '';
+            body.addEventListener('transitionend', function done() {
+                body.style.maxHeight = 'none';
+                body.removeEventListener('transitionend', done);
+            }, {once: true});
+        }
+
+        function _closeCard(card) {
+            const body = card.querySelector('.card-body');
+            if (!body) return;
+            if (card.classList.contains('collapsed')) return;
+            body.style.maxHeight = body.scrollHeight + 'px';
+            body.offsetHeight;
+            card.classList.add('collapsed');
+            body.style.maxHeight = '0';
+            body.style.paddingTop = '0';
+            body.style.paddingBottom = '0';
+        }
+
         function toggleCard(id) {
             const card = document.getElementById(id);
             if (!card) return;
-            card.classList.toggle('collapsed');
-            const body = card.querySelector('.card-body');
-            if (body) {
-                body.style.display = card.classList.contains('collapsed') ? 'none' : 'flex';
+            if (card.classList.contains('collapsed')) {
+                _openCard(card);
+            } else {
+                _closeCard(card);
             }
         }
 
@@ -1794,7 +1844,7 @@ body[data-theme="dark"] .record-title { color: #7aaeff !important; }
             ['card-basic','card-vehicle','card-fine','card-eng','card-veh-status',
              'card-violations','card-fine-receipt','card-arrest-reason','card-session'].forEach(id => {
                 const c = document.getElementById(id);
-                if (c) { c.classList.remove('collapsed'); const b = c.querySelector('.card-body'); if (b) b.style.display='flex'; }
+                if (c) _openCard(c);
             });
             if (!silent) document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
             document.getElementById('input-dept-select').value = '';
@@ -2229,7 +2279,7 @@ body[data-theme="dark"] .record-title { color: #7aaeff !important; }
             if(activeBtn) activeBtn.classList.add('active');
             ['card-basic','card-vehicle','card-fine','card-eng','card-veh-status','card-violations','card-fine-receipt','card-arrest-reason','card-session'].forEach(id=>{
                 const c=document.getElementById(id);
-                if(c){c.classList.remove('collapsed');const b=c.querySelector('.card-body');if(b)b.style.display='flex';}
+                if(c) _openCard(c);
             });
 
             // حفظ البيانات الشخصية والمركبة قبل المسح
@@ -2310,8 +2360,8 @@ document.getElementById('violations-receipt').value = _saved.violReceipt;
                 document.getElementById('session-status').value='no';
                 document.getElementById('session-date-wrapper').style.display='none';
                 const sc=document.getElementById('card-session');
-                if(sc){sc.classList.add('collapsed');const sb=sc.querySelector('.card-body');if(sb)sb.style.display='none';}
-                ['card-violations','card-fine-receipt'].forEach(id=>{const c=document.getElementById(id);if(c){c.classList.remove('collapsed');const b=c.querySelector('.card-body');if(b)b.style.display='flex';}});
+                if(sc) _closeCard(sc);
+                ['card-violations','card-fine-receipt'].forEach(id=>{const c=document.getElementById(id); if(c) _openCard(c);});
                 ['fine-type','eng-type','vehicle-status-type','violations-type','violations-pay-method','fine-receipt-type'].forEach(id=>syncCustomSelectDisplay(id));
             }
 
@@ -2332,19 +2382,19 @@ document.getElementById('violations-receipt').value = _saved.violReceipt;
             if (type==='fine-only') {
                 document.getElementById('fine-type').value='no-fine'; updateFineText();
                 const fc=document.getElementById('card-fine');
-                if(fc){fc.classList.add('collapsed');const fb=fc.querySelector('.card-body');if(fb)fb.style.display='none';}
+                if(fc) _closeCard(fc);
                 document.getElementById('eng-type').value='call'; updateEngineerText();
                 document.getElementById('vehicle-status-type').value='deliver'; updateVehicleStatusText();
                 document.getElementById('violations-type').value='paid'; updateViolationsText();
                 const vc=document.getElementById('card-violations');
-                if(vc){vc.classList.remove('collapsed');const vb=vc.querySelector('.card-body');if(vb)vb.style.display='flex';}
+                if(vc) _openCard(vc);
                 document.getElementById('fine-receipt-type').value=''; updateFineReceiptText();
                 const frc=document.getElementById('card-fine-receipt');
-                if(frc){frc.classList.add('collapsed');const frb=frc.querySelector('.card-body');if(frb)frb.style.display='none';}
+                if(frc) _closeCard(frc);
                 document.getElementById('session-status').value='yes';
                 document.getElementById('session-date-wrapper').style.display='flex';
                 const sc2=document.getElementById('card-session');
-                if(sc2){sc2.classList.remove('collapsed');const sb2=sc2.querySelector('.card-body');if(sb2)sb2.style.display='flex';}
+                if(sc2) _openCard(sc2);
                 ['fine-type','eng-type','vehicle-status-type','violations-type','violations-pay-method','fine-receipt-type'].forEach(id=>syncCustomSelectDisplay(id));
             }
 
@@ -2353,23 +2403,23 @@ document.getElementById('violations-receipt').value = _saved.violReceipt;
                 if(_saved.fineAmount){document.getElementById('fine-amount').value=_saved.fineAmount; document.getElementById('fine-amount-row').style.display='flex';}
                 if(_saved.fineText) document.getElementById('fine-text').value=_saved.fineText;
                 const fcR=document.getElementById('card-fine');
-                if(fcR){fcR.classList.remove('collapsed');const fb=fcR.querySelector('.card-body');if(fb)fb.style.display='flex';}
+                if(fcR) _openCard(fcR);
                 document.getElementById('eng-type').value='no-call'; updateEngineerText();
                 const ec=document.getElementById('card-eng');
-                if(ec){ec.classList.add('collapsed');const eb=ec.querySelector('.card-body');if(eb)eb.style.display='none';}
+                if(ec) _closeCard(ec);
                 document.getElementById('vehicle-status-type').value='other'; updateVehicleStatusText();
                 const vc2=document.getElementById('card-veh-status');
-                if(vc2){vc2.classList.add('collapsed');const vb=vc2.querySelector('.card-body');if(vb)vb.style.display='none';}
+                if(vc2) _closeCard(vc2);
                 document.getElementById('violations-type').value='other'; updateViolationsText();
                 const violcR=document.getElementById('card-violations');
-                if(violcR){violcR.classList.add('collapsed');const vob=violcR.querySelector('.card-body');if(vob)vob.style.display='none';}
+                if(violcR) _closeCard(violcR);
                 document.getElementById('fine-receipt-type').value='paid'; updateFineReceiptText();
                 const frcR=document.getElementById('card-fine-receipt');
-                if(frcR){frcR.classList.remove('collapsed');const frb=frcR.querySelector('.card-body');if(frb)frb.style.display='flex';}
+                if(frcR) _openCard(frcR);
                 document.getElementById('session-status').value='no';
                 document.getElementById('session-date-wrapper').style.display='none';
                 const scR=document.getElementById('card-session');
-                if(scR){scR.classList.add('collapsed');const srb=scR.querySelector('.card-body');if(srb)srb.style.display='none';}
+                if(scR) _closeCard(scR);
                 ['fine-type','eng-type','vehicle-status-type','violations-type','fine-receipt-type'].forEach(id=>syncCustomSelectDisplay(id));
             }
             sync();
@@ -2481,15 +2531,13 @@ document.getElementById('violations-receipt').value = _saved.violReceipt;
             const decision=document.getElementById('vehicle-status-type').value;
             const paymentCard=document.getElementById('card-violations');
             if(!paymentCard) return;
-            const cardBody=paymentCard.querySelector('.card-body');
             const sessionCard=document.getElementById('card-session');
-            const sessionCardBody=sessionCard?sessionCard.querySelector('.card-body'):null;
             if(decision==='keep'){
-                paymentCard.classList.add('collapsed'); if(cardBody) cardBody.style.display='none';
-                if(sessionCard) sessionCard.classList.add('collapsed'); if(sessionCardBody) sessionCardBody.style.display='none';
+                _closeCard(paymentCard);
+                if(sessionCard) _closeCard(sessionCard);
             } else {
-                paymentCard.classList.remove('collapsed'); if(cardBody) cardBody.style.display='flex';
-                if(sessionCard) sessionCard.classList.remove('collapsed'); if(sessionCardBody) sessionCardBody.style.display='flex';
+                _openCard(paymentCard);
+                if(sessionCard) _openCard(sessionCard);
             }
         }
 
@@ -3036,43 +3084,44 @@ function toggleTheme() {
 })();
 
 /* ===================================================
-   أكواد القائمة الجانبية اليسرى (النسخة المُحصنة)
+   أكواد القائمة العائمة (الأرشيف) - النسخة النهائية
 =================================================== */
 var currentArchiveTab = 'masr'; 
 var recordsLimit = 30; 
 
-function toggleArchive() {
-    const container = document.getElementById('records-list');
-    const arrow = document.getElementById('archive-toggle-arrow');
-    if (!container) return;
-
-    if (container.classList.contains('collapsed')) {
-        container.classList.remove('collapsed');
-        if (arrow) arrow.style.transform = 'rotate(0deg)';
+function toggleArchiveMenu() {
+    const menu = document.getElementById('floatingArchiveMenu');
+    if (!menu) return;
+    
+    if (menu.classList.contains('open')) {
+        menu.classList.remove('open');
     } else {
-        container.classList.add('collapsed');
-        if (arrow) arrow.style.transform = 'rotate(180deg)'; 
+        menu.classList.add('open');
+        loadArchiveToSidebar();
     }
 }
+
+// إغلاق القائمة عند الضغط خارجها
+document.addEventListener('click', function(event) {
+    const container = document.querySelector('.archive-dropdown-container');
+    const menu = document.getElementById('floatingArchiveMenu');
+    if (container && menu && menu.classList.contains('open')) {
+        if (!container.contains(event.target)) {
+            menu.classList.remove('open');
+        }
+    }
+});
 
 function switchArchiveTab(tabName) {
     currentArchiveTab = tabName;
     recordsLimit = 30; 
     
-    document.querySelectorAll('.tab-btn').forEach(btn => {
+    document.querySelectorAll('.archive-tabs .tab-btn').forEach(btn => {
         btn.classList.remove('active');
-        if (btn.getAttribute('onclick').includes(tabName)) {
-            btn.classList.add('active');
-        }
     });
+    const activeBtn = document.getElementById('tab-' + tabName);
+    if (activeBtn) activeBtn.classList.add('active');
     
-    const container = document.getElementById('records-list');
-    const arrow = document.getElementById('archive-toggle-arrow');
-    if (container && container.classList.contains('collapsed')) {
-        container.classList.remove('collapsed'); 
-        if (arrow) arrow.style.transform = 'rotate(0deg)'; 
-    }
-
     loadArchiveToSidebar(); 
 }
 
@@ -3101,9 +3150,9 @@ function loadArchiveToSidebar() {
     container.innerHTML = ''; 
     
     if (index.length === 0) {
-    container.innerHTML = '<div style="color:#1e2b46; background-color:rgba(255,255,255,0.7); font-size:14px; font-weight:bold; text-align:center; padding:10px 20px; border-radius:8px; display:inline-block; margin-top:10px; border: 1px solid rgba(0,0,0,0.05);">لا توجد محاضر محفوظة</div>';
-    return;
-}
+        container.innerHTML = '<div style="color:#1e2b46; background-color:rgba(255,255,255,0.7); font-size:14px; font-weight:bold; text-align:center; padding:10px 20px; border-radius:8px; display:inline-block; margin-top:10px; border: 1px solid rgba(0,0,0,0.05);">لا توجد محاضر محفوظة</div>';
+        return;
+    }
 
     const filteredKeys = [...index].reverse().filter(key => {
         const raw = localStorage.getItem(key);
@@ -3135,7 +3184,10 @@ function loadArchiveToSidebar() {
             
             const btn = document.createElement('button');
             btn.className = 'record-btn';
-            btn.onclick = () => loadRecordToWorkspace(key); 
+            btn.onclick = () => {
+                loadRecordToWorkspace(key);
+                // تم إزالة toggleArchiveMenu() لتبقى القائمة مفتوحة عند الاختيار
+            };
             btn.innerHTML = `<div class="record-title">📄 ${d.caseNum || ''} / ${d.year || ''}</div><div class="record-sub-row"><span class="rec-name">👤 ${shortName}</span><span class="rec-date">${dateOnly}</span></div>`;
             container.appendChild(btn);
         } catch(e) {}
@@ -3147,7 +3199,11 @@ function loadArchiveToSidebar() {
         loadMoreBtn.style.marginTop = '5px';
         loadMoreBtn.style.background = 'transparent';
         loadMoreBtn.textContent = 'عرض المزيد ▼';
-        loadMoreBtn.onclick = () => { recordsLimit += 30; loadArchiveToSidebar(); };
+        loadMoreBtn.onclick = (e) => { 
+            e.stopPropagation();
+            recordsLimit += 30; 
+            loadArchiveToSidebar(); 
+        };
         container.appendChild(loadMoreBtn);
     }
 }
