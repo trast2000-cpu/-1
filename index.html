@@ -399,7 +399,7 @@ body::after {
 #settings-modal {
   background: linear-gradient(145deg, #16263f 0%, #0d1b2e 100%);
   border: 1px solid rgba(201,168,76,.22);
-  border-radius: 22px;
+  border-radius: 10px;
   box-shadow:
     0 40px 100px rgba(0,0,0,.7),
     0 0 0 1px rgba(255,255,255,.04),
@@ -1158,6 +1158,12 @@ function openSettings() {
   document.getElementById('cfg-prosecution-name').value = cfg.prosecutionName || '';
   document.getElementById('cfg-fiscal-year').value = cfg.fiscalYear || new Date().getFullYear();
 
+  // --- [التعديل هنا: إعادة ضبط الزرار عند فتح النافذة] ---
+  const saveBtn = document.querySelector('.btn-save-cfg');
+  saveBtn.classList.remove('btn-success');
+  saveBtn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> حفظ الإعدادات';
+  // ---------------------------------------------------
+
   const list = document.getElementById('agents-list');
   list.innerHTML = '';
   const agents = (cfg.agents && cfg.agents.length > 0) ? cfg.agents : ['', '', ''];
@@ -1171,6 +1177,7 @@ function openSettings() {
   hideFeedback();
   document.getElementById('settings-overlay').classList.add('open');
 }
+
 
 function closeSettings() {
   document.getElementById('settings-overlay').classList.remove('open');
