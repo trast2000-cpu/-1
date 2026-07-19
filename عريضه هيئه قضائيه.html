@@ -1549,6 +1549,10 @@ document.getElementById('v_proxyText').innerText = pStr;
         document.getElementById('docDate').value = getLocalDateStr(now);
         reconstructForm();
         setInterval(refreshDate, 60000);
+
+//  لجعل المؤشر يركز على حقل رقم العريضة عند تحميل الصفحه
+    document.getElementById('pNum').focus();
+
     };
 </script>
 
