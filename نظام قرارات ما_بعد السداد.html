@@ -2452,22 +2452,7 @@ function sync() {
  // أضف ما تشاء هنا مستقبلاً
         ];
 
-        function autoCheckForSession(val) {
-            // التحقق مما إذا كان البند يحتوي على إحدى الكلمات المفتاحية
-            if (sessionTriggerKeywords.some(keyword => val.includes(keyword))) {
-                // التأكد من أن البند لم يضاف مسبقاً للجلسة، وأن القائمة لم تمتلئ
-                if (!sessionItems.find(i => i.label === val) && sessionItems.length < 6) {
-                    sessionItems.push({label: val});
-                    renderSessionItems();
-                    
-                    // فتح بطاقة الجلسة وضبط الخيار على "تم تحديد جلسة" تلقائياً
-                    document.getElementById('session-status').value = 'yes';
-                    document.getElementById('session-date-wrapper').style.display = 'flex';
-                    const sessionCard = document.getElementById('card-session');
-                    if (sessionCard) _openCard(sessionCard);
-                }
-            }
-        }
+
 
         function onArrestSelect(sel) {
             const val=sel.value; sel.value='';
@@ -2720,13 +2705,15 @@ function renderArrestItems() {
                 togglePaymentSection();
                 document.getElementById('fine-receipt-type').value='paid'; updateFineReceiptText();
                 
-                document.getElementById('session-status').value='yes';
-                document.getElementById('session-date-wrapper').style.display='flex';
+                // 💡 التعديل هنا: ضبط الاختيار على لم يتم تحديد جلسة
+                document.getElementById('session-status').value='no';
+                document.getElementById('session-date-wrapper').style.display='none';
                 
                 ['fine-type','eng-type','vehicle-status-type','violations-type','fine-receipt-type'].forEach(id=>syncCustomSelectDisplay(id));
             }
 
             if (type==='fine-only') {
+                // ... (باقي كود fine-only كما هو لا تلمسه)
                 document.getElementById('fine-type').value='no-fine'; updateFineText();
                 document.getElementById('eng-type').value='call'; updateEngineerText();
                 document.getElementById('vehicle-status-type').value='deliver'; updateVehicleStatusText();
@@ -2752,9 +2739,10 @@ function renderArrestItems() {
             sync();
 
             // ── انيميشن البطاقات: فقط ما يحتاج يتغير فعلاً ──
+            // ── انيميشن البطاقات: فقط ما يحتاج يتغير فعلاً ──
             var _closed = {
                 'deliver'  : ['card-session'],
-                'keep'     : ['card-violations'],
+                'keep'     : ['card-violations', 'card-session'], // 💡 تمت إضافة الجلسة للطي
                 'fine-only': ['card-fine', 'card-fine-receipt'],
                 'receipt'  : ['card-eng', 'card-veh-status', 'card-violations', 'card-session']
             };
@@ -2882,8 +2870,8 @@ function togglePaymentSection() {
             const sessionCard=document.getElementById('card-session');
             if(decision==='keep'){
                 _closeCard(paymentCard);
-                // 💡 التعديل هنا: فتح بطاقة الجلسة دائماً بدلاً من طيها عند اختيار (يستمر التحفظ)
-                if(sessionCard) _openCard(sessionCard);
+                // 💡 التعديل هنا: طي بطاقة الجلسة بناء على طلبك الجديد
+                if(sessionCard) _closeCard(sessionCard);
             } else {
                 _openCard(paymentCard);
                 if(sessionCard) _openCard(sessionCard);
@@ -3992,6 +3980,13 @@ document.addEventListener('DOMContentLoaded', () => {
         
     ];
 
+    
+    
+
+function autoCheckForSession(val) {
+        // تم إلغاء هذه الدالة بناءً على طلبك
+    }
+
     function addViolationByText(text) {
         if (arrestItems.length >= 9) return false; 
         if (arrestItems.some(i => i.label === text)) return false; 
@@ -4000,58 +3995,22 @@ document.addEventListener('DOMContentLoaded', () => {
         renderArrestItems();
         updateArrestText();
         
-        // 💡 السحر هنا: المزامنة الذكية عن طريق مطابقة الأكواد
-        // الكود يستخرج النصوص الدقيقة لهذه الأكواد من القاموس ويطابقها مع البند المختار
-        const triggerTexts = sessionTriggerCodes.map(code => fullViolationDB[code]);
-        
-        if (triggerTexts.includes(text)) {
-            if (!sessionItems.find(i => i.label === text) && sessionItems.length < 6) {
-                sessionItems.push({label: text});
-                if (typeof renderSessionItems === 'function') renderSessionItems();
-                
-                // فتح بطاقة الجلسة وضبطها تلقائياً
-                document.getElementById('session-status').value = 'yes';
-                document.getElementById('session-date-wrapper').style.display = 'flex';
-                const sessionCard = document.getElementById('card-session');
-                if (sessionCard && sessionCard.classList.contains('collapsed')) {
-                    _openCard(sessionCard);
-                }
-                sync(); // تحديث الورقة للطباعة
-            }
-        }
+        // 💡 تم إلغاء النزول التلقائي للجلسة هنا
         
         const container = document.getElementById('arrest-selected-items');
         if (container && container.lastChild) { container.lastChild.classList.add('arrest-item-bouncy'); }
         return true;
     }
-    
 
-
-
-
-// 💡 دالة التبديل الذكية (إضافة / إزالة)
+    // 💡 دالة التبديل الذكية (إضافة / إزالة)
     function toggleArrestViolation(text) {
         const isSelected = arrestItems.some(i => i.label === text);
         if (isSelected) {
             // 1. إزالة البند من سبب الضبط
             arrestItems = arrestItems.filter(i => i.label !== text);
-            
-            // 2. إزالته أيضاً من الجلسة (إذا كان من بنود الجلسات المبرمجة) منعاً للأخطاء
-            if (typeof sessionTriggerCodes !== 'undefined' && typeof sessionItems !== 'undefined') {
-                const triggerTexts = sessionTriggerCodes.map(c => fullViolationDB[c]);
-                if (triggerTexts.includes(text)) {
-                    sessionItems = sessionItems.filter(i => i.label !== text);
-                    if (typeof renderSessionItems === 'function') renderSessionItems();
-                    
-                    // إذا أصبحت الجلسة فارغة بعد الحذف، نطوي بطاقة الجلسة تلقائياً
-                    if (sessionItems.length === 0) {
-                        document.getElementById('session-status').value = 'no';
-                        document.getElementById('session-date-wrapper').style.display = 'none';
-                    }
-                }
-            }
+            // 💡 تم إلغاء المسح التلقائي من الجلسة هنا
         } else {
-            // 3. إضافة البند (إذا لم يكن مختاراً)
+            // 2. إضافة البند (إذا لم يكن مختاراً)
             addViolationByText(text);
         }
         
@@ -4071,6 +4030,9 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
+
+
+
 
 
 
