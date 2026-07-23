@@ -1721,7 +1721,7 @@ body[data-theme="dark"] .rec-date { color: #64748b !important; }
         <span class="card-badge">جلسة · بند اتهام · تاريخ</span>
         <span class="toggle-arrow">▾</span>
     </div>
-    <div class="card-body" style="align-items:flex-start; gap:12px; flex-wrap:wrap; flex-direction:column;">
+    <div class="card-body" style="flex-direction:column; flex-wrap:nowrap; gap:12px; width:100%; box-sizing:border-box;">
         <div style="display:flex; gap:12px; align-items:flex-end; flex-wrap:wrap;">
             <div class="field-group">
                 <label>هل تم تحديد جلسة</label>
@@ -1737,7 +1737,8 @@ body[data-theme="dark"] .rec-date { color: #64748b !important; }
                     <select id="session-crime" onchange="onSessionCrimeSelect(this)" style="width:210px; padding:6px 8px; border:1.5px solid #c5cfe0; border-radius:6px; font-family:inherit; font-size:13px; background:#fff; color:#1e293b;">
                         <option value="">--- اختر للإضافة ---</option>
 <option value="عدم تركيب اللوحات المعدنية">عدم تركيب اللوحات المعدنية</option> 
- <option value=" عدم وضوح اللوحات المعدنية"> عدم وضوح اللوحات المعدنية</option>
+ <option value="عدم وضوح اللوحات المعدنية"> عدم وضوح اللوحات المعدنية</option>
+<option value="تركيب لوحات غير خاصة بالمركبة"> تركيب لوحات غير خاصة بالمركبة</option>
 <option value="تعمد السير عكس الاتجاة">تعمد السير عكس الاتجاة</option>
  <option value="تغيير بالاجزاء الجوهرية للمركبة">تغيير بالاجزاء الجوهرية للمركبة</option>
                         <option value="__manual__">بند يدوي...</option>
@@ -1760,7 +1761,7 @@ body[data-theme="dark"] .rec-date { color: #64748b !important; }
                 <button onclick="addSessionCustomItemBtn()" style="padding:6px 16px; background:#4a90d9; color:#fff; border:none; border-radius:6px; font-family:inherit; font-size:13px; font-weight:bold; cursor:pointer; transition:background 0.2s;" onmouseover="this.style.background='#2e6fb5'" onmouseout="this.style.background='#4a90d9'">OK</button>
             </div>
         </div>
-        <div id="session-selected-items" style="display:flex; flex-direction:column; gap:4px; width:100%; min-height:10px;"></div>
+        <div id="session-selected-items" style="display:flex; flex-wrap:wrap; gap:8px; width:100%; min-height:10px; margin-top:4px;"></div>
     </div>
 </div>
 
@@ -2760,8 +2761,19 @@ function renderArrestItems() {
 
 
         function updateSessionField() {
-            const status=document.getElementById('session-status').value;
-            document.getElementById('session-date-wrapper').style.display=(status==='yes')?'flex':'none';
+            const status = document.getElementById('session-status').value;
+            document.getElementById('session-date-wrapper').style.display = (status === 'yes') ? 'flex' : 'none';
+
+            // 💡 الإضافة الجديدة: إذا تم تغيير الحالة إلى "لم يتم" أو "فارغ"، امسح البنود فوراً
+            if (status !== 'yes') {
+                sessionItems = []; // تفريغ مصفوفة بنود الجلسة
+                renderSessionItems(); // تحديث الواجهة لإخفاء البنود (الـ Tags)
+                
+                // احتياطياً: إخفاء وتفريغ حقل الإدخال اليدوي إذا كان مفتوحاً
+                document.getElementById('session-crime-manual').value = '';
+                document.getElementById('session-crime-manual-wrapper').style.display = 'none';
+            }
+
             sync();
         }
 
@@ -2807,15 +2819,30 @@ function renderArrestItems() {
         function removeSessionItem(idx) { sessionItems.splice(idx,1); renderSessionItems(); sync(); }
 
         function renderSessionItems() {
-            const container=document.getElementById('session-selected-items');
-            container.innerHTML='';
-            sessionItems.forEach((item,idx)=>{
-                const div=document.createElement('div');
-                div.style.cssText='display:flex;align-items:center;justify-content:space-between;background:#e8eef7;border:1px solid #c5cfe0;border-radius:5px;padding:4px 10px;font-size:12px;color:#1e293b;width:280px;';
-                div.innerHTML=`<span>${item.label}</span><button onclick="removeSessionItem(${idx})" style="border:none;background:none;cursor:pointer;color:#c0392b;font-size:13px;padding:0 0 0 4px;line-height:1;"><i class="fa-solid fa-xmark"></i></button>`;
-                container.appendChild(div);
-            });
-        }
+    const container = document.getElementById('session-selected-items');
+    container.innerHTML = '';
+    
+    sessionItems.forEach((item, idx) => {
+        const div = document.createElement('div');
+        
+        // دعم الوضع الليلي والنهاري أوتوماتيكياً
+        const _isDark = document.body.getAttribute('data-theme') === 'dark';
+        const _bg = _isDark ? '#1e3555' : '#e8eef7';
+        const _border = _isDark ? '#2d4060' : '#c5cfe0';
+        const _text = _isDark ? '#e2e8f0' : '#1e293b';
+
+        // التصميم الجديد: شكل "Tag" متجاوب (بدون عرض ثابت) ويمنع خروج النص
+        div.style.cssText = `display:inline-flex; align-items:center; gap:8px; background:${_bg}; border:1px solid ${_border}; border-radius:6px; padding:6px 12px; font-size:12.5px; font-weight:bold; color:${_text}; max-width:100%; box-sizing:border-box;`;
+        
+        div.innerHTML = `
+            <span style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${item.label}</span>
+            <button onclick="removeSessionItem(${idx})" title="حذف البند" style="border:none; background:none; cursor:pointer; color:#e74c3c; font-size:14px; padding:0; display:flex; align-items:center; justify-content:center; flex-shrink:0; transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        `;
+        container.appendChild(div);
+    });
+}
 
         function clearArrestReasons() {
             arrestItems=[];
