@@ -1319,10 +1319,7 @@ body[data-theme="dark"] .rec-date { color: #64748b !important; }
                     <span>المحاضر المحفوظة</span>
                 </button>
                 <div class="floating-archive-menu" id="floatingArchiveMenu">
-                    <div class="archive-tabs">
-                        <button class="tab-btn active" id="tab-masr" onclick="switchArchiveTab('masr')">مصر القديمة</button>
-                        <button class="tab-btn" id="tab-sayeda" onclick="switchArchiveTab('sayeda')">السيدة زينب</button>
-                    </div>
+                    <div class="archive-tabs" id="dynamic-archive-tabs"></div>
                     <div class="archive-records-list" id="records-list">
                         <!-- سيتم ملء المحاضر هنا برمجياً -->
                     </div>
@@ -3466,7 +3463,31 @@ function toggleTheme() {
 /* ===================================================
    أكواد القائمة العائمة (الأرشيف) - النسخة النهائية
 =================================================== */
-var currentArchiveTab = 'masr'; 
+var currentArchiveTab = "";
+
+function buildArchiveTabs() {
+    var stations = ['مصر القديمة', 'السيدة زينب'];
+    try {
+        var cfg = JSON.parse(localStorage.getItem('niabat_config'));
+        if (cfg && Array.isArray(cfg.stations) && cfg.stations.length > 0) {
+            stations = cfg.stations;
+        }
+    } catch(e) {}
+    stations = stations.slice(0, 5);
+    if (!currentArchiveTab || !stations.includes(currentArchiveTab)) {
+        currentArchiveTab = stations[0];
+    }
+    var container = document.getElementById('dynamic-archive-tabs');
+    if (!container) return;
+    container.innerHTML = "";
+    stations.forEach(function(stationName) {
+        var btn = document.createElement('button');
+        btn.className = 'tab-btn' + (stationName === currentArchiveTab ? ' active' : '');
+        btn.textContent = stationName;
+        btn.onclick = function(e) { e.stopPropagation(); switchArchiveTab(stationName); };
+        container.appendChild(btn);
+    });
+}
 var recordsLimit = 30; 
 
 function toggleArchiveMenu() {
@@ -3492,17 +3513,11 @@ document.addEventListener('click', function(event) {
     }
 });
 
-function switchArchiveTab(tabName) {
-    currentArchiveTab = tabName;
-    recordsLimit = 30; 
-    
-    document.querySelectorAll('.archive-tabs .tab-btn').forEach(btn => {
-        btn.classList.remove('active');
-    });
-    const activeBtn = document.getElementById('tab-' + tabName);
-    if (activeBtn) activeBtn.classList.add('active');
-    
-    loadArchiveToSidebar(); 
+function switchArchiveTab(stationName) {
+    currentArchiveTab = stationName;
+    recordsLimit = 30;
+    buildArchiveTabs();
+    loadArchiveToSidebar();
 }
 
 function loadArchiveToSidebar() {
@@ -3539,11 +3554,11 @@ function loadArchiveToSidebar() {
         if (!raw) return false;
         try {
             const d = JSON.parse(raw);
-            const isSayeda = d.dept && d.dept.includes('السيدة زينب');
-            const isMasr = d.dept && (d.dept.includes('مصر القديمة') || d.dept.includes('مصر القديمه'));
-            
-            if (currentArchiveTab === 'sayeda' && !isSayeda) return false;
-            if (currentArchiveTab === 'masr' && !isMasr) return false;
+            if (currentArchiveTab) {
+                let dDept = (d.dept || "").replace(/ة/g, 'ه');
+                let currTab = currentArchiveTab.replace(/ة/g, 'ه');
+                if (!dDept.includes(currTab)) return false;
+            }
             return true;
         } catch(e) { return false; }
     });
@@ -3610,7 +3625,14 @@ function loadRecordToWorkspace(key) {
     } catch(e) {}
 }
 
-document.addEventListener('DOMContentLoaded', loadArchiveToSidebar);
+document.addEventListener("DOMContentLoaded", () => {
+    if (typeof buildArchiveTabs === 'function') {
+        buildArchiveTabs();
+        loadArchiveToSidebar();
+    } else {
+        loadArchiveToSidebar();
+    }
+});
 </script>
 
 <script>
@@ -3636,6 +3658,7 @@ document.addEventListener('DOMContentLoaded', loadArchiveToSidebar);
       if (!cfg) return;
       rebuildSelect(document.getElementById('input-boss-select'), cfg.agents, true);
       rebuildSelect(document.getElementById('input-dept-select'), cfg.stations, true);
+      if (typeof buildArchiveTabs === 'function') { buildArchiveTabs(); }
     }
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', function() { apply(load()); });
     else apply(load());
@@ -4306,7 +4329,11 @@ function autoCheckForSession(val) {
 
     smartBtn.onclick = (e) => { e.preventDefault(); handleSmartSubmit(); };
     smartInput.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') { e.preventDefault(); handleSmartSubmit(); }
+        // تفعيل زر Enter أو زر الزائد (+) من الكيبورد العادي أو الـ Numpad
+        if (e.key === 'Enter' || e.key === '+' || e.code === 'NumpadAdd') { 
+            e.preventDefault(); 
+            handleSmartSubmit(); 
+        }
         if (e.key === 'Escape') { autocompleteBox.style.display = 'none'; }
     });
 

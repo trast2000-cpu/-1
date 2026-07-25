@@ -1747,6 +1747,7 @@ body[data-theme="dark"] .record-title { color: #7aaeff !important; }
             <button class="preset-btn masai-btn" onclick="selectDecision(5)">تسلم المركبة</button>
             <button class="preset-btn masai-btn" onclick="selectDecision(6)">يستمر التحفظ</button>
             <button class="preset-btn masai-btn" onclick="selectDecision(7)">إعلان جلسة</button>
+            <button class="preset-btn masai-btn" onclick="selectDecision(8)">إعلان جلسة ( تحقيق )</button>
         </div>
 
     </div> <!-- نهاية حاوية التمرير -->
@@ -1779,10 +1780,7 @@ body[data-theme="dark"] .record-title { color: #7aaeff !important; }
                     <span>المحاضر المحفوظة</span>
                 </button>
                 <div class="floating-archive-menu" id="floatingArchiveMenu">
-                    <div class="archive-tabs">
-                        <button class="tab-btn active" id="tab-masr" onclick="switchArchiveTab('masr')">مصر القديمة</button>
-                        <button class="tab-btn" id="tab-sayeda" onclick="switchArchiveTab('sayeda')">السيدة زينب</button>
-                    </div>
+                    <div class="archive-tabs" id="dynamic-archive-tabs"></div>
                     <div class="archive-records-list" id="records-list">
                         <!-- سيتم ملء المحاضر هنا برمجياً -->
                     </div>
@@ -2682,6 +2680,88 @@ body[data-theme="dark"] .record-title { color: #7aaeff !important; }
         </div>
     </div>
 
+    <!-- TYPE 8: إعلان جلسة تحقيق — نيابة مرور القاهرة المسائية -->
+    <div id="print-masai-jalsa-tahqeeq" class="page-jalsa" style="display:none;">
+        <div class="jalsa-border">
+
+            <div class="jalsa-header" style="display: flex; align-items: center; justify-content: space-between; direction: rtl;
+                 border-bottom: none !important;
+                 padding-bottom: 4mm !important;
+                 margin-bottom: 7mm !important;">
+                <div style="text-align: right; flex-shrink: 0; padding-right: 8mm;">
+                    <img src="logo.png" alt="شعار النيابة" style="width: 90px; height: auto;">
+                </div>
+                <div style="flex: 1; text-align: center; padding-left: 100mm; padding-right: 5mm;">
+                    النيابـــــة العـــــامـة<br>
+                    نيابة مرور القاهرة المسائية
+                </div>
+            </div>
+
+            <div class="jalsa-header-title" style="text-align: center; margin-top: -10mm;">
+                <span style="font-size: 18pt; border-bottom: 2px solid black; display: inline-block; padding-bottom: 3px; margin-top: -20mm;">
+                    قيد و وصف جلسة
+                </span>
+            </div>
+
+            <div class="jalsa-body">
+                <div class="line" style="text-align: center;">
+                    بشأن المحضر رقم&nbsp;<span class="d pm-data" id="mjt-mahdar-num"></span>&nbsp;
+                    لسنة 2026 جنح مرور&nbsp;<span class="d pm-data" id="mjt-qism"></span>
+                </div>
+                <div class="line" style="text-align: center; margin-top:1.5mm;">
+                    في /&nbsp;<span class="d pm-data" id="mjt-qarar-date-new"></span>
+                </div>
+                <div class="line">
+                    <div class="line" style="margin-top: -5mm; padding-left: 8mm; padding-right: 8mm;">
+                        <span style="float:right">نحن /&nbsp;<span id="mjt-director-name" class="dynamic-field"></span></span>
+                        <span style="float:left">مديـر النيابة</span>
+                        <div style="clear: both;"></div>
+                    </div>
+                    <div class="line">عقب مطالعة الأوراق وما تم فيها من تحقيقات.</div>
+                    <div class="line">
+                        أولاً: تقيد الأوراق جنحة بالمواد 1 ، 3 ، 4 ، 74 مكرر بند 6 ، 74 مكرر (3) ، 74 مكرر (4)
+                        وجنحة بالمواد 11 ، 3 ، 4 ، 13/2،3 ، 15/2،3 ، 53 ، 77 وجنحة بالمادة 77 مكرر . 1 ، 2 ، 3 ، 4 ،
+                        76 مكرر ، 78 من القانون رقم 66 لسنة 1973 والمعدل بالقوانين أرقام 210 لسنة 1980 ، 155 لسنة 1999
+                        و 121 لسنة 2008 ، 25 لسنة 2014 ، 59 لسنة 2014
+                    </div>
+
+                    <div class="line" style="text-align: center; margin-bottom: 4mm;">
+                        <span style="font-size: 18pt; font-weight: bold;">ضـد :</span>&nbsp;
+                        <span class="d pm-data" id="mjt-name"></span>
+                    </div>
+
+                    <div class="line" style="text-align: center;">
+                        لأنه بتاريخ&nbsp;<span class="d pm-data" id="mjt-incident-date"><span class="date-dots">..................</span><span class="date-slash">/</span><span class="date-dots">..................</span><span class="date-slash">/</span>2026</span>&nbsp;
+                        قاد المركبة :-&nbsp;<span class="d pm-data" id="mjt-car"></span>
+                    </div>
+                    <div class="line" style="text-align: center;">
+                        بدائرة قسم شرطة&nbsp;<span class="d pm-data" id="mjt-da2ira"></span>&nbsp;محافظة القاهرة
+                    </div>
+
+                    <div class="line" style="margin-top: -15px; margin-bottom: 8px; padding-right:5mm;">
+                        ارتكب الآتي/
+                        <div id="mjt-violations" class="viols-grid-u" style="margin-top: 1mm;"></div>
+                    </div>
+
+                    <div class="line" id="mjt-extra-text-line" style="display:none; white-space:normal; line-height: 5.0; font-size: 15pt;">
+                        <span id="mjt-extra-text"></span>
+                    </div>
+
+                    <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-top:-5mm; padding-left:12mm; padding-right:12mm;">
+                        <div style="text-align:right;">
+                            <div style="font-weight:bold;">أعلنت بالجلسة</div>
+                            <div id="mjt-a3lanat-dots" style="font-size:5pt; margin-top:4mm;"></div>
+                        </div>
+                        <div class="jalsa-sig" style="text-align:left;">
+                            <div style="font-weight:bold;">مديـر النيابة</div>
+                            <div id="mjt-director-sig-display" style="font-size:5pt; margin-top:4mm;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
 </div><!-- end print-area -->
 
 <!-- ============================================================
@@ -2932,6 +3012,17 @@ function selectDecision(idx) {
         if (fineCard7) _closeCard(fineCard7);
         if (sabeelCard) _openCard(sabeelCard);
         if (sabeelSel)  { sabeelSel.value = 'qism'; updateSabeelText(); }
+        autoSelectJalsaDay();
+        updateJalsaDecisionText();
+    } else if (idx === 8) {
+        // إعلان جلسة تحقيق — نيابة مسائية
+        if (vehCard)    _closeCard(vehCard);
+        if (violCard)   _openCard(violCard);
+        if (isdarCard)  _openCard(isdarCard);
+        if (sabeelCard) _closeCard(sabeelCard);
+        if (sabeelSel)  { sabeelSel.value = 'other'; updateSabeelText(); }
+        const fineCard8 = document.getElementById('card-fine');
+        if (fineCard8) _closeCard(fineCard8);
         autoSelectJalsaDay();
         updateJalsaDecisionText();
     }
@@ -3414,6 +3505,17 @@ const FIELDS_CONFIG = {
     'mj-director-sig-u': { dots: '' },
     'mj-director-sig-l': { dots: '' },
     'mj-da2ira-u':       { dots: '........................................................' },
+
+    'mjt-mahdar-num':     { dots: '…………………………………………………………' },
+    'mjt-qism':           { dots: '…………………………………………………………' },
+    'mjt-qarar-date-new': { dateField: true },
+    'mjt-name':           { dots: '...............................................................................................................................................................................................................' },
+    'mjt-incident-date':  { dots: '.....................................................................', dateField: true },
+    'mjt-car':            { dots: '..................................................................................................' },
+    'mjt-da2ira':         { dots: '...........................................................................................................' },
+    'mjt-director-name':  { dots: '…………………………………………………………' },
+    'mjt-director-sig-display': { dots: '…………………………………………………………' },
+    'mjt-a3lanat-dots':   { dots: '…………………………………………………………' },
 };
 
 /* ===================================================
@@ -3521,6 +3623,8 @@ function updateAll() {
     if (masaiEl) masaiEl.style.display = [5,6].includes(currentDecision) ? '' : 'none';
     const masaiJalsaEl = document.getElementById('print-masai-jalsa');
     if (masaiJalsaEl) masaiJalsaEl.style.display = currentDecision === 7 ? '' : 'none';
+    const masaiJalsaTahqeeqEl = document.getElementById('print-masai-jalsa-tahqeeq');
+    if (masaiJalsaTahqeeqEl) masaiJalsaTahqeeqEl.style.display = currentDecision === 8 ? '' : 'none';
 
     /* ---- طلب حضور متهم ---- */
     const talabArea = document.getElementById('print-talab-area');
@@ -3889,6 +3993,80 @@ function updateAll() {
             jViols.innerHTML = [1,2,3,4,5,6].map(n => `<span style="display: block; white-space: nowrap; font-size: ${fontSize}; font-weight: bold; line-height: ${lineHeight}; padding-left: 2mm;">${n}- <span style="font-size:5pt">.................................................</span></span>`).join('');
         }
     }
+    /* ===== TYPE 8: إعلان جلسة تحقيق — نيابة مرور القاهرة المسائية ===== */
+    if (currentDecision === 8) {
+        setText('mjt-mahdar-num', mahdarNum);
+        setText('mjt-qism', qism);
+        setText('mjt-qarar-date-new', qararDate);
+        setText('mjt-name', name);
+        setText('mjt-incident-date', incidentDate);
+        const mjtPlateDisplay = !isCarEmpty ? `( ${car} )` : '...........';
+        setText('mjt-car', mjtPlateDisplay);
+        setText('mjt-da2ira', da2ira);
+        setText('mjt-director-name', director);
+        setText('mjt-a3lanat-dots', '');
+
+        const mjtHasDirector = bossSel && bossSel.value && bossSel.value !== '.................';
+        const mjtDirSig = document.getElementById('mjt-director-sig-display');
+        if (mjtDirSig) {
+            if (mjtHasDirector) {
+                mjtDirSig.style.fontSize = '';
+                mjtDirSig.style.fontWeight = 'bold';
+                mjtDirSig.textContent = director;
+            } else {
+                mjtDirSig.style.fontSize = '5pt';
+                mjtDirSig.style.fontWeight = '';
+                setText('mjt-director-sig-display', '');
+            }
+        }
+
+        const mjtJalsaExtraText = (document.getElementById('jalsa-extra-text') || {}).value || '';
+        const mjtExtraLine = document.getElementById('mjt-extra-text-line');
+        const mjtExtraSpan = document.getElementById('mjt-extra-text');
+        if (mjtExtraLine && mjtExtraSpan) {
+            if (mjtJalsaExtraText.trim()) {
+                mjtExtraSpan.innerHTML = mjtJalsaExtraText.replace(/يوم (.*?) الموافق (.*)/, 'يوم <b>$1</b> الموافق <b>$2</b>');
+                mjtExtraLine.style.display = '';
+            } else {
+                mjtExtraLine.style.display = 'none';
+            }
+        }
+
+        const mjtViols = document.getElementById('mjt-violations');
+        if (mjtViols) {
+            let mjtItemsCount = viols.length > 0 ? viols.length : 6;
+            let mjtGap = '3mm 10mm';
+            let mjtLineHeight = '1.4';
+            let mjtFontSize = '16pt';
+            if (mjtItemsCount === 7 || mjtItemsCount === 8) {
+                mjtGap = '1.5mm 10mm'; mjtLineHeight = '1.2'; mjtFontSize = '15.5pt';
+            } else if (mjtItemsCount >= 9) {
+                mjtGap = '0mm 10mm'; mjtLineHeight = '1.1'; mjtFontSize = '14.5pt';
+            }
+            if (viols.length > 0) {
+                const mjtMaxLen = Math.max(...viols.map(v => v.length));
+                if (mjtMaxLen > 30) {
+                    if (parseFloat(mjtFontSize) > 14) mjtFontSize = '14pt';
+                    mjtLineHeight = '1.2';
+                    mjtGap = mjtGap.replace(/^[\d.]+mm/, '1mm');
+                }
+                if (mjtMaxLen > 40) { mjtFontSize = '12.5pt'; mjtLineHeight = '1.1'; mjtGap = '0.5mm 8mm'; }
+            }
+            mjtViols.style.cssText = `display: grid !important; grid-template-columns: 1fr 1fr !important; gap: ${mjtGap} !important; margin-top: 2mm !important; width: 100% !important; height: 30mm !important; align-content: start !important;`;
+            if (viols.length) {
+                mjtViols.innerHTML = viols.map((v, i) => {
+                    const vLen = v.length;
+                    let vFs = mjtFontSize;
+                    if (vLen > 30 && parseFloat(vFs) > 12) vFs = '12pt';
+                    else if (vLen > 20 && parseFloat(vFs) > 14) vFs = '14pt';
+                    const ws = vLen > 25 ? 'white-space:normal;' : 'white-space:nowrap;';
+                    return `<span style="display:block;${ws}font-size:${vFs};font-weight:bold;line-height:${mjtLineHeight};padding-left:2mm;">${i+1}- ${v}</span>`;
+                }).join('');
+            } else {
+                mjtViols.innerHTML = [1,2,3,4,5,6].map(n => `<span style="display: block; white-space: nowrap; font-size: ${mjtFontSize}; font-weight: bold; line-height: ${mjtLineHeight}; padding-left: 2mm;">${n}- <span style="font-size:5pt">.................................................</span></span>`).join('');
+            }
+        }
+    }
 }
 
 /* ===================================================
@@ -4030,7 +4208,7 @@ function loadMahdarFromStorage() {
         selectDecision(d.currentDecision);
         
         // 💡 تحديث الزر بناءً على القرار المُسترجع (صباحي أم مسائي)
-        const isMasai = (d.currentDecision >= 5 && d.currentDecision <= 7);
+        const isMasai = (d.currentDecision >= 5 && d.currentDecision <= 8);
         const btn = document.getElementById('timing-toggle-btn');
         
         // إذا كان المحضر مسائي والواجهة على الصباحي، أو العكس، قم بالتبديل
@@ -4453,7 +4631,31 @@ document.addEventListener('DOMContentLoaded', function() {
 /* ===================================================
    أكواد القائمة العائمة (الأرشيف) — موحّدة مع نظام قرارات ما بعد السداد
 =================================================== */
-var currentArchiveTab = "masr";
+var currentArchiveTab = "";
+
+function buildArchiveTabs() {
+    var stations = ['مصر القديمة', 'السيدة زينب'];
+    try {
+        var cfg = JSON.parse(localStorage.getItem('niabat_config'));
+        if (cfg && Array.isArray(cfg.stations) && cfg.stations.length > 0) {
+            stations = cfg.stations;
+        }
+    } catch(e) {}
+    stations = stations.slice(0, 5);
+    if (!currentArchiveTab || !stations.includes(currentArchiveTab)) {
+        currentArchiveTab = stations[0];
+    }
+    var container = document.getElementById('dynamic-archive-tabs');
+    if (!container) return;
+    container.innerHTML = "";
+    stations.forEach(function(stationName) {
+        var btn = document.createElement('button');
+        btn.className = 'tab-btn' + (stationName === currentArchiveTab ? ' active' : '');
+        btn.textContent = stationName;
+        btn.onclick = function(e) { e.stopPropagation(); switchArchiveTab(stationName); };
+        container.appendChild(btn);
+    });
+}
 var recordsLimit = 30;
 
 function toggleArchiveMenu() {
@@ -4479,16 +4681,10 @@ document.addEventListener("click", function(event) {
     }
 });
 
-function switchArchiveTab(tabName) {
-    currentArchiveTab = tabName;
+function switchArchiveTab(stationName) {
+    currentArchiveTab = stationName;
     recordsLimit = 30;
-
-    document.querySelectorAll(".archive-tabs .tab-btn").forEach(btn => {
-        btn.classList.remove("active");
-    });
-    const activeBtn = document.getElementById("tab-" + tabName);
-    if (activeBtn) activeBtn.classList.add("active");
-
+    buildArchiveTabs();
     loadArchiveToSidebar();
 }
 
@@ -4526,11 +4722,11 @@ function loadArchiveToSidebar() {
         if (!raw) return false;
         try {
             const d = JSON.parse(raw);
-            const isSayeda = d.dept && d.dept.includes("السيدة زينب");
-            const isMasr = d.dept && (d.dept.includes("مصر القديمة") || d.dept.includes("مصر القديمه"));
-
-            if (currentArchiveTab === "sayeda" && !isSayeda) return false;
-            if (currentArchiveTab === "masr" && !isMasr) return false;
+            if (currentArchiveTab) {
+                let dDept = (d.dept || "").replace(/ة/g, 'ه');
+                let currTab = currentArchiveTab.replace(/ة/g, 'ه');
+                if (!dDept.includes(currTab)) return false;
+            }
             return true;
         } catch(e) { return false; }
     });
@@ -4605,7 +4801,14 @@ function loadRecordToWorkspace(key) {
     } catch(e) {}
 }
 
-document.addEventListener("DOMContentLoaded", loadArchiveToSidebar);
+document.addEventListener("DOMContentLoaded", () => {
+    if (typeof buildArchiveTabs === 'function') {
+        buildArchiveTabs();
+        loadArchiveToSidebar();
+    } else {
+        loadArchiveToSidebar();
+    }
+});
 
 </script>
 
@@ -4668,6 +4871,7 @@ document.addEventListener("DOMContentLoaded", loadArchiveToSidebar);
         if (typeof updateAll === 'function') updateAll();
       }
     }
+      if (typeof buildArchiveTabs === 'function') { buildArchiveTabs(); }
 
     if (document.readyState === 'loading')
       document.addEventListener('DOMContentLoaded', function() { apply(load()); });
@@ -5314,7 +5518,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     smartBtn.onclick = (e) => { e.preventDefault(); handleViolSmartSubmit(); };
     smartInput.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') { e.preventDefault(); handleViolSmartSubmit(); }
+        // تفعيل زر Enter أو زر الزائد (+) من الكيبورد العادي أو الـ Numpad
+        if (e.key === 'Enter' || e.key === '+' || e.code === 'NumpadAdd') { 
+            e.preventDefault(); // نمنع كتابة علامة + حرفياً داخل المربع
+            handleViolSmartSubmit(); 
+        }
         if (e.key === 'Escape') { autocompleteBox.style.display = 'none'; }
     });
 

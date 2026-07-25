@@ -1140,10 +1140,7 @@ thead th[data-tip]:hover::before {
                     <i class="fa-solid fa-folder-open"></i> المحاضر المحفوظة
                 </button>
                 <div class="floating-archive-menu" id="floatingArchiveMenu" style="left: 0; right: auto;">
-                    <div class="archive-tabs">
-                        <button class="archive-tab-btn active" onclick="switchFloatingTab('masr')">مصر القديمة</button>
-                        <button class="archive-tab-btn" onclick="switchFloatingTab('sayeda')">السيدة زينب</button>
-                    </div>
+                    <div class="archive-tabs" id="dynamic-archive-tabs"></div>
                     <div class="archive-records-list" id="floatingRecordsList"></div>
                     <button class="bulk-insert-btn" onclick="insertSelectedRecords()">✔️ إدراج المحاضر المحددة</button>
                 </div>
@@ -1917,8 +1914,34 @@ function openShortcutsModal() {
 /* ===================================================
    أكواد القائمة العائمة (المحاضر المحفوظة) - نظام الفحص
 =================================================== */
-let floatingArchiveTab = 'masr'; 
+let floatingArchiveTab = "";
 let floatingRecordsLimit = 30;
+
+function buildArchiveTabs() {
+    let stations = ['مصر القديمة', 'السيدة زينب'];
+    try {
+        let cfg = JSON.parse(localStorage.getItem('niabat_config'));
+        if (cfg && Array.isArray(cfg.stations) && cfg.stations.length > 0) {
+            stations = cfg.stations.slice(0, 5);
+        }
+    } catch(e) {}
+
+    if (!floatingArchiveTab || !stations.includes(floatingArchiveTab)) {
+        floatingArchiveTab = stations[0];
+    }
+
+    let container = document.getElementById('dynamic-archive-tabs');
+    if (!container) return;
+    container.innerHTML = "";
+
+    stations.forEach(function(stationName) {
+        let btn = document.createElement('button');
+        btn.className = 'archive-tab-btn' + (stationName === floatingArchiveTab ? ' active' : '');
+        btn.textContent = stationName;
+        btn.onclick = function(e) { e.stopPropagation(); switchFloatingTab(stationName); };
+        container.appendChild(btn);
+    });
+}
 
 // فتح وإغلاق القائمة العائمة
 function toggleFloatingArchive() {
@@ -1945,17 +1968,10 @@ document.addEventListener('click', function(event) {
 });
 
 // التبديل بين الأقسام داخل القائمة العائمة
-function switchFloatingTab(tabName) {
-    floatingArchiveTab = tabName;
-    floatingRecordsLimit = 30; // تصفير العدد
-    
-    document.querySelectorAll('.archive-tab-btn').forEach(btn => {
-        btn.classList.remove('active');
-        if (btn.getAttribute('onclick').includes(tabName)) {
-            btn.classList.add('active');
-        }
-    });
-    
+function switchFloatingTab(stationName) {
+    floatingArchiveTab = stationName;
+    floatingRecordsLimit = 30;
+    buildArchiveTabs();
     loadFloatingArchive();
 }
 
@@ -1993,11 +2009,11 @@ function loadFloatingArchive() {
         if (!raw) return false;
         try {
             const d = JSON.parse(raw);
-            const isSayeda = d.dept && d.dept.includes('السيدة زينب');
-            const isMasr = d.dept && (d.dept.includes('مصر القديمة') || d.dept.includes('مصر القديمه'));
-            
-            if (floatingArchiveTab === 'sayeda' && !isSayeda) return false;
-            if (floatingArchiveTab === 'masr' && !isMasr) return false;
+            if (floatingArchiveTab) {
+                let dDept = (d.dept || "").replace(/ة/g, 'ه');
+                let currTab = floatingArchiveTab.replace(/ة/g, 'ه');
+                if (!dDept.includes(currTab)) return false;
+            }
             return true;
         } catch(e) { return false; }
     });
@@ -2064,7 +2080,7 @@ function insertSelectedRecords() {
     // 1. تغيير حقل القسم في الصفحة بهدوء (بدون تفعيل الاسترجاع الهيستيري)
     const deptSel = document.getElementById('dept');
     if (deptSel) {
-        const targetDept = floatingArchiveTab === 'sayeda' ? 'السيدة زينب' : 'مصر القديمة';
+        const targetDept = floatingArchiveTab;
         let exists = Array.from(deptSel.options).some(opt => opt.value === targetDept);
         if(exists) {
             deptSel.value = targetDept;
@@ -2447,6 +2463,7 @@ function showLookupSuccessToast(caseNum, name) {
             };
         }
       }
+      if (typeof buildArchiveTabs === 'function') { buildArchiveTabs(); }
     }
 
     if (document.readyState === 'loading')
@@ -2461,7 +2478,16 @@ function showLookupSuccessToast(caseNum, name) {
     /* استقبال الإعدادات محلياً */
     window.addEventListener('storage', function(e) { if (e.key === K) apply(load()); });
   })();
-  </script>
+  
+document.addEventListener("DOMContentLoaded", () => {
+    if (typeof buildArchiveTabs === 'function') {
+        buildArchiveTabs();
+        loadFloatingArchive();
+    } else {
+        loadFloatingArchive();
+    }
+});
+</script>
 
 </body>
 </html>
