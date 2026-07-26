@@ -1225,8 +1225,8 @@ box-sizing: border-box;
                 <select id="font_size_choice" class="persist">
                     <option value="12px">12 - دقيق جداً</option>
                     <option value="14px">14 - دقيق</option>
-                    <option value="16px">16 - صغير جداً</option>
-                    <option value="18px" selected>18 - صغير</option>
+                    <option value="16px"selected>16 - صغير جداً</option>
+                    <option value="18px">18 - صغير</option>
                     <option value="20px">20 - متوسط</option>
                     <option value="22px">22 - كبير قليلاً</option>
                     <option value="24px">24 - مناسب جداً</option>
@@ -3339,6 +3339,12 @@ window.onload = function() {
         const m = today.getMonth() + 1;
         const d = today.getDate();
         dateField.value = toArabicNumerals(y + '/' + m + '/' + d);
+    }
+    // تعيين اليوم الحالي افتراضياً في حقل "اليوم" إذا كان فارغًا
+    const dayField = document.getElementById('day');
+    if (dayField && !dayField.value) {
+        const arDaysDefault = ['الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'];
+        dayField.value = arDaysDefault[new Date().getDay()];
     }
     // تحديث واجهة قرار إخلاء السبيل عند تحميل الصفحة
     updateReleaseDecisionUI();
@@ -5531,9 +5537,10 @@ function saveDetentionOrder() {
         document.querySelectorAll('select').forEach(select => {
             if      (select.id === 'font_choice')       select.value = currentFont     || "'Arabic Typesetting', serif";
             else if (select.id === 'font_size_choice')  select.value = currentFontSize || "26px";
-            else if (select.id === 'plate_mode')        select.value = "بدون لوحات";
             else if (select.id === 'style_choice')      select.value = currentStyle    || "formal3";
             else if (select.id === 'prosecution_name')  select.value = "نيابة مرور عين الصيرة";
+            else if (select.id === 'day')               { /* لا تُمسح — سيتم ضبطها على اليوم الحالي أدناه */ }
+            else if (select.id === 'plate_mode')         { /* لا تُمسح — يبقى وضع اللوحة كما هو حتى يغيّره المستخدم يدويًا */ }
             else    select.selectedIndex = 0;
         });
 
@@ -5548,7 +5555,7 @@ function saveDetentionOrder() {
 
         document.getElementById('pros_other').style.display             = 'none';
         document.getElementById('v_other').style.display                = 'none';
-        document.getElementById('plate_manual_container').style.display = 'none';
+        togglePlateInput(document.getElementById('plate_mode').value);
         document.getElementById('police_station_other').style.display   = 'none';
         document.getElementById('prosecution_name_other').style.display = 'none';
 
@@ -5556,6 +5563,8 @@ function saveDetentionOrder() {
         document.getElementById('date').value = toArabicNumerals(
             todayNow.getFullYear() + '/' + (todayNow.getMonth()+1) + '/' + todayNow.getDate()
         );
+        const arDaysF9 = ['الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'];
+        document.getElementById('day').value = arDaysF9[todayNow.getDay()];
 
         applyStyle(currentStyle || 'formal3');
         saveData();
