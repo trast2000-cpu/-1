@@ -4137,6 +4137,24 @@ function printDoc() {
         alert('الرجاء اختيار القرار المناسب من القائمة الجانبية قبل الطباعة');
         return;
     }
+
+    // ---- فحص: هل رقم المحضر (+ السنة + القسم) محفوظ من قبل؟ ----
+    const get = id => { const el = document.getElementById(id); return el ? el.value : ''; };
+    const caseNum = get('input-caseNum').trim();
+    const year    = get('input-year').trim();
+    const deptSel = document.getElementById('input-dept-select');
+    const dept    = deptSel ? (deptSel.value === 'أخرى' ? get('input-dept-other').trim() : deptSel.value) : '';
+
+    if (caseNum && year && dept) {
+        const key = 'mahdar_' + caseNum + '_' + year + '_' + dept;
+        if (localStorage.getItem(key)) {
+            const proceed = confirm('⚠️ يوجد محضر محفوظ من قبل بنفس الرقم (' + caseNum + ' / ' + year + ' / ' + dept + ').\n\nهل تريد الكتابة فوقه ومتابعة الطباعة؟\n\n(اضغط "إلغاء" إذا كان يجب تعديل رقم المحضر أولاً)');
+            if (!proceed) {
+                return; // إيقاف الطباعة والحفظ لحين تعديل رقم المحضر
+            }
+        }
+    }
+
     updateAll();
     saveMahdarData(); // ← حفظ البيانات قبل الطباعة
     window.print();
