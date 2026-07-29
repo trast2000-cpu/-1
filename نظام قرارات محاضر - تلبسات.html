@@ -4148,7 +4148,7 @@ function printDoc() {
     if (caseNum && year && dept) {
         const key = 'mahdar_' + caseNum + '_' + year + '_' + dept;
         if (localStorage.getItem(key)) {
-            const proceed = confirm('⚠️ يوجد محضر محفوظ من قبل بنفس الرقم (' + caseNum + ' / ' + year + ' / ' + dept + ').\n\nهل تريد الكتابة فوقه ومتابعة الطباعة؟\n\n(اضغط "إلغاء" إذا كان يجب تعديل رقم المحضر أولاً)');
+            const proceed = confirm('⚠️ يوجد محضر محفوظ من قبل بنفس الرقم (' + caseNum + ' / ' + year + ' / ' + dept + ').\n\n اضغط  " ok " اذا كنت تريد الحفظ فوقه ومتابعة الطباعة\n\nاضغط " إلغاء " إذا كان يجب تعديل رقم المحضر أولاً');
             if (!proceed) {
                 return; // إيقاف الطباعة والحفظ لحين تعديل رقم المحضر
             }
