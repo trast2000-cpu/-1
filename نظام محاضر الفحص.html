@@ -1028,6 +1028,10 @@ thead th[data-tip]:hover::before {
     font-size: 13px;
     font-weight: bold;
     color: #1e3a5f;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px;
 }
 
 .archive-record-sub {
@@ -1035,6 +1039,59 @@ thead th[data-tip]:hover::before {
     justify-content: space-between;
     font-size: 11px;
     color: #5a6a82;
+}
+
+.record-type-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 17px;
+    height: 17px;
+    padding: 0 4px;
+    border-radius: 9px;
+    font-size: 10px;
+    font-weight: bold;
+    color: #fff;
+    flex-shrink: 0;
+    line-height: 1;
+}
+
+.badge-fine { background: #28a745; }
+.badge-session { background: #1e3a5f; }
+
+[data-theme="dark"] .badge-session { background: #c9a200; color: #1e3a5f; }
+
+.archive-date-divider {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 6px 2px 2px;
+    user-select: none;
+}
+
+.archive-date-divider::before,
+.archive-date-divider::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, #c8d3e3 40%, #c8d3e3 60%, transparent);
+}
+
+.archive-date-divider .divider-dot {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: #4a7ab5;
+    flex-shrink: 0;
+}
+
+[data-theme="dark"] .archive-date-divider::before,
+[data-theme="dark"] .archive-date-divider::after {
+    background: linear-gradient(90deg, transparent, #2d4060 40%, #2d4060 60%, transparent);
+}
+
+[data-theme="dark"] .archive-date-divider .divider-dot {
+    background: #7aaeff;
 }
 
 .bulk-insert-btn {
@@ -1198,7 +1255,7 @@ thead th[data-tip]:hover::before {
     </div>
 
     <div style="position: relative; display: flex; align-items: center; justify-content: center; margin-top: 6px;">
-        <span class="no-print dev-credit-fhs" style="position: absolute; left: 0; font-size: 12px; color: #888; font-style: italic; user-select: none;">Developed by Ibrahim Ahmed | v1.3.0</span>
+        <span class="no-print dev-credit-fhs" style="position: absolute; left: 0; font-size: 12px; color: #888; font-style: italic; user-select: none;">Developed by Ibrahem Ahmed | v1.4.0</span>
         <div style="display: flex; gap: 8px; align-items: center;">
             <button class="print-btn-main" style="margin:0;" onclick="printPage()">طباعة الكشف(CTRL+P)</button>
             <button class="no-print" onclick="openRestoreModal()" title="استرجع كشف (CTRL+R)" style="background:linear-gradient(135deg,#6f42c1,#563d7c);color:#fff;border:none;border-radius:8px;padding:5px 12px;font-size:13px;font-weight:bold;cursor:pointer;font-family:inherit;"> استرجع كشف (ctrl+R)</button>
@@ -1917,6 +1974,26 @@ function openShortcutsModal() {
 let floatingArchiveTab = "";
 let floatingRecordsLimit = 30;
 
+// بنود تصنّف المحضر كـ "جلسة" حتى لو احتوى بنود غرامة أخرى
+const SESSION_KEYWORDS = [
+    'تعمد السير عكس الاتجاة',
+    'عدم تركيب اللوحات المعدنية',
+    'بيانات اللوحات غير ظاهرة',
+    'تركيب لوحات غير خاصة بالمركبة',
+    'عدم وضوح اللوحات المعدنية',
+    'عدم تثبيت اللوحات فى المكان المقرر لها',
+    'تغير لون اللوحات المعدنية',
+    'القيادة تحت تأثيرموادمخدرة',
+    'القيادة تحت تأثير مواد مسكرة',
+    'تغيير بالاجزاء الجوهرية للمركبة'
+];
+
+function isSessionRecord(d) {
+    if (!d || !d.violations) return false;
+    const text = Array.isArray(d.violations) ? d.violations.join(' | ') : String(d.violations);
+    return SESSION_KEYWORDS.some(function(kw) { return text.includes(kw); });
+}
+
 function buildArchiveTabs() {
     let stations = ['مصر القديمة', 'السيدة زينب'];
     try {
@@ -2025,13 +2102,28 @@ function loadFloatingArchive() {
 
     const keysToShow = filteredKeys.slice(0, floatingRecordsLimit);
     
+    let lastDateSeen = null;
+
     keysToShow.forEach(key => {
         const raw = localStorage.getItem(key);
         if (!raw) return;
         try {
             const d = JSON.parse(raw);
             const shortName = d.name ? d.name.split(' ').slice(0, 3).join(' ') : 'بدون اسم';
-            const dateOnly = d.savedAt ? d.savedAt.split(',')[0].trim() : '';
+            const dateOnly = d.savedAt ? d.savedAt.split(/[,،]/)[0].trim() : '';
+            const isSession = isSessionRecord(d);
+            const badgeHtml = isSession
+                ? '<span class="record-type-badge badge-session" title="محضر جلسة">ج</span>'
+                : '<span class="record-type-badge badge-fine" title="محضر غرامة">غ</span>';
+
+            // إدراج فاصل بصري (بدون نص) عند تغيّر تاريخ المحضر عن السابق
+            if (lastDateSeen !== null && dateOnly !== lastDateSeen) {
+                const divider = document.createElement('div');
+                divider.className = 'archive-date-divider';
+                divider.innerHTML = '<span class="divider-dot"></span>';
+                container.appendChild(divider);
+            }
+            lastDateSeen = dateOnly;
             
             // استخدام <label> لتفعيل الاختيار عند الضغط على أي مكان في المربع
             const itemDiv = document.createElement('label'); 
@@ -2040,7 +2132,7 @@ function loadFloatingArchive() {
             itemDiv.innerHTML = `
                 <input type="checkbox" class="archive-checkbox" value="${key}">
                 <div class="archive-record-info">
-                    <div class="archive-record-title">📄 ${d.caseNum || ''} / ${d.year || ''}</div>
+                    <div class="archive-record-title"><span>📄 ${d.caseNum || ''} / ${d.year || ''}</span>${badgeHtml}</div>
                     <div class="archive-record-sub">
                         <span class="rec-name">👤 ${shortName}</span>
                         <span class="rec-date">${dateOnly}</span>
