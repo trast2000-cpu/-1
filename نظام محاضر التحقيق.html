@@ -1577,7 +1577,13 @@ box-sizing: border-box;
             <!-- 4. المخالفات -->
             <!-- 💡 أخذت الوزن الأكبر (2.5) لتتسع للقائمة الطويلة بشكل مريح للعين -->
             <div class="field" style="flex: 2.5; min-width: 300px;">
-                <label>البنود الاكثر استخداما</label>
+                <!-- 💡 حاوية مرنة لترتيب العنوان يميناً وزر مسح الكل يساراً -->
+                <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 4px;">
+                    <label style="margin: 0;">البنود الاكثر استخداما</label>
+                    <button type="button" onclick="clearAllViolations()" title="مسح جميع المخالفات دفعة واحدة" style="background: transparent; color: #ef4444; border: 1px solid #ef4444; border-radius: 4px; padding: 2px 8px; font-size: 11px; cursor: pointer; display: flex; align-items: center; gap: 4px; transition: all 0.2s;" onmouseover="this.style.background='#ef4444'; this.style.color='#fff';" onmouseout="this.style.background='transparent'; this.style.color='#ef4444';">
+                        <i class="fa-solid fa-trash-can"></i> مسح 
+                    </button>
+                </div>
                 <select id="viol_select" style="display:none;"></select>
                 <div id="violation_list" style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 6px;"></div>
             </div>
@@ -2656,6 +2662,28 @@ function applyFontSize(size) {
         renderQuestions();
         saveData();
     }
+
+
+
+
+// 💡 دالة مسح جميع المخالفات وأسئلتها دفعة واحدة (بدون رسالة تأكيد للسرعة)
+    function clearAllViolations() {
+        if (violations.length === 0) return; // لا تفعل شيئاً إذا كانت القائمة فارغة أصلاً
+        
+        // 1. تفريغ مصفوفة المخالفات تماماً
+        violations = [];
+        
+        // 2. إزالة جميع الأسئلة التلقائية المرتبطة بالمخالفات من مصفوفة الأسئلة
+        questions = questions.filter(q => q.type !== 'viol');
+        
+        // 3. تحديث الواجهة وحفظ التعديلات
+        renderViolations();
+        renderQuestions();
+        saveData();
+    }
+
+
+
 
     // 💡 دالة رسم البنود المختارة بالشكل العصري (مرتبطة بألوان الستايل المختار)
     // 💡 دالة رسم البنود المختارة بنظام العمودين المنسق
