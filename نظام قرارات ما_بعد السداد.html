@@ -1155,7 +1155,9 @@ body[data-theme="dark"] .custom-select-option.option-light {
     position: absolute;
     top: calc(100% + 5px);
     left: 0; 
-    width: 260px;
+    width: 260px; /* عرض احتياطي، يتم ضبطه ديناميكياً حسب عدد الأقسام */
+    min-width: 260px;
+    max-width: 400px;
     max-height: calc((100vh / 1.3) - 80px); /* الارتفاع الذكي الجديد */
     background: #edf0f7;
     border-radius: 12px;
@@ -1243,7 +1245,7 @@ body[data-theme="dark"] .custom-select-option.option-light {
     transform: translateY(-1.5px);
     box-shadow: 0 6px 15px rgba(30,58,95,0.15);
 }
-.record-title { font-size: 13px; font-weight: bold; color: #1e3a5f; margin-bottom: 2px; }
+.record-title { font-size: 13px; font-weight: bold; color: #1e3a5f; margin-bottom: 2px; display: flex; align-items: center; justify-content: space-between; gap: 6px; }
 .record-sub-row {
     display: flex;
     justify-content: space-between;
@@ -1252,6 +1254,51 @@ body[data-theme="dark"] .custom-select-option.option-light {
 }
 .rec-name { font-size: 11px; color: #5a6a82; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 65%; }
 .rec-date { font-size: 10px; color: #8a9bb5; white-space: nowrap; }
+
+.record-type-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 17px;
+    height: 17px;
+    padding: 0 4px;
+    border-radius: 9px;
+    font-size: 10px;
+    font-weight: bold;
+    color: #fff;
+    flex-shrink: 0;
+    line-height: 1;
+}
+.badge-fine { background: #28a745; }
+.badge-session { background: #1e3a5f; }
+body[data-theme="dark"] .badge-session { background: #c9a200 !important; color: #1e3a5f !important; }
+
+.archive-date-divider {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 6px 2px 2px;
+    user-select: none;
+}
+.archive-date-divider::before,
+.archive-date-divider::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, #c8d3e3 40%, #c8d3e3 60%, transparent);
+}
+.archive-date-divider .divider-dot {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: #4a7ab5;
+    flex-shrink: 0;
+}
+body[data-theme="dark"] .archive-date-divider::before,
+body[data-theme="dark"] .archive-date-divider::after {
+    background: linear-gradient(90deg, transparent, #2d4060 40%, #2d4060 60%, transparent);
+}
+body[data-theme="dark"] .archive-date-divider .divider-dot { background: #7aaeff !important; }
 
 /* الوضع الليلي */
 body[data-theme="dark"] .floating-archive-menu { background: #1a2744 !important; border-color: #2d4060 !important; }
@@ -1299,7 +1346,7 @@ body[data-theme="dark"] .rec-date { color: #64748b !important; }
                 <button class="btn-clear" onclick="clearAll()"><i class="fa-solid fa-trash fa-icon-btn"></i> مسح الكل &nbsp; &nbsp;{ F9 }</button>
             </div>
             <div class="developer-credit">
-    Developed by Ibrahim Ahmed | v1.3.0
+    Developed by Ibrahem Ahmed | v1.4.0
 </div>
 
         </div>
@@ -3487,8 +3534,57 @@ function buildArchiveTabs() {
         btn.onclick = function(e) { e.stopPropagation(); switchArchiveTab(stationName); };
         container.appendChild(btn);
     });
+    adjustArchiveMenuWidth();
+}
+
+// ضبط عرض القائمة تلقائياً حسب عدد الأقسام وأطوال أسمائها (بحد أدنى وأقصى)
+function adjustArchiveMenuWidth() {
+    const menu = document.getElementById('floatingArchiveMenu');
+    const tabsContainer = document.getElementById('dynamic-archive-tabs');
+    if (!menu || !tabsContainer) return;
+    const buttons = tabsContainer.querySelectorAll('.tab-btn');
+    if (buttons.length === 0) return;
+
+    let totalNaturalWidth = 0;
+    buttons.forEach(function(btn) {
+        const clone = btn.cloneNode(true);
+        clone.style.position = 'absolute';
+        clone.style.visibility = 'hidden';
+        clone.style.width = 'auto';
+        clone.style.flex = 'none';
+        clone.style.whiteSpace = 'nowrap';
+        document.body.appendChild(clone);
+        totalNaturalWidth += clone.offsetWidth;
+        document.body.removeChild(clone);
+    });
+
+    const gapTotal = (buttons.length - 1) * 5;   // .archive-tabs { gap: 5px }
+    const horizontalPadding = 24;                 // padding: 12px
+    let ideal = totalNaturalWidth + gapTotal + horizontalPadding;
+    ideal = Math.max(220, Math.min(400, ideal));
+    menu.style.width = ideal + 'px';
 }
 var recordsLimit = 30; 
+
+// بنود تصنّف المحضر كـ "جلسة" حتى لو احتوى بنود غرامة أخرى
+const SESSION_KEYWORDS = [
+    'تعمد السير عكس الاتجاة',
+    'عدم تركيب اللوحات المعدنية',
+    'بيانات اللوحات غير ظاهرة',
+    'تركيب لوحات غير خاصة بالمركبة',
+    'عدم وضوح اللوحات المعدنية',
+    'عدم تثبيت اللوحات فى المكان المقرر لها',
+    'تغير لون اللوحات المعدنية',
+    'القيادة تحت تأثيرموادمخدرة',
+    'القيادة تحت تأثير مواد مسكرة',
+    'تغيير بالاجزاء الجوهرية للمركبة'
+];
+
+function isSessionRecord(d) {
+    if (!d || !d.violations) return false;
+    const text = Array.isArray(d.violations) ? d.violations.join(' | ') : String(d.violations);
+    return SESSION_KEYWORDS.some(function(kw) { return text.includes(kw); });
+}
 
 function toggleArchiveMenu() {
     const menu = document.getElementById('floatingArchiveMenu');
@@ -3569,21 +3665,35 @@ function loadArchiveToSidebar() {
     }
 
     const keysToShow = filteredKeys.slice(0, recordsLimit);
+    let lastDateSeen = null;
     keysToShow.forEach(key => {
         const raw = localStorage.getItem(key);
         if (!raw) return;
         try {
             const d = JSON.parse(raw);
             const shortName = d.name ? d.name.split(' ').slice(0, 3).join(' ') : 'بدون اسم';
-            const dateOnly = d.savedAt ? d.savedAt.split(',')[0].trim() : '';
-            
+            const dateOnly = d.savedAt ? d.savedAt.split(/[,،]/)[0].trim() : '';
+            const isSession = isSessionRecord(d);
+            const badgeHtml = isSession
+                ? '<span class="record-type-badge badge-session" title="محضر جلسة">ج</span>'
+                : '<span class="record-type-badge badge-fine" title="محضر غرامة">غ</span>';
+
+            // إدراج فاصل بصري (بدون نص) عند تغيّر تاريخ المحضر عن السابق
+            if (lastDateSeen !== null && dateOnly !== lastDateSeen) {
+                const divider = document.createElement('div');
+                divider.className = 'archive-date-divider';
+                divider.innerHTML = '<span class="divider-dot"></span>';
+                container.appendChild(divider);
+            }
+            lastDateSeen = dateOnly;
+
             const btn = document.createElement('button');
             btn.className = 'record-btn';
             btn.onclick = () => {
                 loadRecordToWorkspace(key);
                 // تم إزالة toggleArchiveMenu() لتبقى القائمة مفتوحة عند الاختيار
             };
-            btn.innerHTML = `<div class="record-title">📄 ${d.caseNum || ''} / ${d.year || ''}</div><div class="record-sub-row"><span class="rec-name">👤 ${shortName}</span><span class="rec-date">${dateOnly}</span></div>`;
+            btn.innerHTML = `<div class="record-title"><span>📄 ${d.caseNum || ''} / ${d.year || ''}</span>${badgeHtml}</div><div class="record-sub-row"><span class="rec-name">👤 ${shortName}</span><span class="rec-date">${dateOnly}</span></div>`;
             container.appendChild(btn);
         } catch(e) {}
     });
@@ -3739,7 +3849,7 @@ const fullViolationDB = {
     "63": "بروز خلفى",
     "64": "عدم تركيب جهاز تسجيل البيانات",
     "65": "عدم تركيب جهاز محدد السرعة",
-    "66": "قيادة مركبة  بدون رخصة التسيير",
+    "66": "القيادة بدون رخصة التسيير",
     "67": "بدون مثلث عاكس للضوء",
     "68": "بدون حقيبة اسعافات اولية",
     "69": "بدون رخصة قيادة",
@@ -4534,7 +4644,7 @@ const fineAmountsDB = {
     "63": { amount: 600, text: "بروز خلفى" },
     "64": { amount: 1600, text: "عدم تركيب جهاز تسجيل البيانات" },
     "65": { amount: 1600, text: "عدم تركيب جهاز محدد السرعة" },
-    "66": { amount: 1100, text: "قيادة مركبة  بدون رخصة التسيير" },
+    "66": { amount: 1100, text: "القيادة بدون رخصة التسيير" },
     "67": { amount: 200, text: "بدون مثلث عاكس للضوء" },
     "68": { amount: 200, text: "بدون حقيبة اسعافات اولية" },
     "69": { amount: 1100, text: "بدون رخصة قيادة" },

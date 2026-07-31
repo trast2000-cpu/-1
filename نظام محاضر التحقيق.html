@@ -212,9 +212,13 @@ box-sizing: border-box;
                 padding: 6px 16px;
             }
         }
+                  /* التحكم في جمله نظام إعداد محاضر التحقيق - اختر نوع التحقيق */
+          
         h1 { text-align: center; color: #2563eb; border-bottom: 2px solid #2563eb; padding-bottom: 5px; margin: 0 0 10px 0; font-size: 20px; }
         
         .section { margin-bottom: 8px; padding: 10px; border: 1px solid #e1e5eb; border-radius: 8px; background: #fafbfc; }
+
+                 /* التحكم في عناوين البطاقات */
         .section-title { font-weight: bold; font-size: 14px; margin-bottom: 8px; color: #1e40af; border-right: 3px solid #2563eb; padding-right: 8px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
         .section-title:hover { background: #e8f0fe; border-radius: 4px; }
         .section-title .toggle-icon { font-size: 11px; color: #6b7280; }
@@ -228,6 +232,9 @@ box-sizing: border-box;
         .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 8px; }
         .form-grid-wide { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 8px; }
         .field { display: flex; flex-direction: column; }
+
+
+              /* التحكم في اسماء الحقولً */
         label { font-size: 15px; font-weight: 900; margin-bottom: 4px; color: #1e3a8a; letter-spacing: 0.3px; border-bottom: 2px solid #93c5fd; padding-bottom: 1px; display: inline-block; }
         /* إعادة تعيين border-bottom للـ labels داخل الطباعة */
         @media print { label { border-bottom: none !important; } }
@@ -374,7 +381,7 @@ box-sizing: border-box;
         }
 
 
-        
+        /* التحكم في زر اضافه سؤال يدوي في النهاية */
         .btn-add-q { background-color: #7c3aed; color: white; padding: 3px 8px; border: none; border-radius: 4px; cursor: pointer; font-size: 10px; font-weight: bold; transition: background 0.2s; }
         .btn-add-q:hover { background-color: #6d28d9; }
         .btn-add-note { background-color: #f59e0b; color: white; padding: 3px 8px; border: none; border-radius: 4px; cursor: pointer; font-size: 10px; font-weight: bold; transition: background 0.2s; }
@@ -934,24 +941,25 @@ box-sizing: border-box;
         }
         #detention-order-notice strong { color: #b45309; }
 
-        /* منطقة النص الرئيسية لتحرير أمر الحبس — خط 16px وتباعد سطور 1.3 لتجنب الفراغات الزائدة */
+        /* منطقة النص الرئيسية لتحرير أمر الحبس — تنسيق مريح للقراءة */
         #detention-order-textarea {
             width: 100%;
             box-sizing: border-box;
-            border: 1px solid #d1d5db;
-            border-radius: 8px;
-            padding: 12px 14px;
-            font-size: 16px !important;
-            min-height: 340px !important;
+            border: 2px solid #d1d5db;
+            border-radius: 10px;
+            padding: 16px 18px;
+            font-size: 17px !important;
+            min-height: 380px !important;
             height: auto !important;
-            line-height: .8 !important;
+            line-height: 1.8 !important;
             resize: vertical;
-            background: #f8fafc;
+            background: #fafbfc;
             color: #1f2937;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             direction: rtl;
             text-align: justify;
             transition: border-color 0.2s, box-shadow 0.2s;
+            tab-size: 4;
         }
         /* تأثير التركيز على منطقة النص — حد أزرق وظل خفيف وخلفية بيضاء */
         #detention-order-textarea:focus {
@@ -1006,12 +1014,15 @@ box-sizing: border-box;
             body.printing-detention #detention-print-area { display: block !important; }
             #detention-print-area {
                 direction: rtl;
-                font-family: 'Calibri', Arabic Typesetting', 'Traditional Arabic', serif;
+                font-family: 'Cairo', 'Arabic Typesetting', 'Traditional Arabic', serif;
                 font-size: 20px;
-                line-height: 2;
+                line-height: 1.8;
                 padding: 12mm 14mm;
                 white-space: pre-wrap;
                 word-wrap: break-word;
+                overflow-wrap: break-word;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
             }
         }
 
@@ -4922,45 +4933,53 @@ let questionsHtml = "";
         }
     }
 
-    // بناء نص أمر الحبس من بيانات المتهم
+// بناء نص أمر الحبس من بيانات المتهم
     function buildDetentionOrderText() {
-        const reportNo    = document.getElementById('report_no').value    || '...';
-        const reportYear  = document.getElementById('report_year').value  || '...';
-        const station     = getPoliceStation()                             || '...';
+        // 💡 تم ضبط النقاط لتكون وسطاً (لا قصيرة جداً ولا طويلة جداً) لتناسب السطر
+        const BLANK_REPORT_NO   = '……………';
+        const BLANK_REPORT_YEAR = '………';
+        const BLANK_STATION     = '………………………';
+        const BLANK_DEF_NAME    = '…………………………………………………';
+        const BLANK_DEF_AGE     = '………';
+        const BLANK_DEF_JOB     = '……………………………';
+        const BLANK_DEF_ID      = '………………………………………';
+        const BLANK_DEF_ADDR    = '…………………………………………………';
+        const BLANK_DATE        = '………………';
+        const BLANK_VIOLATION   = '……………………………………………………………';
+
+        const reportNo    = document.getElementById('report_no').value    || BLANK_REPORT_NO;
+        const reportYear  = document.getElementById('report_year').value  || BLANK_REPORT_YEAR;
+        const station     = getPoliceStation()                            || BLANK_STATION;
         const prosName    = document.getElementById('prosecutor').value === 'other'
                             ? document.getElementById('pros_other').value
                             : document.getElementById('prosecutor').value;
-        const clerkName   = document.getElementById('clerk_name').value   || '...';
-        const defName     = document.getElementById('def_name').value     || '...';
-        const defAge      = document.getElementById('def_age').value      || '...';
-        const defJob      = document.getElementById('def_job').value      || '...';
-        const defId       = document.getElementById('def_id_no').value    || '...';
-        const defAddr     = document.getElementById('def_address').value  || '...';
-        const startDate   = document.getElementById('detention_start_date').value  || '...';
-        const endDate     = document.getElementById('detention_end_date').value    || '...';
-        const courtDate   = document.getElementById('detention_court_date').value  || '...';
-        const violsList   = violations.length > 0 ? violations.map(v => `( ${v} )`).join(' و ') : '( ... )';
-        const prosLabel   = getProsecutionName() || 'نيابة مرور القاهرة';
+        const defName     = document.getElementById('def_name').value     || BLANK_DEF_NAME;
+        const defAge      = document.getElementById('def_age').value      || BLANK_DEF_AGE;
+        const defJob      = document.getElementById('def_job').value      || BLANK_DEF_JOB;
+        const defId       = document.getElementById('def_id_no').value    || BLANK_DEF_ID;
+        const defAddr     = document.getElementById('def_address').value  || BLANK_DEF_ADDR;
+        const startDate   = document.getElementById('detention_start_date').value  || BLANK_DATE;
+        const endDate     = document.getElementById('detention_end_date').value    || BLANK_DATE;
+        const courtDate   = document.getElementById('detention_court_date').value  || BLANK_DATE;
+        const violsList   = violations.length > 0 ? violations.map(v => `( ${v} )`).join(' و ') : `( ${BLANK_VIOLATION} )`;
         const detDays     = calcDetentionDays();
         const detDaysText = detDays !== null ? daysToArabicText(detDays) : 'أربعة أيام';
 
-        // ✅ إرجاع النص بدون ترويسة وبدون توقيعات
-        // (الترويسة والتوقيعات تُضاف في printDetentionOrder)
-        return `في القضية رقم : ( ${reportNo} ) لسنة ( ${reportYear} ) جنح مرور ${station}
+        return `في القضية رقم ( ${reportNo} ) لسنة ( ${reportYear} ) جنح مرور ${station}
 
-اسم المتهم رباعياً : ( ${defName} )  السن : ( ${defAge} ) سنة ،  النوع : ذكر / أنثى : ذكر
+اسم المتهم : ( ${defName} ) | السن : ( ${defAge} ) سنة | النوع : ذكر
 
-المهنة : ( ${defJob} ) ،  مصري ،  رقم تحقيق الشخصية وجهة صدورها : ( ${defId} )
+المهنة : ( ${defJob} ) | مصري | رقم تحقيق الشخصية : ( ${defId} )
 
 محل الإقامة : ( ${defAddr} )
 
-...........................................................................................................................................
+────────────────────────────────────
 
-نحن : ${prosName}          وكيل النيابة
+نحن / ${prosName}         وكيل النيابة
 
-بعد الاطلاع على أوراق القضية سالفة البيان وما تم فيها من تحقيقات ، وحيث إنه نُسِبَ إلى المتهم المذكور ارتكاب جنحة مرور :-
+بعد الاطلاع على أوراق القضية سالفة البيان وما تم فيها من تحقيقات ، وحيث إنه نُسِبَ إلى المتهم المذكور ارتكاب جنحة مرور :
 
-                    ( ${violsList} )
+${violsList}
 
 وقد توافرت الدلائل الكافية على الاتهام .
 
@@ -4972,9 +4991,9 @@ let questionsHtml = "";
 
 نأمر :
 
-أولاً : بحبس المتهم المذكور احتياطياً لمدة : ${detDaysText} ، تبدأ من : ( ${startDate} ) ، وتنتهي : ( ${endDate} )
+أولاً : بحبس المتهم المذكور احتياطياً لمدة : ${detDaysText} ، تبدأ من ( ${startDate} ) ، وتنتهي في ( ${endDate} )
 
-ثانياً : تكليف مأمور السجن بقبول المتهم وإيداعه السجن ، وإرساله صباح يوم : ( ${courtDate} ) إلى المحكمة المختصة لتجديد حبسه .
+ثانياً : تكليف مأمور السجن بقبول المتهم وإيداعه السجن ، وإرساله صباح يوم ( ${courtDate} ) إلى المحكمة المختصة لتجديد حبسه .
 
 ثالثاً : تكليف مأمور السجن بإعلان المتهم بأمر الحبس المشار إليه وتسليمه صورة منه .
 
@@ -5019,9 +5038,8 @@ function saveDetentionOrder() {
     }
 }
 
-    // طباعة أمر الحبس — نافذة منفصلة منسقة بالكامل من بيانات الحقول
+// طباعة أمر الحبس
     function printDetentionOrder() {
-        // ✅ استخدام النص المُعدَّل يدوياً أولاً
         let detentionText = '';
 
         if (detentionOrderCustomText !== null && detentionOrderCustomText.trim() !== '') {
@@ -5035,184 +5053,338 @@ function saveDetentionOrder() {
             }
         }
 
-        // المسار الأساسي لمجلد الملف
         const baseHref = window.location.href.substring(0, window.location.href.lastIndexOf('/') + 1);
-
-        // إعدادات الخط
         const selectedFontVal  = document.getElementById('font_choice').value;
         const selectedSizePx   = document.getElementById('font_size_choice').value;
-        const { family: fontFamily, weight: fontWeight } = parseFont(selectedFontVal);
+        const fontData = parseFont(selectedFontVal);
+        const fontFamily = fontData.family;
+        const fontWeight = fontData.weight;
         const baseSz  = parseInt(selectedSizePx) || 22;
 
-        // دالة escape
+        const cairoFontFaceEl = document.getElementById('cairo-font-base64');
+        const cairoFontFaceTag = cairoFontFaceEl ? cairoFontFaceEl.outerHTML : '';
+
         function e(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
-        // ✅ تحويل النص المُعدَّل إلى HTML مع تنسيق ذكي + تكبير النص درجتين
+        // 🎨 نظام تصميم موحّد: لون تمييز واحد بس، ومقاسات خط متدرجة بسيطة، وإيقاع مسافات ثابت
+        const ACCENT = '#1a1a2e';
+
+        // أي متتالية نقاط (…) تتحول لمسافة فاضية واسعة (بدون أي خط تحتها) — مساحة مريحة للكتابة بالقلم
+        // forceCount: تحديد عدد صريح للمسافة (يُستخدم لتوسيع فراغات معينة أكتر من غيرها)
+        function renderBlanks(raw, forceCount) {
+            return raw.replace(/\u2026{2,}/g, function(m) {
+                const count = forceCount || Math.min(42, Math.max(16, Math.round(m.length * 1.7)));
+                return '<span>' + '&nbsp;'.repeat(count) + '</span>';
+            });
+        }
+
+        // أي "( قيمة )" — لو فاضية (نقاط) تتحول لمسافة فاضية، ولو متملية تتعرض عريضة — والقوسين يفضلوا وحدة واحدة غير قابلة للانكسار
+        function formatField(text, forceCount) {
+            return e(text).replace(/\(\s*([^()]+?)\s*\)/g, function(m, val) {
+                const rendered = renderBlanks(val, forceCount);
+                const isBlank  = rendered !== val;
+                const inner    = isBlank ? rendered : '<strong>' + val.trim() + '</strong>';
+                return '<span style="white-space:nowrap;">(&nbsp;' + inner + '&nbsp;)</span>';
+            });
+        }
+
+        // 🎨 سطر بيانات (زي بيانات القضية/المتهم): كل الفراغات في السطر تاخد مساحة واسعة
+        // عشان السطر يستفيد من العرض المتاح لحد قرب أقصى اليسار
+        function formatInfoRow(text) {
+            return formatField(text, 46);
+        }
+
+        const clerkName = document.getElementById('clerk_name').value || '...';
+
         const lines = detentionText.split('\n');
         let bodyContent = '';
+        let insideInfoCard = false;
+        let insideCardA = false;   // من "نحن" حتى "خشية هروب المتهم"
+        let insideCardB = false;   // من "لذلك" حتى "ثالثاً"
 
         lines.forEach(line => {
             const trimmed = line.trim();
+
+            // فتح صندوق بيانات القضية والمتهم عند أول سطر بيانات
+            if (!insideInfoCard && trimmed.startsWith('في القضية')) {
+                bodyContent += '<div class="info-card">';
+                insideInfoCard = true;
+            }
+
+            // سطر فاصل (نقاط طويلة أو خط) — يقفل الصندوق قبله ويتحول لخط رفيع أنيق
+            if (/^[.\-─═·]{6,}$/.test(trimmed)) {
+                if (insideInfoCard) { bodyContent += '</div>'; insideInfoCard = false; }
+                bodyContent += '<div class="section-divider"></div>';
+                return;
+            }
+
             if (!trimmed) {
-                bodyContent += '<div style="height: 2px;"></div>';
+                if (!insideInfoCard && !insideCardA && !insideCardB) bodyContent += '<div style="height:4px"></div>';
                 return;
             }
 
-            // === سطر المخالفة ( ... ) — وسط وسميك ===
+            // نحن / اسم وكيل النيابة — بداية بطاقة "أ"
+            if (trimmed.startsWith('نحن') && trimmed.includes('وكيل النيابة')) {
+                if (!insideCardA) { bodyContent += '<div class="info-card">'; insideCardA = true; }
+                const match = trimmed.match(/نحن\s*[\/:\s]+(.+?)\s*وكيل النيابة/);
+                const nameRaw = match ? match[1].trim() : '';
+                const nameOut = nameRaw && !/^[\u2026\s]+$/.test(nameRaw)
+                    ? '<strong>' + e(nameRaw) + '</strong>'
+                    : renderBlanks('……………………');
+                bodyContent += '<table class="pros-row"><tr>'
+                    + '<td class="pros-name">نحن : ' + nameOut + '</td>'
+                    + '<td class="pros-title">وكيل النيابة</td>'
+                    + '</tr></table>';
+                return;
+            }
+
+            // سطر المخالفة بمفرده بين قوسين
             if (/^\(\s/.test(trimmed) && trimmed.endsWith(')')) {
-                bodyContent += '<p style="margin: 4px 0; line-height: 1.6; font-size: ' + (baseSz + 2) + 'px; font-weight: bold; text-align: center;">' + e(trimmed) + '</p>';
+                bodyContent += '<div class="violation-block">' + formatField(trimmed, 80) + '</div>';
                 return;
             }
 
-            // === * خشية هروب — أكبر +4 وسميك ===
+            // العبارة التمهيدية "مصلحة التحقيق تقتضي..."
+            if (trimmed.includes('مصلحة التحقيق تقتضي حبس المتهم')) {
+                bodyContent += '<p class="notice-line">' + e(trimmed) + '</p>';
+                return;
+            }
+
+            // * خشية هروب المتهم (سبب الحبس) — نهاية بطاقة "أ"
             if (trimmed.startsWith('*')) {
-                bodyContent += '<p style="margin: 3px 0; line-height: 1.5; font-size: ' + (baseSz + 4) + 'px; font-weight: bold; text-align: right;">' + e(trimmed) + '</p>';
+                bodyContent += '<p class="reason-line">' + e(trimmed.replace(/^\*\s*/, '')) + '</p>';
+                if (insideCardA) { bodyContent += '</div>'; insideCardA = false; }
                 return;
             }
 
-            // === لذلك — وسط وكبير جداً +8 وسميك ===
-            if (trimmed === 'لذلك' || trimmed === 'لذلك :') {
-                bodyContent += '<p style="margin: 5px 0 2px; line-height: 1.5; font-size: ' + (baseSz + 8) + 'px; font-weight: bold; text-align: center;">' + e(trimmed) + '</p>';
+            // لذلك — بداية بطاقة "ب"
+            if (/^لذلك\s*:?$/.test(trimmed)) {
+                if (insideCardA) { bodyContent += '</div>'; insideCardA = false; }
+                bodyContent += '<div class="info-card">';
+                insideCardB = true;
+                bodyContent += '<div class="therefore">' + e(trimmed) + '</div>';
                 return;
             }
 
-            // === نأمر — يمين وسميك +4 ===
-            if (trimmed === 'نأمر :' || trimmed === 'نأمر:') {
-                bodyContent += '<p style="margin: 2px 0; line-height: 1.5; font-size: ' + (baseSz + 4) + 'px; font-weight: bold; text-align: right;">' + e(trimmed) + '</p>';
+            // نأمر :
+            if (/^نأمر\s*:?$/.test(trimmed)) {
+                bodyContent += '<div class="order-heading">' + e(trimmed) + '</div>';
                 return;
             }
 
-            // === أولاً / ثانياً / ثالثاً — الكلمة سميكة +4 والباقي +2 ===
+            // أولاً / ثانياً / ثالثاً — ثالثاً تقفل بطاقة "ب"
             if (/^(أولاً|أولا|ثانياً|ثانيا|ثالثاً|ثالثا)\s*:/.test(trimmed)) {
                 const colonIdx = trimmed.indexOf(':');
                 const label = trimmed.substring(0, colonIdx + 1);
-                const rest  = trimmed.substring(colonIdx + 1);
-                bodyContent += '<p style="margin: 2px 0; line-height: 1.55; font-size: ' + (baseSz + 2) + 'px; text-align: justify;"><strong style="font-size:' + (baseSz + 4) + 'px;">' + e(label) + '</strong>' + e(rest) + '</p>';
+                const rest  = trimmed.substring(colonIdx + 1).trim();
+
+                let restHtml;
+                if (/^(أولاً|أولا)/.test(trimmed) && rest.includes('وتنتهي')) {
+                    // فاصل إجباري: "تبدأ من (...)" في سطر، و"وتنتهي في (...)" في السطر اللي بعده
+                    const idx = rest.indexOf('وتنتهي');
+                    const part1 = rest.slice(0, idx).replace(/[،,]\s*$/, '');
+                    const part2 = rest.slice(idx);
+                    restHtml = formatField(part1, 24) + '<br>' + formatField(part2, 24);
+                } else if (/^(ثانياً|ثانيا)/.test(trimmed) && rest.includes('إلى المحكمة')) {
+                    // فاصل إجباري: "...صباح يوم (...)" في سطر، و"إلى المحكمة..." في السطر اللي بعده
+                    const idx = rest.indexOf('إلى المحكمة');
+                    const part1 = rest.slice(0, idx).trim();
+                    const part2 = rest.slice(idx).trim();
+                    restHtml = formatField(part1, 24) + '<br>' + formatField(part2);
+                } else {
+                    restHtml = formatField(rest);
+                }
+
+                bodyContent += '<div class="order-clause"><strong>' + e(label) + '</strong> ' + restHtml + '</div>';
+                if (/^(ثالثاً|ثالثا)/.test(trimmed) && insideCardB) { bodyContent += '</div>'; insideCardB = false; }
                 return;
             }
 
-            // === نحن — اسم يمين +4، "وكيل النيابة" يسار +2 ===
-            if (trimmed.startsWith('نحن')) {
-                const parts = trimmed.split('وكيل النيابة');
-                if (parts.length >= 2) {
-                    const nameOnly = parts[0].replace(/^نحن\s*:\s*/, '').trim();
-                    bodyContent += '<table style="width:100%; border-collapse:collapse; margin: 3px 0;"><tr>'
-                        + '<td style="text-align:right; font-size:' + (baseSz + 2) + 'px; width:50%;">نحن : <strong style="font-size:' + (baseSz + 4) + 'px;">' + e(nameOnly) + '</strong></td>'
-                        + '<td style="text-align:center; font-size:' + (baseSz + 2) + 'px; width:50%;">وكيل النيابة</td>'
-                        + '</tr></table>';
+            // تحريراً في ( ... ) — بطاقة "ج": تحتوي التاريخ + صف التوقيعات والختم مع بعض
+            if (trimmed.startsWith('تحريراً') || trimmed.startsWith('تحريرا')) {
+                let dateVal = trimmed.replace(/تحريراً?\s*في/, '').replace(/[()]/g, '').trim();
+                let dayPart, monthPart, yearPart;
+                if (!dateVal || /\u2026/.test(dateVal)) {
+                    const rYear = document.getElementById('report_year').value;
+                    dayPart = renderBlanks('………');
+                    monthPart = renderBlanks('………');
+                    yearPart = rYear ? toArabicNumerals(rYear) : toArabicNumerals(new Date().getFullYear());
                 } else {
-                    bodyContent += '<p style="margin: 2px 0; line-height: 1.55; font-size: ' + (baseSz + 2) + 'px;">' + e(trimmed) + '</p>';
+                    // القيمة مكتوبة يدوياً بصيغة يوم/شهر/سنة أو مشابه — نعرضها زي ما هي بدون إعادة ترتيب
+                    const parts = dateVal.split('/').map(p => p.trim());
+                    dayPart = e(parts[0] || '');
+                    monthPart = e(parts[1] || '');
+                    yearPart = e(parts[2] || '');
+                }
+                // 🎨 استخدام flex بدل نص عادي عشان الترتيب (يوم/شهر/سنة) يفضل ثابت بصرياً
+                // مهما كانت الأرقام عربية أو إنجليزية، من غير ما تتأثر بخوارزمية اتجاه النص (bidi)
+                const dateFlex = '<span style="display:inline-flex; direction:ltr; align-items:baseline; gap:3px;">'
+                    + '<span>' + dayPart + '</span><span>/</span>'
+                    + '<span>' + monthPart + '</span><span>/</span>'
+                    + '<span>' + yearPart + '</span>'
+                    + '</span>';
+                bodyContent += '<div class="info-card date-card">'
+                    + '<div class="written-date">تحريراً في ( ' + dateFlex + ' )</div>'
+                    + '<div class="sig-row">'
+                        + '<div class="sig-item"><strong>توقيع كاتب التحقيق</strong><div>' + e(clerkName) + '</div></div>'
+                        + '<div class="sig-item"><strong>توقيع عضو النيابة</strong><div style="font-weight:bold; letter-spacing:2px;">.........................</div></div>'
+                        + '<div class="sig-item"><strong>خاتم النيابة</strong><div class="stamp-circle"></div></div>'
+                    + '</div>'
+                    + '</div>';
+                return;
+            }
+
+            // بيانات القضية والمتهم (داخل الصندوق)
+            if (insideInfoCard) {
+                if (trimmed.startsWith('في القضية')) {
+                    bodyContent += '<p class="info-row info-row-center">' + formatField(trimmed, 27) + '</p>';
+                } else {
+                    bodyContent += '<p class="info-row">' + formatInfoRow(trimmed) + '</p>';
                 }
                 return;
             }
 
-            // === وحيث إن مصلحة التحقيق — سميك +2 ===
-            if (trimmed.includes('مصلحة التحقيق تقتضي حبس المتهم')) {
-                bodyContent += '<p style="margin: 1px 0; line-height: 1.55; font-size: ' + (baseSz + 2) + 'px; font-weight: bold; text-align: center;">' + e(trimmed) + '</p>';
-                return;
-            }
-
-            // === تحريراً في — بدون خط فاصل +2 ===
-            if (trimmed.startsWith('تحريراً') || trimmed.startsWith('تحريرا')) {
-                bodyContent += '<p style="margin: 3px 0 2px; line-height: 1.5; font-size: ' + (baseSz + 2) + 'px; text-align: right;">' + e(trimmed) + '</p>';
-                return;
-            }
-
-            // === أسطر البيانات التي تحتوي على " : " — القيمة بعدها عريضة +4 ===
-            if (trimmed.includes(' : ') || trimmed.match(/:\s*\([^)]+\)/)) {
-                const formatted = e(trimmed).replace(/:\s*([^،,<\n]{1,60}?)(?=\s*[,،]|$)/g, function(m, val) {
-                    const v = val.trim();
-                    if (!v || v === '...') return m;
-                    return ': <strong style="font-size:' + (baseSz + 4) + 'px;">' + v + '</strong>';
-                });
-                bodyContent += '<p style="margin: 1px 0; line-height: 1.55; font-size: ' + (baseSz + 2) + 'px; text-align: justify;">' + formatted + '</p>';
-                return;
-            }
-
-            // === السطر الافتراضي +2 ===
-            bodyContent += '<p style="margin: 1px 0; line-height: 1.55; font-size: ' + (baseSz + 2) + 'px; text-align: justify;">' + e(trimmed) + '</p>';
+            // فقرة نص عادية (تدخل بطاقة "أ" لو مفتوحة)
+            bodyContent += '<p class="prose">' + formatField(trimmed) + '</p>';
         });
 
-        // بيانات التوقيعات
-        const clerkName  = document.getElementById('clerk_name').value  || '...';
-        const prosName   = (document.getElementById('prosecutor').value === 'other'
-                            ? document.getElementById('pros_other').value
-                            : document.getElementById('prosecutor').value) || '...';
+        if (insideInfoCard) bodyContent += '</div>';
+        if (insideCardA) bodyContent += '</div>';
+        if (insideCardB) bodyContent += '</div>';
+
         const prosLabel  = getProsecutionName() || 'نيابة مرور القاهرة';
 
-        // بناء HTML - بهوامش مُقلصة للصفحة الواحدة
         const html = `<!DOCTYPE html>
 <html dir="rtl" lang="ar">
 <head>
 <meta charset="UTF-8">
 <base href="${baseHref}">
 <title>أمر حبس احتياطي</title>
+${cairoFontFaceTag}
 <style>
-  @page { size: A4; margin: 4mm 10mm; }
+  @page { size: A4; margin: 8mm; }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
     font-family: ${fontFamily}, 'Arabic Typesetting', 'Traditional Arabic', serif;
     font-weight: ${fontWeight};
     font-size: ${baseSz}px;
-    line-height: 1.4;
+    line-height: 1.5;
     direction: rtl;
     color: #000;
     background: #fff;
     padding: 4mm 6mm;
   }
   .frame {
-    border: 2px solid #000;
+    border: 2px solid #1a1a2e;
+    border-radius: 4px;
     padding: 8px 12px;
     min-height: calc(100vh - 8mm);
+    position: relative;
   }
-  .header-table { width: 100%; border-collapse: collapse; margin-bottom: 2px; }
-  .header-right { text-align: right; font-size: ${baseSz - 2}px; line-height: 1.4; vertical-align: top; width: 70%; }
-  .logo-img { display: block; max-height: 60px; max-width: 90px; margin: 0 0 2px 0; }
-  .header-left { text-align: left; font-size: ${baseSz - 3}px; line-height: 1.4; vertical-align: top; width: 30%; }
+  .header-table { width: 100%; border-collapse: collapse; margin-bottom: 0; }
+  .header-right { text-align: right; font-size: ${baseSz - 1}px; line-height: 1.3; vertical-align: top; width: 65%; padding: 4px 12px; }
+  .logo-img { display: block; max-height: 50px; max-width: 80px; margin: 0 auto 2px auto; }
+  .header-left { text-align: left; font-size: ${baseSz - 3}px; line-height: 1.3; vertical-align: top; width: 35%; padding: 4px 12px; }
   .main-title {
     text-align: center;
-    font-size: ${baseSz + 6}px;
-    font-weight: bold;
-    margin: 4px 0 2px;
+    font-size: ${baseSz + 4}px;
+    font-weight: 900;
+    margin: 2px 0;
+    color: #1a1a2e;
     letter-spacing: 1px;
   }
   .sub-title {
     text-align: center;
-    font-size: ${baseSz}px;
+    font-size: ${baseSz - 2}px;
+    margin-bottom: 0px;
+    color: #64748b;
+  }
+  hr { border: none; border-top: 1.5px solid #e2e8f0; margin: 4px 0; }
+
+  /* === محتوى المذكرة: نظام تصميم موحّد بلون تمييز واحد ومسافات ثابتة (مضغوطة شوية عشان تتسع صفحة واحدة) === */
+  .info-card {
+    border: 1px solid #999;
+    border-right: 4px solid #1a1a2e;
+    border-radius: 6px;
+    padding: 5px 14px;
+    margin: 4px 0 6px;
+  }
+  .info-card.date-card {
+    text-align: right;
+    font-weight: bold;
+    padding: 6px 14px 30px;
+  }
+  .info-row { margin: 3px 0; line-height: 1.5; font-size: ${baseSz}px; text-align: right; }
+  .info-row-center { text-align: center; }
+  .section-divider {
+    height: 1px;
+    background: linear-gradient(to left, rgba(0,0,0,0), rgba(0,0,0,0.5) 12%, rgba(0,0,0,0.5) 88%, rgba(0,0,0,0));
+    margin: 5px 0;
+  }
+  .prose { margin: 3px 0; line-height: 1.5; font-size: ${baseSz}px; text-align: justify; }
+  .notice-line {
+    margin: 5px 0; font-weight: bold; text-align: center; font-size: ${baseSz}px;
+  }
+  .violation-block { text-align: center; margin: 5px 0; font-weight: bold; font-size: ${baseSz}px; }
+  .reason-line {
+    margin: 3px 0; line-height: 1.5;
+    font-weight: bold; font-size: ${baseSz + 1}px; text-align: center;
+  }
+  .therefore {
+    text-align: center; font-size: ${baseSz + 4}px; font-weight: 900;
+    margin: 6px 0 4px; letter-spacing: 1px; color: #1a1a2e;
+  }
+  .order-heading { font-size: ${baseSz + 2}px; font-weight: 900; margin: 4px 0 3px; color: #1a1a2e; }
+  .order-clause {
+    margin: 4px 0; padding: 3px 12px;
+    font-size: ${baseSz}px; line-height: 1.55;
+    padding-right: ${Math.round((baseSz + 2) * 3.4) + 12}px;
+    text-indent: -${Math.round((baseSz + 2) * 3.4)}px;
+  }
+  .order-clause strong { font-size: ${baseSz + 1}px; color: #1a1a2e; }
+  .pros-row { width: 100%; border-collapse: collapse; margin: 5px 0; }
+  .pros-row td { padding: 2px 2px; font-size: ${baseSz}px; font-weight: bold; }
+  .pros-name { text-align: right; }
+  .pros-title { text-align: left; color: #475569; }
+  .written-date {
+    text-align: right; font-weight: bold; font-size: ${baseSz}px;
     margin-bottom: 4px;
   }
-  hr { border: none; border-top: 1px solid #000; margin: 4px 0; display: none; }
-  .sig-section {
-    margin-top: 8px;
-    padding-top: 6px;
-  }
+
   .sig-row {
     display: flex;
     justify-content: space-between;
-    margin: 4px 0;
+    margin: 4px 0 0;
   }
   .sig-item {
     text-align: center;
     flex: 1;
     font-size: ${baseSz}px;
+    padding: 2px 8px;
   }
   .sig-item strong {
     display: block;
-    margin-bottom: 2px;
+    margin-bottom: 4px;
+    font-size: ${baseSz - 1}px;
+    color: #475569;
+  }
+  .stamp-circle {
+    width: 40px; height: 40px; border: 2.5px dotted #94a3b8;
+    border-radius: 50%; margin: 4px auto 0;
   }
   .watermark {
     position: fixed;
     top: 50%; left: 50%;
     transform: translate(-50%, -50%);
-    width: 55%;
-    opacity: 0.08;
+    width: 50%;
+    opacity: 0.06;
     pointer-events: none;
     z-index: 0;
   }
   .frame { position: relative; z-index: 1; }
   @media print {
     body { padding: 0; margin: 0; }
-    .frame { border: 2px solid #000; padding: 6px 10px; }
+    .frame { border: 2px solid #1a1a2e; padding: 6px 12px; border-radius: 0; }
     .watermark { position: fixed; }
   }
 </style>
@@ -5224,57 +5396,40 @@ function saveDetentionOrder() {
   <!-- الترويسة -->
   <table class="header-table" style="width: 100%; table-layout: fixed;">
     <tr>
-      <td class="header-right" style="padding-right: 15px; padding-top: 10px; vertical-align: top;">
-        <div style="display: flex; flex-direction: column; align-items: center; width: fit-content; margin-right: 0; margin-left: auto;">
-          <span style="display: block; white-space: nowrap;">النيابة العامة</span>
-          <span style="display: block; white-space: nowrap;">نيابة مرور القاهرة</span>
-          <span style="display: block; white-space: nowrap;">${e(prosLabel)}</span>
+      <td class="header-right" style="vertical-align: top;">
+        <div style="text-align: right; line-height: 1.3;">
+          <span style="display: block; font-weight: bold; font-size: ${baseSz}px;">النيابة العامة</span>
+          <span style="display: block; font-size: ${baseSz - 1}px; color: #334155;">${e(prosLabel)}</span>
         </div>
       </td>
-      <td class="header-left" style="text-align: left; padding-left: 15px; padding-top: 10px; vertical-align: top;">
-        <img class="logo-img" src="logo.png" alt="" onerror="this.style.display='none'" style="display: block; margin-left: 0; margin-right: auto; padding-bottom: 3px;">
-        <div style="font-size: 11px;">&#95;&#95;&#95; استمارة رقم 10 ((نيابة))</div>
+      <td class="header-left" style="vertical-align: top;">
+        <img class="logo-img" src="logo.png" alt="" onerror="this.style.display='none'">
+        <div style="text-align: center; font-size: ${baseSz - 4}px; color: #64748b;">استمارة رقم 10</div>
       </td>
     </tr>
   </table>
 
-  <div class="sub-title">( أصل )</div>
+  <div class="sub-title">(أصل)</div>
   <div class="main-title">أمر حبس احتياطي</div>
+  <hr>
 
-  <!-- ✅ النص المُعدَّل من النافذة -->
   ${bodyContent}
-
-  <!-- ✅ التوقيعات مرة واحدة فقط -->
-  <div class="sig-section">
-    <div class="sig-row">
-      <div class="sig-item">
-        <strong>توقيع كاتب التحقيق</strong>
-        <span>( ${e(clerkName)} )</span>
-      </div>
-      <div class="sig-item">
-        <strong>توقيع عضو النيابة</strong>
-        <span>( ${e(prosName)} )</span>
-      </div>
-      <div class="sig-item">
-        <strong>خاتم النيابة</strong>
-        <span></span>
-      </div>
-    </div>
-  </div>
 
 </div>
 </body>
 </html>`;
 
-        // فتح نافذة الطباعة
+        // العودة إلى نظام الطباعة القديم المطلوب
         const win = window.open('', '_blank', 'width=860,height=1050');
         if (!win) { alert('يرجى السماح للمتصفح بفتح نوافذ منبثقة ثم المحاولة مجدداً.'); return; }
         win.document.write(html);
         win.document.close();
         win.focus();
         win.onafterprint = function() { win.close(); };
-        setTimeout(() => { win.print(); }, 450);
-    }// إغلاق نافذة الحبس عند الضغط خارجها
+        setTimeout(() => { win.print(); }, 500);
+    }
+
+    // إغلاق نافذة الحبس عند الضغط خارجها
     document.getElementById('detention-modal-overlay').addEventListener('click', function(e) {
         if (e.target === this) closeDetentionOrderModal();
     });
@@ -5282,43 +5437,55 @@ function saveDetentionOrder() {
     // ===== دوال مذكرة العرض على الطب الشرعي =====
 
     function buildForensicMemoText() {
-        const reportNo   = document.getElementById('report_no').value   || '...';
-        const reportYear = document.getElementById('report_year').value || '...';
-        const station    = getPoliceStation()                            || '...';
-        const eventDate  = document.getElementById('event_date').value  || '...';
+        // 💡 كل خانة ليها عدد نقاط مستقل بذاته — زوّد أو قلّل نقاط أي سطر هنا لوحده
+        const BLANK_REPORT_NO   = '………………';           // رقم المحضر
+        const BLANK_REPORT_YEAR = '………………';           // سنة المحضر
+        const BLANK_STATION     = '……………………………';  // اسم قسم الشرطة
+        const BLANK_DATE        = '………………';       // أي تاريخ (الواقعة / الفيديو / التحرير)
+        const BLANK_RANK        = '………………';       // رتبة الضابط
+        const BLANK_NAME        = '……………………………';   // اسم الضابط / المتهم
+        const BLANK_RECORDER    = '……………………………';       // جهة رصد الفيديو
+        const BLANK_VEHICLE_ID  = '……………………………';     // رقم لوحة المركبة
+        const BLANK_LOCATION    = '……………………………';   // مكان الواقعة
+        const BLANK_VIOLATION   = '……………………………';  // نوع المخالفة
+
+        const reportNo   = document.getElementById('report_no').value   || BLANK_REPORT_NO;
+        const reportYear = document.getElementById('report_year').value || BLANK_REPORT_YEAR;
+        const station    = getPoliceStation()                            || BLANK_STATION;
+        const eventDate  = document.getElementById('event_date').value  || BLANK_DATE;
 
         let offRank = document.getElementById('off_rank').value;
         if (offRank === 'other') {
             const orEl = document.getElementById('off_rank_other');
-            offRank = orEl ? (orEl.value || '...') : '...';
+            offRank = orEl ? (orEl.value || BLANK_RANK) : BLANK_RANK;
         }
-        offRank = offRank || '...';
+        offRank = offRank || BLANK_RANK;
 
-        const offName = document.getElementById('off_name').value || '...';
+        const offName = document.getElementById('off_name').value || BLANK_NAME;
 
         const recorderEl   = document.getElementById('recorder_type');
         const recorderType = recorderEl
             ? (recorderEl.value === 'other'
-                ? ((document.getElementById('recorder_type_other') || {}).value || '...')
-                : (recorderEl.value || '...'))
-            : '...';
+                ? ((document.getElementById('recorder_type_other') || {}).value || BLANK_RECORDER)
+                : (recorderEl.value || BLANK_RECORDER))
+            : BLANK_RECORDER;
 
         const videoDateEl = document.getElementById('video_date');
-        const videoDate   = videoDateEl ? (videoDateEl.value || '...') : '...';
+        const videoDate   = videoDateEl ? (videoDateEl.value || BLANK_DATE) : BLANK_DATE;
 
-        const defName  = document.getElementById('def_name').value  || '...';
+        const defName  = document.getElementById('def_name').value  || BLANK_NAME;
         const vType    = getVehicleType()                           || 'المركبة';
-        const plate    = getPlate()                                 || '...';
-        const location = document.getElementById('location').value  || '...';
+        const plate    = getPlate()                                 || BLANK_VEHICLE_ID;
+        const location = document.getElementById('location').value  || BLANK_LOCATION;
 
         const stmtEl  = document.getElementById('def_station_stmt');
         const defStmt = stmtEl ? (stmtEl.value || 'أنكر') : 'أنكر';
 
         const violsList = violations.length > 0
             ? violations.map(v => `( ${v} )`).join(' و ')
-            : '( ... )';
+            : `( ${BLANK_VIOLATION} )`;
 
-        const todayDate = document.getElementById('date').value || '...';
+        const todayDate = document.getElementById('date').value || BLANK_DATE;
         const prosLabel = getProsecutionName() || 'نيابة مرور القاهرة';
 
         return `مذكرة\n\nفي القضية الرقيمة ( ${reportNo} ) لسنة ( ${reportYear} ) جنح مرور ${station} :-\n\nيخلص وجيز الواقعة فيما جاء بمحضر جمع الاستدلالات المؤرخ في ${eventDate} والمحرر بمعرفة ${offRank} / ${offName} – ${recorderType} - من رصد مقطع مصور متداول بتاريخ ${videoDate} عبر موقع التواصل الاجتماعي "فيس بوك" خلال الصفحة المسماه "اخبار مرور مصر" قيادة المتهم / ${defName} لـ ${vType} الرقيمة ( ${plate} ) ويقوم بـ مخالفة قانون المرور بشارع ${location} بدائرة قسم شرطة ${station} وبإجرائه التحريات توصل إلى بيانات المتهم والسيارة وتم استدعاءه وبسؤاله ${defStmt} بارتكابه الواقعة وهي ${violsList} وتم التحفظ على السيارة على ذمة المحضر.\n\nلذلك قررنا الآتي\n\nأولاً : يعرض المتهم على مصلحة الطب الشرعي لأخذ منه عينتي بول ودم لتحليلهما وذلك بيان عما إذا كان توجد ثمة مواد مخدرة بهما من عدمه على أن يُعد تقريراً مفصلاً بذلك يُعرض علينا فور الانتهاء منه.\n\nتحريراً في ( ${todayDate} )`;
@@ -5368,6 +5535,10 @@ function saveDetentionOrder() {
         const selectedSizePx  = document.getElementById('font_size_choice').value;
         const { family: fontFamily, weight: fontWeight } = parseFont(selectedFontVal);
         const baseSz = parseInt(selectedSizePx) || 22;
+
+        // ✅ نقل تعريف خط كايرو (base64) إلى نافذة الطباعة الجديدة (نفس الحل المستخدم في أمر الحبس)
+        const cairoFontFaceEl2 = document.getElementById('cairo-font-base64');
+        const cairoFontFaceTag2 = cairoFontFaceEl2 ? cairoFontFaceEl2.outerHTML : '';
 
         function e(s) { return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
@@ -5428,6 +5599,7 @@ function saveDetentionOrder() {
 <meta charset="UTF-8">
 <base href="${baseHref}">
 <title>مذكرة العرض على الطب الشرعي</title>
+${cairoFontFaceTag2}
 <style>
   @page { size: A4; margin: 6mm 10mm; }
   * { box-sizing: border-box; margin: 0; padding: 0; }
