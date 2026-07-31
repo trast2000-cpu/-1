@@ -2729,7 +2729,13 @@ function applyFontSize(size) {
     function togglePlateInput(val) { 
         document.getElementById('plate_manual_container').style.display = (val === 'manual') ? 'flex' : 'none'; 
         const noPlateContainer = document.getElementById('plate_no_container');
-        if(noPlateContainer) noPlateContainer.style.display = (val === 'manual') ? 'none' : 'block';
+        if(noPlateContainer) {
+            noPlateContainer.style.display = (val === 'manual') ? 'none' : 'block';
+            // 💡 السطر الجديد: إجبار الحقل على كتابة الكلمة بداخله عند ظهوره
+            if (val !== 'manual') {
+                document.getElementById('input_no_plate').value = val;
+            }
+        }
     }
 
     // 💡 دالة جديدة لزر حذف رقم اللوحة بنقرة واحدة
