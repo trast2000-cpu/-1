@@ -1577,13 +1577,7 @@ box-sizing: border-box;
             <!-- 4. المخالفات -->
             <!-- 💡 أخذت الوزن الأكبر (2.5) لتتسع للقائمة الطويلة بشكل مريح للعين -->
             <div class="field" style="flex: 2.5; min-width: 300px;">
-                <!-- 💡 حاوية مرنة لترتيب العنوان يميناً وزر مسح الكل يساراً -->
-                <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 4px;">
-                    <label style="margin: 0;">البنود الاكثر استخداما</label>
-                    <button type="button" onclick="clearAllViolations()" title="مسح جميع المخالفات دفعة واحدة" style="background: transparent; color: #ef4444; border: 1px solid #ef4444; border-radius: 4px; padding: 2px 8px; font-size: 11px; cursor: pointer; display: flex; align-items: center; gap: 4px; transition: all 0.2s;" onmouseover="this.style.background='#ef4444'; this.style.color='#fff';" onmouseout="this.style.background='transparent'; this.style.color='#ef4444';">
-                        <i class="fa-solid fa-trash-can"></i> مسح 
-                    </button>
-                </div>
+                <label>البنود الاكثر استخداما</label>
                 <select id="viol_select" style="display:none;"></select>
                 <div id="violation_list" style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 6px;"></div>
             </div>
@@ -1865,7 +1859,7 @@ box-sizing: border-box;
                 <td>
                     <div class="report-header">
                         <div class="header-right" id="print-header-right">النيابة العامة<br>نيابة مرور القاهرة<br><span id="print-prosecution-name">نيابة مرور عين الصيرة</span></div>
-                        <div class="header-left"><img src="C:\Users\$ Roqa $\Desktop\سيستم محاضر التحقيق\logo.png"></div>
+                        <div class="header-left"><img src="logo.png"></div>
                     </div>
                 </td>
             </tr>
@@ -2663,28 +2657,6 @@ function applyFontSize(size) {
         saveData();
     }
 
-
-
-
-// 💡 دالة مسح جميع المخالفات وأسئلتها دفعة واحدة (بدون رسالة تأكيد للسرعة)
-    function clearAllViolations() {
-        if (violations.length === 0) return; // لا تفعل شيئاً إذا كانت القائمة فارغة أصلاً
-        
-        // 1. تفريغ مصفوفة المخالفات تماماً
-        violations = [];
-        
-        // 2. إزالة جميع الأسئلة التلقائية المرتبطة بالمخالفات من مصفوفة الأسئلة
-        questions = questions.filter(q => q.type !== 'viol');
-        
-        // 3. تحديث الواجهة وحفظ التعديلات
-        renderViolations();
-        renderQuestions();
-        saveData();
-    }
-
-
-
-
     // 💡 دالة رسم البنود المختارة بالشكل العصري (مرتبطة بألوان الستايل المختار)
     // 💡 دالة رسم البنود المختارة بنظام العمودين المنسق
     // 💡 دالة رسم البنود المختارة بنظام العمودين المنسق
@@ -2729,13 +2701,7 @@ function applyFontSize(size) {
     function togglePlateInput(val) { 
         document.getElementById('plate_manual_container').style.display = (val === 'manual') ? 'flex' : 'none'; 
         const noPlateContainer = document.getElementById('plate_no_container');
-        if(noPlateContainer) {
-            noPlateContainer.style.display = (val === 'manual') ? 'none' : 'block';
-            // 💡 السطر الجديد: إجبار الحقل على كتابة الكلمة بداخله عند ظهوره
-            if (val !== 'manual') {
-                document.getElementById('input_no_plate').value = val;
-            }
-        }
+        if(noPlateContainer) noPlateContainer.style.display = (val === 'manual') ? 'none' : 'block';
     }
 
     // 💡 دالة جديدة لزر حذف رقم اللوحة بنقرة واحدة
@@ -5103,6 +5069,11 @@ function saveDetentionOrder() {
         // 🎨 نظام تصميم موحّد: لون تمييز واحد بس، ومقاسات خط متدرجة بسيطة، وإيقاع مسافات ثابت
         const ACCENT = '#1a1a2e';
 
+        //* ============================================================ *//
+        //* هنا وبس هنا بيتم التحكم في "عرض فراغات أمر الحبس الاحتياطي"   *//
+        //* كل ما الرقم أكبر كل ما الفراغ أوسع (ممكن يقفز لسطر جديد لو زودته أوي) *//
+        //* ============================================================ *//
+
         // أي متتالية نقاط (…) تتحول لمسافة فاضية واسعة (بدون أي خط تحتها) — مساحة مريحة للكتابة بالقلم
         // forceCount: تحديد عدد صريح للمسافة (يُستخدم لتوسيع فراغات معينة أكتر من غيرها)
         function renderBlanks(raw, forceCount) {
@@ -5122,11 +5093,11 @@ function saveDetentionOrder() {
             });
         }
 
-        // 🎨 سطر بيانات (زي بيانات القضية/المتهم): كل الفراغات في السطر تاخد مساحة واسعة
-        // عشان السطر يستفيد من العرض المتاح لحد قرب أقصى اليسار
+        //* بيتحكم في فراغات: اسم المتهم / السن / المهنة / رقم تحقيق الشخصية / محل الإقامة (البطاقة الأولى) *//
         function formatInfoRow(text) {
             return formatField(text, 46);
         }
+
 
         const clerkName = document.getElementById('clerk_name').value || '...';
 
@@ -5174,6 +5145,8 @@ function saveDetentionOrder() {
 
             // سطر المخالفة بمفرده بين قوسين
             if (/^\(\s/.test(trimmed) && trimmed.endsWith(')')) {
+                //* الرقم 80 هنا = عرض فراغ "نوع المخالفة" (البطاقة الثانية) *//
+                //* 80 = بيتحكم في فراغ "نوع المخالفة" (البطاقة التانية) *//
                 bodyContent += '<div class="violation-block">' + formatField(trimmed, 80) + '</div>';
                 return;
             }
@@ -5218,14 +5191,17 @@ function saveDetentionOrder() {
                     const idx = rest.indexOf('وتنتهي');
                     const part1 = rest.slice(0, idx).replace(/[،,]\s*$/, '');
                     const part2 = rest.slice(idx);
+                    //* الرقم 24 هنا (مرتين) = عرض فراغ "تبدأ من" و"وتنتهي في" في قرار أولاً (البطاقة الثالثة) *//
                     restHtml = formatField(part1, 24) + '<br>' + formatField(part2, 24);
                 } else if (/^(ثانياً|ثانيا)/.test(trimmed) && rest.includes('إلى المحكمة')) {
                     // فاصل إجباري: "...صباح يوم (...)" في سطر، و"إلى المحكمة..." في السطر اللي بعده
                     const idx = rest.indexOf('إلى المحكمة');
                     const part1 = rest.slice(0, idx).trim();
                     const part2 = rest.slice(idx).trim();
+                    //* الرقم 24 هنا = عرض فراغ "صباح يوم" في قرار ثانياً (البطاقة الثالثة) — الجزء التاني مفيهوش فراغ أصلاً *//
                     restHtml = formatField(part1, 24) + '<br>' + formatField(part2);
                 } else {
+                    //* من غير رقم = بيستخدم الحجم الافتراضي (مش مستخدم فعليًا هنا لأن "ثالثاً" مفيهاش فراغ) *//
                     restHtml = formatField(rest);
                 }
 
@@ -5271,8 +5247,29 @@ function saveDetentionOrder() {
             // بيانات القضية والمتهم (داخل الصندوق)
             if (insideInfoCard) {
                 if (trimmed.startsWith('في القضية')) {
+                    //* الرقم 27 هنا = عرض فراغات سطر "في القضية رقم ... لسنة ..." المسنتر (البطاقة الأولى) *//
                     bodyContent += '<p class="info-row info-row-center">' + formatField(trimmed, 27) + '</p>';
+                } else if (trimmed.startsWith('اسم المتهم')) {
+                    // السطر فيه فراغين مختلفين (اسم المتهم + السن)، فبنقسمه عشان كل واحد ياخد رقمه لوحده
+                    const idx = trimmed.indexOf('| السن');
+                    const namePart = trimmed.slice(0, idx).trim();   // اسم المتهم : ( ... )
+                    const agePart  = trimmed.slice(idx).trim();      // | السن : ( ... ) سنة | النوع : ذكر
+                    //* الرقم 70 = عرض فراغ "اسم المتهم" (محتاج مساحة أكبر لاسم رباعي) *//
+                    //* الرقم 20  = عرض فراغ "السن" (محتاج مساحة صغيرة، رقم أو رقمين بس) *//
+                    bodyContent += '<p class="info-row">' + formatField(namePart, 70) + '  ' + formatField(agePart, 20) + '</p>';
+                } else if (trimmed.startsWith('المهنة')) {
+                    // السطر فيه فراغين مختلفين (المهنة + رقم تحقيق الشخصية)
+                    const idx = trimmed.indexOf('| رقم تحقيق الشخصية');
+                    const jobPart = trimmed.slice(0, idx).trim();    // المهنة : ( ... ) | مصري
+                    const idPart  = trimmed.slice(idx).trim();       // | رقم تحقيق الشخصية : ( ... )
+                    //* الرقم 20 = عرض فراغ "المهنة" *//
+                    //* الرقم 50 = عرض فراغ "رقم تحقيق الشخصية" (محتاج مساحة أكبر عشان رقم طويل + جهة الإصدار) *//
+                    bodyContent += '<p class="info-row">' + formatField(jobPart, 20) + '  ' + formatField(idPart, 50) + '</p>';
+                } else if (trimmed.startsWith('محل الإقامة')) {
+                    //* الرقم 80 = عرض فراغ "محل الإقامة" لوحده (بياخد أطول مساحة لأنه سطر لوحده) *//
+                    bodyContent += '<p class="info-row">' + formatField(trimmed, 80) + '</p>';
                 } else {
+                    //* أي سطر تاني مش متوقع هنا بياخد الحجم الافتراضي من formatInfoRow *//
                     bodyContent += '<p class="info-row">' + formatInfoRow(trimmed) + '</p>';
                 }
                 return;
@@ -5470,8 +5467,15 @@ ${cairoFontFaceTag}
 
     // ===== دوال مذكرة العرض على الطب الشرعي =====
 
+    //* ============================================================================ *//
+    //* تنبيه: الدالة دي بتاعة "مذكرة العرض على الطب الشرعي" — مستند مختلف تمامًا     *//
+    //* عن "أمر الحبس الاحتياطي"، ومستخدمة فعليًا في 3 أماكن في الكود، ميتصلفش تتلغي.  *//
+    //* لو عايز تعدّل مسافات/فراغات "أمر الحبس الاحتياطي" — مكانها مش هنا خالص،        *//
+    //* روح لدالة printDetentionOrder (فوق) ودور على formatField / formatInfoRow.      *//
+    //* ============================================================================ *//
     function buildForensicMemoText() {
         // 💡 كل خانة ليها عدد نقاط مستقل بذاته — زوّد أو قلّل نقاط أي سطر هنا لوحده
+        // (ده بيتحكم في عدد النقط في نص "مذكرة الطب الشرعي" هي بس، مش أمر الحبس)
         const BLANK_REPORT_NO   = '………………';           // رقم المحضر
         const BLANK_REPORT_YEAR = '………………';           // سنة المحضر
         const BLANK_STATION     = '……………………………';  // اسم قسم الشرطة
@@ -6265,7 +6269,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     smartBtn.onclick = (e) => { e.preventDefault(); handleViolSmartSubmit(); };
     smartInput.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') { e.preventDefault(); handleViolSmartSubmit(); }
+        // تفعيل زر Enter أو زر الزائد (+) من الكيبورد العادي أو الـ Numpad
+        if (e.key === 'Enter' || e.key === '+' || e.code === 'NumpadAdd') { 
+            e.preventDefault(); // نمنع كتابة علامة + حرفياً داخل المربع
+            handleViolSmartSubmit(); 
+        }
         if (e.key === 'Escape') { autocompleteBox.style.display = 'none'; }
     });
 
