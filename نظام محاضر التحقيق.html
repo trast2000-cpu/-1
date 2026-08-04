@@ -1761,7 +1761,7 @@ box-sizing: border-box;
      onmouseover="this.style.color='#2563eb'; this.style.transform='translateY(-3px)';"
      onmouseout="this.style.color='#94a3b8'; this.style.transform='translateY(0)';"
 >
-    Developed by Ibrahim Ahmed | v1.3.0
+    Developed by Ibrahem Ahmed | v1.4.1
 </div>
 
 
@@ -3097,13 +3097,23 @@ function removeQuestion(id) {
             const currentFont = localStorage.getItem('font_choice');
             const currentFontSize = localStorage.getItem('font_size_choice');
             const currentStyle = localStorage.getItem('selected_style');
+            // حفظ بيانات محاضر التلبسات قبل المسح
+            const externalSaved = {};
+            for (let i = 0; i < localStorage.length; i++) {
+                const k = localStorage.key(i);
+                if (k && k.startsWith('mahdar_')) {
+                    externalSaved[k] = localStorage.getItem(k);
+                }
+            }
             // مسح الذاكرة
             localStorage.clear();
             
                // إعادة الإعدادات المفضلة بعد المسح
             if (currentFont) localStorage.setItem('font_choice', currentFont);
             if (currentFontSize) localStorage.setItem('font_size_choice', currentFontSize);
-            if (currentStyle) localStorage.setItem('selected_style', currentStyle);           
+            if (currentStyle) localStorage.setItem('selected_style', currentStyle);
+            // إعادة بيانات محاضر التلبسات بعد المسح
+            Object.keys(externalSaved).forEach(k => localStorage.setItem(k, externalSaved[k]));           
 
             // تفريغ كافة الحقول النصية تماماً
             document.querySelectorAll('input[type="text"]').forEach(input => {
@@ -3176,7 +3186,14 @@ function removeQuestion(id) {
             const currentFont = localStorage.getItem('font_choice');
             const currentFontSize = localStorage.getItem('font_size_choice');
             const currentStyle = localStorage.getItem('selected_style');
-
+            // حفظ بيانات محاضر التلبسات قبل المسح
+            const externalSaved = {};
+            for (let i = 0; i < localStorage.length; i++) {
+                const k = localStorage.key(i);
+                if (k && k.startsWith('mahdar_')) {
+                    externalSaved[k] = localStorage.getItem(k);
+                }
+            }
             // مسح الذاكرة
             localStorage.clear();
 
@@ -3184,6 +3201,8 @@ function removeQuestion(id) {
             if (currentFont) localStorage.setItem('font_choice', currentFont);
             if (currentFontSize) localStorage.setItem('font_size_choice', currentFontSize);
             if (currentStyle) localStorage.setItem('selected_style', currentStyle);
+            // إعادة بيانات محاضر التلبسات بعد المسح
+            Object.keys(externalSaved).forEach(k => localStorage.setItem(k, externalSaved[k]));
        
             // تحديث الواجهة
             renderViolations();
@@ -5733,12 +5752,22 @@ ${cairoFontFaceTag2}
         const currentFont     = localStorage.getItem('font_choice');
         const currentFontSize = localStorage.getItem('font_size_choice');
         const currentStyle    = localStorage.getItem('selected_style');
+        // حفظ بيانات محاضر التلبسات قبل المسح
+        const externalSaved = {};
+        for (let i = 0; i < localStorage.length; i++) {
+            const k = localStorage.key(i);
+            if (k && k.startsWith('mahdar_')) {
+                externalSaved[k] = localStorage.getItem(k);
+            }
+        }
 
         localStorage.clear();
 
         if (currentFont)     localStorage.setItem('font_choice',      currentFont);
         if (currentFontSize) localStorage.setItem('font_size_choice', currentFontSize);
         if (currentStyle)    localStorage.setItem('selected_style',   currentStyle);
+        // إعادة بيانات محاضر التلبسات بعد المسح
+        Object.keys(externalSaved).forEach(k => localStorage.setItem(k, externalSaved[k]));
 
         document.querySelectorAll('input[type="text"]').forEach(input => {
             if (input.id !== 'clerk_name') input.value = '';

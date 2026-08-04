@@ -1346,7 +1346,7 @@ body[data-theme="dark"] .rec-date { color: #64748b !important; }
                 <button class="btn-clear" onclick="clearAll()"><i class="fa-solid fa-trash fa-icon-btn"></i> مسح الكل &nbsp; &nbsp;{ F9 }</button>
             </div>
             <div class="developer-credit">
-    Developed by Ibrahem Ahmed | v1.4.0
+    Developed by Ibrahem Ahmed | v1.4.1
 </div>
 
         </div>
@@ -4749,57 +4749,12 @@ let lastAutoFineTotal = 0;
 // 💡 دالة الحساب التلقائي للغرامة (بمقارنة عمياء تتجاهل المسافات + احترام التعديل اليدوي)
 // ==========================================
 function calculateTotalFine() {
-    let total = 0;
-    
-    arrestItems.forEach(item => {
-        // تنظيف النص المُختار من النجمة أو أي مسافات زائدة حوله
-        let cleanLabel = item.label.replace(/^\*\s*/, '').trim();
-        
-        // مقارنة "عمياء": إزالة كل المسافات الداخلية لضمان التطابق 100%
-        let foundCode = Object.keys(fineAmountsDB).find(code => {
-            let textFromDB = fineAmountsDB[code].text.replace(/\s+/g, '');
-            let textFromUser = cleanLabel.replace(/\s+/g, '');
-            return textFromDB === textFromUser;
-        });
-        
-        if (foundCode && fineAmountsDB[foundCode].amount > 0) {
-            total += fineAmountsDB[foundCode].amount;
-        }
-    });
-
-    const fineInput = document.getElementById('fine-amount');
-    const fineType = document.getElementById('fine-type');
-    
-    if (fineInput && fineType) {
-        let currentValue = parseFloat(fineInput.value) || 0;
-        let isEmpty = fineInput.value.trim() === '';
-
-        // 💡 التعديل العبقري: هل المستخدم قام بكتابة مبلغ بيده؟
-        // يكون يدوياً إذا كان الحقل غير فارغ، وقيمته لا تساوي آخر ما حسبه النظام
-        let isManuallyOverridden = !isEmpty && (currentValue !== lastAutoFineTotal);
-
-        if (!isManuallyOverridden) {
-            // إذا لم يتدخل المستخدم يدوياً (الرقم هو ما حسبه النظام، أو الحقل فارغ) -> تفضل يا كود وقم بعملك
-            if (total > 0) {
-                fineType.value = 'fine';
-                document.getElementById('fine-amount-row').style.display = 'flex';
-                fineInput.value = total;
-                if (typeof syncCustomSelectDisplay === 'function') syncCustomSelectDisplay('fine-type');
-            } else {
-                // 💡 حل مشكلة مسح البند الأخير: تصفير الغرامة وإخفاء الحقل بالكامل
-                fineInput.value = '';
-                fineType.value = 'none'; // إرجاع القائمة إلى (--- اختر القرار ---)
-                document.getElementById('fine-amount-row').style.display = 'none';
-                if (typeof syncCustomSelectDisplay === 'function') syncCustomSelectDisplay('fine-type');
-            }
-        }
-        
-        // تحديث الذاكرة للمرة القادمة (حتى لو كان يدوياً، يجب أن يتذكر الكود ما كان يجب عليه حسابه)
-        lastAutoFineTotal = total;
-        
-        // تحديث نص الغرامة والتفقيط في صفحة الطباعة
-        updateFineText();
-    }
+    // 💡 تم إلغاء الملء/التبديل التلقائي لمبلغ ونوع قرار الغرامة بناءً على طلب المستخدم.
+    // سابقاً كانت هذه الدالة تغيّر "نوع القرار" إلى (يغرم المتهم) وتفتح حقل المبلغ وتملأه تلقائياً
+    // بمجرد اختيار بند اتهام يحمل غرامة في قائمة "سبب الضبط" — حتى لو كان المستخدم قد اختار
+    // مسبقاً قرار "تسليم بدون غرامة" (preset: fine-only) الذي يطوي بطاقة الغرامة عمداً.
+    // الآن: لا تُلمَس بطاقة الغرامة (نوع القرار / القيمة / الإظهار) إطلاقاً من هنا،
+    // ويُترك إدخال المبلغ ونوع القرار للمستخدم يدوياً بالكامل عبر بطاقة "قرار الغرامة" نفسها.
 }
 
 
