@@ -1470,7 +1470,7 @@
             document.getElementById('out_recipient_display').textContent = (select.value === 'أخرى') ? (otherInput.value || '...........................') : select.value;
             const content = document.getElementById('outLetterContent').value;
             document.getElementById('outLetterBodyDisplay').innerHTML = content
-                ? `<div style="margin:0 auto; display:inline-block; text-align:right;">${content}</div>`
+                ? `<div style="margin:0 auto; display:inline-block; text-align:center;">${content}</div>`
                 : `<p style="color:#aaa; font-size:1.2rem; margin:0 auto;">(سيتم إدراج محتوى الخطاب الصادر هنا)</p>`;
             const dateVal = document.getElementById('outLetterDate').value;
             const dateObj = formatDateAr(dateVal);
