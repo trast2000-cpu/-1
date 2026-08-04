@@ -1256,7 +1256,7 @@ box-sizing: border-box;
                     <option value="formal5">رسمي داكن</option>
                     <option value="formal6">رسمي داكن جداً</option>
                 </select>
-                <button class="btn-save1" onclick="saveData1()">حفظ التغييرات</button>
+                <button class="btn-save1" onclick="saveData1(); savePreferencesIndependent();">حفظ التغييرات</button>
             </div>
         </div>
         <!-- المحتوى الرئيسي -->
@@ -2989,6 +2989,28 @@ function removeQuestion(id) {
                         styleSelect.value = embeddedData.selectedStyle;
                         applyStyle(embeddedData.selectedStyle);
                     }
+                } else {
+                    // لا يوجد استايل مضمّن في الملف المحفوظ، نرجع لآخر استايل محفوظ في المتصفح
+                    const savedStyleEmbedded = localStorage.getItem('selected_style');
+                    const styleSelectEmbedded = document.getElementById('style_choice');
+                    if (savedStyleEmbedded && styleSelectEmbedded) {
+                        styleSelectEmbedded.value = savedStyleEmbedded;
+                        applyStyle(savedStyleEmbedded);
+                    }
+                }
+
+                // استعادة الخط وحجم الخط من localStorage (كانت مفقودة في هذا المسار،
+                // فكانت ترجع للقيم الافتراضية المكتوبة في HTML كل مرة)
+                const savedFontEmbedded = localStorage.getItem('font_choice');
+                const fontSelectEmbedded = document.getElementById('font_choice');
+                if (savedFontEmbedded && fontSelectEmbedded) {
+                    fontSelectEmbedded.value = savedFontEmbedded;
+                    if (typeof previewFont === 'function') previewFont(savedFontEmbedded);
+                }
+                const savedFontSizeEmbedded = localStorage.getItem('font_size_choice');
+                const fontSizeSelectEmbedded = document.getElementById('font_size_choice');
+                if (savedFontSizeEmbedded && fontSizeSelectEmbedded) {
+                    fontSizeSelectEmbedded.value = savedFontSizeEmbedded;
                 }
                 
                 renderViolations();
@@ -3222,49 +3244,39 @@ function removeQuestion(id) {
     
 
     function saveData1() {
-         {
-            // حفظ الإعدادات المفضلة 
-            const currentFont = localStorage.getItem('font_choice');
-            const currentFontSize = localStorage.getItem('font_size_choice');
-            const currentStyle = localStorage.getItem('selected_style');
-            // حفظ بيانات محاضر التلبسات قبل المسح
-            const externalSaved = {};
-            for (let i = 0; i < localStorage.length; i++) {
-                const k = localStorage.key(i);
-                if (k && k.startsWith('mahdar_')) {
-                    externalSaved[k] = localStorage.getItem(k);
-                }
-            }
-            // مسح الذاكرة
-            localStorage.clear();
+        // قراءة القيم الفعلية من القوائم المنسدلة في الواجهة
+        const fontEl = document.getElementById('font_choice');
+        const sizeEl = document.getElementById('font_size_choice');
+        const styleEl = document.getElementById('style_choice');
+        
+        // حفظ القيم في المتصفح إذا كانت موجودة
+        if (fontEl) localStorage.setItem('font_choice', fontEl.value);
+        if (sizeEl) localStorage.setItem('font_size_choice', sizeEl.value);
+        if (styleEl) localStorage.setItem('selected_style', styleEl.value);
+    
+        // تحديث الواجهة لتطبيق الإعدادات الجديدة
+        if (typeof renderViolations === 'function') renderViolations();
+        if (typeof renderQuestions === 'function') renderQuestions();
+        if (typeof renderManualDecisions === 'function') renderManualDecisions();
 
-            // إعادة الإعدادات المفضلة بعد المسح
-            if (currentFont) localStorage.setItem('font_choice', currentFont);
-            if (currentFontSize) localStorage.setItem('font_size_choice', currentFontSize);
-            if (currentStyle) localStorage.setItem('selected_style', currentStyle);
-            // إعادة بيانات محاضر التلبسات بعد المسح
-            Object.keys(externalSaved).forEach(k => localStorage.setItem(k, externalSaved[k]));
-       
-            // تحديث الواجهة
-            renderViolations();
-            renderQuestions();
-            renderManualDecisions();
- 
-            // إعادة تعيين القيم الافتراضية
-            const todayForClear = new Date();
-            const ty = todayForClear.getFullYear();
-            const tm = todayForClear.getMonth() + 1;
-            const td = todayForClear.getDate();
-            document.getElementById('date').value = toArabicNumerals(ty + '/' + tm + '/' + td);
-            
-            // تطبيق الاستايل المختار (أو الافتراضي)
-            applyStyle(currentStyle || 'formal3');
-            
-            // حفظ الحالة الفارغة
-            saveData();
-            
-            alert("تم حفظ التغييرات بنجاح.");
+        // إعادة تعيين التاريخ لليوم الحالي (كما في الكود الأصلي)
+        const todayForClear = new Date();
+        const ty = todayForClear.getFullYear();
+        const tm = todayForClear.getMonth() + 1;
+        const td = todayForClear.getDate();
+        const dateEl = document.getElementById('date');
+        if (dateEl && typeof toArabicNumerals === 'function') {
+            dateEl.value = toArabicNumerals(ty + '/' + tm + '/' + td);
         }
+        
+        // تطبيق الاستايل المختار فوراً على الواجهة
+        if (styleEl && typeof applyStyle === 'function') {
+            applyStyle(styleEl.value);
+        }
+        
+        if (typeof saveData === 'function') saveData();
+        
+        alert("تم حفظ التغييرات بنجاح.");
     }
 
 
@@ -6477,6 +6489,71 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 
+
+
+<!-- ============================================================
+     نظام مستقل لحفظ واسترجاع الخط/الحجم/الاستايل — لا يلمس أي
+     مفتاح localStorage آخر ولا أي دالة أخرى في الملف. الغرض منه
+     ضمان ثبات الإعدادات حتى لو كود آخر أعاد ضبط الـ selects دي
+     بعد التحميل.
+     ============================================================ -->
+<script>
+(function() {
+    const PREF_KEYS = {
+        font: '_pref_font_v2',
+        size: '_pref_size_v2',
+        style: '_pref_style_v2'
+    };
+
+    // حفظ مستقل — يُستدعى من زرار "حفظ التغييرات" بجانب الحفظ العادي
+    window.savePreferencesIndependent = function() {
+        try {
+            const fontEl  = document.getElementById('font_choice');
+            const sizeEl  = document.getElementById('font_size_choice');
+            const styleEl = document.getElementById('style_choice');
+            if (fontEl)  localStorage.setItem(PREF_KEYS.font,  fontEl.value);
+            if (sizeEl)  localStorage.setItem(PREF_KEYS.size,  sizeEl.value);
+            if (styleEl) localStorage.setItem(PREF_KEYS.style, styleEl.value);
+        } catch (e) {
+            console.error('savePreferencesIndependent error:', e);
+        }
+    };
+
+    // استرجاع مستقل — يثبّت القيم المحفوظة فوق أي قيمة تانية
+    function restorePreferencesIndependent() {
+        try {
+            const fontEl  = document.getElementById('font_choice');
+            const sizeEl  = document.getElementById('font_size_choice');
+            const styleEl = document.getElementById('style_choice');
+
+            const savedFont  = localStorage.getItem(PREF_KEYS.font);
+            const savedSize  = localStorage.getItem(PREF_KEYS.size);
+            const savedStyle = localStorage.getItem(PREF_KEYS.style);
+
+            if (savedFont && fontEl && fontEl.value !== savedFont) {
+                fontEl.value = savedFont;
+                if (typeof previewFont === 'function') previewFont(savedFont);
+            }
+            if (savedSize && sizeEl && sizeEl.value !== savedSize) {
+                sizeEl.value = savedSize;
+            }
+            if (savedStyle && styleEl && styleEl.value !== savedStyle) {
+                styleEl.value = savedStyle;
+                if (typeof applyStyle === 'function') applyStyle(savedStyle);
+            }
+        } catch (e) {
+            console.error('restorePreferencesIndependent error:', e);
+        }
+    }
+
+    // نشغّلها بعد اكتمال تحميل الصفحة بالكامل (بعد أي كود تاني)،
+    // وبتأخير بسيط كمان كطبقة أمان إضافية عشان نضمن إننا آخر واحد بيلمس القيم.
+    window.addEventListener('load', function() {
+        restorePreferencesIndependent();
+        setTimeout(restorePreferencesIndependent, 300);
+    });
+})();
+</script>
 
 </body>
 </html>
