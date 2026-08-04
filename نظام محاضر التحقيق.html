@@ -1304,12 +1304,12 @@ box-sizing: border-box;
     </div>
 
     <div class="section">
-        <div class="section-title" onclick="toggleSection(this)">بيانات محضر الضبط <span class="toggle-icon">▼</span></div>
+        <div class="section-title" onclick="toggleSection(this)" id="arrest-section-title">بيانات محضر الضبط <span class="toggle-icon" id="arrest-section-toggle">▼</span></div>
         <div class="section-content form-grid">
-            <div class="field"><label>رقم المحضر</label><input type="text" id="report_no" class="persist" value=""></div>
+            <div class="field"><label id="report_no_label">رقم المحضر</label><input type="text" id="report_no" class="persist" value=""></div>
             <div class="field"><label>سنة المحضر</label><input type="text" id="report_year" class="persist" value=""></div>
             <div class="field" id="sub_report_no_field" style="display:none;">
-                <label>رقم المحضر الفرعي</label>
+                <label>رقم المحضر الملحق</label>
                 <input type="text" id="sub_report_no" class="persist" value="" placeholder="مثال: 5 ح">
             </div>
             <div class="field">
@@ -1318,7 +1318,7 @@ box-sizing: border-box;
                 <input type="text" id="police_station_other" class="other-input persist" placeholder="اكتب اسم قسم الشرطة">
             </div>
             <div class="field">
-                <label>تاريخ واقعة الضبط</label>
+                <label id="event_date_label">تاريخ واقعة الضبط</label>
                 <div class="date-input-wrapper">
                     <span class="calendar-icon" onclick="showArabicCalendar('event_date')">&#128197;</span>
                     <input type="text" id="event_date" class="persist" value="" placeholder="مثال: ٢٠٢٦/١/١٥" oninput="convertToArabicNumerals(this); validateDateInput(this); updateAutoQuestions()">
@@ -1326,7 +1326,7 @@ box-sizing: border-box;
                 </div>
             </div>
             <div class="field">
-                <label>ساعة الضبط</label>
+                <label id="event_time_label">ساعة الضبط</label>
                 <div class="time-group">
                     <input type="text" id="event_time_h" class="persist" value="">
                     <select id="event_time_p" class="persist"><option>م</option><option>ص</option></select>
@@ -2138,8 +2138,18 @@ document.addEventListener('DOMContentLoaded', function() {
             if (vehicleDecEl) savedMainVehicleDecision = vehicleDecEl.value;
 
             btnBail.classList.add('active-mode-bail');
+            // تغيير اسم حقل التاريخ في مود تخفيض الكفالة
+            const _evLbl = document.getElementById('event_date_label');
+            if (_evLbl) _evLbl.textContent = 'تاريخ المحضر الملحق';
+            // تغيير عنوان بطاقة الضبط واسم حقل رقم المحضر
+            const _secTitle = document.getElementById('arrest-section-title');
+            if (_secTitle) { const sp = _secTitle.querySelector('#arrest-section-toggle'); _secTitle.childNodes[0].textContent = 'بيانات المحضر الملحق '; }
+            const _rnoLbl = document.getElementById('report_no_label');
+            if (_rnoLbl) _rnoLbl.textContent = 'رقم المحضر الاصلي';
             if (subReportField) subReportField.style.display = 'block';
             if (extraSection) extraSection.style.display = 'none';
+             const _etimeLbl = document.getElementById('event_time_label');
+            if (_etimeLbl) _etimeLbl.textContent = 'ساعة المحضر الملحق';
 
             const bailField = document.getElementById('bail');
             if (bailField) bailField.value = '1000';
@@ -2175,6 +2185,15 @@ document.addEventListener('DOMContentLoaded', function() {
             if (vehicleDecEl2) savedMainVehicleDecision = vehicleDecEl2.value;
 
             if (btnObjection) btnObjection.classList.add('active-mode-objection');
+            // إعادة اسم حقل التاريخ الأصلي
+            const _evLbl2 = document.getElementById('event_date_label');
+            if (_evLbl2) _evLbl2.textContent = 'تاريخ واقعة الضبط';
+            const _secTitle2 = document.getElementById('arrest-section-title');
+            if (_secTitle2) _secTitle2.childNodes[0].textContent = 'بيانات محضر الضبط ';
+            const _rnoLbl2 = document.getElementById('report_no_label');
+            if (_rnoLbl2) _rnoLbl2.textContent = 'رقم المحضر';
+            const _etimeLbl2 = document.getElementById('event_time_label');
+            if (_etimeLbl2) _etimeLbl2.textContent = 'ساعة الضبط';
             if (subReportField) subReportField.style.display = 'none';
             if (extraSection) extraSection.style.display = '';
 
@@ -2224,6 +2243,15 @@ document.addEventListener('DOMContentLoaded', function() {
             }
 
             btnMain.classList.add('active-mode');
+            // إعادة اسم حقل التاريخ الأصلي
+            const _evLbl3 = document.getElementById('event_date_label');
+            if (_evLbl3) _evLbl3.textContent = 'تاريخ واقعة الضبط';
+            const _secTitle3 = document.getElementById('arrest-section-title');
+            if (_secTitle3) _secTitle3.childNodes[0].textContent = 'بيانات محضر الضبط ';
+            const _rnoLbl3 = document.getElementById('report_no_label');
+            if (_rnoLbl3) _rnoLbl3.textContent = 'رقم المحضر';
+            const _etimeLbl3 = document.getElementById('event_time_label');
+            if (_etimeLbl3) _etimeLbl3.textContent = 'ساعة الضبط';
             if (subReportField) subReportField.style.display = 'none';
             if (extraSection) extraSection.style.display = 'none';
 
@@ -2652,6 +2680,16 @@ function applyFontSize(size) {
     function removeViolation(v) {
         violations = violations.filter(item => item !== v);
         questions = questions.filter(q => q.viol !== v);
+        renderViolations();
+        renderQuestions();
+        saveData();
+    }
+
+    // 💡 دالة مسح جميع بنود الاتهام المختارة
+    function clearAllViolations() {
+        if (violations.length === 0) return;
+        violations = [];
+        questions = questions.filter(q => q.type !== 'viol');
         renderViolations();
         renderQuestions();
         saveData();
@@ -3116,12 +3154,15 @@ function removeQuestion(id) {
             Object.keys(externalSaved).forEach(k => localStorage.setItem(k, externalSaved[k]));           
 
             // تفريغ كافة الحقول النصية تماماً
-            document.querySelectorAll('input[type="text"]').forEach(input => {
-                // استثناء كاتب التحقيق إذا أردت الحفاظ عليه، أو مسحه أيضاً
-                if (input.id !== 'clerk_name') {
-                    input.value = "";
-                }
-            });
+             document.querySelectorAll('input[type="text"]').forEach(input => {
+                 // استثناء كاتب التحقيق وحقل رقم اللوحة عند اختيار "بدون لوحات"
+                 if (input.id !== 'clerk_name' && input.id !== 'input_no_plate') {
+                     input.value = "";
+                 }
+             });
+             // ضمان بقاء قيمة "بدون لوحات" في حقلها بعد المسح
+             const _noPlateElC = document.getElementById('input_no_plate');
+             if (_noPlateElC) _noPlateElC.value = 'بدون لوحات';
             
             // إعادة تعيين القوائم المنسدلة
             document.querySelectorAll('select').forEach(select => {
@@ -5770,8 +5811,12 @@ ${cairoFontFaceTag2}
         Object.keys(externalSaved).forEach(k => localStorage.setItem(k, externalSaved[k]));
 
         document.querySelectorAll('input[type="text"]').forEach(input => {
-            if (input.id !== 'clerk_name') input.value = '';
+            // استثناء كاتب التحقيق وحقل رقم اللوحة عند اختيار "بدون لوحات"
+            if (input.id !== 'clerk_name' && input.id !== 'input_no_plate') input.value = '';
         });
+        // ضمان بقاء قيمة "بدون لوحات" في حقلها بعد المسح
+        const _noPlateElF9 = document.getElementById('input_no_plate');
+        if (_noPlateElF9) _noPlateElF9.value = 'بدون لوحات';
 
         document.querySelectorAll('select').forEach(select => {
             if      (select.id === 'font_choice')       select.value = currentFont     || "'Arabic Typesetting', serif";
@@ -6071,6 +6116,43 @@ document.addEventListener('DOMContentLoaded', () => {
     let isHoveringAutocomplete = false;
     autocompleteBox.addEventListener('mouseenter', () => isHoveringAutocomplete = true);
     autocompleteBox.addEventListener('mouseleave', () => isHoveringAutocomplete = false);
+
+    // زر مسح البنود — يُضاف على نفس سطر لافتة "البنود الاكثر استخداما"
+    const violLabel = document.querySelector('label[for], .field label');
+    // نبحث عن الـ label الخاص بقسم البنود بالنص
+    const allLabels = document.querySelectorAll('.field label');
+    let targetLabel = null;
+    allLabels.forEach(lbl => { if (lbl.textContent.includes('البنود')) targetLabel = lbl; });
+    if (targetLabel) {
+        targetLabel.style.cssText = 'display:flex; justify-content:space-between; align-items:center; width:100%;';
+        const clearViolBtn = document.createElement('button');
+        clearViolBtn.type = 'button';
+        clearViolBtn.id = 'clear-viols-btn';
+        clearViolBtn.title = 'مسح جميع بنود الاتهام المختارة';
+        clearViolBtn.innerHTML = '<i class="fa-solid fa-trash-can"></i> مسح';
+        clearViolBtn.style.cssText = [
+            'display:inline-flex','align-items:center','gap:5px',
+            'background:linear-gradient(135deg,#fee2e2,#fecaca)',
+            'color:#b91c1c','border:1.5px solid #fca5a5',
+            'border-radius:7px','padding:3px 10px',
+            'font-size:12px','font-weight:700','cursor:pointer',
+            'font-family:inherit','transition:all 0.2s',
+            'box-shadow:0 1px 4px rgba(185,28,28,0.12)',
+            'margin-right:auto'
+        ].join(';');
+        clearViolBtn.onmouseenter = function(){
+            this.style.background='linear-gradient(135deg,#fecaca,#fca5a5)';
+            this.style.boxShadow='0 3px 10px rgba(185,28,28,0.22)';
+            this.style.transform='translateY(-1px)';
+        };
+        clearViolBtn.onmouseleave = function(){
+            this.style.background='linear-gradient(135deg,#fee2e2,#fecaca)';
+            this.style.boxShadow='0 1px 4px rgba(185,28,28,0.12)';
+            this.style.transform='';
+        };
+        clearViolBtn.onclick = function(){ if(typeof clearAllViolations==='function') clearAllViolations(); };
+        targetLabel.appendChild(clearViolBtn);
+    }
 
     inputGroup.appendChild(trigger);
     inputGroup.appendChild(codePart);
