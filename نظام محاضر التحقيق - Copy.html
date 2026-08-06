@@ -1165,203 +1165,13 @@ box-sizing: border-box;
             body.printing-forensic #print-area { display: none !important; }
             body.printing-forensic #forensic-print-area { display: block !important; }
         }
-
-/* ====== نظام القائمة العائمة (أرشيف محاضر التحقيق) ====== */
-.inv-archive-wrapper {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    border-bottom: 2px solid #2563eb;
-    margin-bottom: 10px;
-    padding-bottom: 5px;
-}
-.inv-archive-wrapper h1 {
-    border-bottom: none !important;
-    margin: 0 !important;
-    padding-bottom: 0 !important;
-    flex: 1;
-    text-align: center;
-    white-space: nowrap;
-    font-size: 17px !important;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-.inv-archive-spacer { flex: 1; }
-.inv-archive-dropdown-container {
-    flex: 1;
-    display: flex;
-    justify-content: flex-end;
-    position: relative;
-}
-.inv-archive-trigger-btn {
-    background: transparent;
-    border: 1.5px solid #2563eb;
-    color: #2563eb;
-    padding: 6px 14px;
-    border-radius: 8px;
-    font-family: inherit;
-    font-size: 13px;
-    font-weight: bold;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    transition: all 0.2s ease;
-    white-space: nowrap;
-    box-shadow: none;
-}
-.inv-archive-trigger-btn:hover {
-    background: rgba(37, 99, 235, 0.08);
-    border-color: #1d4ed8;
-    color: #1d4ed8;
-    transform: none;
-    box-shadow: none;
-}
-.inv-floating-archive-menu {
-    position: absolute;
-    top: calc(100% + 5px);
-    left: 0;
-    width: 260px;
-    min-width: 260px;
-    max-width: 400px;
-    max-height: calc((100vh / 1.3) - 80px);
-    background: #edf0f7;
-    border-radius: 12px;
-    box-shadow: 0 15px 45px rgba(0,0,0,0.3);
-    border: 1.5px solid #c5cfe0;
-    z-index: 2000;
-    flex-direction: column;
-    padding: 12px;
-    display: flex;
-    visibility: hidden;
-    opacity: 0;
-    transform: translateY(-15px) scale(0.95);
-    pointer-events: none;
-    transition: visibility 0.3s, opacity 0.3s ease, transform 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28);
-}
-.inv-floating-archive-menu.open {
-    visibility: visible;
-    opacity: 1;
-    transform: translateY(0) scale(1);
-    pointer-events: auto;
-}
-.inv-archive-tabs {
-    display: flex;
-    flex-direction: row;
-    gap: 5px;
-    margin-bottom: 15px;
-}
-.inv-tab-btn {
-    flex: 1;
-    background: #243f6b;
-    color: #c8dff5;
-    border: 1px solid #2d5a8e;
-    border-radius: 8px;
-    padding: 8px 2px;
-    font-family: 'Cairo', sans-serif;
-    font-size: 11px;
-    font-weight: bold;
-    cursor: pointer;
-    transition: all 0.2s;
-    text-align: center;
-    box-shadow: 0 3px 8px rgba(0,0,0,0.15);
-}
-.inv-tab-btn:hover { background: #2d5a8e; color: #fff; transform: translateY(-2px); }
-.inv-tab-btn.active {
-    background: #2563eb;
-    color: #fff;
-    border-color: #1d4ed8;
-    box-shadow: 0 4px 12px rgba(37,99,235,0.4);
-}
-.inv-records-list {
-    flex: 1;
-    overflow-y: auto;
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-    padding-right: 4px;
-    scrollbar-width: thin;
-    scrollbar-color: #4a7ab5 transparent;
-}
-.inv-record-btn {
-    display: flex;
-    flex-direction: column;
-    align-items: stretch;
-    width: 100%;
-    padding: 6px 8px;
-    background: #f4f6fb;
-    border: 1.5px solid #c8d3e3;
-    border-radius: 6px;
-    cursor: pointer;
-    text-align: right;
-    transition: all 0.2s;
-    font-family: inherit;
-    box-shadow: 0 3px 8px rgba(0,0,0,0.1);
-}
-.inv-record-btn:hover {
-    background: #fff;
-    border-color: #2563eb;
-    transform: translateY(-1.5px);
-    box-shadow: 0 6px 15px rgba(37,99,235,0.15);
-}
-.inv-record-title { font-size: 13px; font-weight: bold; color: #1e3a5f; margin-bottom: 2px; display: flex; align-items: center; justify-content: space-between; gap: 6px; }
-.inv-record-sub-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    width: 100%;
-}
-.inv-rec-name { font-size: 11px; color: #5a6a82; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 65%; }
-.inv-rec-date { font-size: 10px; color: #8a9bb5; white-space: nowrap; }
-.inv-archive-date-divider {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin: 6px 2px 2px;
-    user-select: none;
-}
-.inv-archive-date-divider::before,
-.inv-archive-date-divider::after {
-    content: "";
-    flex: 1;
-    height: 1px;
-    background: linear-gradient(90deg, transparent, #c8d3e3 40%, #c8d3e3 60%, transparent);
-}
-.inv-archive-date-divider .inv-divider-dot {
-    width: 5px;
-    height: 5px;
-    border-radius: 50%;
-    background: #2563eb;
-    flex-shrink: 0;
-}
-@media print {
-    .inv-archive-dropdown-container, .inv-floating-archive-menu, .inv-archive-spacer { display: none !important; }
-    .inv-archive-wrapper { display: block !important; }
-    .inv-archive-wrapper h1 { text-align: center !important; }
-}
-
         </style>
 <base target="_blank">
 </head>
 <body>
 
 <div class="no-print">
-    <div class="inv-archive-wrapper">
-        <div class="inv-archive-spacer"></div>
-        <h1> نظام إعداد محاضر التحقيق - اختر نوع التحقيق</h1>
-        <div class="inv-archive-dropdown-container">
-            <button class="inv-archive-trigger-btn" onclick="toggleInvArchiveMenu()" title="عرض المحاضر المحفوظة في الأرشيف">
-                <i class="fa-solid fa-box-archive"></i>
-                <span>المحاضر المحفوظة</span>
-            </button>
-            <div class="inv-floating-archive-menu" id="invFloatingArchiveMenu">
-                <div class="inv-archive-tabs" id="inv-dynamic-archive-tabs"></div>
-                <div class="inv-records-list" id="inv-records-list">
-                    <!-- سيتم ملء المحاضر هنا برمجياً -->
-                </div>
-            </div>
-        </div>
-    </div>
+    <h1> نظام إعداد محاضر التحقيق - اختر نوع التحقيق</h1>
     <div class="mode-toggle-bar" id="modeToggleBar">
         <span class="mode-label"><i class="fa-solid fa-file-lines"></i> نوع التحقيق :</span>
         <button id="btn-mode-main" class="mode-btn active-mode" onclick="switchMode('main')"><i class="fa-solid fa-file-alt"></i> تحقيق عكس الاتجاه </button>
@@ -1441,7 +1251,7 @@ box-sizing: border-box;
         <div class="main-content">
     <div class="section">
         <div class="section-title" onclick="toggleSection(this)">بيانات الجلسة والنيابة <span class="toggle-icon">▼</span></div>
-        <div class="section-content form-grid" style="grid-template-columns: 2.0fr 1.2fr 1.4fr 1.6fr 1.4fr 1.4fr;">
+        <div class="section-content form-grid">
             <div class="field">
                 <label>اسم النيابة</label>
                 <select id="prosecution_name" class="persist" onchange="toggleProsecutionNameOther(this)">
@@ -1466,7 +1276,7 @@ box-sizing: border-box;
             <div class="field">
                 <label>ساعة فتح المحضر</label>
                 <div class="time-group">
-                    <input type="text" id="open_time_h" class="persist" placeholder="مثال: 11.30">
+                    <input type="text" id="open_time_h" class="persist" placeholder="مثلاً: الحادية عشر">
                     <select id="open_time_p" class="persist"><option>ص</option><option>م</option></select>
                 </div>
             </div>
@@ -1483,8 +1293,7 @@ box-sizing: border-box;
 
     <div class="section">
         <div class="section-title" onclick="toggleSection(this)" id="arrest-section-title">بيانات محضر الضبط <span class="toggle-icon" id="arrest-section-toggle">▼</span></div>
-        <!-- 🏷️ شارة تحكم عربية: كود التحكم في تخطيط أعمدة وحقول بطاقة بيانات محضر الضبط (6 أعمدة دقيقة ومخصصة لعرض الحقول على صفين اثنين تماماً مثل بيانات الجلسة والنيابة) -->
-        <div class="section-content form-grid" style="grid-template-columns: 1.2fr 0.9fr 1.1fr 1.2fr 1.6fr ;">
+        <div class="section-content form-grid">
             <div class="field"><label id="report_no_label">رقم المحضر</label><input type="text" id="report_no" class="persist" value=""></div>
             <div class="field"><label>سنة المحضر</label><input type="text" id="report_year" class="persist" value=""></div>
             <div class="field" id="sub_report_no_field" style="display:none;">
@@ -1507,7 +1316,7 @@ box-sizing: border-box;
             <div class="field">
                 <label id="event_time_label">ساعة الضبط</label>
                 <div class="time-group">
-                    <input type="text" id="event_time_h" class="persist" value="" placeholder="مثال: 11.30">
+                    <input type="text" id="event_time_h" class="persist" value="">
                     <select id="event_time_p" class="persist"><option>م</option><option>ص</option></select>
                 </div>
             </div>
@@ -1540,7 +1349,7 @@ box-sizing: border-box;
                 </select>
                 <input type="text" id="recorder_type_other" class="other-input persist" placeholder="أدخل الجهة يدوياً" oninput="saveData()">
             </div>
-            <div class="field"><label>مكان الضبط</label><input type="text" id="location" class="persist" value="" placeholder="مثال: شارع الكورنيش"></div>
+            <div class="field"><label>مكان الضبط</label><input type="text" id="location" class="persist" value=""></div>
         </div>
     </div>
 
@@ -1696,8 +1505,7 @@ box-sizing: border-box;
 
     <div class="section">
         <div class="section-title" onclick="toggleSection(this)">بيانات المتهم<span style="display:inline-flex;align-items:center;margin-right:auto;margin-left:6px;" onclick="event.stopPropagation()"><label class="defendant-toggle-wrap" title="عند إلغاء التحديد تُخفى بيانات المتهم من الطباعة"><input type="checkbox" id="show_defendant_data" checked onchange="toggleDefendantDataVisibility(this)"> عرض بيانات المتهم في الطباعه</label></span><span class="toggle-icon">▼</span></div>
-        <!-- 🏷️ شارة تحكم عربية: كود التحكم في تخطيط أعمدة وحقول بطاقة بيانات المتهم (اسم المتهم، السن، المهنة، مقيم في، الرقم القومي، رقم الهاتف) -->
-        <div class="section-content form-grid" style="grid-template-columns: 2.2fr 0.9fr 1.4fr 2.8fr 1.6fr 1.4fr;">
+        <div class="section-content form-grid">
             <div class="field"><label>اسم المتهم</label><input type="text" id="def_name" class="persist" value="" oninput="updateReleaseDecisionUI(); saveData();"></div>
             <div class="field"><label>السن</label><input type="text" id="def_age" class="persist" value=""></div>
             <div class="field"><label>المِهْنَة</label><input type="text" id="def_job" class="persist" value=""></div>
@@ -4672,7 +4480,7 @@ let questionsHtml = "";
         const isValid = patterns.some(p => p.test(value));
 
         if (!isValid) {
-            if (value.length > 7) setError('صيغة التاريخ غير صحيحة. استخدم مثال: ٢٠٢٦/١/١٥');
+            if (value.length > 7) setError('صيغة التاريخ غير صحيحة. استخدم مثلاً: ٢٠٢٦/١/١٥');
             else clearError();
             return;
         }
@@ -5136,7 +4944,7 @@ let questionsHtml = "";
                 m = parseInt(parts[1]);
                 y = parseInt(parts[2]);
             }
-            // معالجة السنة إذا كانت رقمين (مثال 26 تصبح 2026)
+            // معالجة السنة إذا كانت رقمين (مثلاً 26 تصبح 2026)
             if (y < 100) y += 2000;
             if (isNaN(y) || isNaN(m) || isNaN(d)) return null;
             return new Date(y, m - 1, d);
@@ -6296,7 +6104,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const codePart = document.createElement('div');
     codePart.className = 'code-part';
     codePart.innerHTML = `
-        <input type="text" class="smart-search-field" id="viol-smart-input" placeholder="كلمة / كود المخالفة..." autocomplete="off">
+        <input type="text" class="smart-search-field" id="viol-smart-input" placeholder="كود أو كلمة للبحث..." autocomplete="off">
         <button class="smart-submit-btn" id="viol-smart-btn" title="إضافة البند"><i class="fa-solid fa-plus-circle"></i></button>
     `;
 
@@ -6734,420 +6542,6 @@ document.addEventListener('DOMContentLoaded', () => {
         setTimeout(restorePreferencesIndependent, 300);
     });
 })();
-</script>
-
-<script>
-/* ===================================================
-   قائمة المحاضر المحفوظة - نظام محاضر التحقيق
-   تقرأ من مفاتيح mahdar_* التي يحفظها نظام التلبسات
-   =================================================== */
-var invCurrentArchiveTab = "";
-var invRecordsLimit = 30;
-
-// ── بناء التبويبات حسب الأقسام (من niabat_config أو من المحاضر المحفوظة) ──
-function buildInvArchiveTabs() {
-    var stations = [];
-    try {
-        var cfg = JSON.parse(localStorage.getItem('niabat_config'));
-        if (cfg && Array.isArray(cfg.stations) && cfg.stations.length > 0) {
-            stations = cfg.stations.slice(0, 5);
-        }
-    } catch(e) {}
-
-    // إذا لم يوجد niabat_config، استخرج الأقسام من المحاضر المحفوظة نفسها
-    if (stations.length === 0) {
-        var stationSet = {};
-        for (var i = 0; i < localStorage.length; i++) {
-            var k = localStorage.key(i);
-            if (!k || !k.startsWith('mahdar_') || k === 'mahdar_index') continue;
-            try {
-                var d = JSON.parse(localStorage.getItem(k));
-                if (d && d.dept && d.dept.trim()) stationSet[d.dept.trim()] = true;
-            } catch(e) {}
-        }
-        stations = Object.keys(stationSet).slice(0, 5);
-    }
-
-    if (stations.length === 0) stations = ['الكل'];
-
-    if (!invCurrentArchiveTab || !stations.includes(invCurrentArchiveTab)) {
-        invCurrentArchiveTab = stations[0];
-    }
-
-    var container = document.getElementById('inv-dynamic-archive-tabs');
-    if (!container) return;
-    container.innerHTML = '';
-    stations.forEach(function(stationName) {
-        var btn = document.createElement('button');
-        btn.className = 'inv-tab-btn' + (stationName === invCurrentArchiveTab ? ' active' : '');
-        btn.textContent = stationName;
-        btn.onclick = function(e) { e.stopPropagation(); switchInvArchiveTab(stationName); };
-        container.appendChild(btn);
-    });
-    adjustInvArchiveMenuWidth();
-}
-
-// ── ضبط عرض القائمة تلقائياً ──
-function adjustInvArchiveMenuWidth() {
-    var menu = document.getElementById('invFloatingArchiveMenu');
-    var tabsContainer = document.getElementById('inv-dynamic-archive-tabs');
-    if (!menu || !tabsContainer) return;
-    var buttons = tabsContainer.querySelectorAll('.inv-tab-btn');
-    if (buttons.length === 0) return;
-    var totalNaturalWidth = 0;
-    buttons.forEach(function(btn) {
-        var clone = btn.cloneNode(true);
-        clone.style.cssText = 'position:absolute;visibility:hidden;width:auto;flex:none;white-space:nowrap;';
-        document.body.appendChild(clone);
-        totalNaturalWidth += clone.offsetWidth;
-        document.body.removeChild(clone);
-    });
-    var ideal = totalNaturalWidth + (buttons.length - 1) * 5 + 24;
-    ideal = Math.max(250, Math.min(420, ideal));
-    menu.style.width = ideal + 'px';
-}
-
-// ── فتح/إغلاق القائمة ──
-function toggleInvArchiveMenu() {
-    var menu = document.getElementById('invFloatingArchiveMenu');
-    if (!menu) return;
-    if (menu.classList.contains('open')) {
-        menu.classList.remove('open');
-    } else {
-        menu.classList.add('open');
-        buildInvArchiveTabs();
-        loadInvArchiveToSidebar();
-    }
-}
-
-// ── إغلاق القائمة عند الضغط خارجها ──
-document.addEventListener('click', function(event) {
-    var container = document.querySelector('.inv-archive-dropdown-container');
-    var menu = document.getElementById('invFloatingArchiveMenu');
-    if (container && menu && menu.classList.contains('open')) {
-        if (!container.contains(event.target)) {
-            menu.classList.remove('open');
-        }
-    }
-});
-
-// ── إغلاق القائمة تلقائياً عند تحريك بكرة الماوس (التمرير لأعلى أو لأسفل) ──
-window.addEventListener('wheel', function(event) {
-    var menu = document.getElementById('invFloatingArchiveMenu');
-    if (menu && menu.classList.contains('open')) {
-        // التحقق من أن التمرير تم خارج القائمة نفسها لكي يسمح بالتمرير داخل قائمة المحاضر الطويلة
-        var container = document.querySelector('.inv-archive-dropdown-container');
-        if (container && !container.contains(event.target)) {
-            menu.classList.remove('open');
-        }
-    }
-}, { passive: true });
-
-window.addEventListener('scroll', function() {
-    var menu = document.getElementById('invFloatingArchiveMenu');
-    if (menu && menu.classList.contains('open')) {
-        menu.classList.remove('open');
-    }
-}, { passive: true });
-
-// ── تبديل التبويب ──
-function switchInvArchiveTab(stationName) {
-    invCurrentArchiveTab = stationName;
-    invRecordsLimit = 30;
-    buildInvArchiveTabs();
-    loadInvArchiveToSidebar();
-}
-
-// ── جمع مفاتيح mahdar_* من localStorage مع الفهرس ──
-function getInvMahdarIndex() {
-    var index = [];
-    try {
-        var parsed = JSON.parse(localStorage.getItem('mahdar_index'));
-        if (Array.isArray(parsed)) index = parsed;
-    } catch(e) {}
-    // إضافة أي مفاتيح ناقصة
-    for (var i = 0; i < localStorage.length; i++) {
-        var k = localStorage.key(i);
-        if (k && k.startsWith('mahdar_') && k !== 'mahdar_index' && !index.includes(k)) {
-            index.push(k);
-        }
-    }
-    return index;
-}
-
-// ── تحميل قائمة المحاضر في القائمة العائمة ──
-function loadInvArchiveToSidebar() {
-    var container = document.getElementById('inv-records-list');
-    if (!container) return;
-
-    var index = getInvMahdarIndex();
-    container.innerHTML = '';
-
-    if (index.length === 0) {
-        container.innerHTML = '<div style="color:#1e2b46;background:rgba(255,255,255,0.7);font-size:13px;font-weight:bold;text-align:center;padding:10px 16px;border-radius:8px;margin-top:10px;border:1px solid rgba(0,0,0,0.05);">لا توجد محاضر محفوظة</div>';
-        return;
-    }
-
-    // فلترة حسب التبويب (القسم)
-    var filteredKeys = index.slice().reverse().filter(function(key) {
-        var raw = localStorage.getItem(key);
-        if (!raw) return false;
-        try {
-            var d = JSON.parse(raw);
-            if (invCurrentArchiveTab && invCurrentArchiveTab !== 'الكل') {
-                var dDept = (d.dept || '').replace(/ة/g, 'ه');
-                var currTab = invCurrentArchiveTab.replace(/ة/g, 'ه');
-                if (!dDept.includes(currTab)) return false;
-            }
-            return true;
-        } catch(e) { return false; }
-    });
-
-    if (filteredKeys.length === 0) {
-        container.innerHTML = '<span style="color:#aaa;font-size:11px;text-align:center;padding:10px;display:block;">لا توجد محاضر لهذا القسم</span>';
-        return;
-    }
-
-    // تجميع حسب يوم الحفظ، ترتيب تصاعدي حسب رقم المحضر داخل كل يوم
-    var groupsOrder = [];
-    var groupsMap = {};
-    filteredKeys.forEach(function(key) {
-        var raw = localStorage.getItem(key);
-        if (!raw) return;
-        try {
-            var d = JSON.parse(raw);
-            var dateOnly = d.savedAt ? d.savedAt.split(/[,،]/)[0].trim() : '';
-            if (!groupsMap[dateOnly]) { groupsMap[dateOnly] = []; groupsOrder.push(dateOnly); }
-            var caseNumVal = parseInt(String(d.caseNum || '').replace(/\D/g, ''), 10);
-            groupsMap[dateOnly].push({ key: key, caseNum: isNaN(caseNumVal) ? 0 : caseNumVal });
-        } catch(e) {}
-    });
-
-    var sortedKeys = [];
-    groupsOrder.forEach(function(dateOnly) {
-        var group = groupsMap[dateOnly];
-        group.sort(function(a, b) { return a.caseNum - b.caseNum; });
-        sortedKeys = sortedKeys.concat(group.map(function(g) { return g.key; }));
-    });
-
-    var keysToShow = sortedKeys.slice(0, invRecordsLimit);
-    var lastDateSeen = null;
-
-    keysToShow.forEach(function(key) {
-        var raw = localStorage.getItem(key);
-        if (!raw) return;
-        try {
-            var d = JSON.parse(raw);
-            var shortName = d.name ? d.name.split(' ').slice(0, 3).join(' ') : 'بدون اسم';
-            var dateOnly = d.savedAt ? d.savedAt.split(/[,،]/)[0].trim() : '';
-
-            // تمييز نوع المحضر (غرامة / جلسة) من الكلمات المفتاحية في بنود الاتهام
-            var isSession = false;
-            if (d.violations) {
-                var violText = Array.isArray(d.violations) ? d.violations.join(' ') : String(d.violations);
-                var sessionKw = ['عكس الاتجاه','عكس الاتجاة','اللوحات','مخدرة','مسكرة','الجوهرية'];
-                isSession = sessionKw.some(function(kw) { return violText.includes(kw); });
-            }
-            var badgeColor = isSession ? '#1e3a5f' : '#28a745';
-            var badgeLabel = isSession ? 'ج' : 'غ';
-            var badgeTitle = isSession ? 'محضر تحقيق' : 'محضر غرامة';
-
-            if (lastDateSeen !== null && dateOnly !== lastDateSeen) {
-                var divider = document.createElement('div');
-                divider.className = 'inv-archive-date-divider';
-                divider.innerHTML = '<span class="inv-divider-dot"></span>';
-                container.appendChild(divider);
-            }
-            lastDateSeen = dateOnly;
-
-            var btn = document.createElement('button');
-            btn.className = 'inv-record-btn';
-            btn.onclick = (function(k) { return function() { loadInvRecordToWorkspace(k); }; })(key);
-            btn.innerHTML =
-                '<div class="inv-record-title">' +
-                    '<span>📄 ' + (d.caseNum || '—') + ' / ' + (d.year || '') + '</span>' +
-                    '<span style="display:inline-flex;align-items:center;justify-content:center;min-width:17px;height:17px;padding:0 4px;border-radius:9px;font-size:10px;font-weight:bold;color:#fff;flex-shrink:0;line-height:1;background:' + badgeColor + ';" title="' + badgeTitle + '">' + badgeLabel + '</span>' +
-                '</div>' +
-                '<div class="inv-record-sub-row">' +
-                    '<span class="inv-rec-name">👤 ' + shortName + '</span>' +
-                    '<span class="inv-rec-date">' + dateOnly + '</span>' +
-                '</div>';
-            container.appendChild(btn);
-        } catch(e) {}
-    });
-
-    if (filteredKeys.length > invRecordsLimit) {
-        var loadMoreBtn = document.createElement('button');
-        loadMoreBtn.className = 'inv-tab-btn';
-        loadMoreBtn.style.cssText = 'margin-top:5px;background:transparent;border:1.5px dashed #2563eb;color:#1d4ed8;font-weight:bold;';
-        loadMoreBtn.textContent = 'عرض المزيد ▼';
-        loadMoreBtn.onclick = function(e) { e.stopPropagation(); invRecordsLimit += 30; loadInvArchiveToSidebar(); };
-        container.appendChild(loadMoreBtn);
-    }
-}
-
-// ── عند الضغط على محضر: تحميل بياناته في حقول نظام التحقيق ──
-function loadInvRecordToWorkspace(key) {
-    var raw = localStorage.getItem(key);
-    if (!raw) return;
-    try {
-        var d = JSON.parse(raw);
-
-        // ① رقم المحضر والسنة
-        var rnoEl = document.getElementById('report_no');
-        if (rnoEl && d.caseNum != null) rnoEl.value = d.caseNum;
-        var ryearEl = document.getElementById('report_year');
-        if (ryearEl && d.year != null) ryearEl.value = d.year;
-
-        // ② قسم الشرطة
-        var psSel = document.getElementById('police_station');
-        if (psSel && d.dept) {
-            // ابحث هل يوجد خيار يطابق القسم
-            var found = false;
-            for (var i = 0; i < psSel.options.length; i++) {
-                var optVal = psSel.options[i].value.replace(/ة/g,'ه');
-                var deptVal = d.dept.replace(/ة/g,'ه');
-                if (optVal && optVal !== 'other' && deptVal.includes(optVal)) {
-                    psSel.value = psSel.options[i].value;
-                    found = true;
-                    break;
-                }
-            }
-            if (!found) {
-                // ضعه في حقل "أخرى"
-                psSel.value = 'other';
-                var psOtherEl = document.getElementById('police_station_other');
-                if (psOtherEl) { psOtherEl.value = d.dept; psOtherEl.style.display = 'block'; }
-            } else {
-                var psOtherEl2 = document.getElementById('police_station_other');
-                if (psOtherEl2) psOtherEl2.style.display = 'none';
-            }
-        }
-
-        // ③ اسم المتهم
-        var defNameEl = document.getElementById('def_name');
-        if (defNameEl && d.name) defNameEl.value = d.name;
-
-        // ③-أ الرقم القومي
-        var nationalId = d.nationalId || d.national_id || d.idNo || d.id_no || d.def_id_no || '';
-        var defIdEl = document.getElementById('def_id_no');
-        if (defIdEl && nationalId) {
-            defIdEl.value = nationalId;
-            // احسب السن من الرقم القومي (14 خانة)
-            var nidClean = String(nationalId).replace(/\D/g, '');
-            if (nidClean.length >= 7) {
-                var century = nidClean[0];
-                var yy = parseInt(nidClean.substring(1, 3), 10);
-                var mm = parseInt(nidClean.substring(3, 5), 10);
-                var dd = parseInt(nidClean.substring(5, 7), 10);
-                var birthYear = (century === '2' ? 1900 : 2000) + yy;
-                var today = new Date();
-                var calcAge = today.getFullYear() - birthYear;
-                if (today.getMonth() + 1 < mm || (today.getMonth() + 1 === mm && today.getDate() < dd)) calcAge--;
-                if (calcAge > 0 && calcAge < 120) {
-                    var defAgeEl = document.getElementById('def_age');
-                    if (defAgeEl) defAgeEl.value = calcAge;
-                }
-            }
-        }
-
-        // ③-ب تاريخ واقعة الضبط
-        var eventDateVal = d.eventDate || d.event_date || d.incidentDate || d.incident_date || d.date || '';
-        var evDateEl = document.getElementById('event_date');
-        if (evDateEl && eventDateVal) {
-            evDateEl.value = eventDateVal;
-            if (typeof convertToArabicNumerals === 'function') convertToArabicNumerals(evDateEl);
-            if (typeof updateAutoQuestions === 'function') updateAutoQuestions();
-        }
-
-        // ④ اللوحة (معالجة ذكية ودقيقة لحالة بدون لوحات أو وجود لوحات معدنية)
-        var plateModeEl = document.getElementById('plate_mode');
-        var isNoPlateRecord = false;
-        
-        // التحقق مما إذا كان المحضر المحفوظ يحتوي على "بدون لوحات" بناءً على plateType أو النص المحفوظ
-        if (d.plateType === 'no_plate' || d.plateType === 'noPlateTxt' || 
-            (d.plateText && String(d.plateText).includes('بدون لوحات')) ||
-            (d.noPlateTxt && String(d.noPlateTxt).includes('بدون لوحات')) ||
-            (!d.c1 && !d.c2 && !d.c3 && !d.n1)) {
-            isNoPlateRecord = true;
-        }
-
-        if (plateModeEl) {
-            if (isNoPlateRecord) {
-                plateModeEl.value = 'بدون لوحات';
-            } else {
-                plateModeEl.value = 'manual';
-            }
-            if (typeof togglePlateInput === 'function') {
-                togglePlateInput(plateModeEl.value);
-            }
-        }
-
-        var setPlate = function(id, val) { var el = document.getElementById(id); if (el && val != null) el.value = val; };
-        if (isNoPlateRecord) {
-            setPlate('input_no_plate', d.noPlateTxt || d.plateText || 'بدون لوحات');
-            setPlate('plate_l1', '');
-            setPlate('plate_l2', '');
-            setPlate('plate_l3', '');
-            setPlate('plate_digits', '');
-        } else {
-            setPlate('plate_l1', d.c1);
-            setPlate('plate_l2', d.c2);
-            setPlate('plate_l3', d.c3);
-            setPlate('plate_digits', d.n1);
-            var noPlateEl = document.getElementById('input_no_plate');
-            if (noPlateEl) noPlateEl.value = 'بدون لوحات';
-        }
-
-        // ⑤ بنود الاتهام (violations) → إضافتها للقائمة
-        if (d.violations && Array.isArray(d.violations) && d.violations.length > 0 && typeof violations !== 'undefined') {
-            // أضف البنود التي لم تكن موجودة مسبقاً فقط
-            var existingLabels = violations.map(function(v) { return v.label || v; });
-            d.violations.forEach(function(viol) {
-                var label = (typeof viol === 'object' ? viol.label : viol) || '';
-                if (label.trim() && !existingLabels.includes(label)) {
-                    if (typeof addViolation === 'function') {
-                        addViolation(label);
-                    } else {
-                        violations.push({ label: label, isCustom: true });
-                    }
-                    existingLabels.push(label);
-                }
-            });
-            if (typeof renderViolations === 'function') renderViolations();
-            if (typeof updateAutoQuestions === 'function') updateAutoQuestions();
-        }
-
-        // ⑥ حفظ الحالة الجديدة
-        if (typeof saveData === 'function') saveData();
-
-        showInvArchiveToast('✔ تم تحميل المحضر ' + (d.caseNum || '') + ' — ' + (d.name || ''), true);
-
-    } catch(e) {
-        showInvArchiveToast('✖ خطأ في قراءة بيانات المحضر', false);
-    }
-}
-
-// ── إشعار منبثق ──
-function showInvArchiveToast(text, success) {
-    var toast = document.getElementById('_inv_archive_toast');
-    if (!toast) {
-        toast = document.createElement('div');
-        toast.id = '_inv_archive_toast';
-        toast.style.cssText = 'position:fixed;bottom:-70px;left:50%;transform:translateX(-50%);padding:10px 24px;border-radius:30px;font-size:14px;font-family:Cairo,Segoe UI,Arial,sans-serif;box-shadow:0 4px 20px rgba(0,0,0,0.3);z-index:99999;transition:bottom 0.35s cubic-bezier(0.34,1.56,0.64,1);white-space:nowrap;color:#fff;';
-        document.body.appendChild(toast);
-    }
-    toast.style.background = success ? '#1a5c2e' : '#8b1a1a';
-    toast.textContent = text;
-    toast.style.bottom = '30px';
-    clearTimeout(toast._t);
-    toast._t = setTimeout(function() { toast.style.bottom = '-70px'; }, success ? 3500 : 4000);
-}
-
-// ── تشغيل الأرشيف عند تحميل الصفحة ──
-document.addEventListener('DOMContentLoaded', function() {
-    buildInvArchiveTabs();
-});
 </script>
 
 </body>

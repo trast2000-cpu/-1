@@ -5,6 +5,8 @@
 <title>نظام كشوف الأوامر الجنائية المتطور 2026</title>
 <link rel="stylesheet" href="fontawesome-free-6.4.0-web/css/all.min.css">
 
+<link href="cairo.css" rel="stylesheet">
+
 <style>
 /* ===== نظام المتغيرات والألوان المطور ===== */
 :root {
@@ -83,7 +85,7 @@
 
 /* ===== التنسيق العام ===== */
 body {
-    font-family: "Segoe UI", Tahoma, sans-serif;
+    font-family: "cairo", Tahoma, sans-serif;
     margin: 0;
     padding: 10px;
     background-color: var(--bg-light);
@@ -1139,19 +1141,33 @@ thead th[data-tip]:hover::before {
 <img id="watermark-img" src="logo.png" class="logo" alt="">
 
 <div class="container">
-    <div class="no-print">
-        <div class="system-title-bar">
-            <div></div>
+    <div class="no-print" style="position: relative; z-index: 100;">
+        <div class="system-title-bar" style="overflow: visible; align-items: center;">
+            <!-- التاريخ في أقصى اليمين -->
+            <div style="display: flex; align-items: center; gap: 10px; justify-content: flex-start;">
+                <span id="currentDateDisplay" style="font-size: 14px; font-weight: 700; color: #fff;"></span>
+                <span style="color: rgba(255,255,255,0.4);">|</span>
+                <button id="themeToggle" class="theme-toggle-btn" onclick="toggleTheme()" title="تبديل الوضع">
+                    <i class="fas fa-moon" id="themeIcon"></i>
+                </button>
+            </div>
+            <!-- عنوان النظام في المنتصف -->
             <div style="display: flex; align-items: center; gap: 10px; justify-content: center;">
                 <i class="fa-solid fa-microscope" style="color: var(--accent); font-size: 1.4rem;"></i>
                 <span style="font-size: 1.2rem; font-weight: bold;">نظام كشوف الأوامر الجنائية</span>
             </div>
-            <div style="display: flex; align-items: center; gap: 10px; justify-content: flex-end;">
-                <button id="themeToggle" class="theme-toggle-btn" onclick="toggleTheme()" title="تبديل الوضع">
-                    <i class="fas fa-moon" id="themeIcon"></i>
-                </button>
-                <span style="color: rgba(255,255,255,0.4);">|</span>
-                <span id="currentDateDisplay" style="font-size: 14px; font-weight: 700; color: #fff;"></span>
+            <!-- زر قائمة المحاضر المحفوظة في أقصى اليسار ومرتفع قليلاً -->
+            <div style="display: flex; align-items: center; justify-content: flex-end; overflow: visible; position: relative;">
+                <div class="archive-dropdown-container" style="display: block !important; position: relative; margin-top: -6px;">
+                    <button class="add-btn" onclick="toggleFloatingArchive()" style="background: linear-gradient(135deg, #1e3a5f, #2a5298); display:flex; align-items: center; gap: 5px; color: white; padding: 6px 12px; font-size: 13px; border: 1px solid rgba(255,255,255,0.3);">
+                        <i class="fa-solid fa-folder-open"></i> المحاضر المحفوظة
+                    </button>
+                    <div class="floating-archive-menu" id="floatingArchiveMenu" style="left: 0; right: auto; top: 110%;">
+                        <div class="archive-tabs" id="dynamic-archive-tabs"></div>
+                        <div class="archive-records-list" id="floatingRecordsList"></div>
+                        <button class="bulk-insert-btn" onclick="insertSelectedRecords()">✔️ إدراج المحاضر المحددة</button>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -1192,19 +1208,8 @@ thead th[data-tip]:hover::before {
             <input type="text" id="otherDept" placeholder="اسم القسم" style="display:none;">
         </div>
 
-        <!-- الزر في جهة اليسار -->
-        <div style="flex: 1; display: flex; justify-content: flex-end;">
-            <div class="archive-dropdown-container">
-                <button class="add-btn" onclick="toggleFloatingArchive()" style="background: linear-gradient(135deg, #1e3a5f, #2a5298); display:flex; align-items:center; gap:5px;">
-                    <i class="fa-solid fa-folder-open"></i> المحاضر المحفوظة
-                </button>
-                <div class="floating-archive-menu" id="floatingArchiveMenu" style="left: 0; right: auto;">
-                    <div class="archive-tabs" id="dynamic-archive-tabs"></div>
-                    <div class="archive-records-list" id="floatingRecordsList"></div>
-                    <button class="bulk-insert-btn" onclick="insertSelectedRecords()">✔️ إدراج المحاضر المحددة</button>
-                </div>
-            </div>
-        </div>
+        <!-- مساحة فارغة في جهة اليسار للموازنة -->
+        <div style="flex: 1;"></div>
     </div>
 
     <div class="action-btns">
@@ -2132,7 +2137,33 @@ function loadFloatingArchive() {
         return;
     }
 
-    const keysToShow = filteredKeys.slice(0, floatingRecordsLimit);
+    // تجميع المفاتيح حسب يوم الحفظ مع الحفاظ على ترتيب الأيام الحالي (الأحدث فوق)،
+    // وفرز محاضر كل يوم على حدة تصاعدياً حسب رقم المحضر (من الأصغر للأكبر)
+    const groupsOrder = [];
+    const groupsMap = {};
+    filteredKeys.forEach(key => {
+        const raw = localStorage.getItem(key);
+        if (!raw) return;
+        try {
+            const d = JSON.parse(raw);
+            const dateOnly = d.savedAt ? d.savedAt.split(/[,،]/)[0].trim() : '';
+            if (!groupsMap[dateOnly]) {
+                groupsMap[dateOnly] = [];
+                groupsOrder.push(dateOnly);
+            }
+            const caseNumVal = parseInt(String(d.caseNum || '').replace(/\D/g, ''), 10);
+            groupsMap[dateOnly].push({ key: key, caseNum: isNaN(caseNumVal) ? 0 : caseNumVal });
+        } catch(e) {}
+    });
+
+    let sortedKeys = [];
+    groupsOrder.forEach(dateOnly => {
+        const group = groupsMap[dateOnly];
+        group.sort((a, b) => a.caseNum - b.caseNum);
+        sortedKeys = sortedKeys.concat(group.map(g => g.key));
+    });
+
+    const keysToShow = sortedKeys.slice(0, floatingRecordsLimit);
     
     let lastDateSeen = null;
 
