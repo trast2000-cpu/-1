@@ -1546,8 +1546,9 @@ box-sizing: border-box;
 
 
     <div class="section" id="section_objection_extra" style="display:none;">
-        <div class="section-title" onclick="toggleSection(this)"><i class="fa-solid fa-scale-balanced"></i> بيانات تحقيق الحركات الاستعراضية <span class="toggle-icon">▼</span></div>
-        <div class="section-content form-grid">
+        <div class="section-title" onclick="toggleSection(this)"> بيانات تحقيق الحركات الاستعراضية <span class="toggle-icon">▼</span></div>
+        <!-- 🏷️ شارة تحكم عربية: كود التحكم في تخطيط أعمدة وحقول بطاقة بيانات تحقيق الحركات الاستعراضية (5 أعمدة دقيقة ومخصصة لعرض الحقول على صفين اثنين تماماً مثل بقية البطاقات) -->
+        <div class="section-content form-grid" style="grid-template-columns: .6fr .6fr 1.0fr 1.2fr 1.2fr  ;">
             <div class="field">
                 <label>تاريخ نشر الفيديو</label>
                 <div class="date-input-wrapper">
@@ -1689,7 +1690,7 @@ box-sizing: border-box;
             </div>
             <div class="field">
                 <label>الحذاء</label>
-                <input type="text" id="def_shoes" class="persist" value="" oninput="saveData()">
+                <input type="text" id="def_shoes" class="persist" value=""placeholder="مثال: نعل اسود" oninput="saveData()">
             </div>
         </div>
     </div>
