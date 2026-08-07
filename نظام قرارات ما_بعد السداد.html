@@ -538,12 +538,14 @@ option[data-category="dark"] {
             width: 100%;
         }
         .date-input-wrapper input[type="text"] {
-            padding-left: 30px !important;
+            padding-right: 30px !important; 
+            padding-left: 7px !important;
             width: 100%;
+            text-align: right !important; 
         }
         .date-cal-icon {
             position: absolute;
-            left: 7px;
+            right: 7px; 
             font-size: 15px;
             opacity: 0.5;
             user-select: none;
@@ -553,7 +555,7 @@ option[data-category="dark"] {
         }
         .date-hidden-picker {
             position: absolute;
-            left: 0;
+            right: 0; 
             top: 0;
             width: 32px;
             height: 100%;
@@ -2633,6 +2635,22 @@ function renderArrestItems() {
         
 
 // ====== القرارات الجاهزة ======
+        // 💡 سكرول ناعم للأعلى — كانت مستخدمة في applyPreset بدون تعريف، فسببت توقف التعبئة بصمت
+        function gentleScrollToTop(duration) {
+            duration = duration || 800;
+            const startY = window.scrollY || document.documentElement.scrollTop;
+            if (startY === 0) return;
+            const startTime = performance.now();
+            function easeInOutQuad(t) { return t < 0.5 ? 2*t*t : -1 + (4 - 2*t)*t; }
+            function step(now) {
+                const elapsed = now - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                window.scrollTo(0, startY * (1 - easeInOutQuad(progress)));
+                if (progress < 1) requestAnimationFrame(step);
+            }
+            requestAnimationFrame(step);
+        }
+
         function applyPreset(type) {
             document.querySelectorAll('.preset-btn').forEach(b=>b.classList.remove('active'));
             const activeBtn=document.getElementById('preset-'+type);
@@ -2900,7 +2918,7 @@ function renderArrestItems() {
             const [y,m,d]=picker.value.split('-');
             const el = document.getElementById(textId);
             if (!el) return;
-            el.value=`${d}/${m}/${y}`;
+            el.value=`${y}/${m}/${d}`;
             // تشغيل oninput يدوياً حتى تعمل الدوال المرتبطة بالحقل
             el.dispatchEvent(new Event('input', { bubbles: true }));
         }
@@ -2915,7 +2933,7 @@ function renderArrestItems() {
                 const d=String(today.getDate()).padStart(2,'0');
                 const m=String(today.getMonth()+1).padStart(2,'0');
                 const y=today.getFullYear();
-                dateField.value=`${d}/${m}/${y}`;
+                dateField.value=`${y}/${m}/${d}`;
                 dateAutoFilled=true; sync();
             }
         }
@@ -2997,6 +3015,8 @@ function togglePaymentSection() {
 
             let data;
             try { data = JSON.parse(raw); } catch(e) { showLookupToast('✖ خطأ في قراءة البيانات المحفوظة', false); return; }
+
+            try {
 
             const setVal = (id, val) => { const el = document.getElementById(id); if (el && val !== undefined && val !== null) el.value = val; };
 
@@ -3091,6 +3111,11 @@ function togglePaymentSection() {
             if (typeof sync === 'function') sync();
 
             showLookupToast('✔ تم استرجاع بيانات المحضر ' + caseNum + ' — ' + (data.name || ''), true);
+
+            } catch (e) {
+                console.error('lookupMahdar fill error:', e);
+                showLookupToast('⚠ تم العثور على المحضر، لكن حدث خطأ أثناء تعبئة بعض الحقول: ' + e.message, false);
+            }
         }
         
 
@@ -3596,6 +3621,16 @@ document.addEventListener('click', function(event) {
         }
     }
 });
+
+// إغلاق القائمة عند تحريك عجلة الماوس خارجها (السكرول داخل قائمة المحاضر نفسها لا يُغلقها)
+document.addEventListener('wheel', function(event) {
+    const menu = document.getElementById('floatingArchiveMenu');
+    if (menu && menu.classList.contains('open')) {
+        if (!menu.contains(event.target)) {
+            menu.classList.remove('open');
+        }
+    }
+}, { passive: true });
 
 function switchArchiveTab(stationName) {
     currentArchiveTab = stationName;

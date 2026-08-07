@@ -773,10 +773,14 @@ textarea { resize: vertical; }
     align-items: center;
     width: 100%;
 }
-.date-input-wrapper input[type="text"] { padding-left: 30px !important; }
+.date-input-wrapper input[type="text"] { 
+    padding-right: 30px !important; 
+    padding-left: 7px !important;
+    text-align: right !important; 
+}
 .date-cal-icon {
     position: absolute;
-    left: 7px;
+    right: 7px; /* تم نقلها لليمين */
     font-size: 15px;
     opacity: 0.5;
     user-select: none;
@@ -786,7 +790,7 @@ textarea { resize: vertical; }
 }
 .date-hidden-picker {
     position: absolute;
-    left: 0; top: 0;
+    right: 0; top: 0; /* تم نقل زر النتيجة المخفي لليمين */
     width: 32px; height: 100%;
     opacity: 0; cursor: pointer;
     z-index: 2; border: none;
@@ -1923,7 +1927,7 @@ body[data-theme="dark"] .record-title { color: #7aaeff !important; }
                         </div>
                         <div class="field-group" style="width:100%;">
                             <label>الرقم القومي</label>
-                            <input type="text" id="f-national-id" placeholder="14 رقم" oninput="updateAll()" style="width:290px; box-sizing:border-box;">
+                            <input type="text" id="f-national-id" placeholder="14 رقم" oninput="updateAll(); checkMinorFromNationalId(this)" style="width:290px; box-sizing:border-box;">
                         </div>
                     </div>
                     <div style="display:flex; flex-direction:column; flex-shrink:0; flex:1;">
@@ -2958,6 +2962,59 @@ body[data-theme="dark"] .record-title { color: #7aaeff !important; }
 =================================================== */
 let currentDecision = -1; // 0=يستمر, 1=إيقاف, 2=تسلم, 3=جلسة
 let violationCount = 0;
+
+/* ===================================================
+   التحقق من سن المتهم من الرقم القومي (بدون إضافة حقل سن)
+=================================================== */
+let _lastMinorAlertId = ""; // لمنع تكرار التنبيه لنفس الرقم القومي
+function checkMinorFromNationalId(input) {
+    const val = (input.value || "").replace(/\D/g, "");
+
+    // إعادة تعيين المتغير إذا تم تغيير الرقم (حتى لا يُحبس التنبيه لرقم مختلف بنفس الطول)
+    if (val.length !== 14) {
+        return;
+    }
+
+    // التحقق من صحة تنسيق الرقم القومي المصري (يبدأ بـ 2 أو 3)
+    if (val[0] !== "2" && val[0] !== "3") {
+        return;
+    }
+
+    const century = val[0] === "2" ? 1900 : 2000;
+    const year  = century + parseInt(val.substr(1, 2));
+    const month = parseInt(val.substr(3, 2));
+    const day   = parseInt(val.substr(5, 2));
+
+    const birthDate = new Date(year, month - 1, day);
+    if (
+        birthDate.getFullYear() !== year ||
+        birthDate.getMonth() !== month - 1 ||
+        birthDate.getDate() !== day ||
+        month < 1 || month > 12 ||
+        day < 1 || day > 31
+    ) {
+        return; // رقم قومي غير صالح، لا داعي للتنبيه
+    }
+
+    const today = new Date();
+    let age = today.getFullYear() - year;
+    const m = today.getMonth() - (month - 1);
+    if (m < 0 || (m === 0 && today.getDate() < day)) {
+        age--;
+    }
+
+    if (age < 0 || age > 120) {
+        return; // قيمة غير منطقية
+    }
+
+    // تجنب تكرار نفس التنبيه لنفس الرقم القومي أثناء الكتابة
+    if (age < 18 && _lastMinorAlertId !== val) {
+        _lastMinorAlertId = val;
+        alert("المتهم حدث / عمر المتهم اقل من 18 سنه");
+    } else if (age >= 18) {
+        _lastMinorAlertId = "";
+    }
+}
 
 /* ===================================================
    DECISION SELECTION
@@ -4578,7 +4635,7 @@ function pickerToText(picker, textId) {
     if (!picker.value) return;
     const [y,m,d] = picker.value.split('-');
     const el = document.getElementById(textId);
-    if (el) el.value = d + '/' + m + '/' + y;
+    if (el) el.value = y + '/' + m + '/' + d;
 }
 
 /* ===================================================
@@ -4593,7 +4650,7 @@ document.getElementById('jalsa-day-other-wrapper').style.display = 'none';
         const d = String(now.getDate()).padStart(2,'0');
         const m = String(now.getMonth()+1).padStart(2,'0');
         const y = now.getFullYear();
-        el.value = d + '/' + m + '/' + y;
+        el.value = y + '/' + m + '/' + d;
     }
 })();
 
@@ -4809,6 +4866,16 @@ document.addEventListener("click", function(event) {
         }
     }
 });
+
+// إغلاق القائمة عند تحريك عجلة الماوس خارجها (السكرول داخل قائمة المحاضر نفسها لا يُغلقها)
+document.addEventListener("wheel", function(event) {
+    const menu = document.getElementById("floatingArchiveMenu");
+    if (menu && menu.classList.contains("open")) {
+        if (!menu.contains(event.target)) {
+            menu.classList.remove("open");
+        }
+    }
+}, { passive: true });
 
 function switchArchiveTab(stationName) {
     currentArchiveTab = stationName;
@@ -6168,7 +6235,7 @@ function calculateTotalFine() {
                 let dd = String(d.getDate()).padStart(2, '0');
                 let mm = String(d.getMonth() + 1).padStart(2, '0');
                 let yyyy = d.getFullYear();
-                dates.push(`${dd}/${mm}/${yyyy}`);
+                dates.push(`${yyyy}/${mm}/${dd}`);
                 d.setDate(d.getDate() + 7);
             }
             return dates;

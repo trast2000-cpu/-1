@@ -1703,7 +1703,7 @@ box-sizing: border-box;
             <div class="field"><label>السن</label><input type="text" id="def_age" class="persist" value=""></div>
             <div class="field"><label>المِهْنَة</label><input type="text" id="def_job" class="persist" value=""></div>
             <div class="field"><label>مقيم في</label><input type="text" id="def_address" class="persist" value=""></div>
-            <div class="field"><label>الرقم القومي</label><input type="text" id="def_id_no" class="persist" value=""></div>
+            <div class="field"><label>الرقم القومي</label><input type="text" id="def_id_no" class="persist" value="" maxlength="14" placeholder="14 رقماً" oninput="calculateAgeFromID(this); saveData()"></div>
             <div class="field"><label>رقم الهاتف</label><input type="text" id="def_phone" class="persist" value=""></div>
         </div>
     </div>
@@ -2065,6 +2065,81 @@ box-sizing: border-box;
 </div>
 
 <script>
+
+    // دالة حساب السن والتحقق من الرقم القومي المصري (14 رقماً)
+    function calculateAgeFromID(input) {
+        let val = input.value.replace(/\D/g, ""); // أرقام فقط
+        input.value = val;
+        
+        const ageField = document.getElementById("def_age");
+        
+        if (val.length === 0) {
+            if (ageField) ageField.value = "";
+            input.style.borderColor = "";
+            if (ageField) ageField.style.borderColor = "";
+            return;
+        }
+
+        // التحقق من أن الرقم القومي يتكون من 14 رقماً وتبدأ بـ 2 أو 3 (القرن 20 أو 21)
+        if (val.length !== 14 || (val[0] !== "2" && val[0] !== "3")) {
+            input.style.borderColor = "#ef4444";
+            if (ageField) ageField.style.borderColor = "#ef4444";
+            return;
+        }
+
+        // استخراج تاريخ الميلاد من الرقم القومي
+        // الرقم الأول: القرن (2 = 1900s, 3 = 2000s)
+        let century = val[0] === "2" ? 1900 : 2000;
+        let year = century + parseInt(val.substr(1, 2));
+        let month = parseInt(val.substr(3, 2));
+        let day = parseInt(val.substr(5, 2));
+
+        // التحقق من صحة التاريخ
+        let birthDate = new Date(year, month - 1, day);
+        if (
+            birthDate.getFullYear() !== year ||
+            birthDate.getMonth() !== month - 1 ||
+            birthDate.getDate() !== day ||
+            month < 1 || month > 12 ||
+            day < 1 || day > 31
+        ) {
+            input.style.borderColor = "#ef4444";
+            if (ageField) ageField.style.borderColor = "#ef4444";
+            return;
+        }
+
+        // حساب السن الحالي
+        let today = new Date();
+        let age = today.getFullYear() - year;
+        let m = today.getMonth() - (month - 1);
+        if (m < 0 || (m === 0 && today.getDate() < day)) {
+            age--;
+        }
+
+        if (age < 0 || age > 120) {
+            input.style.borderColor = "#ef4444";
+            if (ageField) ageField.style.borderColor = "#ef4444";
+            return;
+        }
+
+        // إذا كان صحيحاً، إزالة الحدود الحمراء وتعبئة السن
+        input.style.borderColor = "#10b981"; // أخضر عند الصحة
+        if (ageField) {
+            ageField.style.borderColor = "#10b981";
+            ageField.value = age;
+        }
+
+        // تنبيه في حال كان عمر المتهم أقل من 18 سنة (حدث)
+        if (age < 18) {
+            alert("المتهم حدث / عمر المتهم اقل من 18 سنه");
+        }
+        
+        // استدعاء حفظ البيانات إن وجدت
+        if (typeof saveData === "function") {
+            saveData();
+        }
+    }
+
     let violations = [];
     let questions = [];
     let reportMode = 'main';
@@ -7034,21 +7109,11 @@ function loadInvRecordToWorkspace(key) {
         var defIdEl = document.getElementById('def_id_no');
         if (defIdEl && nationalId) {
             defIdEl.value = nationalId;
-            // احسب السن من الرقم القومي (14 خانة)
-            var nidClean = String(nationalId).replace(/\D/g, '');
-            if (nidClean.length >= 7) {
-                var century = nidClean[0];
-                var yy = parseInt(nidClean.substring(1, 3), 10);
-                var mm = parseInt(nidClean.substring(3, 5), 10);
-                var dd = parseInt(nidClean.substring(5, 7), 10);
-                var birthYear = (century === '2' ? 1900 : 2000) + yy;
-                var today = new Date();
-                var calcAge = today.getFullYear() - birthYear;
-                if (today.getMonth() + 1 < mm || (today.getMonth() + 1 === mm && today.getDate() < dd)) calcAge--;
-                if (calcAge > 0 && calcAge < 120) {
-                    var defAgeEl = document.getElementById('def_age');
-                    if (defAgeEl) defAgeEl.value = calcAge;
-                }
+            // استخدام نفس دالة التحقق المستخدمة عند الكتابة اليدوية:
+            // تحسب السن، وتضع إطارًا أحمر حول الحقلين إذا كان الرقم القومي غير صالح،
+            // وتُظهر تنبيه "المتهم حدث" تلقائيًا إذا كان العمر أقل من 18 سنة
+            if (typeof calculateAgeFromID === 'function') {
+                calculateAgeFromID(defIdEl);
             }
         }
 
@@ -7148,6 +7213,17 @@ function showInvArchiveToast(text, success) {
 // ── تشغيل الأرشيف عند تحميل الصفحة ──
 document.addEventListener('DOMContentLoaded', function() {
     buildInvArchiveTabs();
+});
+
+// ── تركيز المؤشر تلقائياً على خانة "ساعة فتح المحضر" عند فتح النظام ──
+window.addEventListener('load', function() {
+    setTimeout(function() {
+        var el = document.getElementById('open_time_h');
+        if (el) {
+            el.focus();
+            if (typeof el.select === 'function') el.select();
+        }
+    }, 100);
 });
 </script>
 

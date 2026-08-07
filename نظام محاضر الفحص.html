@@ -589,6 +589,38 @@ thead th[data-tip] {
     cursor: help;
 }
 
+/* ===== زر فرز رقم المحضر (كامل رأس العمود قابل للضغط، بدون الحاجة لمساحة إضافية) ===== */
+.sortable-th {
+    cursor: pointer !important;
+    user-select: none;
+    transition: transform 0.12s ease;
+}
+.sortable-th, .sortable-th > * {
+    color: #ffd54f !important;
+    font-weight: 800;
+    text-decoration: underline dotted rgba(255,213,79,0.9);
+    text-underline-offset: 3px;
+}
+.sortable-th:hover {
+    transform: scale(0.94);
+}
+.sortable-th::after {
+    content: '⇅';
+    position: absolute;
+    top: 1px;
+    left: 2px;
+    font-size: 10px;
+    opacity: 1;
+    color: #ffd54f;
+    line-height: 1;
+}
+.sortable-th[data-sort="asc"]::after {
+    content: '▲';
+}
+.sortable-th[data-sort="desc"]::after {
+    content: '▼';
+}
+
 thead th[data-tip]:hover::after {
     content: attr(data-tip);
     position: absolute;
@@ -604,6 +636,12 @@ thead th[data-tip]:hover::after {
     z-index: 999;
     pointer-events: none;
     box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+
+thead th.sortable-th[data-tip]:hover::after {
+    font-size: 10px;
+    padding: 3px 7px;
+    opacity: 0.85;
 }
 
 thead th[data-tip]:hover::before {
@@ -1221,12 +1259,12 @@ thead th[data-tip]:hover::before {
         <thead>
             <tr>
                 <th style="width: 15px;" data-tip="رقم تسلسل الصف">م</th>
-                <th style="width: 40px;" data-tip="رقم المحضر / السنة">رقم المحضر</th>
+                <th id="th-case-num" class="sortable-th" style="width: 40px;" data-tip="اضغط للفرز" onclick="toggleCaseNumSort()">رقم المحضر</th>
                 <th style="width: 80px;" data-tip="اسم المتهم كاملاً">اسم المتهم</th>
                 <th style="width: 100px;" data-tip="وصف تهمة المتهم">وصف الاتهام</th>
-                <th style="width: 80px;" data-tip="الرقم القومي (14 رقم)">الرقم القومي</th>
+                <th style="width: 85px;" data-tip="الرقم القومي (14 رقم)">الرقم القومي</th>
                 <th style="width: 60px;" data-tip="حروف وأرقام لوحة المركبة">رقم المركبة</th>
-                <th style="width: 70px;" data-tip="المبلغ المحكوم به + المصاريف">بيان الامر الصادر</th>
+                <th style="width: 65px;" data-tip="المبلغ المحكوم به + المصاريف">الامر الجنائي</th>
                 <th style="width: 70px;" data-tip="مواد القانون المطبقة">مواد الاتهام</th>
                 <th style="width: 65px;" data-tip="تاريخ صدور الأمر">تاريخ الأمر</th>
                 <th style="width: 110px;" data-tip="قرار النيابة الكلية بشأن القضية">قرار النيابة الكلية</th>
@@ -1478,6 +1516,33 @@ thead th[data-tip]:hover::before {
         row.parentNode.insertBefore(newRow, row.nextSibling);
         updateRowNumbers();
         checkScrollable();
+    }
+
+    function toggleCaseNumSort() {
+        var th = document.getElementById('th-case-num');
+        var table = document.getElementById("mainTable").getElementsByTagName('tbody')[0];
+        var rows = Array.prototype.slice.call(table.rows);
+        if (!rows.length) return;
+
+        var currentDir = th.getAttribute('data-sort');
+        var nextDir = currentDir === 'asc' ? 'desc' : 'asc';
+
+        var getCaseNum = function(row) {
+            var cell = row.querySelector('.case-num-top');
+            var text = cell ? (cell.innerText || '') : '';
+            var num = parseInt(text.replace(/\D/g, ''), 10);
+            return isNaN(num) ? 0 : num;
+        };
+
+        rows.sort(function(a, b) {
+            var diff = getCaseNum(a) - getCaseNum(b);
+            return nextDir === 'asc' ? diff : -diff;
+        });
+
+        rows.forEach(function(row) { table.appendChild(row); });
+
+        th.setAttribute('data-sort', nextDir);
+        updateRowNumbers();
     }
 
     function updateRowNumbers() {
@@ -2080,6 +2145,16 @@ document.addEventListener('click', function(event) {
         }
     }
 });
+
+// إغلاق القائمة عند تحريك عجلة الماوس خارجها (السكرول داخل قائمة المحاضر نفسها لا يُغلقها)
+document.addEventListener('wheel', function(event) {
+    const menu = document.getElementById('floatingArchiveMenu');
+    if (menu && menu.classList.contains('open')) {
+        if (!menu.contains(event.target)) {
+            menu.classList.remove('open');
+        }
+    }
+}, { passive: true });
 
 // التبديل بين الأقسام داخل القائمة العائمة
 function switchFloatingTab(stationName) {
