@@ -73,6 +73,10 @@ option[data-category="dark"] {
     padding-right: 170px;
 }
 
+body, .app-layout {
+    overflow-anchor: none;
+}
+
 /* القائمة الجانبية (تصليح الارتفاع عشان الزراير متختفيش تحت) */
 .sidebar {
     width: 175px; 
@@ -308,11 +312,11 @@ option[data-category="dark"] {
             opacity: 0 !important; 
             pointer-events: none;
             
-            /* 💡 الأرقام هنا (0.55s) مسؤولة عن سرعة القفل بس - سيبناها زي ما هي */
-            transition: max-height 0.55s cubic-bezier(0.22, 1, 0.36, 1),
-                        padding-top 0.55s cubic-bezier(0.22, 1, 0.36, 1),
-                        padding-bottom 0.55s cubic-bezier(0.22, 1, 0.36, 1),
-                        opacity 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+            /* 💡 الأرقام هنا (0.85s) مسؤولة عن سرعة القفل بس - سيبناها زي ما هي */
+            transition: max-height 0.85s cubic-bezier(0.22, 1, 0.36, 1),
+                        padding-top 0.85s cubic-bezier(0.22, 1, 0.36, 1),
+                        padding-bottom 0.85s cubic-bezier(0.22, 1, 0.36, 1),
+                        opacity 0.85s cubic-bezier(0.22, 1, 0.36, 1);
         }
 
         .field-group { display: flex; flex-direction: column; gap: 2px; }
@@ -2655,145 +2659,56 @@ function renderArrestItems() {
             document.querySelectorAll('.preset-btn').forEach(b=>b.classList.remove('active'));
             const activeBtn=document.getElementById('preset-'+type);
             if(activeBtn) activeBtn.classList.add('active');
-            // حفظ البيانات الشخصية والمركبة قبل المسح
-            const _saved = {
-                dept:      document.getElementById('input-dept-select').value,
-                deptOther: document.getElementById('input-dept-other').value,
-                caseNum:   document.getElementById('input-caseNum').value,
-                year:      document.getElementById('input-year').value,
-                date:      document.getElementById('input-date').value,
-                boss:      document.getElementById('input-boss-select').value,
-                bossOther: document.getElementById('input-boss-other').value,
-                name:      document.getElementById('input-name').value,
-                plateType: document.getElementById('plate-type').value,
-                c1:        document.getElementById('c1').value,
-                c2:        document.getElementById('c2').value,
-                c3:        document.getElementById('c3').value,
-                n1:        document.getElementById('n1').value,
-                noPlate:   document.getElementById('input-no-plate').value,
-                arrestItemsSaved: JSON.parse(JSON.stringify(arrestItems)),
-                // 💡 التعديل هنا: إجبار النظام على تذكر بنود الجلسة قبل مسح الشاشة
-                sessionItemsSaved: typeof sessionItems !== 'undefined' ? JSON.parse(JSON.stringify(sessionItems)) : [],
-                fineAmount:       document.getElementById('fine-amount').value,
-                fineText:         document.getElementById('fine-text').value,
-                vehStatusType:    document.getElementById('vehicle-status-type').value,
-                vehStatusText:    document.getElementById('vehicle-status-text').value,
-                violReceipt:      document.getElementById('violations-receipt').value,
-                violMethod:       document.getElementById('violations-pay-method').value,
-                violAmount:       document.getElementById('violations-amount').value,
-                violDate:         document.getElementById('violations-pay-date').value,
-                fineRecNum:       document.getElementById('fine-receipt-num').value,
-                fineRecAmount:    document.getElementById('fine-receipt-amount').value,
-                fineRecDate:      document.getElementById('fine-receipt-date').value
-            };
 
-            clearAll(true, false, true);
-
-            // استعادة البيانات الشخصية والمركبة بعد المسح
-            document.getElementById('input-dept-select').value = _saved.dept;
-            if (_saved.deptOther) {
-                document.getElementById('input-dept-other').value = _saved.deptOther;
-                document.getElementById('dept-other-wrapper').style.display = _saved.dept === 'أخرى' ? 'flex' : 'none';
-            }
-            document.getElementById('input-caseNum').value = _saved.caseNum;
-            document.getElementById('input-year').value = _saved.year;
-            document.getElementById('input-date').value = _saved.date;
-            if (_saved.date) dateAutoFilled = true;
-            document.getElementById('input-boss-select').value = _saved.boss;
-            if (_saved.bossOther) {
-                document.getElementById('input-boss-other').value = _saved.bossOther;
-                document.getElementById('boss-other-wrapper').style.display = _saved.boss === 'أخرى' ? 'flex' : 'none';
-            }
-            document.getElementById('input-name').value = _saved.name;
-            document.getElementById('plate-type').value = _saved.plateType;
-            document.getElementById('c1').value = _saved.c1;
-            document.getElementById('c2').value = _saved.c2;
-            document.getElementById('c3').value = _saved.c3;
-            document.getElementById('n1').value = _saved.n1;
-            document.getElementById('input-no-plate').value = _saved.noPlate;
-            document.getElementById('plate-fields-wrapper').style.display = (_saved.plateType === 'no-plate') ? 'none' : 'flex';
-            document.getElementById('no-plate-wrapper').style.display  = (_saved.plateType === 'no-plate') ? 'flex' : 'none';
-            
-            // استعادة سبب الضبط
-            arrestItems = _saved.arrestItemsSaved;
-            renderArrestItems(); updateArrestText();
-            
-            // 💡 التعديل هنا: استعادة بنود الجلسة التي تم حفظها
-            if (typeof sessionItems !== 'undefined') {
-                sessionItems = _saved.sessionItemsSaved;
-                if (typeof renderSessionItems === 'function') renderSessionItems();
-            }
-
-            ['input-dept-select','input-boss-select','plate-type'].forEach(id => syncCustomSelectDisplay(id));
-            document.getElementById('violations-receipt').value = _saved.violReceipt;
-            document.getElementById('violations-pay-method').value = _saved.violMethod;
-            document.getElementById('violations-amount').value = _saved.violAmount;
-            document.getElementById('violations-pay-date').value = _saved.violDate;
-            document.getElementById('fine-receipt-num').value = _saved.fineRecNum;
-            document.getElementById('fine-receipt-amount').value = _saved.fineRecAmount;
-            document.getElementById('fine-receipt-date').value = _saved.fineRecDate;
+            // 💡 السر المستوحى من نظام التلبسات: 
+            // تعديل القرارات المطلوبة فقط بهدوء، بدون مسح الواجهة بالكامل وإعادة تعبئتها
+            // هذا التعديل يمنع ارتباك المتصفح ويحافظ على نعومة الأنيميشن
 
             if (type==='deliver') {
                 document.getElementById('fine-type').value='fine'; updateFineText();
-                if(_saved.fineAmount){document.getElementById('fine-amount').value=_saved.fineAmount; document.getElementById('fine-amount-row').style.display='flex';}
-                if(_saved.fineText) document.getElementById('fine-text').value=_saved.fineText;
                 document.getElementById('eng-type').value='call'; updateEngineerText();
                 document.getElementById('vehicle-status-type').value='deliver'; updateVehicleStatusText();
                 document.getElementById('violations-type').value='paid'; updateViolationsText();
                 document.getElementById('fine-receipt-type').value='paid'; updateFineReceiptText();
-                document.getElementById('session-status').value='no';
-                document.getElementById('session-date-wrapper').style.display='none';
-                ['fine-type','eng-type','vehicle-status-type','violations-type','violations-pay-method','fine-receipt-type'].forEach(id=>syncCustomSelectDisplay(id));
+                document.getElementById('session-status').value='no'; updateSessionField();
+                ['fine-type','eng-type','vehicle-status-type','violations-type','fine-receipt-type'].forEach(id=>syncCustomSelectDisplay(id));
             }
 
             if (type==='keep') {
                 document.getElementById('fine-type').value='fine'; updateFineText();
-                if(_saved.fineAmount){document.getElementById('fine-amount').value=_saved.fineAmount; document.getElementById('fine-amount-row').style.display='flex';}
-                if(_saved.fineText) document.getElementById('fine-text').value=_saved.fineText;
                 document.getElementById('eng-type').value='call'; updateEngineerText();
                 document.getElementById('vehicle-status-type').value='keep'; updateVehicleStatusText();
                 document.getElementById('violations-type').value='other'; updateViolationsText();
-                togglePaymentSection();
                 document.getElementById('fine-receipt-type').value='paid'; updateFineReceiptText();
-                
-                // 💡 التعديل هنا: ضبط الاختيار على لم يتم تحديد جلسة
-                document.getElementById('session-status').value='no';
-                document.getElementById('session-date-wrapper').style.display='none';
-                
+                document.getElementById('session-status').value='no'; updateSessionField();
                 ['fine-type','eng-type','vehicle-status-type','violations-type','fine-receipt-type'].forEach(id=>syncCustomSelectDisplay(id));
             }
 
             if (type==='fine-only') {
-                // ... (باقي كود fine-only كما هو لا تلمسه)
                 document.getElementById('fine-type').value='no-fine'; updateFineText();
                 document.getElementById('eng-type').value='call'; updateEngineerText();
                 document.getElementById('vehicle-status-type').value='deliver'; updateVehicleStatusText();
                 document.getElementById('violations-type').value='paid'; updateViolationsText();
                 document.getElementById('fine-receipt-type').value=''; updateFineReceiptText();
-                document.getElementById('session-status').value='yes';
-                document.getElementById('session-date-wrapper').style.display='flex';
-                ['fine-type','eng-type','vehicle-status-type','violations-type','violations-pay-method','fine-receipt-type'].forEach(id=>syncCustomSelectDisplay(id));
+                document.getElementById('session-status').value='yes'; updateSessionField();
+                ['fine-type','eng-type','vehicle-status-type','violations-type','fine-receipt-type'].forEach(id=>syncCustomSelectDisplay(id));
             }
 
             if (type==='receipt') {
                 document.getElementById('fine-type').value='fine'; updateFineText();
-                if(_saved.fineAmount){document.getElementById('fine-amount').value=_saved.fineAmount; document.getElementById('fine-amount-row').style.display='flex';}
-                if(_saved.fineText) document.getElementById('fine-text').value=_saved.fineText;
                 document.getElementById('eng-type').value='no-call'; updateEngineerText();
                 document.getElementById('vehicle-status-type').value='other'; updateVehicleStatusText();
                 document.getElementById('violations-type').value='other'; updateViolationsText();
                 document.getElementById('fine-receipt-type').value='paid'; updateFineReceiptText();
-                document.getElementById('session-status').value='no';
-                document.getElementById('session-date-wrapper').style.display='none';
+                document.getElementById('session-status').value='no'; updateSessionField();
                 ['fine-type','eng-type','vehicle-status-type','violations-type','fine-receipt-type'].forEach(id=>syncCustomSelectDisplay(id));
             }
             sync();
 
-            // ── انيميشن البطاقات: فقط ما يحتاج يتغير فعلاً ──
-            // ── انيميشن البطاقات: فقط ما يحتاج يتغير فعلاً ──
+            // ── انيميشن البطاقات: يفتح ويغلق بنعومة تامة ──
             var _closed = {
                 'deliver'  : ['card-session'],
-                'keep'     : ['card-violations', 'card-session'], // 💡 تمت إضافة الجلسة للطي
+                'keep'     : ['card-violations', 'card-session'], 
                 'fine-only': ['card-fine', 'card-fine-receipt'],
                 'receipt'  : ['card-eng', 'card-veh-status', 'card-violations', 'card-session']
             };
@@ -2801,10 +2716,6 @@ function renderArrestItems() {
             ['card-basic','card-vehicle','card-fine','card-eng','card-veh-status',
              'card-violations','card-fine-receipt','card-arrest-reason','card-session'
             ].forEach(function(id) { _setCardState(id, !_shouldClose.has(id)); });
-
-// 💡 السحب المخصوص: 800 مللي ثانية (حوالي ثانية إلا ربع) من الرقي والنعومة
-            gentleScrollToTop(800);
-
         }
 
 
@@ -2941,6 +2852,7 @@ function renderArrestItems() {
         
 
 function togglePaymentSection() {
+if (window.isPresetRunning) return;
             const decision=document.getElementById('vehicle-status-type').value;
             const paymentCard=document.getElementById('card-violations');
             if(!paymentCard) return;
