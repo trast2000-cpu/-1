@@ -64,9 +64,15 @@ body button,
             background-position: center;
         }
 
-        /* ── F9 Toast ── */
+        /* ── F9 Toast & All Notifications ── */
         @media print {
-            #f9-toast { display: none !important; }
+            #f9-toast, 
+            .toast-message, 
+            .notification, 
+            [id*="toast"], 
+            [class*="toast"] { 
+                display: none !important; 
+            }
         }
 
         #f9-toast {
@@ -1932,7 +1938,7 @@ box-sizing: border-box;
 <div class="actions-bar">
     <button class="btn-generate" onclick="generateReport()" title="اضغط لطباعه المحضر">🖨️ &nbsp;طباعة المحضر</button>
     <button class="btn-preamble" onclick="openPreambleModal()" title="تعديل نص الديباجة الافتتاحية"><i class="fa-solid fa-pencil"></i>&nbsp;&nbsp;&nbsp; تحرير الديباجة</button>
-    <button class="btn-clear" onclick="clearAllData()" title="حذف جميع البيانات المدخلة وإعادة تهيئة الحقول"><i class="fa-solid fa-trash"></i>&nbsp;&nbsp;&nbsp; مسح البيانات</button>
+    <button class="btn-clear" onclick="clearAllData()" title="حذف جميع البيانات المدخلة وإعادة تهيئة الحقول"><i class="fa-solid fa-trash"></i> مسح البيانات  { F9 }</button>
     <button class="btn-save-file" onclick="downloadReport()" title="حفظ بيانات المحضر كـ ملف ( تيكست txt)">💾 حفظ المحضر كملف TXT</button>
     <button class="btn-open-file" onclick="triggerOpenFile()" title="فتح و تحميل بيانات ملف محضر سابق تم حفظه"><i class="fa-solid fa-folder-open"></i>&nbsp;&nbsp;&nbsp; فتح محضر سابق</button>
     <input type="file" id="file_input" style="display:none" onchange="handleFileSelect(event)" accept=".txt">
@@ -4235,53 +4241,61 @@ let questionsHtml = "";
     function validateFields() {
         const errors = [];
         
+        // دالة مساعدة لتسجيل الخطأ مع ربطه بالـ ID الخاص بالحقل
+        function addErr(id, msg) {
+            errors.push({ msg: msg, id: id });
+        }
+
         // التحقق من بيانات الجلسة والنيابة
-        if (!document.getElementById('day').value) errors.push('اليوم غير محدد');
-        if (!document.getElementById('date').value.trim()) errors.push('التاريخ غير مكتوب');
-        if (!document.getElementById('open_time_h').value.trim()) errors.push('ساعة فتح المحضر غير مكتوبة');
+        if (!document.getElementById('day').value) addErr('day', 'اليوم غير محدد');
+        if (!document.getElementById('date').value.trim()) addErr('date', 'التاريخ غير مكتوب');
+        if (!document.getElementById('open_time_h').value.trim()) addErr('open_time_h', 'ساعة فتح المحضر غير مكتوبة');
         
         const prosecutor = document.getElementById('prosecutor').value;
         if (!prosecutor) {
-            errors.push('وكيل النيابة غير محدد');
+            addErr('prosecutor', 'وكيل النيابة غير محدد');
         } else if (prosecutor === 'other' && !document.getElementById('pros_other').value.trim()) {
-            errors.push('اسم وكيل النيابة غير مكتوب');
+            addErr('pros_other', 'اسم وكيل النيابة غير مكتوب');
         }
         
-        if (!document.getElementById('clerk_name').value.trim()) errors.push('كاتب التحقيق غير مكتوب');
+        if (!document.getElementById('clerk_name').value.trim()) addErr('clerk_name', 'كاتب التحقيق غير مكتوب');
         
         // التحقق من بيانات الضبط
-        if (!document.getElementById('report_no').value.trim()) errors.push('رقم المحضر غير مكتوب');
-        if (!document.getElementById('report_year').value.trim()) errors.push('سنة المحضر غير مكتوبة');
-        if (!document.getElementById('police_station').value) errors.push('قسم الشرطة غير محدد');
-        if (!document.getElementById('event_date').value.trim()) errors.push('تاريخ واقعة الضبط غير مكتوب');
-        if (!document.getElementById('event_time_h').value.trim()) errors.push('ساعة الضبط غير مكتوبة');
-        if (!document.getElementById('off_name').value.trim()) errors.push('اسم الضابط غير مكتوب');
-        if (!document.getElementById('off_rank').value.trim()) errors.push('رتبة الضابط غير مكتوبة');
-        if (!document.getElementById('recorder_type').value) errors.push('جهة محرر المحضر غير محددة');
-        else if (document.getElementById('recorder_type').value === 'other' && !document.getElementById('recorder_type_other').value.trim()) errors.push('جهة محرر المحضر (أخرى) غير مكتوبة');
-        if (!document.getElementById('location').value.trim()) errors.push('مكان الضبط غير مكتوب');
+        if (!document.getElementById('report_no').value.trim()) addErr('report_no', 'رقم المحضر غير مكتوب');
+        if (!document.getElementById('report_year').value.trim()) addErr('report_year', 'سنة المحضر غير مكتوبة');
+        if (!document.getElementById('police_station').value) addErr('police_station', 'قسم الشرطة غير محدد');
+        if (!document.getElementById('event_date').value.trim()) addErr('event_date', 'تاريخ واقعة الضبط غير مكتوب');
+        if (!document.getElementById('event_time_h').value.trim()) addErr('event_time_h', 'ساعة الضبط غير مكتوبة');
+        if (!document.getElementById('off_name').value.trim()) addErr('off_name', 'اسم الضابط غير مكتوب');
+        if (!document.getElementById('off_rank').value.trim()) addErr('off_rank', 'رتبة الضابط غير مكتوبة');
+        
+        const recorderType = document.getElementById('recorder_type').value;
+        if (!recorderType) addErr('recorder_type', 'جهة محرر المحضر غير محددة');
+        else if (recorderType === 'other' && !document.getElementById('recorder_type_other').value.trim()) addErr('recorder_type_other', 'جهة محرر المحضر (أخرى) غير مكتوبة');
+        
+        if (!document.getElementById('location').value.trim()) addErr('location', 'مكان الضبط غير مكتوب');
         
         // التحقق من بيانات المركبة
         const vType = document.getElementById('v_type').value;
         if (!vType) {
-            errors.push('نوع المركبة غير محدد');
+            addErr('v_type', 'نوع المركبة غير محدد');
         } else if (vType === 'other' && !document.getElementById('v_other').value.trim()) {
-            errors.push('نوع المركبة غير مكتوب');
+            addErr('v_other', 'نوع المركبة غير مكتوب');
         }
         
         const plateMode = document.getElementById('plate_mode').value;
         if (plateMode === 'manual' && !getPlate().trim()) {
-            errors.push('رقم اللوحة غير مكتوب');
+            addErr('plate_l1', 'رقم اللوحة غير مكتوب');
         }
         
         // التحقق من بيانات المتهم
-        if (!document.getElementById('def_name').value.trim()) errors.push('اسم المتهم غير مكتوب');
-        if (!document.getElementById('def_age').value.trim()) errors.push('سن المتهم غير مكتوب');
-        if (!document.getElementById('def_job').value.trim()) errors.push('عمل المتهم غير مكتوب');
-        if (!document.getElementById('def_address').value.trim()) errors.push('عنوان المتهم غير مكتوب');
-        if (!document.getElementById('def_id_no').value.trim()) errors.push('رقم بطاقة المتهم غير مكتوب');
-        if (!document.getElementById('def_phone').value.trim()) errors.push('رقم هاتف المتهم غير مكتوب');
-        if (!document.getElementById('bail').value.trim()) errors.push('قيمة الكفالة غير مكتوبة');
+        if (!document.getElementById('def_name').value.trim()) addErr('def_name', 'اسم المتهم غير مكتوب');
+        if (!document.getElementById('def_age').value.trim()) addErr('def_age', 'سن المتهم غير مكتوب');
+        if (!document.getElementById('def_job').value.trim()) addErr('def_job', 'عمل المتهم غير مكتوب');
+        if (!document.getElementById('def_address').value.trim()) addErr('def_address', 'عنوان المتهم غير مكتوب');
+        if (!document.getElementById('def_id_no').value.trim()) addErr('def_id_no', 'رقم بطاقة المتهم غير مكتوب');
+        if (!document.getElementById('def_phone').value.trim()) addErr('def_phone', 'رقم هاتف المتهم غير مكتوب');
+        if (!document.getElementById('bail').value.trim()) addErr('bail', 'قيمة الكفالة غير مكتوبة');
         
         // التحقق من الأسئلة
         questions.forEach((item, index) => {
@@ -4290,7 +4304,12 @@ let questionsHtml = "";
                 if (item.type === 'viol') questionLabel = 'سؤال اتهام';
                 else if (item.type === 'fixed') questionLabel = 'سؤال تحقيق ثابت';
                 else questionLabel = 'سؤال يدوي';
-                errors.push(`إجابة ${questionLabel} رقم ${index + 1} غير مكتوبة`);
+                
+                // ربط الخطأ بخانة الإجابة الخاصة بالسؤال عبر مُحدد قوي ومضمون
+                errors.push({
+                    msg: `إجابة ${questionLabel} رقم ${index + 1} غير مكتوبة`,
+                    selector: `input[oninput*="${item.id}"][oninput*="'a'"]`
+                });
             }
         });
         
@@ -4298,14 +4317,61 @@ let questionsHtml = "";
     }
 
     function generateReport() {
-        // التحقق من الحقول الفارغة
+        // 1. التحقق من الحقول الفارغة وتلوينها
         const validationErrors = validateFields();
         if (validationErrors.length > 0) {
-            alert('يرجى ملء الحقول التالية:\n\n' + validationErrors.join('\n'));
-            return;
+            const errorMessages = validationErrors.map(err => err.msg);
+            alert('يرجى ملء الحقول التالية:\n\n' + errorMessages.join('\n'));
+            
+            let firstEl = null;
+
+            validationErrors.forEach((err) => {
+                let targetEl = null;
+                if (err.id) {
+                    targetEl = document.getElementById(err.id);
+                } else if (err.selector) {
+                    targetEl = document.querySelector(err.selector);
+                }
+
+                if (targetEl) {
+                    // فتح القسم المغلق إذا كان الحقل بداخله
+                    const sectionContent = targetEl.closest('.section-content');
+                    if (sectionContent && sectionContent.classList.contains('collapsed')) {
+                        const titleElement = sectionContent.previousElementSibling;
+                        if (titleElement) toggleSection(titleElement);
+                    }
+
+                    // إضاءة الحقل بالأحمر
+                    const originalBorder = targetEl.style.border;
+                    const originalShadow = targetEl.style.boxShadow;
+                    
+                    targetEl.style.setProperty('border', '2px solid #ef4444', 'important');
+                    targetEl.style.setProperty('box-shadow', '0 0 10px rgba(239, 68, 68, 0.6)', 'important');
+                    
+                    // إزالة الإضاءة الحمراء بمجرد الكتابة
+                    const removeHighlight = () => {
+                        targetEl.style.border = originalBorder;
+                        targetEl.style.boxShadow = originalShadow;
+                        targetEl.removeEventListener('input', removeHighlight);
+                        targetEl.removeEventListener('change', removeHighlight);
+                    };
+                    targetEl.addEventListener('input', removeHighlight);
+                    targetEl.addEventListener('change', removeHighlight);
+
+                    // تعيين أول عنصر للذهاب إليه
+                    if (!firstEl) firstEl = targetEl;
+                }
+            });
+
+            // الذهاب بسلاسة إلى أول حقل منسي تم اكتشافه
+            if (firstEl) {
+                firstEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                setTimeout(() => firstEl.focus(), 300);
+            }
+            return; // إيقاف الطباعة حتى يتم ملء الحقول
         }
         
-        // تنبيه عند اختيار "لا شيء" في قرارات النيابة
+        // 2. تنبيه عند اختيار "لا شيء" في قرارات النيابة
         const releaseType = document.getElementById('release_type').value;
         const vehicleDecision = document.getElementById('vehicle_decision').value;
         let noneWarnings = [];
@@ -4315,10 +4381,11 @@ let questionsHtml = "";
         if (noneWarnings.length > 0) {
             const warningMessage = `تنبيه: لقد اخترت "لا شيء" في قرارات النيابة التالية:\n\n- ${noneWarnings.join('\n- ')}\n\nهذا يعني أن هذه القرارات لن تظهر في الطباعة.\n\nهل تريد الاستمرار؟`;
             if (!confirm(warningMessage)) {
-                return;
+                return; // إيقاف الطباعة إذا تراجع المستخدم
             }
         }
         
+        // 3. إكمال عملية الطباعة
         const reportBody = document.getElementById('report-body');
         const selectedFont = document.getElementById('font_choice').value;
         const selectedSize = document.getElementById('font_size_choice').value;
@@ -4328,6 +4395,7 @@ let questionsHtml = "";
         reportBody.style.fontWeight = weight;
         reportBody.style.lineHeight = family.includes('Typesetting') ? "1.2" : "1.4";
         reportBody.innerHTML = buildReportContent();
+        
         const clerk = document.getElementById('clerk_name').value;
         const pros = document.getElementById('prosecutor').value === 'other' ? document.getElementById('pros_other').value : document.getElementById('prosecutor').value;
         document.querySelectorAll('.s_clerk').forEach(el => el.innerText = clerk);
@@ -5264,17 +5332,20 @@ let questionsHtml = "";
 
 // بناء نص أمر الحبس من بيانات المتهم
     function buildDetentionOrderText() {
-        // 💡 تم ضبط النقاط لتكون وسطاً (لا قصيرة جداً ولا طويلة جداً) لتناسب السطر
-        const BLANK_REPORT_NO   = '……………';
-        const BLANK_REPORT_YEAR = '………';
-        const BLANK_STATION     = '………………………';
-        const BLANK_DEF_NAME    = '…………………………………………………';
-        const BLANK_DEF_AGE     = '………';
-        const BLANK_DEF_JOB     = '……………………………';
-        const BLANK_DEF_ID      = '………………………………………';
-        const BLANK_DEF_ADDR    = '…………………………………………………';
-        const BLANK_DATE        = '………………';
-        const BLANK_VIOLATION   = '……………………………………………………………';
+        // 💡💡💡 هنا وبس هنا بتتحكم في حجم كل فراغ — عدد النقط اللي بتحطها هنا هو نفسه اللي هيتحول لمسافة فاضية في الطباعة
+        // كل ما زودت نقط، كبر الفراغ. تقدر تشوف الفرق في الحجم بعينك من عدد النقط قبل ما تجرب تطبع
+        const BLANK_REPORT_NO   = '………………';                              //* رقم المحضر *//
+        const BLANK_REPORT_YEAR = '……………';                           //* سنة المحضر *//
+        const BLANK_STATION     = '…………………………………………';                  //* اسم قسم الشرطة *//
+        const BLANK_DEF_NAME    = '…………………………………………………………………………';   //* اسم المتهم رباعياً *//
+        const BLANK_DEF_AGE     = '……………………';                        //* سن المتهم *//
+        const BLANK_DEF_JOB     = '……………………';                        //* مهنة المتهم *//
+        const BLANK_DEF_ID      = '……………………………………………………';                  //* رقم تحقيق الشخصية *//
+        const BLANK_DEF_ADDR    = '……………………………………………………………………………………';    //* محل إقامة المتهم *//
+        const BLANK_DATE_START  = '…………………………';                      //* تاريخ بداية الحبس (قرار أولاً) *//
+        const BLANK_DATE_END    = '…………………………';                      //* تاريخ نهاية الحبس (قرار أولاً) *//
+        const BLANK_COURT_DATE  = '…………………………';                      //* تاريخ عرض المتهم على المحكمة (قرار ثانياً) *//
+        const BLANK_VIOLATION   = '……………………………………………………………………………………';    //* نوع المخالفة *//
 
         const reportNo    = document.getElementById('report_no').value    || BLANK_REPORT_NO;
         const reportYear  = document.getElementById('report_year').value  || BLANK_REPORT_YEAR;
@@ -5287,9 +5358,9 @@ let questionsHtml = "";
         const defJob      = document.getElementById('def_job').value      || BLANK_DEF_JOB;
         const defId       = document.getElementById('def_id_no').value    || BLANK_DEF_ID;
         const defAddr     = document.getElementById('def_address').value  || BLANK_DEF_ADDR;
-        const startDate   = document.getElementById('detention_start_date').value  || BLANK_DATE;
-        const endDate     = document.getElementById('detention_end_date').value    || BLANK_DATE;
-        const courtDate   = document.getElementById('detention_court_date').value  || BLANK_DATE;
+        const startDate   = document.getElementById('detention_start_date').value  || BLANK_DATE_START;
+        const endDate     = document.getElementById('detention_end_date').value    || BLANK_DATE_END;
+        const courtDate   = document.getElementById('detention_court_date').value  || BLANK_COURT_DATE;
         const violsList   = violations.length > 0 ? violations.map(v => `( ${v} )`).join(' و ') : `( ${BLANK_VIOLATION} )`;
         const detDays     = calcDetentionDays();
         const detDaysText = detDays !== null ? daysToArabicText(detDays) : 'أربعة أيام';
@@ -5398,33 +5469,31 @@ function saveDetentionOrder() {
         // 🎨 نظام تصميم موحّد: لون تمييز واحد بس، ومقاسات خط متدرجة بسيطة، وإيقاع مسافات ثابت
         const ACCENT = '#1a1a2e';
 
-        //* ============================================================ *//
-        //* هنا وبس هنا بيتم التحكم في "عرض فراغات أمر الحبس الاحتياطي"   *//
-        //* كل ما الرقم أكبر كل ما الفراغ أوسع (ممكن يقفز لسطر جديد لو زودته أوي) *//
-        //* ============================================================ *//
+        //* ================================================================ *//
+        //* 📏 عدد النقط اللي بتتطبع فعليًا على الورق = نفس عدد النقط اللي     *//
+        //* حطيتها في BLANK_X جوه buildDetentionOrderText (فوق) بالظبط —      *//
+        //* من غير أي تكبير أو تصغير. زوّد نقطة هناك = هتشوفها نقطة زيادة هنا  *//
+        //* ================================================================ *//
 
-        // أي متتالية نقاط (…) تتحول لمسافة فاضية واسعة (بدون أي خط تحتها) — مساحة مريحة للكتابة بالقلم
-        // forceCount: تحديد عدد صريح للمسافة (يُستخدم لتوسيع فراغات معينة أكتر من غيرها)
-        function renderBlanks(raw, forceCount) {
-            return raw.replace(/\u2026{2,}/g, function(m) {
-                const count = forceCount || Math.min(42, Math.max(16, Math.round(m.length * 1.7)));
-                return '<span>' + '&nbsp;'.repeat(count) + '</span>';
-            });
+        // أي متتالية نقاط (…) بتتطبع كـ نقط (.) ظاهرة فعليًا على الورق — بنفس العدد المكتوب في لوحة التحكم فوق بالظبط
+        // (بنستبدل حرف الإليبسيس … بنقاط عادية "." عشان تبان بوضوح في أي خط مهما كان)
+        function renderBlanks(raw) {
+            return raw.replace(/\u2026/g, '.');
         }
 
-        // أي "( قيمة )" — لو فاضية (نقاط) تتحول لمسافة فاضية، ولو متملية تتعرض عريضة — والقوسين يفضلوا وحدة واحدة غير قابلة للانكسار
-        function formatField(text, forceCount) {
+        // أي "( قيمة )" في النص الأصلي — الأقواس نفسها ما بتتطبعش خالص (فاضية كانت أو متملية)
+        // لو فاضية (فيها نقط) بتتطبع النقط زي ما هي، ولو متملية القيمة بتتعرض عريضة — والمحتوى يفضل وحدة واحدة غير قابلة للانكسار
+        function formatField(text) {
             return e(text).replace(/\(\s*([^()]+?)\s*\)/g, function(m, val) {
-                const rendered = renderBlanks(val, forceCount);
-                const isBlank  = rendered !== val;
-                const inner    = isBlank ? rendered : '<strong>' + val.trim() + '</strong>';
-                return '<span style="white-space:nowrap;">(&nbsp;' + inner + '&nbsp;)</span>';
+                const trimmedVal = val.trim();
+                const isBlank = /\u2026{2,}/.test(trimmedVal);
+                const inner   = isBlank ? renderBlanks(trimmedVal) : '<strong>' + trimmedVal + '</strong>';
+                return '<span style="white-space:nowrap;">' + inner + '</span>';
             });
         }
 
-        //* بيتحكم في فراغات: اسم المتهم / السن / المهنة / رقم تحقيق الشخصية / محل الإقامة (البطاقة الأولى) *//
         function formatInfoRow(text) {
-            return formatField(text, 46);
+            return formatField(text);
         }
 
 
@@ -5474,9 +5543,8 @@ function saveDetentionOrder() {
 
             // سطر المخالفة بمفرده بين قوسين
             if (/^\(\s/.test(trimmed) && trimmed.endsWith(')')) {
-                //* الرقم 80 هنا = عرض فراغ "نوع المخالفة" (البطاقة الثانية) *//
-                //* 80 = بيتحكم في فراغ "نوع المخالفة" (البطاقة التانية) *//
-                bodyContent += '<div class="violation-block">' + formatField(trimmed, 80) + '</div>';
+                //* عرض فراغ "نوع المخالفة" بيتحدد من عدد نقط BLANK_VIOLATION في buildDetentionOrderText *//
+                bodyContent += '<div class="violation-block">' + formatField(trimmed) + '</div>';
                 return;
             }
 
@@ -5520,15 +5588,15 @@ function saveDetentionOrder() {
                     const idx = rest.indexOf('وتنتهي');
                     const part1 = rest.slice(0, idx).replace(/[،,]\s*$/, '');
                     const part2 = rest.slice(idx);
-                    //* الرقم 24 هنا (مرتين) = عرض فراغ "تبدأ من" و"وتنتهي في" في قرار أولاً (البطاقة الثالثة) *//
-                    restHtml = formatField(part1, 24) + '<br>' + formatField(part2, 24);
+                    //* حجم فراغي "تبدأ من" و"وتنتهي في" بييجي من عدد نقط BLANK_DATE_START و BLANK_DATE_END فوق *//
+                    restHtml = formatField(part1) + '<br>' + formatField(part2);
                 } else if (/^(ثانياً|ثانيا)/.test(trimmed) && rest.includes('إلى المحكمة')) {
                     // فاصل إجباري: "...صباح يوم (...)" في سطر، و"إلى المحكمة..." في السطر اللي بعده
                     const idx = rest.indexOf('إلى المحكمة');
                     const part1 = rest.slice(0, idx).trim();
                     const part2 = rest.slice(idx).trim();
-                    //* الرقم 24 هنا = عرض فراغ "صباح يوم" في قرار ثانياً (البطاقة الثالثة) — الجزء التاني مفيهوش فراغ أصلاً *//
-                    restHtml = formatField(part1, 24) + '<br>' + formatField(part2);
+                    //* حجم فراغ "صباح يوم" بييجي من عدد نقط BLANK_COURT_DATE فوق — الجزء التاني مفيهوش فراغ أصلاً *//
+                    restHtml = formatField(part1) + '<br>' + formatField(part2);
                 } else {
                     //* من غير رقم = بيستخدم الحجم الافتراضي (مش مستخدم فعليًا هنا لأن "ثالثاً" مفيهاش فراغ) *//
                     restHtml = formatField(rest);
@@ -5576,29 +5644,27 @@ function saveDetentionOrder() {
             // بيانات القضية والمتهم (داخل الصندوق)
             if (insideInfoCard) {
                 if (trimmed.startsWith('في القضية')) {
-                    //* الرقم 27 هنا = عرض فراغات سطر "في القضية رقم ... لسنة ..." المسنتر (البطاقة الأولى) *//
-                    bodyContent += '<p class="info-row info-row-center">' + formatField(trimmed, 27) + '</p>';
+                    //* حجم فراغي "رقم القضية" و"السنة" بييجي من عدد نقط BLANK_REPORT_NO و BLANK_REPORT_YEAR فوق *//
+                    bodyContent += '<p class="info-row info-row-center">' + formatField(trimmed) + '</p>';
                 } else if (trimmed.startsWith('اسم المتهم')) {
                     // السطر فيه فراغين مختلفين (اسم المتهم + السن)، فبنقسمه عشان كل واحد ياخد رقمه لوحده
                     const idx = trimmed.indexOf('| السن');
                     const namePart = trimmed.slice(0, idx).trim();   // اسم المتهم : ( ... )
                     const agePart  = trimmed.slice(idx).trim();      // | السن : ( ... ) سنة | النوع : ذكر
-                    //* الرقم 70 = عرض فراغ "اسم المتهم" (محتاج مساحة أكبر لاسم رباعي) *//
-                    //* الرقم 20  = عرض فراغ "السن" (محتاج مساحة صغيرة، رقم أو رقمين بس) *//
-                    bodyContent += '<p class="info-row">' + formatField(namePart, 70) + '  ' + formatField(agePart, 20) + '</p>';
+                    //* حجم فراغي "اسم المتهم" و"السن" بييجي من عدد نقط BLANK_DEF_NAME و BLANK_DEF_AGE فوق *//
+                    bodyContent += '<p class="info-row">' + formatField(namePart) + '  ' + formatField(agePart) + '</p>';
                 } else if (trimmed.startsWith('المهنة')) {
                     // السطر فيه فراغين مختلفين (المهنة + رقم تحقيق الشخصية)
                     const idx = trimmed.indexOf('| رقم تحقيق الشخصية');
                     const jobPart = trimmed.slice(0, idx).trim();    // المهنة : ( ... ) | مصري
                     const idPart  = trimmed.slice(idx).trim();       // | رقم تحقيق الشخصية : ( ... )
-                    //* الرقم 20 = عرض فراغ "المهنة" *//
-                    //* الرقم 50 = عرض فراغ "رقم تحقيق الشخصية" (محتاج مساحة أكبر عشان رقم طويل + جهة الإصدار) *//
-                    bodyContent += '<p class="info-row">' + formatField(jobPart, 20) + '  ' + formatField(idPart, 50) + '</p>';
+                    //* حجم فراغي "المهنة" و"رقم تحقيق الشخصية" بييجي من عدد نقط BLANK_DEF_JOB و BLANK_DEF_ID فوق *//
+                    bodyContent += '<p class="info-row">' + formatField(jobPart) + '  ' + formatField(idPart) + '</p>';
                 } else if (trimmed.startsWith('محل الإقامة')) {
-                    //* الرقم 80 = عرض فراغ "محل الإقامة" لوحده (بياخد أطول مساحة لأنه سطر لوحده) *//
-                    bodyContent += '<p class="info-row">' + formatField(trimmed, 80) + '</p>';
+                    //* حجم فراغ "محل الإقامة" بييجي من عدد نقط BLANK_DEF_ADDR فوق (بياخد أطول مساحة لأنه سطر لوحده) *//
+                    bodyContent += '<p class="info-row">' + formatField(trimmed) + '</p>';
                 } else {
-                    //* أي سطر تاني مش متوقع هنا بياخد الحجم الافتراضي من formatInfoRow *//
+                    //* أي سطر تاني مش متوقع هنا بياخد نفس معاملة formatInfoRow العادية *//
                     bodyContent += '<p class="info-row">' + formatInfoRow(trimmed) + '</p>';
                 }
                 return;
@@ -5620,6 +5686,7 @@ function saveDetentionOrder() {
 <meta charset="UTF-8">
 <base href="${baseHref}">
 <title>أمر حبس احتياطي</title>
+<link href="cairo.css" rel="stylesheet">
 ${cairoFontFaceTag}
 <style>
   @page { size: A4; margin: 8mm; }
@@ -5802,9 +5869,7 @@ ${cairoFontFaceTag}
     //* لو عايز تعدّل مسافات/فراغات "أمر الحبس الاحتياطي" — مكانها مش هنا خالص،        *//
     //* روح لدالة printDetentionOrder (فوق) ودور على formatField / formatInfoRow.      *//
     //* ============================================================================ *//
-    function buildForensicMemoText() {
-        // 💡 كل خانة ليها عدد نقاط مستقل بذاته — زوّد أو قلّل نقاط أي سطر هنا لوحده
-        // (ده بيتحكم في عدد النقط في نص "مذكرة الطب الشرعي" هي بس، مش أمر الحبس)
+function buildForensicMemoText() {
         const BLANK_REPORT_NO   = '………………';           // رقم المحضر
         const BLANK_REPORT_YEAR = '………………';           // سنة المحضر
         const BLANK_STATION     = '……………………………';  // اسم قسم الشرطة
@@ -5849,13 +5914,13 @@ ${cairoFontFaceTag}
         const defStmt = stmtEl ? (stmtEl.value || 'أنكر') : 'أنكر';
 
         const violsList = violations.length > 0
-            ? violations.map(v => `( ${v} )`).join(' و ')
-            : `( ${BLANK_VIOLATION} )`;
+            ? violations.map(v => `${v}`).join(' و ')
+            : `${BLANK_VIOLATION}`;
 
         const todayDate = document.getElementById('date').value || BLANK_DATE;
-        const prosLabel = getProsecutionName() || 'نيابة مرور القاهرة';
 
-        return `مذكرة\n\nفي القضية الرقيمة ( ${reportNo} ) لسنة ( ${reportYear} ) جنح مرور ${station} :-\n\nيخلص وجيز الواقعة فيما جاء بمحضر جمع الاستدلالات المؤرخ في ${eventDate} والمحرر بمعرفة ${offRank} / ${offName} – ${recorderType} - من رصد مقطع مصور متداول بتاريخ ${videoDate} عبر موقع التواصل الاجتماعي "فيس بوك" خلال الصفحة المسماه "اخبار مرور مصر" قيادة المتهم / ${defName} لـ ${vType} الرقيمة ( ${plate} ) ويقوم بـ مخالفة قانون المرور بشارع ${location} بدائرة قسم شرطة ${station} وبإجرائه التحريات توصل إلى بيانات المتهم والسيارة وتم استدعاءه وبسؤاله ${defStmt} بارتكابه الواقعة وهي ${violsList} وتم التحفظ على السيارة على ذمة المحضر.\n\nلذلك قررنا الآتي\n\nأولاً : يعرض المتهم على مصلحة الطب الشرعي لأخذ منه عينتي بول ودم لتحليلهما وذلك بيان عما إذا كان توجد ثمة مواد مخدرة بهما من عدمه على أن يُعد تقريراً مفصلاً بذلك يُعرض علينا فور الانتهاء منه.\n\nتحريراً في ( ${todayDate} )`;
+        // إرجاع النص العادي فقط بدون أي وسوم HTML
+        return `مذكرة\n\nفي القضية الرقيمة ${reportNo} لسنة ${reportYear} جنح مرور ${station} :-\n\nوجيز الواقعة\n\nحيث تخلص الواقعة فيما جاء بمحضر جمع الاستدلالات المؤرخ في ${eventDate} والمحرر بمعرفة ${offRank} / ${offName} – ${recorderType} - من رصد مقطع مصور متداول بتاريخ ${videoDate} عبر موقع التواصل الاجتماعي "فيس بوك" خلال الصفحة المسماه "اخبار مرور مصر" قيادة المتهم / ${defName} لـ ${vType} الرقيمة ${plate} وقيامه بـ مخالفة قانون المرور بشارع ${location} بدائرة قسم شرطة ${station}.\n\nالتحريات والتحقيق\n\nحيث قام محرر المحضر بإجراء التحريات التي توصلت إلى بيانات المتهم والسيارة، وتم استدعاؤه وبسؤاله ${defStmt} بارتكابه الواقعة وهي ${violsList}، وتم التحفظ على السيارة على ذمة المحضر.\n\nلذلك قررنا الآتي\n\nأولاً / يعرض المتهم على مصلحة الطب الشرعي لأخذ منه عينتي بول ودم لتحليلهما وذلك بيان عما إذا كان توجد ثمة مواد مخدرة بهما من عدمه على أن يُعد تقريراً مفصلاً بذلك يُعرض علينا فور الانتهاء منه.\n\nتحريراً في ${todayDate}`;
     }
 
     function openForensicMemoModal() {
@@ -5903,19 +5968,60 @@ ${cairoFontFaceTag}
         const { family: fontFamily, weight: fontWeight } = parseFont(selectedFontVal);
         const baseSz = parseInt(selectedSizePx) || 22;
 
-        // ✅ نقل تعريف خط كايرو (base64) إلى نافذة الطباعة الجديدة (نفس الحل المستخدم في أمر الحبس)
         const cairoFontFaceEl2 = document.getElementById('cairo-font-base64');
         const cairoFontFaceTag2 = cairoFontFaceEl2 ? cairoFontFaceEl2.outerHTML : '';
 
         function e(s) { return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
-        // إبراز القيم المتغيرة بخط أسمك وأكبر بدرجتين
+        // =================================================================
+        // 💡 الميزة الجديدة: تجميع البيانات المتغيرة من الواجهة لإبرازها
+        // =================================================================
+        
+        // استخراج قيم الرتبة والجهة للضابط بدقة
+        let offRank = document.getElementById('off_rank').value;
+        if (offRank === 'other') {
+            const orEl = document.getElementById('off_rank_other');
+            offRank = orEl ? orEl.value : '';
+        }
+        const recorderEl = document.getElementById('recorder_type');
+        const recorderType = recorderEl ? (recorderEl.value === 'other' ? ((document.getElementById('recorder_type_other') || {}).value || '') : recorderEl.value) : '';
+
+        // تجميع كل القيم المحتملة في مصفوفة وتصفية الفارغ منها
+        const currentVars = [
+            document.getElementById('report_no').value,
+            document.getElementById('report_year').value,
+            getPoliceStation(),
+            document.getElementById('event_date').value,
+            offRank,
+            document.getElementById('off_name').value,
+            recorderType,
+            document.getElementById('video_date') ? document.getElementById('video_date').value : '',
+            document.getElementById('def_name').value,
+            getVehicleType(),
+            getPlate(),
+            document.getElementById('location').value,
+            document.getElementById('def_station_stmt') ? document.getElementById('def_station_stmt').value : 'أنكر',
+            violations.length > 0 ? violations.join(' و ') : '',
+            document.getElementById('date').value
+        ].filter(v => v && v.trim() !== '');
+
+        // 💡 ترتيب المتغيرات من الأطول للأقصر لتفادي استبدال كلمات متداخلة
+        // (مثلاً: ضمان استبدال "محمد أحمد" كاملة بدلاً من استبدال "محمد" فقط)
+        currentVars.sort((a, b) => b.length - a.length);
+
+        // دالة التظليل: تبحث عن الكلمات المتغيرة وتغلفها بوسم strong
         function markupVars(raw) {
             let t = e(raw);
-            // المحتوى داخل الأقواس ( قيمة )
-            t = t.replace(/\(\s*([^)]+?)\s*\)/g, function(m, inner) {
-                return '( <strong style="font-weight:bold;font-size:' + (baseSz+2) + 'px;">' + inner.trim() + '</strong> )';
+            currentVars.forEach(val => {
+                const escapedVal = e(val);
+                // حماية النص من أي رموز برمجية قد تُفهم كـ Regex
+                const safeVal = escapedVal.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&');
+                const regex = new RegExp(`(${safeVal})`, 'g');
+                // تكبير الخط درجتين وإعطائه وزن سميك
+                t = t.replace(regex, `<strong style="font-weight:900; font-size:${baseSz + 2}px;">$1</strong>`);
             });
+            // تضخيم أي نقاط فارغة (مثل …………)
+            t = t.replace(/(…{3,}|_{3,}|\.{3,})/g, '<strong>$1</strong>');
             return t;
         }
 
@@ -5932,7 +6038,7 @@ ${cairoFontFaceTag}
                 bodyContent += `<p style="text-align:center;font-size:${baseSz+10}px;font-weight:bold;margin:6px 0 4px;letter-spacing:2px;text-decoration:underline;">${e(trimmed)}</p>`;
                 return;
             }
-            // سطر "في القضية الرقيمة" — مركزي مع إبراز المتغيرات
+            // سطر "في القضية الرقيمة" — نمرره على دالة التظليل markupVars
             if (trimmed.startsWith('في القضية الرقيمة')) {
                 bodyContent += `<p style="text-align:center;font-size:${baseSz+2}px;margin:6px 0 8px;line-height:1.8;">${markupVars(trimmed)}</p>`;
                 return;
@@ -5941,18 +6047,21 @@ ${cairoFontFaceTag}
                 bodyContent += `<p style="text-align:center;font-size:${baseSz+6}px;font-weight:bold;margin:8px 0 4px;">${e(trimmed)}</p>`;
                 return;
             }
-            if (/^(أولاً|أولا)\s*:/.test(trimmed)) {
-                const colonIdx = trimmed.indexOf(':');
-                const label = trimmed.substring(0, colonIdx + 1);
-                const rest  = trimmed.substring(colonIdx + 1);
-                bodyContent += `<p style="margin:3px 0;line-height:1.8;font-size:${baseSz+2}px;text-align:justify;"><strong style="font-size:${baseSz+4}px;">${e(label)}</strong>${markupVars(rest)}</p>`;
+            if (trimmed === 'وجيز الواقعة' || trimmed === 'التحريات والتحقيق') {
+                bodyContent += `<p style="margin:12px 0 6px;font-size:${baseSz+4}px;font-weight:bold;color:#1e3a8a;border-bottom:1px solid #93c5fd;padding-bottom:2px;">${e(trimmed)}</p>`;
                 return;
             }
             if (trimmed.startsWith('تحريراً') || trimmed.startsWith('تحريرا')) {
                 bodyContent += `<p style="margin:10px 0 2px;font-size:${baseSz+2}px;text-align:right;">${markupVars(trimmed)}</p>`;
                 return;
             }
-            bodyContent += `<p style="margin:2px 0;line-height:1.8;font-size:${baseSz+2}px;text-align:justify;">${markupVars(trimmed)}</p>`;
+           // باقي النصوص العادية — نمررها على دالة التظليل markupVars
+            let processedLine = markupVars(trimmed);
+            
+            // 💡 الميزة الجديدة: جعل كلمات "أولاً"، "ثانياً"، الخ بخط سميك جداً إذا جاءت في بداية السطر
+            processedLine = processedLine.replace(/^(أولاً|أولا|ثانياً|ثانيا|ثالثاً|ثالثا|رابعاً|رابعا|خامساً|خامسا)/, '<strong style="font-weight:900;">$1</strong>');
+            
+            bodyContent += `<p style="margin:2px 0;line-height:1.8;font-size:${baseSz+2}px;text-align:justify;">${processedLine}</p>`;
         });
 
         const prosName  = (document.getElementById('prosecutor').value === 'other'
@@ -5966,6 +6075,7 @@ ${cairoFontFaceTag}
 <meta charset="UTF-8">
 <base href="${baseHref}">
 <title>مذكرة العرض على الطب الشرعي</title>
+<link href="cairo.css" rel="stylesheet">
 ${cairoFontFaceTag2}
 <style>
   @page { size: A4; margin: 6mm 10mm; }
