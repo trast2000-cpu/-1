@@ -99,6 +99,130 @@ body button,
             bottom: 30px;
         }
 
+        /* تنبيه حفظ المحضر بعد الطباعة */
+        #report-save-toast {
+            position: fixed;
+            bottom: -90px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, #7c2d12, #c2410c);
+            color: #fff;
+            padding: 12px 24px;
+            border-radius: 30px;
+            font-size: 14px;
+            font-weight: bold;
+            font-family: 'Cairo', 'Segoe UI', Arial, sans-serif;
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            box-shadow: 0 5px 22px rgba(124, 45, 18, 0.35);
+            border: 1px solid rgba(255,255,255,0.25);
+            z-index: 99999;
+            transition: bottom 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+            white-space: nowrap;
+        }
+        #report-save-toast.show {
+            bottom: 78px;
+        }
+        #unsaved-report-modal-overlay {
+            position: fixed;
+            inset: 0;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            background: rgba(15, 23, 42, 0.48);
+            z-index: 100000;
+            padding: 18px;
+        }
+        #unsaved-report-modal-overlay.show {
+            display: flex;
+        }
+        #unsaved-report-modal {
+            width: min(550px, 100%);
+            background: #fff;
+            color: #1e293b;
+            border: 1px solid #cbd5e1;
+            border-radius: 14px;
+            box-shadow: 0 18px 60px rgba(15, 23, 42, 0.3);
+            padding: 22px;
+            text-align: right;
+            direction: rtl;
+            font-family: 'Cairo', 'Segoe UI', Arial, sans-serif;
+        }
+        #unsaved-report-modal h3 {
+            margin: 0 0 10px;
+            color: #1e3a5f;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        #unsaved-report-modal p {
+            margin: 0;
+            line-height: 1.8;
+            font-size: 17px;
+            text-align: center;
+        }
+        #unsaved-report-modal-actions {
+            display: flex;
+            gap: 9px;
+            justify-content: flex-start;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+        #unsaved-report-modal-actions button {
+            min-width: 92px;
+            border: 0;
+            border-radius: 7px;
+            padding: 9px 16px;
+            font-family: inherit;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        #unsaved-report-save-btn {
+            background: #10b981;
+            color: #fff;
+        }
+        #unsaved-report-save-btn:hover {
+                    background: #059669;
+          }
+
+        #unsaved-report-continue-btn {
+            background: #ef4444;
+            color: #fff;  
+         }
+        #unsaved-report-continue-btn:hover {
+                background: #dc2626;
+         }
+        #unsaved-report-cancel-btn {
+            background: #e5e7eb;
+            color: #374151;
+        }
+        #unsaved-report-cancel-btn:hover { background: #d1d5db; }
+        #unsaved-report-modal-actions button:disabled {
+            opacity: 0.65;
+            cursor: wait;
+        }
+        @keyframes save-file-pulse {
+            0%, 100% {
+                background-color: #10b981;
+                box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.55);
+            }
+            50% {
+                background-color: #f59e0b;
+                box-shadow: 0 0 0 8px rgba(245, 158, 11, 0.08);
+            }
+        }
+        .btn-save-file.needs-save {
+            animation: save-file-pulse 1.8s ease-in-out infinite;
+            border: 2px solid #fbbf24;
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .btn-save-file.needs-save {
+                animation: none;
+                background-color: #f59e0b;
+            }
+        }
+
 /* تكبير الواجهة على الشاشة فقط — لا يؤثر على الطباعة */
 @media screen {
     body {
@@ -2156,6 +2280,98 @@ box-sizing: border-box;
     window.dataLoadedFromFile = false;
 let sidebarCloseTimeout = null;
 let sidebarPinned = false;
+    // حالة محضر تمت طباعته ولم يُحفظ كملف TXT بعد
+    let reportPrintedAwaitingSave = false;
+    let reportSaveToastTimer = null;
+    let pendingUnsavedReportAction = null;
+
+    function hasUnsavedPrintedReport() {
+        return reportPrintedAwaitingSave === true;
+    }
+
+    function showReportSaveToast() {
+        const toast = document.getElementById('report-save-toast');
+        if (!toast) return;
+        toast.classList.add('show');
+        clearTimeout(reportSaveToastTimer);
+        reportSaveToastTimer = setTimeout(() => {
+            toast.classList.remove('show');
+        }, 2000);
+    }
+
+    function hideReportSaveToast() {
+        const toast = document.getElementById('report-save-toast');
+        if (toast) toast.classList.remove('show');
+        clearTimeout(reportSaveToastTimer);
+        reportSaveToastTimer = null;
+    }
+
+    function markReportPrintedAwaitingSave() {
+        reportPrintedAwaitingSave = true;
+        const saveButton = document.querySelector('.btn-save-file');
+        if (saveButton) {
+            saveButton.classList.add('needs-save');
+            saveButton.title = 'تمت طباعة المحضر — اضغط لحفظه كملف TXT';
+        }
+        showReportSaveToast();
+    }
+
+    function markReportSaved() {
+        reportPrintedAwaitingSave = false;
+        const saveButton = document.querySelector('.btn-save-file');
+        if (saveButton) {
+            saveButton.classList.remove('needs-save');
+            saveButton.title = 'حفظ بيانات المحضر كـ ملف ( تيكست txt)';
+        }
+        hideReportSaveToast();
+    }
+
+    function closeUnsavedReportModal() {
+        const overlay = document.getElementById('unsaved-report-modal-overlay');
+        const saveButton = document.getElementById('unsaved-report-save-btn');
+        const continueButton = document.getElementById('unsaved-report-continue-btn');
+        if (overlay) overlay.classList.remove('show');
+        if (saveButton) saveButton.disabled = false;
+        if (continueButton) continueButton.disabled = false;
+        pendingUnsavedReportAction = null;
+    }
+
+    function openUnsavedReportModal(actionName, continueAction) {
+        pendingUnsavedReportAction = continueAction;
+        const message = document.getElementById('unsaved-report-modal-message');
+        const overlay = document.getElementById('unsaved-report-modal-overlay');
+        if (message) {
+            message.textContent =
+                `تم طباعة المحضر ولم يتم حفظه كملف TXT. هل تريد حفظه قبل ${actionName}؟`;
+        }
+        if (overlay) overlay.classList.add('show');
+    }
+
+    function continueWithoutSavingUnsavedReport() {
+        const action = pendingUnsavedReportAction;
+        closeUnsavedReportModal();
+        if (typeof action === 'function') action();
+    }
+
+    async function saveUnsavedReportAndContinue() {
+        const action = pendingUnsavedReportAction;
+        if (typeof action !== 'function') return;
+        const saveButton = document.getElementById('unsaved-report-save-btn');
+        const continueButton = document.getElementById('unsaved-report-continue-btn');
+        if (saveButton) saveButton.disabled = true;
+        if (continueButton) continueButton.disabled = true;
+
+        const saved = await saveReportToDevice();
+        if (saved) {
+            closeUnsavedReportModal();
+            action();
+        } else {
+            if (saveButton) saveButton.disabled = false;
+            if (continueButton) continueButton.disabled = false;
+            alert('تم إلغاء الحفظ. لم يتم مسح البيانات.');
+        }
+    }
+
     // دالة طي/فتح الاقسام
     function toggleSection(titleElement) {
         const content = titleElement.nextElementSibling;
@@ -3415,7 +3631,7 @@ function removeQuestion(id) {
     }
 
     function clearAllData() {
-        if (confirm("هل أنت متأكد من مسح جميع البيانات؟")) {
+        const continueClear = () => {
                // حفظ الإعدادات المفضلة قبل مسح الذاكرة
             const currentFont = localStorage.getItem('font_choice');
             const currentFontSize = localStorage.getItem('font_size_choice');
@@ -3465,6 +3681,10 @@ function removeQuestion(id) {
                     select.selectedIndex = 0;
                 }
             });
+
+             // إعادة بناء نص قرار إخلاء السبيل بعد مسح اسم المتهم
+             // حتى لا يظل الاسم القديم داخل نص القرار.
+             if (typeof updateReleaseDecisionUI === 'function') updateReleaseDecisionUI();
             
             // إعادة تعيين المتغيرات
             violations = [];
@@ -3498,8 +3718,15 @@ function removeQuestion(id) {
             
             // حفظ الحالة الفارغة
             saveData();
+            markReportSaved();
             
             alert("تم مسح كافة البيانات بنجاح مع الإبقاء على الأسئلة الثابتة.");
+        };
+
+        if (hasUnsavedPrintedReport()) {
+            openUnsavedReportModal('مسح البيانات', continueClear);
+        } else if (confirm("هل أنت متأكد من مسح جميع البيانات؟")) {
+            continueClear();
         }
     }
 
@@ -4408,12 +4635,19 @@ let questionsHtml = "";
         window.print();
     }
 
-    function downloadReport() {
+    // بعد إغلاق نافذة الطباعة نطلب حفظ نسخة TXT من المحضر
+    window.addEventListener('afterprint', function() {
+        markReportPrintedAwaitingSave();
+    });
+
+    function getReportFileName() {
         const reportNo = document.getElementById('report_no').value || 'بدون رقم';
         const reportYear = document.getElementById('report_year').value || 'بدون سنة';
         const policeStation = getPoliceStation() || 'بدون قسم';
-        const fileName = `محضر تحقيق رقم (${reportNo}) لسنه (${reportYear}) قسم شرطه (${policeStation}).txt`;
-        
+        return `محضر تحقيق رقم (${reportNo}) لسنه (${reportYear}) قسم شرطه (${policeStation}).txt`;
+    }
+
+    function buildReportFileData() {
         // جمع جميع البيانات المحفوظة
         const savedData = {
             violations: violations,
@@ -4434,13 +4668,53 @@ let questionsHtml = "";
         });
         
         // تحويل البيانات إلى نص JSON
-        const dataStr = JSON.stringify(savedData, null, 2);
+        return JSON.stringify(savedData, null, 2);
+    }
+
+    function downloadReport() {
+        const fileName = getReportFileName();
+        const dataStr = buildReportFileData();
         
         const blob = new Blob([dataStr], { type: 'text/plain; charset=utf-8' });
         const link = document.createElement('a');
         link.href = URL.createObjectURL(blob);
         link.download = fileName;
         link.click();
+        URL.revokeObjectURL(link.href);
+        markReportSaved();
+    }
+
+    async function saveReportToDevice() {
+        const fileName = getReportFileName();
+        const dataStr = buildReportFileData();
+        const blob = new Blob([dataStr], { type: 'text/plain; charset=utf-8' });
+
+        // يفتح نافذة اختيار المجلد/اسم الملف في المتصفحات الداعمة
+        if (typeof window.showSaveFilePicker === 'function') {
+            try {
+                const fileHandle = await window.showSaveFilePicker({
+                    suggestedName: fileName,
+                    types: [{
+                        description: 'ملف بيانات محضر التحقيق',
+                        accept: { 'text/plain': ['.txt'] }
+                    }]
+                });
+                const writable = await fileHandle.createWritable();
+                await writable.write(blob);
+                await writable.close();
+                markReportSaved();
+                return true;
+            } catch (error) {
+                if (error && error.name === 'AbortError') return false;
+                console.error('خطأ في الحفظ داخل الجهاز:', error);
+                alert('تعذر حفظ الملف في المكان المختار. لم يتم مسح البيانات.');
+                return false;
+            }
+        }
+
+        // حل بديل للمتصفحات التي لا توفر نافذة اختيار المكان
+        downloadReport();
+        return true;
     }
 
     function triggerOpenFile() {
@@ -4455,17 +4729,23 @@ let questionsHtml = "";
         reader.onload = function(e) {
             try {
                 const data = JSON.parse(e.target.result);
-                applyLoadedData(data);
-                alert('تم تحميل البيانات بنجاح');
+                confirmAndResetBeforeImport(function() {
+                    applyLoadedData(data);
+                    alert('تم تحميل البيانات بنجاح');
+                });
             } catch (err) {
                 console.error(err);
                 alert('خطأ في قراءة الملف. تأكد من أنه ملف بيانات صحيح.');
             }
         };
         reader.readAsText(file);
+        // إعادة تصفير قيمة عنصر اختيار الملف حتى يمكن اختيار نفس الملف مرة أخرى لاحقاً
+        event.target.value = '';
     }
 
     function applyLoadedData(data) {
+        // فتح ملف محفوظ يبدأ دورة محضر جديدة ولا يترك تنبيه المحضر السابق
+        markReportSaved();
         if (data.violations) violations = data.violations;
         if (data.questions) questions = data.questions;
         if (data.manualDecisions) manualDecisions = data.manualDecisions;
@@ -6169,6 +6449,50 @@ ${cairoFontFaceTag2}
     }
 
     function clearAllDataSilent() {
+        const continueClear = () => performClearAllDataSilent();
+        if (hasUnsavedPrintedReport()) {
+            openUnsavedReportModal('المسح باختصار F9', continueClear);
+        } else {
+            continueClear();
+        }
+    }
+
+    // ── فحص: هل يوجد بيانات فعلية مدخلة حالياً في النموذج؟ ──
+    // تُستخدم قبل عمليات الاستيراد (فتح محضر سابق / قائمة المحاضر المحفوظة)
+    // لتقرير ما إذا كان يجب تحذير المستخدم قبل الكتابة فوق البيانات الحالية.
+    function formHasMeaningfulData() {
+        const defName = (document.getElementById('def_name') || {}).value || '';
+        const defId   = (document.getElementById('def_id_no') || {}).value || '';
+        const reportNo = (document.getElementById('report_no') || {}).value || '';
+        if (defName.trim() || defId.trim() || reportNo.trim()) return true;
+        if (Array.isArray(violations) && violations.length > 0) return true;
+        if (Array.isArray(manualDecisions) && manualDecisions.length > 0) return true;
+        if (Array.isArray(questions) && questions.some(q => q && q.answer && String(q.answer).trim())) return true;
+        return false;
+    }
+
+    // ── تحذير + تصفير كامل قبل استيراد محضر جديد فوق بيانات موجودة ──
+    // continueAction: الدالة التي تنفّذ الاستيراد الفعلي بعد التصفير
+    function confirmAndResetBeforeImport(continueAction) {
+        const proceed = () => {
+            performClearAllDataSilent(true /* suppressToast */);
+            continueAction();
+        };
+        if (formHasMeaningfulData()) {
+            const ok = confirm(
+                'توجد بيانات مدخلة حالياً في النموذج.\n' +
+                'سيتم حذف هذه البيانات بالكامل عند استيراد المحضر الجديد.\n' +
+                'هل تريد المتابعة؟'
+            );
+            if (!ok) return false;
+            proceed();
+            return true;
+        }
+        proceed();
+        return true;
+    }
+
+    function performClearAllDataSilent(suppressToast) {
         const currentFont     = localStorage.getItem('font_choice');
         const currentFontSize = localStorage.getItem('font_size_choice');
         const currentStyle    = localStorage.getItem('selected_style');
@@ -6207,6 +6531,10 @@ ${cairoFontFaceTag2}
             else    select.selectedIndex = 0;
         });
 
+        // إعادة بناء نص قرار إخلاء السبيل بعد مسح اسم المتهم
+        // حتى لا يظل الاسم القديم داخل نص القرار عند استخدام F9.
+        if (typeof updateReleaseDecisionUI === 'function') updateReleaseDecisionUI();
+
         violations      = [];
         questions       = [];
         manualDecisions = [];
@@ -6231,7 +6559,8 @@ ${cairoFontFaceTag2}
 
         applyStyle(currentStyle || 'formal3');
         saveData();
-        showF9Toast();
+        markReportSaved();
+        if (!suppressToast) showF9Toast();
     }
 
     document.addEventListener('keydown', function(e) {
@@ -6248,6 +6577,21 @@ ${cairoFontFaceTag2}
     <div id="f9-toast">
         <i class="fa-solid fa-trash"></i>
         <span>تم مسح جميع البيانات</span>
+    </div>
+    <div id="report-save-toast" role="status" aria-live="polite">
+        <i class="fa-solid fa-file-arrow-down"></i>
+        <span>تم طباعة المحضر. هل قمت بحفظه كملف TXT؟</span>
+    </div>
+    <div id="unsaved-report-modal-overlay" role="dialog" aria-modal="true" aria-labelledby="unsaved-report-modal-title">
+        <div id="unsaved-report-modal">
+            <h3 id="unsaved-report-modal-title">حفظ المحضر قبل المسح</h3>
+            <p id="unsaved-report-modal-message">تم طباعة المحضر ولم يتم حفظه كملف TXT.</p>
+            <div id="unsaved-report-modal-actions">
+                <button id="unsaved-report-save-btn" type="button" onclick="saveUnsavedReportAndContinue()">حفظ ثم مسح</button>
+                <button id="unsaved-report-continue-btn" type="button" onclick="continueWithoutSavingUnsavedReport()">مسح فقط</button>
+                <button id="unsaved-report-cancel-btn" type="button" onclick="closeUnsavedReportModal()">إلغاء</button>
+            </div>
+        </div>
     </div>
 
 
@@ -7176,6 +7520,14 @@ function loadInvArchiveToSidebar() {
 function loadInvRecordToWorkspace(key) {
     var raw = localStorage.getItem(key);
     if (!raw) return;
+    var proceeded = confirmAndResetBeforeImport(function() {
+        applyInvRecordToWorkspace(key, raw);
+    });
+    if (!proceeded) return;
+}
+
+// ── التطبيق الفعلي لبيانات المحضر المختار على النموذج (بعد التصفير) ──
+function applyInvRecordToWorkspace(key, raw) {
     try {
         var d = JSON.parse(raw);
 
@@ -7212,7 +7564,9 @@ function loadInvRecordToWorkspace(key) {
 
         // ③ اسم المتهم
         var defNameEl = document.getElementById('def_name');
-        if (defNameEl && d.name) defNameEl.value = d.name;
+        if (defNameEl && d.name) {
+            defNameEl.value = d.name;
+        }
 
         // ③-أ الرقم القومي
         var nationalId = d.nationalId || d.national_id || d.idNo || d.id_no || d.def_id_no || '';
@@ -7293,6 +7647,11 @@ function loadInvRecordToWorkspace(key) {
             if (typeof renderViolations === 'function') renderViolations();
             if (typeof updateAutoQuestions === 'function') updateAutoQuestions();
         }
+
+        // تحديث القرارات بعد اكتمال تحميل اسم المتهم وباقي بيانات المحضر
+        // حتى يظهر الاسم مباشرة دون الحاجة إلى قصه ولصقه يدوياً.
+        if (typeof updateReleaseDecisionUI === 'function') updateReleaseDecisionUI();
+        if (typeof updateForensicDecisionUI === 'function') updateForensicDecisionUI();
 
         // ⑥ حفظ الحالة الجديدة
         if (typeof saveData === 'function') saveData();

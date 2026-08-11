@@ -1377,57 +1377,56 @@ body[data-theme="dark"] .rec-date { color: #64748b !important; }
                 <span class="toggle-arrow">▾</span>
             </div>
             <div class="card-body" style="gap:0; padding:0;">
-                
-
-
-
-<div style="display:flex; align-items:flex-end; gap:8px; flex-wrap:wrap; padding:10px; flex:1; border-left:1px solid #e2e8f0;">
+<div style="display:flex; align-items:flex-end; gap:6px; flex-wrap:nowrap; overflow-x:auto; padding:10px; width:100%;">
                     <div class="field-group">
                         <label>رقم المحضر</label>
-                        <input type="text" id="input-caseNum" placeholder="الرقم" oninput="sync()" style="width:70px;">
+                        <input type="text" id="input-caseNum" placeholder="الرقم" oninput="sync()" style="width:60px;">
                     </div>
                     <div class="field-group">
                         <label>قسم الشرطه</label>
-                        <select id="input-dept-select" onchange="toggleOther('input-dept-select', 'dept-other-wrapper'); sync();" style="width:130px;">
+                        <select id="input-dept-select" onchange="toggleOther('input-dept-select', 'dept-other-wrapper'); sync();" style="width:105px;">
                             <option value="">--- اختر ---</option>
                             <option value="أخرى">أخرى</option>
                         </select>
                     </div>
                     <div class="field-group" id="dept-other-wrapper" style="display:none;">
                         <label>اسم القسم</label>
-                        <input type="text" id="input-dept-other" oninput="sync()" style="width:120px;">
+                        <input type="text" id="input-dept-other" oninput="sync()" style="width:100px;">
                     </div>
                     <div class="field-group">
                         <label>السنة</label>
-                        <input type="number" id="input-year" value="2026" oninput="sync()" style="width:65px;">
+                        <input type="number" id="input-year" value="2026" oninput="sync()" style="width:68px;">
                     </div>
-                    <div class="field-group" style="align-self:flex-end;">
-                        <label style="opacity:0; font-size:1px;">‎</label>
-                        <button onclick="lookupMahdar()" id="btn-lookup-mahdar" title="استرجاع بيانات المحضر من نظام قرارات المحاضر" style="background:linear-gradient(135deg,#475569,#1e293b);color:#fff;border:none;border-radius:7px;padding:5px 10px;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;box-shadow:0 2px 6px rgba(0,0,0,0.18);display:inline-flex;align-items:center;gap:4px;height:32px;"><i class="fa-solid fa-magnifying-glass"></i> استرجاع</button>
+                    <div class="field-group">
+                        <label>موجه إلى</label>
+                        <select id="input-recipient-select" onchange="toggleOther('input-recipient-select', 'recipient-other-wrapper'); sync();" style="width:120px;">
+                            <option value="">مأمور القسم</option>
+                            <option value="أخرى">أخرى</option>
+                        </select>
                     </div>
-                </div>
-
-
-
-                <div style="display:flex; align-items:flex-end; gap:8px; flex-wrap:wrap; padding:10px; flex:1;">
+                    <div class="field-group" id="recipient-other-wrapper" style="display:none;">
+                        <label>نص التوجيه</label>
+                        <input type="text" id="input-recipi0px;">
+                    </div>
+                    <div style="align-self:stretch; width:1px; background:#e2e8f0; margin-right:auto; margin-left:4px;"></div>
                     <div class="field-group">
                         <label>تاريخ التحرير</label>
-                        <div class="date-input-wrapper" style="width:140px;">
+                        <div class="date-input-wrapper" style="width:125px;">
                             <span class="date-cal-icon"><i class="fa-solid fa-calendar-days"></i></span>
-                            <input type="text" id="input-date" oninput="sync()" placeholder="يوم/شهر/سنة" maxlength="10" style="width:140px;">
+                            <input type="text" id="input-date" oninput="sync()" placeholder="يوم/شهر/سنة" maxlength="10" style="width:125px;">
                             <input type="date" id="picker-input-date" class="date-hidden-picker" onchange="pickerToText(this,'input-date'); sync()">
                         </div>
                     </div>
                     <div class="field-group">
                         <label>مدير النيابة</label>
-                        <select id="input-boss-select" onchange="toggleOther('input-boss-select', 'boss-other-wrapper'); sync();" style="width:130px;">
+                        <select id="input-boss-select" onchange="toggleOther('input-boss-select', 'boss-other-wrapper'); sync();" style="width:105px;">
                             <option value="">--- اختر ---</option>
                             <option value="أخرى">أخرى</option>
                             </select>
                     </div>
                     <div class="field-group" id="boss-other-wrapper" style="display:none;">
                         <label>الاسم البديل</label>
-                        <input type="text" id="input-boss-other" oninput="sync()" style="width:120px;">
+                        <input type="text" id="input-boss-other" oninput="sync()" style="width:100px;">
                     </div>
                 </div>
             </div>
@@ -1819,7 +1818,7 @@ body[data-theme="dark"] .rec-date { color: #64748b !important; }
                 </div>
                 <div class="decision-header">
                     <div class="recipient-line" id="recipient-line">السيد مأمور قسم شرطة <span id="out-dept" class="var-data"></span><span id="dept-placeholder" style=" display:inline; font-size:5px;">........................................................................................</span></div>
-                    <div class="case-line">قرار النيابة في المحضر رقم (<span class="case-num-bold"><span id="out-caseNum" class="hide-if-empty-on-print var-data">....</span><span class="blank-write-line" id="blank-caseNum" style="display:none;">...............................................................</span></span>) لسنة (<span class="case-num-bold"><span id="out-year" class="var-data">2026</span></span>) جنح مرور </div>
+                    <div class="case-line">قرار النيابة في المحضر رقم (<span class="case-num-bold"><span id="out-caseNum" class="hide-if-empty-on-print var-data">....</span><span class="blank-write-line" id="blank-caseNum" style="display:none;">...............................................................</span></span>) لسنة (<span class="case-num-bold"><span id="out-year" class="var-data">2026</span></span>) جنح مرور <span id="out-dept-case" class="var-data"></span><span id="dept-case-placeholder" style=" display:inline; font-size:5px;">........................................................................................</span></div>
                 </div>
                 <div class="print-info-right" id="print-info-right">
                     <div class="info-line">اسم المتهم / <span id="out-name" class="hide-if-empty-on-print var-data">................................</span><span class="blank-write-line" id="blank-name" style="display:none;">.......................................................................................................................................................................................................................................</span></div>
@@ -2178,10 +2177,32 @@ window.addEventListener('beforeprint', function() {
 function sync() {
     const dSelect = document.getElementById('input-dept-select');
     const deptVal = (dSelect.value==='أخرى') ? document.getElementById('input-dept-other').value : dSelect.value;
-    const outDept = document.getElementById('out-dept');
-    const deptPlaceholder = document.getElementById('dept-placeholder');
-    if (deptVal) { outDept.innerText=deptVal; if(deptPlaceholder) deptPlaceholder.style.display='none'; }
-    else { outDept.innerText=''; if(deptPlaceholder) deptPlaceholder.style.display='inline'; }
+
+    const recipientSelect = document.getElementById('input-recipient-select');
+    const recipientLine = document.getElementById('recipient-line');
+    if (recipientSelect && recipientLine) {
+        if (recipientSelect.value === 'أخرى') {
+            const recipientOther = document.getElementById('input-recipient-other').value;
+            if (recipientOther) {
+                recipientLine.innerText = recipientOther;
+            } else {
+                recipientLine.innerHTML = '<span style="font-size:0.5em;">........................................................................................</span>';
+            }
+        } else {
+            recipientLine.innerHTML = 'السيد مأمور قسم شرطة <span id="out-dept" class="var-data"></span><span id="dept-placeholder" style=" display:inline; font-size:5px;">........................................................................................</span>';
+            const outDept2 = document.getElementById('out-dept');
+            const deptPlaceholder2 = document.getElementById('dept-placeholder');
+            if (deptVal) { outDept2.innerText=deptVal; if(deptPlaceholder2) deptPlaceholder2.style.display='none'; }
+            else { outDept2.innerText=''; if(deptPlaceholder2) deptPlaceholder2.style.display='inline'; }
+        }
+    }
+
+    const outDeptCase = document.getElementById('out-dept-case');
+    const deptCasePlaceholder = document.getElementById('dept-case-placeholder');
+    if (outDeptCase) {
+        if (deptVal) { outDeptCase.innerText=deptVal; if(deptCasePlaceholder) deptCasePlaceholder.style.display='none'; }
+        else { outDeptCase.innerText=''; if(deptCasePlaceholder) deptCasePlaceholder.style.display='inline'; }
+    }
 
     const caseNum = document.getElementById('input-caseNum').value;
     const outCaseNum = document.getElementById('out-caseNum');
