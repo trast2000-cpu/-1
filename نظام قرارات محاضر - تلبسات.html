@@ -1760,6 +1760,265 @@ body[data-theme="dark"] .record-title { color: #7aaeff !important; }
 
 
 
+#import-confirm-modal-overlay {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(15, 23, 42, 0.48);
+    z-index: 100000;
+    padding: 18px;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity 0.25s ease, visibility 0s linear 0.25s;
+}
+#import-confirm-modal-overlay.show {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    transition: opacity 0.25s ease, visibility 0s linear 0s;
+}
+#import-confirm-modal {
+    width: min(500px, 100%);
+    background: #fff;
+    color: #1e293b;
+    border: 1px solid #cbd5e1;
+    border-radius: 14px;
+    box-shadow: 0 18px 60px rgba(15, 23, 42, 0.3);
+    padding: 22px;
+    text-align: right;
+    direction: rtl;
+    font-family: 'Cairo', 'Segoe UI', Arial, sans-serif;
+    transform: scale(0.94) translateY(10px);
+    opacity: 0;
+    transition: transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.22s ease;
+}
+#import-confirm-modal-overlay.show #import-confirm-modal {
+    transform: scale(1) translateY(0);
+    opacity: 1;
+}
+#import-confirm-modal h3 {
+    margin: 0 0 10px;
+    color: #1e3a5f;
+    font-size: 18px;
+    font-weight: bold;
+}
+#import-confirm-modal p {
+    margin: 0;
+    line-height: 1.8;
+    font-size: 16px;
+    text-align: center;
+}
+#import-confirm-modal-actions {
+    display: flex;
+    gap: 9px;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+    margin-top: 20px;
+}
+#import-confirm-modal-actions button {
+    min-width: 92px;
+    border: 0;
+    border-radius: 7px;
+    padding: 9px 16px;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+}
+#import-confirm-proceed-btn {
+    background: #ef4444;
+    color: #fff;
+}
+#import-confirm-proceed-btn:hover { background: #dc2626; }
+#import-confirm-cancel-btn {
+    background: #e5e7eb;
+    color: #374151;
+}
+#import-confirm-cancel-btn:hover { background: #d1d5db; }
+#import-confirm-modal-actions button:focus-visible {
+    outline: 3px solid rgba(37, 99, 235, 0.35);
+    outline-offset: 2px;
+}
+
+/* ── نافذة التنبيه المعلوماتية المخصصة ── */
+#info-alert-modal-overlay {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(15, 23, 42, 0.48);
+    z-index: 100001;
+    padding: 18px;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity 0.25s ease, visibility 0s linear 0.25s;
+}
+#info-alert-modal-overlay.show {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    transition: opacity 0.25s ease, visibility 0s linear 0s;
+}
+#info-alert-modal {
+    width: min(440px, 100%);
+    background: #fff;
+    color: #1e293b;
+    border: 1px solid #cbd5e1;
+    border-radius: 14px;
+    box-shadow: 0 18px 60px rgba(15, 23, 42, 0.3);
+    padding: 22px;
+    text-align: right;
+    direction: rtl;
+    font-family: 'Cairo', 'Segoe UI', Arial, sans-serif;
+    transform: scale(0.94) translateY(10px);
+    opacity: 0;
+    transition: transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.22s ease;
+}
+#info-alert-modal-overlay.show #info-alert-modal {
+    transform: scale(1) translateY(0);
+    opacity: 1;
+}
+#info-alert-modal-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0 0 10px;
+}
+#info-alert-modal-header i { color: #ef4444; font-size: 20px; }
+#info-alert-modal h3 {
+    margin: 0;
+    color: #1e3a5f;
+    font-size: 18px;
+    font-weight: bold;
+}
+#info-alert-modal p {
+    margin: 0;
+    line-height: 1.8;
+    font-size: 16px;
+    text-align: center;
+    white-space: pre-line;
+}
+#info-alert-modal-actions {
+    display: flex;
+    justify-content: flex-start;
+    margin-top: 20px;
+}
+#info-alert-ok-btn {
+    min-width: 92px;
+    border: 0;
+    border-radius: 7px;
+    padding: 9px 16px;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    background: #1e3a5f;
+    color: #fff;
+}
+#info-alert-ok-btn:hover { background: #16324f; }
+#info-alert-ok-btn:focus-visible {
+    outline: 3px solid rgba(37, 99, 235, 0.35);
+    outline-offset: 2px;
+}
+
+/* ── نافذة التأكيد الثنائية العامة ── */
+#confirm-action-modal-overlay {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(15, 23, 42, 0.52);
+    z-index: 100002;
+    padding: 18px;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity 0.25s ease, visibility 0s linear 0.25s;
+}
+#confirm-action-modal-overlay.show {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    transition: opacity 0.25s ease, visibility 0s linear 0s;
+}
+#confirm-action-modal {
+    width: min(520px, 100%);
+    background: #fff;
+    color: #1e293b;
+    border: 1px solid #cbd5e1;
+    border-radius: 14px;
+    box-shadow: 0 18px 60px rgba(15, 23, 42, 0.32);
+    padding: 22px;
+    text-align: right;
+    direction: rtl;
+    font-family: 'Cairo', 'Segoe UI', Arial, sans-serif;
+    transform: scale(0.94) translateY(10px);
+    opacity: 0;
+    transition: transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.22s ease;
+}
+#confirm-action-modal-overlay.show #confirm-action-modal {
+    transform: scale(1) translateY(0);
+    opacity: 1;
+}
+#confirm-action-modal-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0 0 10px;
+}
+#confirm-action-modal-header i { color: #ef4444; font-size: 20px; }
+#confirm-action-modal h3 {
+    margin: 0;
+    color: #1e3a5f;
+    font-size: 18px;
+    font-weight: bold;
+}
+#confirm-action-modal p {
+    margin: 0;
+    line-height: 1.8;
+    font-size: 16px;
+    text-align: center;
+    white-space: pre-line;
+}
+#confirm-action-modal-actions {
+    display: flex;
+    gap: 9px;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+    margin-top: 20px;
+}
+#confirm-action-modal-actions button {
+    min-width: 120px;
+    border: 0;
+    border-radius: 7px;
+    padding: 9px 16px;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+}
+#confirm-action-confirm-btn { background: #ef4444; color: #fff; }
+#confirm-action-confirm-btn:hover { background: #dc2626; }
+#confirm-action-cancel-btn { background: #e5e7eb; color: #374151; }
+#confirm-action-cancel-btn:hover { background: #d1d5db; }
+
+/* تأثير ضغط لوحة المفاتيح — يحاكي ضغط زر التأكيد بالماوس */
+.keyboard-pressed {
+    transform: translateY(0) scale(0.96) !important;
+    box-shadow: inset 0 3px 6px rgba(0,0,0,0.25), 0 0 0 3px rgba(255,255,255,0.72) !important;
+    filter: brightness(0.9) !important;
+}
+
+#confirm-action-modal-actions button:focus-visible {
+    outline: 3px solid rgba(37, 99, 235, 0.35);
+    outline-offset: 2px;
+}
 </style>
 
 </head>
@@ -1811,7 +2070,7 @@ body[data-theme="dark"] .record-title { color: #7aaeff !important; }
     <!-- ===== أزرار الطباعة والمسح (ثابتة بالأسفل) ===== -->
     <div class="btn-row">
         <button class="btn-print" onclick="setTimeout(() => printDoc(), 100)">🖨️ طباعة القرار</button>
-        <button class="btn-clear" onclick="clearAll()"><i class="fa-solid fa-trash-can" style="margin-left: 5px;"></i>مسح الكل &nbsp; &nbsp;{ F9 }</button>
+        <button class="btn-clear" onclick="clearAllFromMouse()"><i class="fa-solid fa-trash-can" style="margin-left: 5px;"></i>مسح الكل &nbsp; &nbsp;{ F9 }</button>
     </div>
     <span class="developer-credit">Developed by Ibrahem Ahmed | v1.4.1</span>
 </div>
@@ -3010,7 +3269,10 @@ function checkMinorFromNationalId(input) {
     // تجنب تكرار نفس التنبيه لنفس الرقم القومي أثناء الكتابة
     if (age < 18 && _lastMinorAlertId !== val) {
         _lastMinorAlertId = val;
-        alert("المتهم حدث / عمر المتهم اقل من 18 سنه");
+        showCustomAlert("المتهم حدث / عمر المتهم اقل من 18 سنه", {
+            title: 'تنبيه',
+            type: 'error'
+        });
     } else if (age >= 18) {
         _lastMinorAlertId = "";
     }
@@ -4230,9 +4492,14 @@ function saveMahdarData() {
     };
     const key = 'mahdar_' + caseNum + '_' + year + '_' + dept;
     localStorage.setItem(key, JSON.stringify(data));
-    // أيضاً نحدّث فهرس المحاضر المحفوظة
+    // أيضاً نحدّث فهرس المحاضر المحفوظة — ننقل المفتاح دائماً لآخر الفهرس
+    // (سواء كان جديداً أو محضراً موجوداً يُحفظ من جديد) حتى يظهر في أعلى القائمة
+    // بحسب آخر تحديث فعلي، وليس فقط بحسب أول مرة اتسجل فيها.
     let index = JSON.parse(localStorage.getItem('mahdar_index') || '[]');
-    if (!index.includes(key)) { index.push(key); localStorage.setItem('mahdar_index', JSON.stringify(index)); }
+    const existingPos = index.indexOf(key);
+    if (existingPos !== -1) index.splice(existingPos, 1);
+    index.push(key);
+    localStorage.setItem('mahdar_index', JSON.stringify(index));
 
 loadArchiveToSidebar();
 }
@@ -4243,7 +4510,10 @@ loadArchiveToSidebar();
 
 function printDoc() {
     if (currentDecision === -1) {
-        alert('الرجاء اختيار القرار المناسب من القائمة الجانبية قبل الطباعة');
+        showCustomAlert('الرجاء اختيار القرار المناسب من القائمة الجانبية قبل الطباعة', {
+            title: 'لم تقم باختيار القيد والوصف المناسب',
+            type: 'error'
+        });
         return;
     }
 
@@ -4254,29 +4524,40 @@ function printDoc() {
     const deptSel = document.getElementById('input-dept-select');
     const dept    = deptSel ? (deptSel.value === 'أخرى' ? get('input-dept-other').trim() : deptSel.value) : '';
 
+    const continueDecisionPrint = () => {
+        updateAll();
+        saveMahdarData(); // ← حفظ البيانات قبل الطباعة
+
+        // ضمان تحميل الخلفية المائية (logo.png) قبل فتح نافذة الطباعة
+        // المتصفح لا يحمّل background-image للعناصر المخفية (display:none)
+        // فنحمّلها يدوياً ونطبع فقط بعد اكتمال التحميل
+        const _logoLoader = new Image();
+        let _didPrint = false;
+        const _executePrint = () => { if (!_didPrint) { _didPrint = true; window.print(); } };
+        _logoLoader.onload  = _executePrint;
+        _logoLoader.onerror = _executePrint; // اطبع حتى لو لم يوجد الملف
+        _logoLoader.src = 'logo.png';
+        if (_logoLoader.complete) _executePrint();
+    };
+
     if (caseNum && year && dept) {
         const key = 'mahdar_' + caseNum + '_' + year + '_' + dept;
         if (localStorage.getItem(key)) {
-            const proceed = confirm('⚠️ يوجد محضر محفوظ من قبل بنفس الرقم (' + caseNum + ' / ' + year + ' / ' + dept + ').\n\n اضغط  " ok " اذا كنت تريد الحفظ فوقه ومتابعة الطباعة\n\nاضغط " إلغاء " إذا كان يجب تعديل رقم المحضر أولاً');
-            if (!proceed) {
-                return; // إيقاف الطباعة والحفظ لحين تعديل رقم المحضر
-            }
+            showCustomConfirm(
+                'يوجد محضر محفوظ من قبل بنفس الرقم (' + caseNum + ' / ' + year + ' / ' + dept + ').\n\nهل تريد الحفظ فوقه ومتابعة الطباعة؟',
+                {
+                    title: 'محضر محفوظ مسبقًا',
+                    confirmText: 'الحفظ فوقه والمتابعة',
+                    cancelText: 'إلغاء',
+                    type: 'danger',
+                    onConfirm: continueDecisionPrint
+                }
+            );
+            return;
         }
     }
 
-    updateAll();
-    saveMahdarData(); // ← حفظ البيانات قبل الطباعة
-
-    // ضمان تحميل الخلفية المائية (logo.png) قبل فتح نافذة الطباعة
-    // المتصفح لا يحمّل background-image للعناصر المخفية (display:none)
-    // فنحمّلها يدوياً ونطبع فقط بعد اكتمال التحميل
-    const _logoLoader = new Image();
-    let _didPrint = false;
-    const _executePrint = () => { if (!_didPrint) { _didPrint = true; window.print(); } };
-    _logoLoader.onload  = _executePrint;
-    _logoLoader.onerror = _executePrint; // اطبع حتى لو لم يوجد الملف
-    _logoLoader.src = 'logo.png';
-    if (_logoLoader.complete) _executePrint();
+    continueDecisionPrint();
 }
 
 
@@ -4423,7 +4704,17 @@ function showClearToast() {
     }, 2000);
 }
 
-function clearAll() {
+function clearAllFromMouse() {
+    showCustomConfirm('سيتم مسح كافة البيانات المدخلة من النموذج. هل تريد المتابعة؟', {
+        title: 'مسح جميع البيانات',
+        type: 'danger',
+        confirmText: 'مسح البيانات',
+        cancelText: 'إلغاء',
+        onConfirm: () => clearAll()
+    });
+}
+
+function clearAll(suppressToast) {
     const dateEl = document.getElementById('input-date');
     const savedDate = dateEl ? dateEl.value : '';
 
@@ -4466,7 +4757,7 @@ function clearAll() {
         }
         
         if (currentDecision === 4) talabUpdateFields();
-        showClearToast();
+        if (!suppressToast) showClearToast();
     }
 
 document.addEventListener('keydown', function(e) {
@@ -5014,6 +5305,78 @@ function loadArchiveToSidebar() {
 function loadRecordToWorkspace(key) {
     const raw = localStorage.getItem(key);
     if (!raw) return;
+    confirmAndResetBeforeImport(function() {
+        applyRecordToWorkspace(key, raw);
+    });
+}
+
+// ── فحص: هل يوجد بيانات فعلية مدخلة حالياً في النموذج؟ ──
+// تُستخدم قبل استيراد محضر من القائمة المحفوظة، لتقرير ما إذا كان يجب
+// تحذير المستخدم قبل الكتابة فوق البيانات الحالية.
+function formHasMeaningfulData() {
+    const name    = (document.getElementById('input-name')    || {}).value || '';
+    const caseNum = (document.getElementById('input-caseNum') || {}).value || '';
+    if (name.trim() || caseNum.trim()) return true;
+    if (Array.isArray(violItems) && violItems.length > 0) return true;
+    return false;
+}
+
+// ── بناء نص وصفي لبيانات المحضر الحالية بالنموذج (رقم / سنة / قسم) لعرضه في رسالة التحذير ──
+function getCurrentRecordDescription() {
+    const caseNum = ((document.getElementById('input-caseNum') || {}).value || '').trim();
+    const year    = ((document.getElementById('input-year')    || {}).value || '').trim();
+    const deptSel = document.getElementById('input-dept-select');
+    const dept    = deptSel
+        ? (deptSel.value === 'أخرى'
+            ? ((document.getElementById('input-dept-other') || {}).value || '').trim()
+            : deptSel.value.trim())
+        : '';
+    const parts = [caseNum, year, dept].filter(Boolean);
+    return parts.length ? parts.join(' / ') : '';
+}
+
+// ── تحذير + تصفير كامل قبل استيراد محضر جديد فوق بيانات موجودة ──
+// continueAction: الدالة التي تنفّذ الاستيراد الفعلي بعد التصفير
+// يستخدم نافذة تنبيه مخصصة بدلاً من confirm() الافتراضية بالمتصفح
+let pendingImportConfirmAction = null;
+
+function confirmAndResetBeforeImport(continueAction) {
+    const proceed = () => {
+        clearAll(true); // مسح صامت بدون توست "تم المسح" (الاستيراد نفسه سيُظهر رسالة نجاح خاصة به)
+        continueAction();
+    };
+    if (formHasMeaningfulData()) {
+        pendingImportConfirmAction = proceed;
+        const recordDesc = getCurrentRecordDescription();
+        const message = document.getElementById('import-confirm-modal-message');
+        if (message) {
+            message.textContent = recordDesc
+                ? `بيانات المحضر رقم ${recordDesc} موجودة حالياً في النموذج. سيتم حذفها واستيراد بيانات المحضر الجديد. هل تريد المتابعة؟`
+                : 'توجد بيانات مدخلة حالياً في النموذج. سيتم حذف هذه البيانات بالكامل عند استيراد المحضر الجديد. هل تريد المتابعة؟';
+        }
+        const overlay = document.getElementById('import-confirm-modal-overlay');
+        if (overlay) overlay.classList.add('show');
+        enableImportConfirmKeyboard();
+        return;
+    }
+    proceed();
+}
+
+function closeImportConfirmModal() {
+    const overlay = document.getElementById('import-confirm-modal-overlay');
+    if (overlay) overlay.classList.remove('show');
+    disableImportConfirmKeyboard();
+    pendingImportConfirmAction = null;
+}
+
+function proceedWithImportConfirm() {
+    const action = pendingImportConfirmAction;
+    closeImportConfirmModal();
+    if (typeof action === 'function') action();
+}
+
+// ── التطبيق الفعلي لبيانات المحضر المختار على النموذج (بعد التصفير) ──
+function applyRecordToWorkspace(key, raw) {
     try {
         const d = JSON.parse(raw);
         const set = (id, val) => { const el = document.getElementById(id); if (el && val != null) el.value = val; };
@@ -6323,7 +6686,197 @@ function calculateTotalFine() {
 })();
 
 
+    // ── نافذة التنبيه المخصصة ──
+    let infoAlertKeyHandler = null;
+
+    function showCustomAlert(message, options) {
+        options = options || {};
+        const titleEl = document.getElementById('info-alert-modal-title');
+        const msgEl = document.getElementById('info-alert-modal-message');
+        const headerEl = document.getElementById('info-alert-modal-header');
+        const iconEl = headerEl ? headerEl.querySelector('i') : null;
+        if (titleEl) titleEl.textContent = options.title || 'تنبيه';
+        if (msgEl) msgEl.textContent = message || '';
+        if (headerEl) headerEl.classList.toggle('is-error', options.type === 'error');
+        if (iconEl) iconEl.className = options.type === 'error'
+            ? 'fa-solid fa-circle-exclamation'
+            : 'fa-solid fa-circle-check';
+
+        const overlay = document.getElementById('info-alert-modal-overlay');
+        if (overlay) overlay.classList.add('show');
+        const okButton = document.getElementById('info-alert-ok-btn');
+        if (infoAlertKeyHandler) document.removeEventListener('keydown', infoAlertKeyHandler, true);
+        infoAlertKeyHandler = function(e) {
+            const activeOverlay = document.getElementById('info-alert-modal-overlay');
+            if (!activeOverlay || !activeOverlay.classList.contains('show')) return;
+            if (e.key === 'Enter' || e.key === ' ' || e.code === 'Space') {
+                e.preventDefault();
+                e.stopPropagation();
+                closeInfoAlertModal();
+            }
+        };
+        document.addEventListener('keydown', infoAlertKeyHandler, true);
+        if (okButton) requestAnimationFrame(() => okButton.focus());
+    }
+
+    function closeInfoAlertModal() {
+        const overlay = document.getElementById('info-alert-modal-overlay');
+        if (overlay) overlay.classList.remove('show');
+        if (infoAlertKeyHandler) {
+            document.removeEventListener('keydown', infoAlertKeyHandler, true);
+            infoAlertKeyHandler = null;
+        }
+    }
+
+    // ── اختصارات نافذة استيراد محضر جديد ──
+    let importConfirmKeyHandler = null;
+    function enableImportConfirmKeyboard() {
+        const overlay = document.getElementById('import-confirm-modal-overlay');
+        const proceedBtn = document.getElementById('import-confirm-proceed-btn');
+        if (importConfirmKeyHandler) document.removeEventListener('keydown', importConfirmKeyHandler, true);
+        importConfirmKeyHandler = function(e) {
+            if (!overlay || !overlay.classList.contains('show')) return;
+            if (e.key === 'Escape') {
+                e.preventDefault();
+                e.stopPropagation();
+                closeImportConfirmModal();
+            } else if (e.key === 'Enter' || e.key === ' ' || e.code === 'Space') {
+                e.preventDefault();
+                e.stopPropagation();
+                proceedWithImportConfirm();
+            }
+        };
+        document.addEventListener('keydown', importConfirmKeyHandler, true);
+        if (proceedBtn) requestAnimationFrame(() => proceedBtn.focus());
+    }
+
+    function disableImportConfirmKeyboard() {
+        if (importConfirmKeyHandler) {
+            document.removeEventListener('keydown', importConfirmKeyHandler, true);
+            importConfirmKeyHandler = null;
+        }
+    }
+
+    // ── نافذة التأكيد الثنائية العامة ──
+    function showKeyboardPressFeedback(button) {
+        if (!button) return;
+        if (button._keyboardPressTimer) clearTimeout(button._keyboardPressTimer);
+        button.classList.remove('keyboard-pressed');
+        void button.offsetWidth;
+        button.classList.add('keyboard-pressed');
+        button._keyboardPressTimer = setTimeout(() => {
+            button.classList.remove('keyboard-pressed');
+            button._keyboardPressTimer = null;
+        }, 180);
+    }
+
+    let pendingConfirmAction = null;
+    let confirmActionKeyHandler = null;
+
+    function showCustomConfirm(message, options) {
+        options = options || {};
+        const titleEl = document.getElementById('confirm-action-modal-title');
+        const msgEl = document.getElementById('confirm-action-modal-message');
+        const confirmBtn = document.getElementById('confirm-action-confirm-btn');
+        const cancelBtn = document.getElementById('confirm-action-cancel-btn');
+        if (titleEl) titleEl.textContent = options.title || 'تأكيد العملية';
+        if (msgEl) msgEl.textContent = message || '';
+        if (confirmBtn) confirmBtn.textContent = options.confirmText || 'تأكيد';
+        if (cancelBtn) cancelBtn.textContent = options.cancelText || 'إلغاء';
+        pendingConfirmAction = typeof options.onConfirm === 'function' ? options.onConfirm : null;
+
+        const overlay = document.getElementById('confirm-action-modal-overlay');
+        if (overlay) overlay.classList.add('show');
+        if (confirmActionKeyHandler) document.removeEventListener('keydown', confirmActionKeyHandler, true);
+        confirmActionKeyHandler = function(e) {
+            const activeOverlay = document.getElementById('confirm-action-modal-overlay');
+            if (!activeOverlay || !activeOverlay.classList.contains('show')) return;
+            if (e.key === 'Escape') {
+                e.preventDefault();
+                e.stopPropagation();
+                closeCustomConfirm(false);
+            } else if (e.key === 'Enter' || e.key === ' ' || e.code === 'Space') {
+                e.preventDefault();
+                e.stopPropagation();
+                showKeyboardPressFeedback(confirmBtn);
+                closeCustomConfirm(true);
+            }
+        };
+        document.addEventListener('keydown', confirmActionKeyHandler, true);
+        if (confirmBtn) requestAnimationFrame(() => confirmBtn.focus());
+    }
+
+    function closeCustomConfirm(confirmed) {
+        const overlay = document.getElementById('confirm-action-modal-overlay');
+        if (overlay) overlay.classList.remove('show');
+        if (confirmActionKeyHandler) {
+            document.removeEventListener('keydown', confirmActionKeyHandler, true);
+            confirmActionKeyHandler = null;
+        }
+        const action = pendingConfirmAction;
+        pendingConfirmAction = null;
+        if (confirmed && typeof action === 'function') action();
+    }
+
+    // الضغط على خلفية أي نافذة من النوافذ الثلاث يعادل الإلغاء أو الإغلاق الآمن.
+    // لا يحدث شيء عند الضغط داخل محتوى النافذة أو على أزرارها.
+    document.addEventListener('click', function(e) {
+        const infoOverlay = document.getElementById('info-alert-modal-overlay');
+        if (infoOverlay && infoOverlay.classList.contains('show') && e.target === infoOverlay) {
+            closeInfoAlertModal();
+            return;
+        }
+
+        const confirmOverlay = document.getElementById('confirm-action-modal-overlay');
+        if (confirmOverlay && confirmOverlay.classList.contains('show') && e.target === confirmOverlay) {
+            closeCustomConfirm(false);
+            return;
+        }
+
+        const importOverlay = document.getElementById('import-confirm-modal-overlay');
+        if (importOverlay && importOverlay.classList.contains('show') && e.target === importOverlay) {
+            closeImportConfirmModal();
+        }
+    }, true);
 </script>
+
+<div id="confirm-action-modal-overlay" role="dialog" aria-modal="true" aria-labelledby="confirm-action-modal-title">
+    <div id="confirm-action-modal">
+        <div id="confirm-action-modal-header">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+            <h3 id="confirm-action-modal-title">تأكيد العملية</h3>
+        </div>
+        <p id="confirm-action-modal-message"></p>
+        <div id="confirm-action-modal-actions">
+            <button id="confirm-action-cancel-btn" type="button" onclick="closeCustomConfirm(false)">إلغاء</button>
+            <button id="confirm-action-confirm-btn" type="button" onclick="closeCustomConfirm(true)">تأكيد</button>
+        </div>
+    </div>
+</div>
+
+<div id="info-alert-modal-overlay" role="dialog" aria-modal="true" aria-labelledby="info-alert-modal-title">
+    <div id="info-alert-modal">
+        <div id="info-alert-modal-header">
+            <i class="fa-solid fa-circle-exclamation"></i>
+            <h3 id="info-alert-modal-title">تنبيه</h3>
+        </div>
+        <p id="info-alert-modal-message"></p>
+        <div id="info-alert-modal-actions">
+            <button id="info-alert-ok-btn" type="button" onclick="closeInfoAlertModal()">حسنًا</button>
+        </div>
+    </div>
+</div>
+
+<div id="import-confirm-modal-overlay" role="dialog" aria-modal="true" aria-labelledby="import-confirm-modal-title">
+    <div id="import-confirm-modal">
+        <h3 id="import-confirm-modal-title">استيراد محضر جديد</h3>
+        <p id="import-confirm-modal-message">توجد بيانات مدخلة حالياً في النموذج. سيتم حذف هذه البيانات بالكامل عند استيراد المحضر الجديد. هل تريد المتابعة؟</p>
+        <div id="import-confirm-modal-actions">
+            <button id="import-confirm-cancel-btn" onclick="closeImportConfirmModal()">إلغاء</button>
+            <button id="import-confirm-proceed-btn" onclick="proceedWithImportConfirm()">مسح واستيراد</button>
+        </div>
+    </div>
+</div>
 
 </body>
 </html>

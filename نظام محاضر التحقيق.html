@@ -124,57 +124,113 @@ body button,
         #report-save-toast.show {
             bottom: 78px;
         }
+
+        /* إشعار حفظ إعدادات الواجهة — يختفي تلقائيًا */
+        #settings-save-toast {
+            position: fixed;
+            bottom: -70px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, #047857, #10b981);
+            color: #fff;
+            padding: 10px 24px;
+            border-radius: 30px;
+            font-size: 14px;
+            font-weight: bold;
+            font-family: 'Cairo', 'Segoe UI', Arial, sans-serif;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 20px rgba(4, 120, 87, 0.35);
+            border: 1px solid rgba(255,255,255,0.25);
+            z-index: 99999;
+            transition: bottom 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+            white-space: nowrap;
+        }
+        #settings-save-toast.show {
+            bottom: 30px;
+        }
         #unsaved-report-modal-overlay {
             position: fixed;
             inset: 0;
-            display: none;
+            display: flex;
             align-items: center;
             justify-content: center;
             background: rgba(15, 23, 42, 0.48);
             z-index: 100000;
             padding: 18px;
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+            transition: opacity 0.25s ease, visibility 0s linear 0.25s;
         }
         #unsaved-report-modal-overlay.show {
-            display: flex;
+            opacity: 1;
+            visibility: visible;
+            pointer-events: auto;
+            transition: opacity 0.25s ease, visibility 0s linear 0s;
         }
         #unsaved-report-modal {
-            width: min(550px, 100%);
+            width: min(700px, 100%);
             background: #fff;
             color: #1e293b;
             border: 1px solid #cbd5e1;
             border-radius: 14px;
-            box-shadow: 0 18px 60px rgba(15, 23, 42, 0.3);
-            padding: 22px;
+            transform: scale(0.94) translateY(10px);
+            opacity: 0;
+            transition: transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.22s ease;
+            box-shadow: 0 22px 80px rgba(15, 23, 42, 0.38);
+            padding: 32px 36px 30px;
             text-align: right;
             direction: rtl;
             font-family: 'Cairo', 'Segoe UI', Arial, sans-serif;
         }
+        #unsaved-report-modal-overlay.show #unsaved-report-modal {
+            transform: scale(1) translateY(0);
+            opacity: 1;
+        }
+        #unsaved-report-warning-icon {
+            width: 72px;
+            height: 72px;
+            margin: 0 auto 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: #fff7d6;
+            border: 3px solid #f59e0b;
+            color: #c2410c;
+            font-size: 38px;
+            box-shadow: 0 5px 16px rgba(245, 158, 11, 0.25);
+        }
         #unsaved-report-modal h3 {
-            margin: 0 0 10px;
-            color: #1e3a5f;
-            font-size: 18px;
+            margin: 0 0 14px;
+            color: #9a3412;
+            font-size: 26px;
             font-weight: bold;
+            text-align: center;
         }
         #unsaved-report-modal p {
             margin: 0;
-            line-height: 1.8;
-            font-size: 17px;
+            line-height: 1.9;
+            font-size: 21px;
             text-align: center;
+            font-weight: 600;
         }
         #unsaved-report-modal-actions {
             display: flex;
-            gap: 9px;
-            justify-content: flex-start;
+            gap: 12px;
+            justify-content: center;
             flex-wrap: wrap;
-            margin-top: 20px;
+            margin-top: 28px;
         }
         #unsaved-report-modal-actions button {
-            min-width: 92px;
+            min-width: 128px;
             border: 0;
-            border-radius: 7px;
-            padding: 9px 16px;
+            border-radius: 9px;
+            padding: 12px 20px;
             font-family: inherit;
-            font-size: 14px;
+            font-size: 16px;
             font-weight: bold;
             cursor: pointer;
         }
@@ -202,6 +258,277 @@ body button,
             opacity: 0.65;
             cursor: wait;
         }
+        #import-confirm-modal-overlay {
+            position: fixed;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(15, 23, 42, 0.48);
+            z-index: 100000;
+            padding: 18px;
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+            transition: opacity 0.25s ease, visibility 0s linear 0.25s;
+        }
+        #import-confirm-modal-overlay.show {
+            opacity: 1;
+            visibility: visible;
+            pointer-events: auto;
+            transition: opacity 0.25s ease, visibility 0s linear 0s;
+        }
+        #import-confirm-modal {
+            width: min(500px, 100%);
+            background: #fff;
+            color: #1e293b;
+            border: 1px solid #cbd5e1;
+            border-radius: 14px;
+            box-shadow: 0 18px 60px rgba(15, 23, 42, 0.3);
+            padding: 22px;
+            text-align: right;
+            direction: rtl;
+            font-family: 'Cairo', 'Segoe UI', Arial, sans-serif;
+            transform: scale(0.94) translateY(10px);
+            opacity: 0;
+            transition: transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.22s ease;
+        }
+        #import-confirm-modal-overlay.show #import-confirm-modal {
+            transform: scale(1) translateY(0);
+            opacity: 1;
+        }
+        #import-confirm-modal h3 {
+            margin: 0 0 10px;
+            color: #1e3a5f;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        #import-confirm-modal p {
+            margin: 0;
+            line-height: 1.8;
+            font-size: 16px;
+            text-align: center;
+        }
+        #import-confirm-modal-actions {
+            display: flex;
+            gap: 9px;
+            justify-content: flex-start;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+        #import-confirm-modal-actions button {
+            min-width: 92px;
+            border: 0;
+            border-radius: 7px;
+            padding: 9px 16px;
+            font-family: inherit;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        #import-confirm-proceed-btn {
+            background: #10b981;
+            color: #fff;
+        }
+        #import-confirm-proceed-btn:hover { background: #059669; }
+        #import-confirm-proceed-btn.danger {
+            background: #ef4444;
+        }
+        #import-confirm-proceed-btn.danger:hover {
+            background: #dc2626;
+        }
+        #import-confirm-cancel-btn {
+            background: #e5e7eb;
+            color: #374151;
+        }
+        #import-confirm-cancel-btn:hover { background: #d1d5db; }
+        /* ── نافذة تنبيه معلوماتية مخصصة (بديل alert() الافتراضي بالمتصفح) ── */
+        #info-alert-modal-overlay {
+            position: fixed;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(15, 23, 42, 0.48);
+            z-index: 100000;
+            padding: 18px;
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+            transition: opacity 0.25s ease, visibility 0s linear 0.25s;
+        }
+        #info-alert-modal-overlay.show {
+            opacity: 1;
+            visibility: visible;
+            pointer-events: auto;
+            transition: opacity 0.25s ease, visibility 0s linear 0s;
+        }
+        #info-alert-modal {
+            width: min(440px, 100%);
+            background: #fff;
+            color: #1e293b;
+            border: 1px solid #cbd5e1;
+            border-radius: 14px;
+            box-shadow: 0 18px 60px rgba(15, 23, 42, 0.3);
+            padding: 22px;
+            text-align: right;
+            direction: rtl;
+            font-family: 'Cairo', 'Segoe UI', Arial, sans-serif;
+            transform: scale(0.94) translateY(10px);
+            opacity: 0;
+            transition: transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.22s ease;
+        }
+        #info-alert-modal-overlay.show #info-alert-modal {
+            transform: scale(1) translateY(0);
+            opacity: 1;
+        }
+        #info-alert-modal-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 0 0 10px;
+        }
+        #info-alert-modal-header i {
+            color: #10b981;
+            font-size: 20px;
+        }
+        #info-alert-modal-header.is-error i {
+            color: #ef4444;
+        }
+        #info-alert-modal h3 {
+            margin: 0;
+            color: #1e3a5f;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        #info-alert-modal p {
+            margin: 0;
+            line-height: 1.8;
+            font-size: 16px;
+            text-align: center;
+            white-space: pre-line;
+        }
+        #info-alert-modal p.is-list {
+            max-height: 46vh;
+            overflow-y: auto;
+            padding: 0 6px;
+            text-align: right;
+        }
+        #info-alert-modal-actions {
+            display: flex;
+            justify-content: flex-start;
+            margin-top: 20px;
+        }
+        #info-alert-ok-btn {
+            min-width: 92px;
+            border: 0;
+            border-radius: 7px;
+            padding: 9px 16px;
+            font-family: inherit;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            background: #1e3a5f;
+            color: #fff;
+        }
+        #info-alert-ok-btn:hover { background: #16324f; }
+
+        /* نافذة التأكيد الثنائية العامة */
+        #confirm-action-modal-overlay {
+            position: fixed;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(15, 23, 42, 0.48);
+            z-index: 100001;
+            padding: 18px;
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+            transition: opacity 0.25s ease, visibility 0s linear 0.25s;
+        }
+        #confirm-action-modal-overlay.show {
+            opacity: 1;
+            visibility: visible;
+            pointer-events: auto;
+            transition: opacity 0.25s ease, visibility 0s linear 0s;
+        }
+        #confirm-action-modal {
+            width: min(500px, 100%);
+            background: #fff;
+            color: #1e293b;
+            border: 1px solid #cbd5e1;
+            border-radius: 14px;
+            box-shadow: 0 18px 60px rgba(15, 23, 42, 0.3);
+            padding: 22px;
+            text-align: right;
+            direction: rtl;
+            font-family: 'Cairo', 'Segoe UI', Arial, sans-serif;
+            transform: scale(0.94) translateY(10px);
+            opacity: 0;
+            transition: transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.22s ease;
+        }
+        #confirm-action-modal-overlay.show #confirm-action-modal {
+            transform: scale(1) translateY(0);
+            opacity: 1;
+        }
+        #confirm-action-modal-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 0 0 10px;
+        }
+        #confirm-action-modal-header i {
+            color: #f59e0b;
+            font-size: 20px;
+        }
+        #confirm-action-modal-header.is-danger i { color: #ef4444; }
+        #confirm-action-modal h3 {
+            margin: 0;
+            color: #1e3a5f;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        #confirm-action-modal p {
+            margin: 0;
+            line-height: 1.8;
+            font-size: 16px;
+            text-align: center;
+            white-space: pre-line;
+        }
+        #confirm-action-modal-actions {
+            display: flex;
+            gap: 9px;
+            justify-content: flex-start;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+        #confirm-action-modal-actions button {
+            min-width: 112px;
+            border: 0;
+            border-radius: 7px;
+            padding: 9px 16px;
+            font-family: inherit;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        #confirm-action-confirm-btn {
+            background: #b91c1c;
+            color: #fff;
+        }
+        #confirm-action-confirm-btn:hover { background: #991b1b; }
+        #confirm-action-cancel-btn {
+            background: #e5e7eb;
+            color: #374151;
+        }
+        #confirm-action-cancel-btn:hover { background: #d1d5db; }
+        #confirm-action-modal-actions button:focus-visible {
+            outline: 3px solid rgba(37, 99, 235, 0.35);
+            outline-offset: 2px;
+        }
+
         @keyframes save-file-pulse {
             0%, 100% {
                 background-color: #10b981;
@@ -351,6 +678,10 @@ box-sizing: border-box;
         .form-grid-wide { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 8px; }
         .field { display: flex; flex-direction: column; }
 
+        /* ترتيب بصري للواجهة فقط؛ لا يعمل أثناء الطباعة ولا يغيّر ترتيب DOM */
+        @media screen {
+            #section_objection_extra .objection-confiscation-field { order: 99; }
+        }
 
               /* التحكم في اسماء الحقولً */
         label { font-size: 15px; font-weight: 900; margin-bottom: 4px; color: #1e3a8a; letter-spacing: 0.3px; border-bottom: 2px solid #93c5fd; padding-bottom: 1px; display: inline-block; }
@@ -472,6 +803,13 @@ box-sizing: border-box;
             box-shadow: none;
             filter: none;
         }
+        /* أثر الضغط من لوحة المفاتيح — يحاكي ضغط زر الماوس لفترة قصيرة */
+        .keyboard-pressed {
+            transform: translateY(0) scale(0.96) !important;
+            box-shadow: inset 0 3px 6px rgba(0,0,0,0.25), 0 0 0 3px rgba(255,255,255,0.72) !important;
+            filter: brightness(0.9) !important;
+        }
+
         /* زر إضافة القرار اليدوي */
         .btn-add-manual-decision {
             background-color: #0891b2;
@@ -1693,7 +2031,7 @@ box-sizing: border-box;
                     <option value="اعترف">اعترف</option>
                 </select>
             </div>
-            <div class="field">
+            <div class="field objection-confiscation-field">
                 <label>المتحفظ عليه</label>
                 <select id="confiscated_type" class="persist" onchange="updateConfiscatedFields(); saveData()">
                     <option value="">-- اختر --</option>
@@ -1703,11 +2041,11 @@ box-sizing: border-box;
                     <option value="other">أخرى</option>
                 </select>
             </div>
-            <div class="field" id="confiscated_other_field" style="display:none;">
+            <div class="field objection-confiscation-field" id="confiscated_other_field" style="display:none;">
                 <label>تحديد المتحفظ عليه</label>
                 <input type="text" id="confiscated_other_text" class="persist" placeholder="حدد المتحفظ عليه" oninput="saveData()">
             </div>
-            <div class="field" id="driving_status_field" style="display:none;">
+            <div class="field objection-confiscation-field" id="driving_status_field" style="display:none;">
                 <label>حالة رخصة القيادة</label>
                 <select id="driving_license_status" class="persist" onchange="saveData()">
                     <option value="">-- اختر --</option>
@@ -1716,14 +2054,14 @@ box-sizing: border-box;
                     <option value="أخرى">أخرى</option>
                 </select>
             </div>
-            <div class="field" id="driving_date_field" style="display:none;">
+            <div class="field objection-confiscation-field" id="driving_date_field" style="display:none;">
                 <label>تاريخ رخصة القيادة</label>
                 <div class="date-input-wrapper">
                     <span class="calendar-icon" onclick="showArabicCalendar('driving_license_date')">&#128197;</span>
                     <input type="text" id="driving_license_date" class="persist" value="" placeholder="مثال: ٢٠٢٦/١/١٥" oninput="convertToArabicNumerals(this); validateDateInput(this); saveData()">
                 </div>
             </div>
-            <div class="field" id="vehicle_status_field" style="display:none;">
+            <div class="field objection-confiscation-field" id="vehicle_status_field" style="display:none;">
                 <label>حالة رخصة التسيير</label>
                 <select id="vehicle_license_status" class="persist" onchange="saveData()">
                     <option value="">-- اختر --</option>
@@ -1732,14 +2070,14 @@ box-sizing: border-box;
                     <option value="أخرى">أخرى</option>
                 </select>
             </div>
-            <div class="field" id="vehicle_date_field" style="display:none;">
+            <div class="field objection-confiscation-field" id="vehicle_date_field" style="display:none;">
                 <label>تاريخ رخصة التسيير</label>
                 <div class="date-input-wrapper">
                     <span class="calendar-icon" onclick="showArabicCalendar('vehicle_license_date')">&#128197;</span>
                     <input type="text" id="vehicle_license_date" class="persist" value="" placeholder="مثال: ٢٠٢٦/١/١٥" oninput="convertToArabicNumerals(this); validateDateInput(this); saveData()">
                 </div>
             </div>
-            <div class="field" id="vehicle_owner_field" style="display:none;">
+            <div class="field objection-confiscation-field" id="vehicle_owner_field" style="display:none;">
                 <label>الاسم بالرخصه</label>
                 <input type="text" id="license_owner" class="persist" value="" oninput="saveData()">
             </div>
@@ -2100,7 +2438,7 @@ box-sizing: border-box;
 
         </div>
         <div id="preamble-modal-footer">
-            <button class="pm-btn-reset" onclick="resetPreambleToDefault()"><i class="fa-solid fa-rotate-right"></i> استعادة البيانات الافتراضية</button>
+            <button class="pm-btn-reset" onclick="resetPreambleToDefault()"><i class="fa-solid fa-rotate-right"></i> استعادة النص الافتراضي</button>
             <button class="pm-btn-cancel" onclick="closePreambleModal()"><i class="fa-solid fa-xmark"></i> إلغاء</button>
             <button class="pm-btn-save" onclick="savePreamble()"><i class="fa-solid fa-check"></i> حفظ التعديلات</button>
         </div>
@@ -2118,12 +2456,12 @@ box-sizing: border-box;
             <div id="detention-order-notice">
                 <strong>&#9998; ملاحظة:</strong> يمكنك تعديل نص أمر الحبس بحرية قبل الطباعة.
                 التعديلات تُحفظ مع المحضر عند حفظه كملف، وتُستعاد عند فتح الملف.
-                <br>اضغط <strong>"البيانات الافتراضية"</strong> لإعادة توليد النص من بيانات المتهم المدخلة.
+                <br>اضغط <strong>"استعادة النص الافتراضي"</strong> لإعادة توليد النص من بيانات المتهم المدخلة.
             </div>
             <textarea id="detention-order-textarea" placeholder="سيُملأ تلقائياً من بيانات المتهم عند فتح النافذة..."></textarea>
         </div>
         <div id="detention-modal-footer">
-            <button class="det-btn-refresh" onclick="refreshDetentionOrderText()"><i class="fa-solid fa-rotate-right"></i> استعادة البيانات الافتراضية</button>
+            <button class="det-btn-refresh" onclick="refreshDetentionOrderText()"><i class="fa-solid fa-rotate-right"></i> استعادة النص الافتراضي</button>
             <button class="det-btn-cancel"  onclick="closeDetentionOrderModal()"><i class="fa-solid fa-xmark"></i> إلغاء</button>
             <button class="det-btn-save"    onclick="saveDetentionOrder()"><i class="fa-solid fa-check"></i> حفظ التعديلات</button>
             <button class="det-btn-print"   onclick="printDetentionOrder()"><i class="fa-solid fa-print"></i> طباعة الأمر</button>
@@ -2145,12 +2483,12 @@ box-sizing: border-box;
             <div id="forensic-order-notice">
                 <strong>&#9998; ملاحظة:</strong> يمكنك تعديل نص المذكرة بحرية قبل الطباعة.
                 التعديلات تُحفظ مع المحضر عند حفظه كملف، وتُستعاد عند فتح الملف.
-                <br>اضغط <strong>"البيانات الافتراضية"</strong> لإعادة توليد النص من بيانات المتهم المدخلة.
+                <br>اضغط <strong>"استعادة النص الافتراضي"</strong> لإعادة توليد النص من بيانات المتهم المدخلة.
             </div>
             <textarea id="forensic-order-textarea" placeholder="سيُملأ تلقائياً من بيانات المتهم عند فتح النافذة..."></textarea>
         </div>
         <div id="forensic-modal-footer">
-            <button class="for-btn-refresh" onclick="refreshForensicMemoText()"><i class="fa-solid fa-rotate-right"></i> استعادة البيانات الافتراضية</button>
+            <button class="for-btn-refresh" onclick="refreshForensicMemoText()"><i class="fa-solid fa-rotate-right"></i> استعادة النص الافتراضي</button>
             <button class="for-btn-cancel"  onclick="closeForensicMemoModal()"><i class="fa-solid fa-xmark"></i> إلغاء</button>
             <button class="for-btn-save"    onclick="saveForensicMemo()"><i class="fa-solid fa-check"></i> حفظ التعديلات</button>
             <button class="for-btn-print"   onclick="printForensicMemo()"><i class="fa-solid fa-print"></i> طباعة المذكرة</button>
@@ -2260,10 +2598,18 @@ box-sizing: border-box;
         }
 
         // تنبيه في حال كان عمر المتهم أقل من 18 سنة (حدث)
-        if (age < 18) {
-            alert("المتهم حدث / عمر المتهم اقل من 18 سنه");
+                if (age < 18) {
+            showCustomAlert("المتهم حدث / عمر المتهم اقل من 18 سنه", {
+                title: "تنبيه",
+                type: "error",
+                onClose: function() {
+                    if (typeof saveData === "function") {
+                        saveData();
+                    }
+                }
+            });
+            return;
         }
-        
         // استدعاء حفظ البيانات إن وجدت
         if (typeof saveData === "function") {
             saveData();
@@ -2282,6 +2628,8 @@ let sidebarCloseTimeout = null;
 let sidebarPinned = false;
     // حالة محضر تمت طباعته ولم يُحفظ كملف TXT بعد
     let reportPrintedAwaitingSave = false;
+    // آخر نسخة TXT تم حفظها فعليًا للمقارنة بعد الطباعة
+    let lastSavedReportData = null;
     let reportSaveToastTimer = null;
     let pendingUnsavedReportAction = null;
 
@@ -2307,6 +2655,12 @@ let sidebarPinned = false;
     }
 
     function markReportPrintedAwaitingSave() {
+        const currentData = typeof buildReportFileData === 'function' ? buildReportFileData() : null;
+        // إذا كانت البيانات الحالية مطابقة لآخر نسخة TXT محفوظة، فلا يوجد شيء جديد لحفظه
+        if (lastSavedReportData !== null && currentData === lastSavedReportData) {
+            markReportSaved();
+            return;
+        }
         reportPrintedAwaitingSave = true;
         const saveButton = document.querySelector('.btn-save-file');
         if (saveButton) {
@@ -2316,7 +2670,11 @@ let sidebarPinned = false;
         showReportSaveToast();
     }
 
-    function markReportSaved() {
+    function markReportSaved(savedData) {
+        // لا نحدّث لقطة TXT إلا عند نجاح الحفظ الفعلي للملف
+        if (typeof savedData === 'string') {
+            lastSavedReportData = savedData;
+        }
         reportPrintedAwaitingSave = false;
         const saveButton = document.querySelector('.btn-save-file');
         if (saveButton) {
@@ -2368,7 +2726,10 @@ let sidebarPinned = false;
         } else {
             if (saveButton) saveButton.disabled = false;
             if (continueButton) continueButton.disabled = false;
-            alert('تم إلغاء الحفظ. لم يتم مسح البيانات.');
+            showCustomAlert('تم إلغاء الحفظ. لم يتم مسح البيانات.', {
+                title: 'تم إلغاء الحفظ',
+                type: 'error'
+            });
         }
     }
 
@@ -2586,10 +2947,13 @@ document.addEventListener('DOMContentLoaded', function() {
         return parts.length ? parts.join(' وكذا ') : '...';
     }
 
-   function switchMode(mode) {
+   function switchMode(mode, opts) {
+        opts = opts || {};
         const mc = document.querySelector('.main-content');
-        mc.classList.add('mode-switching');
-        setTimeout(() => mc.classList.remove('mode-switching'), 260);
+        if (!opts.skipAnimation) {
+            mc.classList.add('mode-switching');
+            setTimeout(() => mc.classList.remove('mode-switching'), 260);
+        }
         const previousMode = reportMode; // حفظ المود السابق قبل تغييره
         reportMode = mode;
         localStorage.setItem('report_mode', mode);
@@ -3135,7 +3499,10 @@ function applyFontSize(size) {
         let m = v.trim();
         if (violations.includes(m)) return false; // منع تكرار نفس البند
         if (violations.length >= 9) {
-            alert('تنبيه: لقد وصلت للحد الأقصى للمخالفات.');
+            showCustomAlert('لقد وصلت للحد الأقصى للمخالفات.', {
+                title: 'تنبيه',
+                type: 'error'
+            });
             return false;
         }
 
@@ -3157,8 +3524,9 @@ function applyFontSize(size) {
 
     // 💡 دالة الحذف (تحذف المخالفة وتحذف سؤالها التلقائي)
     function removeViolation(v) {
-        violations = violations.filter(item => item !== v);
-        questions = questions.filter(q => q.viol !== v);
+        const normalized = String(v || '').trim();
+        violations = violations.filter(item => String(item || '').trim() !== normalized);
+        questions = questions.filter(q => String(q.viol || '').trim() !== normalized);
         renderViolations();
         renderQuestions();
         saveData();
@@ -3192,8 +3560,9 @@ function applyFontSize(size) {
         const dropdown = document.getElementById('viol-select-cs-dropdown');
         if (dropdown) {
             dropdown.querySelectorAll('.custom-select-option').forEach(opt => {
-                const val = opt.dataset.value;
-                if (violations.includes(val)) opt.classList.add('already-picked');
+                const val = String(opt.dataset.value || '').trim();
+                const isPicked = violations.some(item => String(item || '').trim() === val);
+                if (isPicked) opt.classList.add('already-picked');
                 else opt.classList.remove('already-picked');
             });
         }
@@ -3719,14 +4088,57 @@ function removeQuestion(id) {
             // حفظ الحالة الفارغة
             saveData();
             markReportSaved();
-            
-            alert("تم مسح كافة البيانات بنجاح مع الإبقاء على الأسئلة الثابتة.");
+        };
+
+        // عرض رسالة النجاح المخصصة (بديل alert() الافتراضي)
+        const announceCleared = () => {
+            showCustomAlert("تم مسح كافة البيانات بنجاح مع الإبقاء على اسئلة التحقيق الثابتة.");
         };
 
         if (hasUnsavedPrintedReport()) {
-            openUnsavedReportModal('مسح البيانات', continueClear);
-        } else if (confirm("هل أنت متأكد من مسح جميع البيانات؟")) {
-            continueClear();
+            openUnsavedReportModal('مسح البيانات', () => {
+                continueClear();
+                // ننتظر اكتمال تلاشي نافذة "حفظ المحضر قبل المسح" بصرياً
+                // قبل إظهار رسالة النجاح حتى لا تتداخل الرسالتان
+                setTimeout(announceCleared, 260);
+            });
+        } else {
+            // إعادة استخدام نافذة التأكيد المخصصة مع إعدادها لمسح البيانات
+            const title = document.getElementById('import-confirm-modal-title');
+            const message = document.getElementById('import-confirm-modal-message');
+            const proceedButton = document.getElementById('import-confirm-proceed-btn');
+            const overlay = document.getElementById('import-confirm-modal-overlay');
+            if (title) title.textContent = 'مسح جميع البيانات';
+            if (message) message.textContent = 'هل أنت متأكد من مسح جميع البيانات؟';
+            if (proceedButton) {
+                proceedButton.textContent = 'مسح البيانات';
+                proceedButton.classList.add('danger');
+            }
+            pendingImportConfirmAction = () => {
+                continueClear();
+                // ننتظر اختفاء نافذة التأكيد قبل عرض الرسالة المعلوماتية
+                setTimeout(announceCleared, 260);
+            };
+            if (importConfirmKeyHandler) {
+                document.removeEventListener('keydown', importConfirmKeyHandler, true);
+            }
+            importConfirmKeyHandler = function(e) {
+                const activeOverlay = document.getElementById('import-confirm-modal-overlay');
+                if (!activeOverlay || !activeOverlay.classList.contains('show')) return;
+                if (e.key === 'Escape') {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    closeImportConfirmModal();
+                } else if (e.key === 'Enter' || e.key === ' ' || e.code === 'Space') {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    showKeyboardPressFeedback(proceedButton);
+                    proceedWithImportConfirm();
+                }
+            };
+            if (overlay) overlay.classList.add('show');
+            document.addEventListener('keydown', importConfirmKeyHandler, true);
+            if (proceedButton) requestAnimationFrame(() => proceedButton.focus());
         }
     }
 
@@ -3766,7 +4178,7 @@ function removeQuestion(id) {
         
         if (typeof saveData === 'function') saveData();
         
-        alert("تم حفظ التغييرات بنجاح.");
+        showSettingsSaveToast();
     }
 
 
@@ -4340,7 +4752,8 @@ let questionsHtml = "";
               const confiscated = getConfiscatedItems();
               const licenseText = getLicenseStatusText();
               const hasConfiscated = confiscatedTypeVal && confiscatedTypeVal !== '' && confiscatedTypeVal !== 'none';
-              // بناء جملة التحفظ حسب نوع المتحفظ عليه
+              const confiscatedVehicleName = vType || 'المركبة';
+              // بناء جملة التحفظ حسب نوع المتحفظ عليه ونوع المركبة المختار
               let confiscatedPhrase = '';
               let licensePhrase = '';
               if (hasConfiscated) {
@@ -4349,7 +4762,7 @@ let questionsHtml = "";
                       confiscatedPhrase = ` وتم التحفظ على <span class="var-text" style="font-size: ${sizeNum + 2}px; font-weight: 900;">المركبة</span> على ذمة التحقيق`;
                   } else {
                       // رخصة قيادة أو تسيير أو كلاهما
-                      confiscatedPhrase = ` وتم التحفظ على <span class="var-text" style="font-size: ${sizeNum + 2}px; font-weight: 900;">السيارة</span> على ذمة التحقيق وكذا <span class="var-text" style="font-size: ${sizeNum + 2}px; font-weight: 900;">${licenseText}</span>`;
+                      confiscatedPhrase = ` وتم التحفظ على <span class="var-text" style="font-size: ${sizeNum + 2}px; font-weight: 900;">${confiscatedVehicleName}</span> على ذمة التحقيق وكذا <span class="var-text" style="font-size: ${sizeNum + 2}px; font-weight: 900;">${licenseText}</span>`;
                   }
               }
               const defAppearance = document.getElementById('def_appearance') ? document.getElementById('def_appearance').value : '';
@@ -4543,13 +4956,43 @@ let questionsHtml = "";
         return errors;
     }
 
+    const validationHighlightOriginals = new WeakMap();
+
+    function restoreValidationHighlight(targetEl) {
+        if (!targetEl) return;
+        const original = validationHighlightOriginals.get(targetEl);
+        if (original) {
+            if (original.borderValue) {
+                targetEl.style.setProperty('border', original.borderValue, original.borderPriority);
+            } else {
+                targetEl.style.removeProperty('border');
+            }
+            if (original.shadowValue) {
+                targetEl.style.setProperty('box-shadow', original.shadowValue, original.shadowPriority);
+            } else {
+                targetEl.style.removeProperty('box-shadow');
+            }
+            validationHighlightOriginals.delete(targetEl);
+        } else {
+            targetEl.style.removeProperty('border');
+            targetEl.style.removeProperty('box-shadow');
+        }
+        targetEl.removeAttribute('data-validation-highlight');
+    }
+
+    function clearValidationHighlightsForFilledFields() {
+        document.querySelectorAll('[data-validation-highlight="true"]').forEach((el) => {
+            if (el.value != null && String(el.value).trim() !== '') {
+                restoreValidationHighlight(el);
+            }
+        });
+    }
+
     function generateReport() {
         // 1. التحقق من الحقول الفارغة وتلوينها
         const validationErrors = validateFields();
         if (validationErrors.length > 0) {
             const errorMessages = validationErrors.map(err => err.msg);
-            alert('يرجى ملء الحقول التالية:\n\n' + errorMessages.join('\n'));
-            
             let firstEl = null;
 
             validationErrors.forEach((err) => {
@@ -4568,17 +5011,22 @@ let questionsHtml = "";
                         if (titleElement) toggleSection(titleElement);
                     }
 
-                    // إضاءة الحقل بالأحمر
-                    const originalBorder = targetEl.style.border;
-                    const originalShadow = targetEl.style.boxShadow;
-                    
+                    // إضاءة الحقل بالأحمر مع حفظ قيمته الأصلية وأولوية التنسيق
+                    if (!validationHighlightOriginals.has(targetEl)) {
+                        validationHighlightOriginals.set(targetEl, {
+                            borderValue: targetEl.style.getPropertyValue('border'),
+                            borderPriority: targetEl.style.getPropertyPriority('border'),
+                            shadowValue: targetEl.style.getPropertyValue('box-shadow'),
+                            shadowPriority: targetEl.style.getPropertyPriority('box-shadow')
+                        });
+                    }
+                    targetEl.setAttribute('data-validation-highlight', 'true');
                     targetEl.style.setProperty('border', '2px solid #ef4444', 'important');
                     targetEl.style.setProperty('box-shadow', '0 0 10px rgba(239, 68, 68, 0.6)', 'important');
                     
-                    // إزالة الإضاءة الحمراء بمجرد الكتابة
+                    // إزالة الإضاءة الحمراء بمجرد الكتابة أو تغيير القيمة
                     const removeHighlight = () => {
-                        targetEl.style.border = originalBorder;
-                        targetEl.style.boxShadow = originalShadow;
+                        restoreValidationHighlight(targetEl);
                         targetEl.removeEventListener('input', removeHighlight);
                         targetEl.removeEventListener('change', removeHighlight);
                     };
@@ -4590,11 +5038,18 @@ let questionsHtml = "";
                 }
             });
 
-            // الذهاب بسلاسة إلى أول حقل منسي تم اكتشافه
-            if (firstEl) {
-                firstEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                setTimeout(() => firstEl.focus(), 300);
-            }
+            // عرض النافذة أولاً، ثم الذهاب بسلاسة إلى أول حقل ناقص بعد الضغط على «حسنًا»
+            showCustomAlert('يرجى ملء الحقول التالية:\n\n' + errorMessages.join('\n'), {
+                title: 'بيانات ناقصة',
+                type: 'error',
+                list: true,
+                onClose: function() {
+                    if (firstEl) {
+                        firstEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        setTimeout(() => firstEl.focus(), 300);
+                    }
+                }
+            });
             return; // إيقاف الطباعة حتى يتم ملء الحقول
         }
         
@@ -4605,15 +5060,9 @@ let questionsHtml = "";
         if (releaseType === 'none') noneWarnings.push('إخلاء السبيل');
         if (vehicleDecision === 'none') noneWarnings.push('قرار المركبة');
         
-        if (noneWarnings.length > 0) {
-            const warningMessage = `تنبيه: لقد اخترت "لا شيء" في قرارات النيابة التالية:\n\n- ${noneWarnings.join('\n- ')}\n\nهذا يعني أن هذه القرارات لن تظهر في الطباعة.\n\nهل تريد الاستمرار؟`;
-            if (!confirm(warningMessage)) {
-                return; // إيقاف الطباعة إذا تراجع المستخدم
-            }
-        }
-        
-        // 3. إكمال عملية الطباعة
-        const reportBody = document.getElementById('report-body');
+        const continueReportPrint = () => {
+            // 3. إكمال عملية الطباعة
+            const reportBody = document.getElementById('report-body');
         const selectedFont = document.getElementById('font_choice').value;
         const selectedSize = document.getElementById('font_size_choice').value;
         const { family, weight } = parseFont(selectedFont);
@@ -4628,11 +5077,26 @@ let questionsHtml = "";
         document.querySelectorAll('.s_clerk').forEach(el => el.innerText = clerk);
         document.querySelectorAll('.s_pros').forEach(el => el.innerText = pros);
         
-        // تحديث اسم النيابة في الهيدر
-        const prosecutionName = getProsecutionName();
-        document.getElementById('print-prosecution-name').innerText = prosecutionName;
-        
-        window.print();
+            // تحديث اسم النيابة في الهيدر
+            const prosecutionName = getProsecutionName();
+            document.getElementById('print-prosecution-name').innerText = prosecutionName;
+            
+            window.print();
+        };
+
+        if (noneWarnings.length > 0) {
+            const warningMessage = `لقد اخترت «لا شيء» في قرارات النيابة التالية:\n\n- ${noneWarnings.join('\n- ')}\n\nهذه القرارات لن تظهر في المحضر المطبوع. هل تريد متابعة الطباعة؟`;
+            showCustomConfirm(warningMessage, {
+                title: 'تأكيد الطباعة',
+                confirmText: 'متابعة الطباعة',
+                cancelText: 'إلغاء',
+                type: 'danger',
+                onConfirm: continueReportPrint
+            });
+            return;
+        }
+
+        continueReportPrint();
     }
 
     // بعد إغلاق نافذة الطباعة نطلب حفظ نسخة TXT من المحضر
@@ -4681,7 +5145,7 @@ let questionsHtml = "";
         link.download = fileName;
         link.click();
         URL.revokeObjectURL(link.href);
-        markReportSaved();
+        markReportSaved(dataStr);
     }
 
     async function saveReportToDevice() {
@@ -4702,12 +5166,15 @@ let questionsHtml = "";
                 const writable = await fileHandle.createWritable();
                 await writable.write(blob);
                 await writable.close();
-                markReportSaved();
+                markReportSaved(dataStr);
                 return true;
             } catch (error) {
                 if (error && error.name === 'AbortError') return false;
                 console.error('خطأ في الحفظ داخل الجهاز:', error);
-                alert('تعذر حفظ الملف في المكان المختار. لم يتم مسح البيانات.');
+                showCustomAlert('تعذر حفظ الملف في المكان المختار. لم يتم مسح البيانات.', {
+                    title: 'تعذر حفظ الملف',
+                    type: 'error'
+                });
                 return false;
             }
         }
@@ -4729,13 +5196,13 @@ let questionsHtml = "";
         reader.onload = function(e) {
             try {
                 const data = JSON.parse(e.target.result);
-                confirmAndResetBeforeImport(function() {
-                    applyLoadedData(data);
-                    alert('تم تحميل البيانات بنجاح');
-                });
+                confirmAndResetBeforeImport(
+                    function() { applyLoadedData(data); },
+                    function() { showCustomAlert('تم تحميل البيانات بنجاح'); }
+                );
             } catch (err) {
                 console.error(err);
-                alert('خطأ في قراءة الملف. تأكد من أنه ملف بيانات صحيح.');
+                showCustomAlert('خطأ في قراءة الملف. تأكد من أنه ملف بيانات صحيح.', { title: 'خطأ', type: 'error' });
             }
         };
         reader.readAsText(file);
@@ -4800,7 +5267,7 @@ let questionsHtml = "";
                     savedMainQuestions = loadedQs;
                 }
             }
-            switchMode(data.reportMode);
+            switchMode(data.reportMode, { skipAnimation: true });
         }
 
         // استعادة النصوص التي ربما أعاد switchMode كتابتها
@@ -4833,6 +5300,9 @@ let questionsHtml = "";
             if (savedEngineerText  !== null) document.getElementById('engineer_decision_text').value  = savedEngineerText;
             if (savedDisposalText  !== null) document.getElementById('disposal_decision_text').value  = savedDisposalText;
         }
+        // الحقول التي تم ملؤها برمجيًا يجب أن تعود لتنسيقها الطبيعي مثل الحقول المكتوبة يدويًا
+        clearValidationHighlightsForFilledFields();
+
         // if (typeof generateReport === 'function') generateReport(); // تم تعطيل الطباعة التلقائية عند فتح الملف
         saveData(); // حفظ في localStorage أيضاً
     }
@@ -5302,13 +5772,14 @@ let questionsHtml = "";
     function buildPreviewText(text) {
         const getVal = (id) => { const el = document.getElementById(id); return el ? el.value : ''; };
         const confiscatedTypeVal = getVal('confiscated_type');
+        const confiscatedVehicleName = (typeof getVehicleType === 'function' ? getVehicleType() : getVal('v_type')) || 'المركبة';
         let confiscatedPreview = '';
         if (confiscatedTypeVal && confiscatedTypeVal !== '' && confiscatedTypeVal !== 'none') {
             if (confiscatedTypeVal === 'other') {
                 confiscatedPreview = ' وتم التحفظ على المركبة على ذمة التحقيق';
             } else {
                 const lt = (typeof getLicenseStatusText === 'function') ? getLicenseStatusText() : '';
-                confiscatedPreview = ' وتم التحفظ على السيارة على ذمة التحقيق وكذا ' + lt;
+                confiscatedPreview = ' وتم التحفظ على ' + confiscatedVehicleName + ' على ذمة التحقيق وكذا ' + lt;
             }
         }
         const vars = {
@@ -5385,38 +5856,33 @@ let questionsHtml = "";
         }
     }
 
-    // استعادة الافتراضي
+    // استعادة النص الافتراضي عبر نافذة التأكيد الموحدة
     function resetPreambleToDefault() {
         const modal = document.getElementById('preamble-modal');
         const mode = (modal && modal.dataset.mode) ? modal.dataset.mode : (reportMode || 'main');
         const resetBtn = document.querySelector('#preamble-modal-footer .pm-btn-reset');
-        if (!resetBtn._confirmPending) {
-            resetBtn._confirmPending = true;
-            const origHTML = resetBtn.innerHTML;
-            resetBtn.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> اضغط مجدداً للتأكيد';
-            resetBtn.style.background = '#dc2626';
-            resetBtn.style.color = '#fff';
-            resetBtn._resetTimer = setTimeout(() => {
-                resetBtn._confirmPending = false;
-                resetBtn.innerHTML = origHTML;
-                resetBtn.style.background = '';
-                resetBtn.style.color = '';
-            }, 3000);
-            return;
-        }
-        clearTimeout(resetBtn._resetTimer);
-        resetBtn._confirmPending = false;
-        localStorage.removeItem(getPreambleStorageKey(mode));
-        renderPreambleEditor(mode);
-        const origHTML2 = resetBtn.innerHTML;
-        resetBtn.innerHTML = '<i class="fa-solid fa-check"></i> تمت الاستعادة';
-        resetBtn.style.background = '#16a34a';
-        resetBtn.style.color = '#fff';
-        setTimeout(() => {
-            resetBtn.innerHTML = '<i class="fa-solid fa-rotate-right"></i> استعادة البيانات الافتراضية';
-            resetBtn.style.background = '';
-            resetBtn.style.color = '';
-        }, 2000);
+
+        showCustomConfirm('سيتم استعادة النص الافتراضي للديباجة\nستفقد أي تعديل قمت به. هل تريد المتابعة؟', {
+            title: 'تأكيد استعادة النص الافتراضي',
+            confirmText: 'استعادة النص الافتراضي',
+            cancelText: 'إلغاء',
+            type: 'danger',
+            onConfirm: function() {
+                localStorage.removeItem(getPreambleStorageKey(mode));
+                renderPreambleEditor(mode);
+
+                if (resetBtn) {
+                    resetBtn.innerHTML = '<i class="fa-solid fa-check"></i> تم استعادة النص الافتراضي';
+                    resetBtn.style.background = '#16a34a';
+                    resetBtn.style.color = '#fff';
+                    setTimeout(() => {
+                        resetBtn.innerHTML = '<i class="fa-solid fa-rotate-right"></i> استعادة النص الافتراضي';
+                        resetBtn.style.background = '';
+                        resetBtn.style.color = '';
+                    }, 1800);
+                }
+            }
+        });
     }
 
     // دالة مساعدة: تبديل المتغيرات داخل نص الديباجة بالقيم الفعلية
@@ -5698,10 +6164,30 @@ function openDetentionOrderModal() {
 
     // تحديث النص من بيانات المتهم (يمسح التعديلات اليدوية)
     function refreshDetentionOrderText() {
-        if (!confirm('سيتم إعادة توليد نص الأمر من بيانات المتهم المُدخلة.\nسيُفقد أي تعديل يدوي قمت به. هل تريد المتابعة؟')) return;
-        detentionOrderCustomText = null;
-        localStorage.removeItem('detention_order_custom_text');
-        document.getElementById('detention-order-textarea').value = buildDetentionOrderText();
+        showCustomConfirm('سيتم استعادة النص الافتراضي لأمر الحبس\nستفقد أي تعديل قمت به. هل تريد المتابعة؟', {
+            title: 'تأكيد استعادة النص الافتراضي',
+            confirmText: 'استعادة النص الافتراضي',
+            cancelText: 'إلغاء',
+            type: 'danger',
+            onConfirm: function() {
+                detentionOrderCustomText = null;
+                localStorage.removeItem('detention_order_custom_text');
+                document.getElementById('detention-order-textarea').value = buildDetentionOrderText();
+
+                const refreshButton = document.querySelector('#detention-modal-footer .det-btn-refresh');
+                if (refreshButton) {
+                    const originalHTML = refreshButton.innerHTML;
+                    refreshButton.innerHTML = '<i class="fa-solid fa-check"></i> تم استعادة النص الافتراضي';
+                    refreshButton.style.background = '#16a34a';
+                    refreshButton.style.color = '#fff';
+                    setTimeout(() => {
+                        refreshButton.innerHTML = originalHTML;
+                        refreshButton.style.background = '';
+                        refreshButton.style.color = '';
+                    }, 1800);
+                }
+            }
+        });
     }
 
 // حفظ التعديلات اليدوية على نص الأمر
@@ -6128,7 +6614,13 @@ ${cairoFontFaceTag}
 
         // العودة إلى نظام الطباعة القديم المطلوب
         const win = window.open('', '_blank', 'width=860,height=1050');
-        if (!win) { alert('يرجى السماح للمتصفح بفتح نوافذ منبثقة ثم المحاولة مجدداً.'); return; }
+        if (!win) {
+            showCustomAlert('المتصفح منع فتح نافذة الطباعة. اسمح بالنوافذ المنبثقة لهذا الملف ثم حاول مرة أخرى.', {
+                title: 'تعذر فتح نافذة الطباعة',
+                type: 'error'
+            });
+            return;
+        }
         win.document.write(html);
         win.document.close();
         win.focus();
@@ -6215,10 +6707,30 @@ function buildForensicMemoText() {
     }
 
     function refreshForensicMemoText() {
-        if (!confirm('سيتم إعادة توليد نص المذكرة من بيانات المتهم المُدخلة.\nسيُفقد أي تعديل يدوي قمت به. هل تريد المتابعة؟')) return;
-        forensicMemoCustomText = null;
-        localStorage.removeItem('forensic_memo_custom_text');
-        document.getElementById('forensic-order-textarea').value = buildForensicMemoText();
+        showCustomConfirm('سيتم استعادة النص الافتراضي للمذكرة\nستفقد أي تعديل قمت به. هل تريد المتابعة؟', {
+            title: 'تأكيد استعادة النص الافتراضي',
+            confirmText: 'استعادة النص الافتراضي',
+            cancelText: 'إلغاء',
+            type: 'danger',
+            onConfirm: function() {
+                forensicMemoCustomText = null;
+                localStorage.removeItem('forensic_memo_custom_text');
+                document.getElementById('forensic-order-textarea').value = buildForensicMemoText();
+
+                const refreshButton = document.querySelector('#forensic-modal-footer .for-btn-refresh');
+                if (refreshButton) {
+                    const originalHTML = refreshButton.innerHTML;
+                    refreshButton.innerHTML = '<i class="fa-solid fa-check"></i> تم استعادة النص الافتراضي';
+                    refreshButton.style.background = '#16a34a';
+                    refreshButton.style.color = '#fff';
+                    setTimeout(() => {
+                        refreshButton.innerHTML = originalHTML;
+                        refreshButton.style.background = '';
+                        refreshButton.style.color = '';
+                    }, 1800);
+                }
+            }
+        });
     }
 
     function saveForensicMemo() {
@@ -6428,7 +6940,13 @@ ${cairoFontFaceTag2}
 </html>`;
 
         const win = window.open('', '_blank', 'width=860,height=1100');
-        if (!win) { alert('يرجى السماح للمتصفح بفتح نوافذ منبثقة ثم المحاولة مجدداً.'); return; }
+        if (!win) {
+            showCustomAlert('المتصفح منع فتح نافذة الطباعة. اسمح بالنوافذ المنبثقة لهذا الملف ثم حاول مرة أخرى.', {
+                title: 'تعذر فتح نافذة الطباعة',
+                type: 'error'
+            });
+            return;
+        }
         win.document.write(html);
         win.document.close();
         win.focus();
@@ -6441,7 +6959,31 @@ ${cairoFontFaceTag2}
         if (e.target === this) closeForensicMemoModal();
     });
 
+    // ====== إشعار حفظ إعدادات الواجهة ======
+    let settingsSaveToastTimer = null;
+    function showSettingsSaveToast() {
+        const toast = document.getElementById('settings-save-toast');
+        if (!toast) return;
+        toast.classList.add('show');
+        clearTimeout(settingsSaveToastTimer);
+        settingsSaveToastTimer = setTimeout(() => {
+            toast.classList.remove('show');
+        }, 2800);
+    }
+
     // ====== اختصار F9 — مسح البيانات بصمت بدون تنبيه ======
+    function showKeyboardPressFeedback(button) {
+        if (!button) return;
+        if (button._keyboardPressTimer) clearTimeout(button._keyboardPressTimer);
+        button.classList.remove('keyboard-pressed');
+        void button.offsetWidth;
+        button.classList.add('keyboard-pressed');
+        button._keyboardPressTimer = setTimeout(() => {
+            button.classList.remove('keyboard-pressed');
+            button._keyboardPressTimer = null;
+        }, 180);
+    }
+
     function showF9Toast() {
         const toast = document.getElementById('f9-toast');
         toast.classList.add('show');
@@ -6451,7 +6993,7 @@ ${cairoFontFaceTag2}
     function clearAllDataSilent() {
         const continueClear = () => performClearAllDataSilent();
         if (hasUnsavedPrintedReport()) {
-            openUnsavedReportModal('المسح باختصار F9', continueClear);
+            openUnsavedReportModal('المسح', continueClear);
         } else {
             continueClear();
         }
@@ -6471,26 +7013,248 @@ ${cairoFontFaceTag2}
         return false;
     }
 
+    // ── بناء نص وصفي لبيانات المحضر الحالية بالنموذج (رقم / سنة / قسم) لعرضه في رسالة التحذير ──
+    function getCurrentRecordDescription() {
+        const reportNo = ((document.getElementById('report_no') || {}).value || '').trim();
+        const reportYear = ((document.getElementById('report_year') || {}).value || '').trim();
+        const deptSel = document.getElementById('police_station');
+        const dept = deptSel
+            ? (deptSel.value === 'other'
+                ? ((document.getElementById('police_station_other') || {}).value || '').trim()
+                : (deptSel.options[deptSel.selectedIndex] ? deptSel.options[deptSel.selectedIndex].text.trim() : ''))
+            : '';
+        const parts = [reportNo, reportYear, dept].filter(Boolean);
+        return parts.length ? parts.join(' / ') : '';
+    }
+
+    // ── تلاشٍ هادئ لمحتوى الشاشة أثناء عمليات التصفير/الاستيراد ──
     // ── تحذير + تصفير كامل قبل استيراد محضر جديد فوق بيانات موجودة ──
-    // continueAction: الدالة التي تنفّذ الاستيراد الفعلي بعد التصفير
-    function confirmAndResetBeforeImport(continueAction) {
-        const proceed = () => {
+    // continueAction: الدالة التي تنفّذ الاستيراد الفعلي بعد التصفير (تُستبدل قيم الحقول مباشرة، دون أي إخفاء/تلاشي للواجهة)
+    // afterSettle: (اختياري) تُستدعى بعد استقرار البيانات الجديدة في الحقول، مناسبة لعرض رسالة نجاح
+    // يستخدم نافذة تنبيه مخصصة بدلاً من confirm() الافتراضية بالمتصفح
+    let pendingImportConfirmAction = null;
+    let importConfirmKeyHandler = null;
+
+    function confirmAndResetBeforeImport(continueAction, afterSettle) {
+        // fromModal: هل جاء التنفيذ بعد إغلاق نافذة "استيراد محضر جديد" المنبثقة؟
+        // في هذه الحالة ننتظر اكتمال تلاشيها بصرياً (260ms) قبل إظهار رسالة afterSettle
+        // حتى لا تتداخل الرسالتان أثناء ظهورهما واختفائهما بسلاسة.
+        const proceed = (fromModal) => {
             performClearAllDataSilent(true /* suppressToast */);
             continueAction();
+            if (typeof afterSettle !== 'function') return;
+            if (fromModal) {
+                setTimeout(afterSettle, 260);
+            } else {
+                requestAnimationFrame(function() { requestAnimationFrame(afterSettle); });
+            }
         };
         if (formHasMeaningfulData()) {
-            const ok = confirm(
-                'توجد بيانات مدخلة حالياً في النموذج.\n' +
-                'سيتم حذف هذه البيانات بالكامل عند استيراد المحضر الجديد.\n' +
-                'هل تريد المتابعة؟'
-            );
-            if (!ok) return false;
-            proceed();
-            return true;
+            pendingImportConfirmAction = () => proceed(true);
+            const recordDesc = getCurrentRecordDescription();
+            const message = document.getElementById('import-confirm-modal-message');
+            if (message) {
+                message.textContent = recordDesc
+                    ? `بيانات المحضر رقم ${recordDesc} موجودة حالياً في النموذج. سيتم حذفها واستيراد بيانات المحضر الجديد. هل تريد المتابعة؟`
+                    : 'توجد بيانات مدخلة حالياً في النموذج. سيتم حذف هذه البيانات بالكامل عند استيراد المحضر الجديد. هل تريد المتابعة؟';
+            }
+            const overlay = document.getElementById('import-confirm-modal-overlay');
+            if (overlay) overlay.classList.add('show');
+            const proceedButton = document.getElementById('import-confirm-proceed-btn');
+            if (importConfirmKeyHandler) {
+                document.removeEventListener('keydown', importConfirmKeyHandler, true);
+            }
+            importConfirmKeyHandler = function(e) {
+                const activeOverlay = document.getElementById('import-confirm-modal-overlay');
+                if (!activeOverlay || !activeOverlay.classList.contains('show')) return;
+                if (e.key === 'Escape') {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    closeImportConfirmModal();
+                } else if (e.key === 'Enter' || e.key === ' ' || e.code === 'Space') {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    proceedWithImportConfirm();
+                }
+            };
+            document.addEventListener('keydown', importConfirmKeyHandler, true);
+            if (proceedButton) requestAnimationFrame(() => proceedButton.focus());
+            return;
         }
-        proceed();
-        return true;
+        proceed(false);
     }
+
+    function closeImportConfirmModal() {
+        const overlay = document.getElementById('import-confirm-modal-overlay');
+        if (overlay) overlay.classList.remove('show');
+        if (importConfirmKeyHandler) {
+            document.removeEventListener('keydown', importConfirmKeyHandler, true);
+            importConfirmKeyHandler = null;
+        }
+        pendingImportConfirmAction = null;
+        // إعادة عناصر النافذة إلى وضع الاستيراد الافتراضي بعد استخدامها لمسح البيانات
+        const title = document.getElementById('import-confirm-modal-title');
+        const proceedButton = document.getElementById('import-confirm-proceed-btn');
+        if (title) title.textContent = 'استيراد محضر جديد';
+        if (proceedButton) {
+            proceedButton.textContent = 'حذف واستيراد';
+            proceedButton.classList.remove('danger');
+        }
+    }
+
+        function proceedWithImportConfirm() {
+        const action = pendingImportConfirmAction;
+        closeImportConfirmModal();
+        if (typeof action === 'function') action();
+    }
+
+    // الضغط على خلفية نافذة الاستيراد/المسح يعادل اختيار «إلغاء».
+    // لا تُغلق النافذة عند الضغط داخل محتواها أو على أي من أزرارها.
+    document.addEventListener('click', function(e) {
+        const overlay = document.getElementById('import-confirm-modal-overlay');
+        if (!overlay || !overlay.classList.contains('show')) return;
+        if (e.target === overlay) {
+            closeImportConfirmModal();
+        }
+    }, true);
+
+    // ── نافذة تنبيه معلوماتية مخصصة (بديل alert() الافتراضي بالمتصفح) ──
+    // تُستخدم لعرض رسائل نجاح/خطأ بنفس تصميم باقي نوافذ التطبيق بدلاً من alert() الأصلية
+    let pendingInfoAlertCallback = null;
+    let infoAlertKeyHandler = null;
+
+    function showCustomAlert(message, options) {
+        options = options || {};
+        const titleEl  = document.getElementById('info-alert-modal-title');
+        const msgEl    = document.getElementById('info-alert-modal-message');
+        const headerEl = document.getElementById('info-alert-modal-header');
+        const iconEl   = headerEl ? headerEl.querySelector('i') : null;
+
+        if (titleEl) titleEl.textContent = options.title || 'تنبيه';
+        if (msgEl) {
+            msgEl.textContent = message || '';
+            msgEl.classList.toggle('is-list', options.list === true);
+        }
+
+        if (headerEl) headerEl.classList.toggle('is-error', options.type === 'error');
+        if (iconEl) {
+            iconEl.className = options.type === 'error'
+                ? 'fa-solid fa-circle-exclamation'
+                : 'fa-solid fa-circle-check';
+        }
+
+        pendingInfoAlertCallback = (typeof options.onClose === 'function') ? options.onClose : null;
+
+        const overlay = document.getElementById('info-alert-modal-overlay');
+        if (overlay) overlay.classList.add('show');
+
+        // جعل زر «حسنًا» هو العنصر النشط، مع دعم Enter وSpace من لوحة المفاتيح
+        const okButton = document.getElementById('info-alert-ok-btn');
+        if (infoAlertKeyHandler) {
+            document.removeEventListener('keydown', infoAlertKeyHandler, true);
+        }
+        infoAlertKeyHandler = function(e) {
+            const activeOverlay = document.getElementById('info-alert-modal-overlay');
+            if (!activeOverlay || !activeOverlay.classList.contains('show')) return;
+            if (e.key === 'Enter' || e.key === ' ' || e.code === 'Space') {
+                e.preventDefault();
+                e.stopPropagation();
+                showKeyboardPressFeedback(okButton);
+                closeInfoAlertModal();
+            }
+        };
+        document.addEventListener('keydown', infoAlertKeyHandler, true);
+        if (okButton) {
+            requestAnimationFrame(() => okButton.focus());
+        }
+    }
+
+    function closeInfoAlertModal() {
+        const overlay = document.getElementById('info-alert-modal-overlay');
+        if (overlay) overlay.classList.remove('show');
+        if (infoAlertKeyHandler) {
+            document.removeEventListener('keydown', infoAlertKeyHandler, true);
+            infoAlertKeyHandler = null;
+        }
+        const cb = pendingInfoAlertCallback;
+        pendingInfoAlertCallback = null;
+        if (typeof cb === 'function') cb();
+    }
+
+    let pendingConfirmAction = null;
+    let confirmActionKeyHandler = null;
+
+    function showCustomConfirm(message, options) {
+        options = options || {};
+        const titleEl = document.getElementById('confirm-action-modal-title');
+        const msgEl = document.getElementById('confirm-action-modal-message');
+        const headerEl = document.getElementById('confirm-action-modal-header');
+        const iconEl = headerEl ? headerEl.querySelector('i') : null;
+        const confirmBtn = document.getElementById('confirm-action-confirm-btn');
+        const cancelBtn = document.getElementById('confirm-action-cancel-btn');
+
+        if (titleEl) titleEl.textContent = options.title || 'تأكيد العملية';
+        if (msgEl) msgEl.textContent = message || '';
+        if (confirmBtn) confirmBtn.textContent = options.confirmText || 'تأكيد';
+        if (cancelBtn) cancelBtn.textContent = options.cancelText || 'إلغاء';
+        if (headerEl) headerEl.classList.toggle('is-danger', options.type === 'danger');
+        if (iconEl) {
+            iconEl.className = options.type === 'danger'
+                ? 'fa-solid fa-triangle-exclamation'
+                : 'fa-solid fa-circle-question';
+        }
+
+        pendingConfirmAction = (typeof options.onConfirm === 'function') ? options.onConfirm : null;
+        const overlay = document.getElementById('confirm-action-modal-overlay');
+        if (overlay) overlay.classList.add('show');
+
+        if (confirmActionKeyHandler) {
+            document.removeEventListener('keydown', confirmActionKeyHandler, true);
+        }
+        confirmActionKeyHandler = function(e) {
+            const activeOverlay = document.getElementById('confirm-action-modal-overlay');
+            if (!activeOverlay || !activeOverlay.classList.contains('show')) return;
+            if (e.key === 'Escape') {
+                e.preventDefault();
+                e.stopPropagation();
+                closeCustomConfirm(false);
+            } else if (e.key === 'Enter' || e.key === ' ' || e.code === 'Space') {
+                e.preventDefault();
+                e.stopPropagation();
+                showKeyboardPressFeedback(confirmBtn);
+                closeCustomConfirm(true);
+            }
+        };
+        document.addEventListener('keydown', confirmActionKeyHandler, true);
+        if (confirmBtn) requestAnimationFrame(() => confirmBtn.focus());
+    }
+
+    function closeCustomConfirm(confirmed) {
+        const overlay = document.getElementById('confirm-action-modal-overlay');
+        if (overlay) overlay.classList.remove('show');
+        if (confirmActionKeyHandler) {
+            document.removeEventListener('keydown', confirmActionKeyHandler, true);
+            confirmActionKeyHandler = null;
+        }
+        const cb = pendingConfirmAction;
+        pendingConfirmAction = null;
+        if (confirmed && typeof cb === 'function') cb();
+    }
+
+    // الضغط خارج نافذة التنبيه يغلقها كأن المستخدم ضغط «حسنًا».
+    // الضغط خارج نافذة التأكيد الثنائية يعادل «إلغاء» ولا ينفذ إجراء التأكيد.
+    document.addEventListener('click', function(e) {
+        const infoOverlay = document.getElementById('info-alert-modal-overlay');
+        if (infoOverlay && infoOverlay.classList.contains('show') && e.target === infoOverlay) {
+            closeInfoAlertModal();
+            return;
+        }
+
+        const confirmOverlay = document.getElementById('confirm-action-modal-overlay');
+        if (confirmOverlay && confirmOverlay.classList.contains('show') && e.target === confirmOverlay) {
+            closeCustomConfirm(false);
+        }
+    }, true);
 
     function performClearAllDataSilent(suppressToast) {
         const currentFont     = localStorage.getItem('font_choice');
@@ -6566,6 +7330,7 @@ ${cairoFontFaceTag2}
     document.addEventListener('keydown', function(e) {
         if (e.key === 'F9') {
             e.preventDefault();
+            showKeyboardPressFeedback(document.querySelector('.btn-clear'));
             clearAllDataSilent();
         }
     });
@@ -6574,6 +7339,10 @@ ${cairoFontFaceTag2}
 </script>
 
     <!-- F9 Toast -->
+    <div id="settings-save-toast" role="status" aria-live="polite">
+        <i class="fa-solid fa-circle-check"></i>
+        <span>تم حفظ التغييرات بنجاح</span>
+    </div>
     <div id="f9-toast">
         <i class="fa-solid fa-trash"></i>
         <span>تم مسح جميع البيانات</span>
@@ -6584,12 +7353,51 @@ ${cairoFontFaceTag2}
     </div>
     <div id="unsaved-report-modal-overlay" role="dialog" aria-modal="true" aria-labelledby="unsaved-report-modal-title">
         <div id="unsaved-report-modal">
+            <div id="unsaved-report-warning-icon" aria-hidden="true"><i class="fa-solid fa-triangle-exclamation"></i></div>
             <h3 id="unsaved-report-modal-title">حفظ المحضر قبل المسح</h3>
             <p id="unsaved-report-modal-message">تم طباعة المحضر ولم يتم حفظه كملف TXT.</p>
             <div id="unsaved-report-modal-actions">
                 <button id="unsaved-report-save-btn" type="button" onclick="saveUnsavedReportAndContinue()">حفظ ثم مسح</button>
                 <button id="unsaved-report-continue-btn" type="button" onclick="continueWithoutSavingUnsavedReport()">مسح فقط</button>
                 <button id="unsaved-report-cancel-btn" type="button" onclick="closeUnsavedReportModal()">إلغاء</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="import-confirm-modal-overlay" role="dialog" aria-modal="true" aria-labelledby="import-confirm-modal-title">
+        <div id="import-confirm-modal">
+            <h3 id="import-confirm-modal-title">استيراد محضر جديد</h3>
+            <p id="import-confirm-modal-message">توجد بيانات مدخلة حالياً في النموذج. سيتم حذف هذه البيانات بالكامل عند استيراد المحضر الجديد. هل تريد المتابعة؟</p>
+            <div id="import-confirm-modal-actions">
+                <button id="import-confirm-cancel-btn" onclick="closeImportConfirmModal()">إلغاء</button>
+                <button id="import-confirm-proceed-btn" onclick="proceedWithImportConfirm()">حذف واستيراد</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="info-alert-modal-overlay" role="dialog" aria-modal="true" aria-labelledby="info-alert-modal-title">
+        <div id="info-alert-modal">
+            <div id="info-alert-modal-header">
+                <i class="fa-solid fa-circle-check"></i>
+                <h3 id="info-alert-modal-title">تنبيه</h3>
+            </div>
+            <p id="info-alert-modal-message"></p>
+            <div id="info-alert-modal-actions">
+                <button id="info-alert-ok-btn" type="button" onclick="closeInfoAlertModal()">حسناً</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="confirm-action-modal-overlay" role="dialog" aria-modal="true" aria-labelledby="confirm-action-modal-title">
+        <div id="confirm-action-modal">
+            <div id="confirm-action-modal-header">
+                <i class="fa-solid fa-circle-question"></i>
+                <h3 id="confirm-action-modal-title">تأكيد العملية</h3>
+            </div>
+            <p id="confirm-action-modal-message"></p>
+            <div id="confirm-action-modal-actions">
+                <button id="confirm-action-cancel-btn" type="button" onclick="closeCustomConfirm(false)">إلغاء</button>
+                <button id="confirm-action-confirm-btn" type="button" onclick="closeCustomConfirm(true)">تأكيد</button>
             </div>
         </div>
     </div>
@@ -6892,11 +7700,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 💡 دالة التبديل (إضافة/إزالة) التي تربط مع النظام الخاص بك
     function toggleViolation(text) {
-        const isSelected = violations.includes(text);
+        const normalizedText = String(text || '').trim();
+        const isSelected = violations.some(item => String(item || '').trim() === normalizedText);
         if (isSelected) {
-            removeViolation(text);
+            removeViolation(normalizedText);
         } else {
-            addViolation(text);
+            addViolation(normalizedText);
         }
     }
 
@@ -7520,10 +8329,9 @@ function loadInvArchiveToSidebar() {
 function loadInvRecordToWorkspace(key) {
     var raw = localStorage.getItem(key);
     if (!raw) return;
-    var proceeded = confirmAndResetBeforeImport(function() {
+    confirmAndResetBeforeImport(function() {
         applyInvRecordToWorkspace(key, raw);
     });
-    if (!proceeded) return;
 }
 
 // ── التطبيق الفعلي لبيانات المحضر المختار على النموذج (بعد التصفير) ──
@@ -7593,12 +8401,18 @@ function applyInvRecordToWorkspace(key, raw) {
         // ④ اللوحة (معالجة ذكية ودقيقة لحالة بدون لوحات أو وجود لوحات معدنية)
         var plateModeEl = document.getElementById('plate_mode');
         var isNoPlateRecord = false;
-        
-        // التحقق مما إذا كان المحضر المحفوظ يحتوي على "بدون لوحات" بناءً على plateType أو النص المحفوظ
-        if (d.plateType === 'no_plate' || d.plateType === 'noPlateTxt' || 
-            (d.plateText && String(d.plateText).includes('بدون لوحات')) ||
-            (d.noPlateTxt && String(d.noPlateTxt).includes('بدون لوحات')) ||
-            (!d.c1 && !d.c2 && !d.c3 && !d.n1)) {
+
+        // المعيار الأساسي: وجود بيانات فعلية بحقول اللوحة (c1/c2/c3/n1).
+        // ملحوظة: لا يُعتمد على نص noPlateTxt/plateText كمؤشر — لأن حقل "بدون لوحات"
+        // بالأنظمة المصدر (مثل نظام التلبسات) قيمته الافتراضية بالـ HTML هي "بدون لوحات"
+        // نفسها، وتظل مخزّنة بالبيانات حتى لو كان المحضر يحتوي فعلياً على رقم لوحة حقيقي
+        // (الحقل يُخفى بصرياً فقط عند اختيار وضع اللوحة، ولا يُصفَّر تلقائياً).
+        var hasPlateDigits = !!((d.c1 && String(d.c1).trim()) || (d.c2 && String(d.c2).trim()) ||
+                                 (d.c3 && String(d.c3).trim()) || (d.n1 && String(d.n1).trim()));
+
+        if (d.plateType === 'no_plate' || d.plateType === 'no-plate') {
+            isNoPlateRecord = true;
+        } else if (!hasPlateDigits) {
             isNoPlateRecord = true;
         }
 
@@ -7650,13 +8464,16 @@ function applyInvRecordToWorkspace(key, raw) {
 
         // تحديث القرارات بعد اكتمال تحميل اسم المتهم وباقي بيانات المحضر
         // حتى يظهر الاسم مباشرة دون الحاجة إلى قصه ولصقه يدوياً.
-        if (typeof updateReleaseDecisionUI === 'function') updateReleaseDecisionUI();
+                if (typeof updateReleaseDecisionUI === 'function') updateReleaseDecisionUI();
         if (typeof updateForensicDecisionUI === 'function') updateForensicDecisionUI();
+
+        // إزالة أي تمييز أحمر من الحقول التي امتلأت من المحضر المحفوظ
+        clearValidationHighlightsForFilledFields();
 
         // ⑥ حفظ الحالة الجديدة
         if (typeof saveData === 'function') saveData();
 
-        showInvArchiveToast('✔ تم تحميل المحضر ' + (d.caseNum || '') + ' — ' + (d.name || ''), true);
+        showInvArchiveToast('✔ تم تحميل بيانات المحضر رقم ' + (d.caseNum || '') + ' — ' + (d.name || ''), true);
 
     } catch(e) {
         showInvArchiveToast('✖ خطأ في قراءة بيانات المحضر', false);
@@ -7669,7 +8486,7 @@ function showInvArchiveToast(text, success) {
     if (!toast) {
         toast = document.createElement('div');
         toast.id = '_inv_archive_toast';
-        toast.style.cssText = 'position:fixed;bottom:-70px;left:50%;transform:translateX(-50%);padding:10px 24px;border-radius:30px;font-size:14px;font-family:Cairo,Segoe UI,Arial,sans-serif;box-shadow:0 4px 20px rgba(0,0,0,0.3);z-index:99999;transition:bottom 0.35s cubic-bezier(0.34,1.56,0.64,1);white-space:nowrap;color:#fff;';
+        toast.style.cssText = 'position:fixed;bottom:-70px;left:50%;transform:translateX(-50%);padding:12px 28px;border-radius:30px;font-size:16px;font-family:Cairo,Segoe UI,Arial,sans-serif;box-shadow:0 4px 20px rgba(0,0,0,0.3);z-index:99999;transition:bottom 0.35s cubic-bezier(0.34,1.56,0.64,1);white-space:nowrap;color:#fff;';
         document.body.appendChild(toast);
     }
     toast.style.background = success ? '#1a5c2e' : '#8b1a1a';
