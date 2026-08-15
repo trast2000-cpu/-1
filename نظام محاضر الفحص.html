@@ -568,8 +568,8 @@ td.ce-cell:focus-within,
     outline-offset: 2px;
 }
 
-/* تغذية بصرية عند الضغط على F9 على زر "مسح البيانات" (بدون إطار أبيض) */
-#fahs-clear-all.keyboard-pressed {
+/* تغذية بصرية عند الضغط على اختصارات الكيبورد (F9 / CTRL+P / CTRL+R) على الأزرار */
+.bottom-action-btn.keyboard-pressed {
     transform: translateY(2px) scale(.97) !important;
     filter: brightness(.90) saturate(1.05);
     box-shadow: inset 0 3px 6px rgba(15, 23, 42, .34), 0 1px 2px rgba(15, 23, 42, .16) !important;
@@ -1354,8 +1354,8 @@ thead th[data-tip]:hover::before {
     <div style="position: relative; display: flex; align-items: center; justify-content: center; margin-top: 6px;">
         <span class="no-print dev-credit-fhs" style="position: absolute; left: 0; font-size: 12px; color: #888; font-style: italic; user-select: none;">Developed by Ibrahem Ahmed | v1.4.1</span>
         <div style="display: flex; gap: 8px; align-items: center;">
-            <button class="print-btn-main bottom-action-btn" style="margin:0;" onclick="printPage()">طباعة الكشف(CTRL+P)</button>
-            <button class="no-print bottom-action-btn" onclick="openRestoreModal()" title="استرجع كشف (CTRL+R)" style="background:linear-gradient(135deg,#6f42c1,#563d7c);color:#fff;border:none;border-radius:8px;padding:5px 12px;font-size:13px;font-weight:bold;cursor:pointer;font-family:inherit;"> استرجع كشف (ctrl+R)</button>
+            <button class="print-btn-main bottom-action-btn" id="fahs-print" style="margin:0;" onclick="printPage()">طباعة الكشف(CTRL+P)</button>
+            <button class="no-print bottom-action-btn" id="fahs-restore" onclick="openRestoreModal()" title="استرجع كشف (CTRL+R)" style="background:linear-gradient(135deg,#6f42c1,#563d7c);color:#fff;border:none;border-radius:8px;padding:5px 12px;font-size:13px;font-weight:bold;cursor:pointer;font-family:inherit;"> استرجع كشف (ctrl+R)</button>
             <button class="no-print bottom-action-btn" id="fahs-clear-all" onclick="confirmClearAllDataByMouse()" title="مسح البيانات (F9)" style="background:linear-gradient(135deg,#dc3545,#c82333);color:#fff;border:none;border-radius:8px;padding:5px 12px;font-size:13px;font-weight:bold;cursor:pointer;font-family:inherit;"> مسح البيانات (F9)</button>
         </div>
     </div>
@@ -1829,12 +1829,14 @@ thead th[data-tip]:hover::before {
 // ===== CTRL+P طباعة الكشف بنفس إعدادات الزر =====
         if (e.ctrlKey && (e.code === 'KeyP' || e.key === 'p' || e.key === 'P' || e.key === 'ح')) {
             e.preventDefault(); // منع المتصفح من الطباعة العشوائية
+            showFahsKeyboardPressFeedback(document.getElementById('fahs-print'));
             printPage(); // تشغيل زر الطباعة الخاص بالنظام
         }
 
 
         if (e.ctrlKey && (e.code === 'KeyR' || e.key === 'r' || e.key === 'R' || e.key === 'ق')) {
             e.preventDefault();
+            showFahsKeyboardPressFeedback(document.getElementById('fahs-restore'));
             openRestoreModal();
         }
     });
@@ -2259,7 +2261,15 @@ thead th[data-tip]:hover::before {
 
     function closeRestoreOverlay() {
         var overlay = document.getElementById('restoreOverlay');
-        if (overlay && overlay.parentNode) overlay.parentNode.removeChild(overlay);
+        if (!overlay) return;
+        var modal = overlay.firstElementChild;
+        overlay.style.opacity = '0';
+        overlay.style.visibility = 'hidden';
+        if (modal) modal.style.transform = 'translateY(-12px) scale(.97)';
+        clearTimeout(overlay._closeTimer);
+        overlay._closeTimer = setTimeout(function() {
+            if (overlay.parentNode) overlay.parentNode.removeChild(overlay);
+        }, 230);
     }
 
     function openRestoreModal() {
@@ -2277,11 +2287,16 @@ thead th[data-tip]:hover::before {
         }
         if (snapshots.length === 0) { showInspectionInfoAlert('لا توجد كشوفات محفوظة في الذاكرة'); return; }
         snapshots.sort(function(a, b) { return b._ts - a._ts; });
+        var existingOverlay = document.getElementById('restoreOverlay');
+        if (existingOverlay && existingOverlay.parentNode) {
+            clearTimeout(existingOverlay._closeTimer);
+            existingOverlay.parentNode.removeChild(existingOverlay);
+        }
         var overlay = document.createElement('div');
         overlay.id = 'restoreOverlay';
-        overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:9999;display:flex;align-items:center;justify-content:center;';
+        overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:9999;display:flex;align-items:center;justify-content:center;opacity:0;visibility:hidden;transition:opacity .22s ease,visibility .22s ease;';
         var modal = document.createElement('div');
-        modal.style.cssText = 'background:#fff;border-radius:12px;padding:20px;min-width:350px;max-width:550px;max-height:60vh;display:flex;flex-direction:column;box-shadow:0 10px 30px rgba(0,0,0,0.3);direction:rtl;font-family:inherit;';
+        modal.style.cssText = 'background:#fff;border-radius:12px;padding:20px;min-width:350px;max-width:550px;max-height:60vh;display:flex;flex-direction:column;box-shadow:0 10px 30px rgba(0,0,0,0.3);direction:rtl;font-family:inherit;transform:translateY(-12px) scale(.97);transition:transform .22s ease;';
         var html = '<h3 style="margin:0 0 15px;color:#1a237e;text-align:center;font-size:18px;">📂 استرجع كشف محفوظ</h3>';
         html += '<p style="color:#666;font-size:13px;text-align:center;margin-bottom:15px;">اختر الكشف الذي تريد استرجاعه</p>';
         html += '<div style="overflow-y:auto; flex:1; padding:5px; margin-bottom:10px; border-top:1px solid #eee; border-bottom:1px solid #eee; padding-top:15px;">';
@@ -2298,6 +2313,11 @@ thead th[data-tip]:hover::before {
         overlay.appendChild(modal);
         document.body.appendChild(overlay);
         overlay.addEventListener('click', function(e) { if (e.target === overlay) closeRestoreOverlay(); });
+        requestAnimationFrame(function() {
+            overlay.style.opacity = '1';
+            overlay.style.visibility = 'visible';
+            modal.style.transform = 'translateY(0) scale(1)';
+        });
     }
 
     var inspectionConfirmKeydown = null;
