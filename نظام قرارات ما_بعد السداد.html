@@ -278,6 +278,30 @@ body, .app-layout {
             background: #dde3ef; color: #5a6a82; font-weight: bold;
             border: 1px solid #c5cfe0;
         }
+        .lookup-record-btn {
+            font-family: inherit;
+            font-size: 11px;
+            font-weight: bold;
+            padding: 2px 9px;
+            border: 2px solid #2d5a8c;
+            border-radius: 8px;
+            background: #e5edf8;
+            color: #1e3a5f;
+            cursor: pointer;
+            line-height: 1.5;
+            white-space: nowrap;
+            box-shadow: 0 0 0 2px rgba(45, 90, 140, 0.13), 0 2px 5px rgba(30, 58, 95, 0.18);
+            transition: background-color 0.2s ease, color 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
+        }
+        .lookup-record-btn:hover {
+            background: #d5e3f4;
+            color: #163b66;
+            border-color: #1e3a5f;
+            box-shadow: 0 0 0 3px rgba(45, 90, 140, 0.18), 0 3px 8px rgba(30, 58, 95, 0.22);
+        }
+        .lookup-record-btn:active {
+            transform: scale(0.96);
+        }
         .toggle-arrow {
             font-size: 11px; color: #8a9bb5;
             transition: transform 0.25s;
@@ -429,6 +453,11 @@ body, .app-layout {
             filter: brightness(1.18);
         }
         #btn-clear-all:active { transform: translateY(0) scale(0.97); }
+        #btn-clear-all.keyboard-pressed {
+            transform: translateY(0) scale(0.97);
+            box-shadow: 0 2px 6px rgba(107,45,45,0.45);
+            filter: brightness(0.92);
+        }
 
 .sidebar .developer-credit {
     text-align: center;
@@ -1588,7 +1617,7 @@ body[data-theme="dark"] .rec-date { color: #64748b !important; }
 
             <div class="btn-row">
                 <button class="btn-print" onclick="printPostSettlement()">🖨️ &nbsp; طباعة القرار</button>
-                <button class="btn-clear" onclick="clearAll()"><i class="fa-solid fa-trash fa-icon-btn"></i> مسح الكل &nbsp; &nbsp;{ F9 }</button>
+                <button class="btn-clear" id="btn-clear-all" onclick="clearAll()"><i class="fa-solid fa-trash fa-icon-btn"></i> مسح الكل &nbsp; &nbsp;{ F9 }</button>
             </div>
             <div class="developer-credit">
     Developed by Ibrahem Ahmed | v1.4.1
@@ -1624,7 +1653,7 @@ body[data-theme="dark"] .rec-date { color: #64748b !important; }
             <div class="card-header" onclick="toggleCard('card-basic')">
                 <span class="card-icon"><i class="fa-solid fa-clipboard-list"></i></span>
                 <span class="card-title"> — البيانات الأساسية — </span>
-                <span class="card-badge">قسم الشرطه · رقم المحضر · تاريخ التحرير</span>
+                <button type="button" class="card-badge lookup-record-btn" onclick="event.stopPropagation(); lookupMahdar();" title="بحث واستيراد بيانات محضر من التخزين المحلي"><i class="fa-solid fa-magnifying-glass"></i> بحث و استيراد بيانات محضر</button>
                 <span class="toggle-arrow">▾</span>
             </div>
             <div class="card-body" style="gap:0; padding:0;">
@@ -2332,14 +2361,14 @@ window.addEventListener('beforeprint', function() {
             updateFineReceiptText();
         }
 
-        function clearAll(silent = false, _skip = false, noCardChange = false) {
+        function clearAll(silent = false, _skip = false, noCardChange = false, showMouseToast = false) {
             if (!silent) {
                 showCustomConfirm('هل تريد مسح جميع البيانات؟', {
                     title: 'تأكيد مسح جميع البيانات',
                     confirmText: 'مسح جميع البيانات',
                     cancelText: 'إلغاء',
                     type: 'danger',
-                    onConfirm: function() { clearAll(true, _skip, noCardChange); }
+                    onConfirm: function() { clearAll(true, _skip, noCardChange, true); }
                 });
                 return;
             }
@@ -2402,6 +2431,7 @@ window.addEventListener('beforeprint', function() {
             if (document.getElementById('session-selected-items')) document.getElementById('session-selected-items').innerHTML = '';
             document.getElementById('session-date-wrapper').style.display = 'none';
             sync();
+            if (showMouseToast) showClearToast();
         }
 
         // ── فحص: هل يوجد بيانات فعلية مدخلة حالياً في النموذج؟ ──
@@ -3042,8 +3072,36 @@ function renderArrestItems() {
                 });
                 return;
             }
+
+            const bossSelect = document.getElementById('input-boss-select');
+            const bossName = bossSelect && bossSelect.value === 'أخرى'
+                ? ((document.getElementById('input-boss-other') || {}).value || '').trim()
+                : ((bossSelect || {}).value || '').trim();
+            if (!bossName) {
+                showCustomConfirm('اسم وكيل النيابة غير محدد، هل تريد المتابعة؟', {
+                    title: 'اسم وكيل النيابة غير محدد',
+                    confirmText: 'متابعة الطباعة',
+                    cancelText: 'إلغاء',
+                    type: 'danger',
+                    onConfirm: function() {
+                        setTimeout(() => window.print(), 100);
+                    }
+                });
+                return;
+            }
+
             setTimeout(() => window.print(), 100);
         }
+
+        // ربط اختصار Ctrl+P بنفس دالة زر طباعة القرار.
+        // يتم اعتراض طباعة المتصفح العامة حتى تُجهّز صفحة القرار بالطريقة الصحيحة.
+        document.addEventListener('keydown', function(e) {
+            if ((e.ctrlKey || e.metaKey) && String(e.key).toLowerCase() === 'p') {
+                e.preventDefault();
+                e.stopPropagation();
+                printPostSettlement();
+            }
+        }, true);
 
         function applyPreset(type) {
             document.querySelectorAll('.preset-btn').forEach(b=>b.classList.remove('active'));
@@ -3357,13 +3415,13 @@ if (window.isPresetRunning) return;
                 : '';
 
             if (!caseNum) { showLookupToast('⚠ يرجى كتابة رقم المحضر أولاً', false); return; }
-            if (!year)    { showLookupToast('⚠ يرجى كتابة السنة أولاً', false); return; }
             if (!dept)    { showLookupToast('⚠ يرجى اختيار قسم الشرطة أولاً', false); return; }
+            if (!year)    { showLookupToast('⚠ يرجى كتابة السنة أولاً', false); return; }
 
             const key = 'mahdar_' + caseNum + '_' + year + '_' + dept;
             const raw = localStorage.getItem(key);
             if (!raw) {
-                showLookupToast('✖ لا توجد بيانات لهذا المحضر: ' + caseNum + ' / ' + year + ' / ' + dept, false);
+                showLookupToast('✖ المحضر غير موجود: ' + caseNum + ' / ' + year + ' / ' + dept, false);
                 return;
             }
 
@@ -3399,13 +3457,15 @@ if (window.isPresetRunning) return;
             setVal('c1', data.c1); setVal('c2', data.c2); setVal('c3', data.c3); setVal('n1', data.n1);
             if (data.noPlateTxt) setVal('input-no-plate', data.noPlateTxt);
 
-            // ③ مدير النيابة
+            // ③ وكيل النيابة الحالي: لا نستورد اسم الوكيل القديم من بيانات المحضر.
+            // يُترك الحقل فارغًا حتى يختار المستخدم الوكيل الحالي أو يكتبه يدويًا.
             const bossEl = document.getElementById('input-boss-select');
-            if (bossEl && data.bossSelect) {
-                bossEl.value = data.bossSelect;
+            const bossOtherEl = document.getElementById('input-boss-other');
+            if (bossEl) {
+                bossEl.value = '';
+                if (bossOtherEl) bossOtherEl.value = '';
                 syncCustomSelectDisplay('input-boss-select');
                 if (typeof toggleOther === 'function') toggleOther('input-boss-select', 'boss-other-wrapper');
-                if (data.bossSelect === 'أخرى' && data.bossOther) setVal('input-boss-other', data.bossOther);
             }
 
             // ④ سبب الضبط (arrestItems) من violations المحفوظة في المحاضر
@@ -3819,10 +3879,23 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         
-// ===== اختصار F9: مسح البيانات وتفريغ الحقول بالكامل =====
+// ===== التغذية البصرية لاختصارات لوحة المفاتيح =====
+        function showKeyboardPressFeedback(button) {
+            if (!button) return;
+            button.classList.remove('keyboard-pressed');
+            void button.offsetWidth;
+            button.classList.add('keyboard-pressed');
+            clearTimeout(button._keyboardFeedbackTimer);
+            button._keyboardFeedbackTimer = setTimeout(function() {
+                button.classList.remove('keyboard-pressed');
+            }, 180);
+        }
+
+        // ===== اختصار F9: مسح البيانات وتفريغ الحقول بالكامل =====
         document.addEventListener('keydown', function(e) {
             if (e.key === 'F9') {
                 e.preventDefault();
+                showKeyboardPressFeedback(document.getElementById('btn-clear-all'));
                 clearAll(true); // سيتم مسح كل شيء بما في ذلك تاريخ اليوم
                 showClearToast();
             }

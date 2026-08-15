@@ -415,6 +415,16 @@ td.ce-cell:focus-within,
     font-weight: 700;
 }
 
+/* منع ظهور إطار منحني حول النص داخل البند؛ يظل إطار الخلية الخارجي هو إطار التركيز الوحيد */
+.auto-list ol,
+.auto-list ol:focus,
+.auto-list ol > li,
+.auto-list ol > li:focus {
+    outline: none !important;
+    border: 0 !important;
+    box-shadow: none !important;
+}
+
 /* تعديل خلية بيان الأمر الصادر */
 .order-cell {
     vertical-align: middle !important;
@@ -556,6 +566,13 @@ td.ce-cell:focus-within,
 .bottom-action-btn:focus-visible {
     outline: 3px solid rgba(37, 99, 235, .35);
     outline-offset: 2px;
+}
+
+/* تغذية بصرية عند الضغط على F9 على زر "مسح البيانات" (بدون إطار أبيض) */
+#fahs-clear-all.keyboard-pressed {
+    transform: translateY(2px) scale(.97) !important;
+    filter: brightness(.90) saturate(1.05);
+    box-shadow: inset 0 3px 6px rgba(15, 23, 42, .34), 0 1px 2px rgba(15, 23, 42, .16) !important;
 }
 
 /* ===== أزرار الصف (سهم صاعد، سهم نازل، نسخ ، حذف) ===== */
@@ -1339,7 +1356,7 @@ thead th[data-tip]:hover::before {
         <div style="display: flex; gap: 8px; align-items: center;">
             <button class="print-btn-main bottom-action-btn" style="margin:0;" onclick="printPage()">طباعة الكشف(CTRL+P)</button>
             <button class="no-print bottom-action-btn" onclick="openRestoreModal()" title="استرجع كشف (CTRL+R)" style="background:linear-gradient(135deg,#6f42c1,#563d7c);color:#fff;border:none;border-radius:8px;padding:5px 12px;font-size:13px;font-weight:bold;cursor:pointer;font-family:inherit;"> استرجع كشف (ctrl+R)</button>
-            <button class="no-print bottom-action-btn" onclick="confirmClearAllDataByMouse()" title="مسح البيانات (F9)" style="background:linear-gradient(135deg,#dc3545,#c82333);color:#fff;border:none;border-radius:8px;padding:5px 12px;font-size:13px;font-weight:bold;cursor:pointer;font-family:inherit;"> مسح البيانات (F9)</button>
+            <button class="no-print bottom-action-btn" id="fahs-clear-all" onclick="confirmClearAllDataByMouse()" title="مسح البيانات (F9)" style="background:linear-gradient(135deg,#dc3545,#c82333);color:#fff;border:none;border-radius:8px;padding:5px 12px;font-size:13px;font-weight:bold;cursor:pointer;font-family:inherit;"> مسح البيانات (F9)</button>
         </div>
     </div>
 </div>
@@ -1635,8 +1652,80 @@ thead th[data-tip]:hover::before {
     }
 
     /* ==================== اختصارات الكيبورد ==================== */
+    // التقاط Shift+Enter قبل أي معالجة أخرى لضمان الاستجابة من أول ضغطة فعلية.
+    document.addEventListener('keydown', function(e) {
+        if (!e.shiftKey || e.key !== 'Enter') return;
+        var target = e.target;
+        var list = target && target.closest ? target.closest('.auto-list ol') : null;
+        if (!list) {
+            var anchor = window.getSelection() && window.getSelection().anchorNode;
+            if (anchor && anchor.nodeType === Node.TEXT_NODE) anchor = anchor.parentElement;
+            list = anchor && anchor.closest ? anchor.closest('.auto-list ol') : null;
+        }
+        if (!list) return;
+        // منع تكرار الإدراج إذا وصل أكثر من keydown لنفس الضغطة المركبة.
+        if (window.__inspectionShiftEnterLock) return;
+        window.__inspectionShiftEnterLock = true;
+        setTimeout(function() { window.__inspectionShiftEnterLock = false; }, 180);
+        var item = getActiveViolationItem(list) || ensureFirstViolationItem(list);
+        e.preventDefault();
+        e.stopImmediatePropagation();
+        placeCaretAtEnd(item);
+        // احذف أي BR مساعد سابق (كان يضمن نزول المؤشر بصريًا) قبل إضافة سطر جديد،
+        // حتى لا يتراكم ويسبب أسطر فارغة زائدة.
+        if (item.lastChild && item.lastChild.nodeType === 1 && item.lastChild.tagName === 'BR' &&
+            item.lastChild.hasAttribute('data-inspection-shift-helper')) {
+            item.lastChild.remove();
+            placeCaretAtEnd(item);
+        }
+        var originalNodes = Array.from(item.childNodes);
+        var insertedBreak = insertViolationLineBreak();
+        // بعض محركات الإدخال قد تضيف BR افتراضيًا قبل الفاصل الصحيح أو بعده؛ احذف الزائد فقط.
+        setTimeout(function() {
+            if (!insertedBreak || !insertedBreak.parentNode) return;
+            [insertedBreak.previousSibling, insertedBreak.nextSibling].forEach(function(candidate) {
+                if (candidate && candidate.nodeType === 1 && candidate.tagName === 'BR' &&
+                    !candidate.hasAttribute('data-inspection-shift-break') && !originalNodes.includes(candidate)) {
+                    candidate.remove();
+                }
+            });
+        }, 0);
+        requestAnimationFrame(function() {
+            autoFitViolationItem(item);
+            sortViolationItemsBySize(list);
+        });
+    }, true);
+    document.addEventListener('keyup', function(e) {
+        if (e.key === 'Enter' || e.key === 'Shift') window.__inspectionShiftEnterLock = false;
+    }, true);
+
     window.addEventListener('keydown', function(e) {
         const active = document.activeElement;
+
+        // ===== تحرير بنود الاتهام يدويًا =====
+        // Shift+Enter: سطر جديد داخل نفس البند.
+        // Enter: إنشاء بند جديد بالترقيم التالي.
+        const violationList = active && active.closest ? active.closest('.auto-list ol') : null;
+        if (violationList && e.key === 'Enter') {
+            e.preventDefault();
+            var currentItem = getActiveViolationItem(violationList) || ensureFirstViolationItem(violationList);
+            if (e.shiftKey) {
+                // تمت معالجة Shift+Enter مسبقًا في معالج الالتقاط المبكر.
+                return;
+            } else {
+                const newItem = document.createElement('li');
+                currentItem.after(newItem);
+                placeCaretAtStart(newItem);
+            }
+            requestAnimationFrame(function() {
+                if (currentItem) autoFitViolationItem(currentItem);
+                var activeAfterEnter = getActiveViolationItem(violationList);
+                if (activeAfterEnter) autoFitViolationItem(activeAfterEnter);
+                ensureFirstViolationItem(violationList);
+                sortViolationItemsBySize(violationList);
+            });
+            return;
+        }
 
         // ===== CTRL+C نسخ محتوى الخلية تلقائياً بدون تحديد الكل =====
         if (e.ctrlKey && (e.code === 'KeyC' || e.key === 'c' || e.key === 'C' || e.key === 'ؤ')) {
@@ -1819,9 +1908,11 @@ thead th[data-tip]:hover::before {
         var decorated = items.map(function(item, index) {
             var size = parseFloat(window.getComputedStyle(item).fontSize) || 14;
             var isReduced = item.dataset.autoFitted === 'true' || size < (parseFloat(window.getComputedStyle(list).fontSize) || 14) - 0.1;
-            return { item: item, index: index, reduced: isReduced, size: size };
+            var isProtectedFirst = index === 0 && !(item.innerText || '').replace(/\u200b/g, '').trim();
+            return { item: item, index: index, reduced: isReduced, protectedFirst: isProtectedFirst, size: size };
         });
         decorated.sort(function(a, b) {
+            if (a.protectedFirst !== b.protectedFirst) return a.protectedFirst ? -1 : 1;
             if (a.reduced !== b.reduced) return a.reduced ? -1 : 1;
             return a.index - b.index;
         });
@@ -1841,11 +1932,82 @@ thead th[data-tip]:hover::before {
         });
     }
 
+    function getActiveViolationItem(list) {
+        if (!list) return null;
+        var selection = window.getSelection();
+        var node = selection && selection.anchorNode;
+        if (node && node.nodeType === Node.TEXT_NODE) node = node.parentElement;
+        while (node && node !== list) {
+            if (node.nodeType === Node.ELEMENT_NODE && node.tagName === 'LI') return node;
+            node = node.parentElement;
+        }
+        return null;
+    }
+
+    function ensureFirstViolationItem(list) {
+        if (!list) return null;
+        var first = Array.from(list.children).find(function(node) { return node.tagName === 'LI'; });
+        if (!first) {
+            first = document.createElement('li');
+            list.appendChild(first);
+        }
+        return first;
+    }
+
+    function placeCaretAtStart(node) {
+        if (!node) return;
+        var range = document.createRange();
+        range.selectNodeContents(node);
+        range.collapse(true);
+        var selection = window.getSelection();
+        selection.removeAllRanges();
+        selection.addRange(range);
+    }
+
+    function placeCaretAtEnd(node) {
+        if (!node) return;
+        var range = document.createRange();
+        range.selectNodeContents(node);
+        range.collapse(false);
+        var selection = window.getSelection();
+        selection.removeAllRanges();
+        selection.addRange(range);
+    }
+
+    function insertViolationLineBreak() {
+        var selection = window.getSelection();
+        if (!selection || !selection.rangeCount) return;
+        var range = selection.getRangeAt(0);
+        range.deleteContents();
+        var br = document.createElement('br');
+        br.setAttribute('data-inspection-shift-break', 'true');
+        range.insertNode(br);
+
+        // إصلاح مشكلة الضغط مرتين: عندما يكون BR هو آخر عنصر في السطر، لا يقوم
+        // المتصفح بإظهار المؤشر على السطر الجديد فورًا (خاصية معروفة في المتصفحات
+        // تتجاهل عرض BR أخير منفرد). الحل: إضافة BR مساعد غير مرئي مباشرة بعده
+        // حتى يظهر السطر الجديد من أول ضغطة، مع وضع المؤشر بينهما.
+        if (!br.nextSibling) {
+            var helper = document.createElement('br');
+            helper.setAttribute('data-inspection-shift-break', 'true');
+            helper.setAttribute('data-inspection-shift-helper', 'true');
+            br.after(helper);
+        }
+
+        range.setStartAfter(br);
+        range.collapse(true);
+        selection.removeAllRanges();
+        selection.addRange(range);
+        return br;
+    }
+
     document.addEventListener('input', function(e) {
-        var item = e.target && e.target.closest ? e.target.closest('.auto-list ol li') : null;
-        if (item) {
-            var list = item.closest('ol');
-            autoFitViolationItem(item);
+        var target = e.target;
+        var list = target && target.closest ? target.closest('.auto-list ol') : null;
+        var item = target && target.closest ? target.closest('.auto-list ol li') : null;
+        if (!item && list) item = getActiveViolationItem(list);
+        if (list) {
+            if (item) autoFitViolationItem(item);
             sortViolationItemsBySize(list);
         }
     });
@@ -1855,7 +2017,10 @@ thead th[data-tip]:hover::before {
         if (!table || typeof MutationObserver === 'undefined') return;
         var observer = new MutationObserver(function(mutations) {
             var shouldFit = mutations.some(function(m) { return m.type === 'childList'; });
-            if (shouldFit) autoFitAllViolationItems(table);
+            if (shouldFit) {
+                table.querySelectorAll('.auto-list ol').forEach(ensureFirstViolationItem);
+                autoFitAllViolationItems(table);
+            }
         });
         observer.observe(table, { childList: true, subtree: true });
         setTimeout(function() { autoFitAllViolationItems(table); }, 0);
@@ -2964,9 +3129,21 @@ function showF9Toast() {
     toast._timer = setTimeout(function() { toast.style.opacity = '0'; }, 2500);
 }
 
+function showFahsKeyboardPressFeedback(button) {
+    if (!button) return;
+    button.classList.remove('keyboard-pressed');
+    void button.offsetWidth;
+    button.classList.add('keyboard-pressed');
+    clearTimeout(button._keyboardFeedbackTimer);
+    button._keyboardFeedbackTimer = setTimeout(function() {
+        button.classList.remove('keyboard-pressed');
+    }, 180);
+}
+
 document.addEventListener('keydown', function(e) {
     if (e.key === 'F9') {
         e.preventDefault();
+        showFahsKeyboardPressFeedback(document.getElementById('fahs-clear-all'));
         clearAllData();
     }
 });
