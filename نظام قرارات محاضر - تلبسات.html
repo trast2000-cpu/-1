@@ -1511,15 +1511,61 @@ body[data-theme="dark"] textarea.ta-locked {
     align-items: stretch;
     width: 100%;
     padding: 6px 8px;
+    padding-left: 32px;
     background: #f4f6fb;
     border: 1.5px solid #c8d3e3;
     border-radius: 6px;
     cursor: pointer;
     text-align: right;
-    transition: all 0.2s;
+    transition: width 0.2s ease, background 0.2s, border-color 0.2s, box-shadow 0.2s, transform 0.2s;
     font-family: inherit;
     box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+    position: relative;
+    z-index: 1;
 }
+.record-row { position: relative; }
+.record-row.menu-open .record-btn { width: calc(100% - 34px); }
+
+/* الشريط الأحمر (خانة الحذف) المختبئ خلف زر المحضر ويظهر عند تزحزحه */
+.record-delete-slot {
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 34px;
+    background: #c0392b;
+    border-radius: 6px;
+    z-index: 0;
+}
+
+.record-dots-btn {
+    position: absolute;
+    top: 50%;
+    left: 4px;
+    transform: translateY(-50%);
+    width: 22px;
+    height: 22px;
+    padding: 0;
+    border: none;
+    border-radius: 50%;
+    background: transparent;
+    color: #93a1b8;
+    font-size: 16px;
+    font-weight: bold;
+    line-height: 1;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background .15s ease, color .15s ease;
+    z-index: 2;
+}
+.record-dots-btn:hover, .record-dots-btn.active { background: rgba(74,122,181,0.14); color: #2d5a8e; }
+body[data-theme="dark"] .record-dots-btn { color: #7f8fac; }
+body[data-theme="dark"] .record-dots-btn:hover, body[data-theme="dark"] .record-dots-btn.active { background: rgba(74,122,181,0.28); color: #cfe0ff; }
+.record-row.menu-open .record-dots-btn { color: #fff; font-size: 14px; }
+.record-row.menu-open .record-dots-btn:hover { background: rgba(255,255,255,0.2); }
+
 .record-btn:hover {
     background: #fff;
     border-color: #4a7ab5;
@@ -5200,6 +5246,7 @@ function switchArchiveTab(stationName) {
 function loadArchiveToSidebar() {
     const container = document.getElementById("records-list");
     if (!container) return;
+    closeRecordMenu();
 
     let index = [];
     try {
@@ -5294,14 +5341,31 @@ function loadArchiveToSidebar() {
             }
             lastDateSeen = dateOnly;
 
+            const row = document.createElement("div");
+            row.className = "record-row";
+
             const btn = document.createElement("button");
             btn.className = "record-btn";
             btn.onclick = () => {
+                if (row.classList.contains('menu-open')) { closeRecordMenu(); return; }
                 loadRecordToWorkspace(key);
                 // تبقى القائمة مفتوحة عند الاختيار (نفس سلوك الأرشيف الموحّد)
             };
             btn.innerHTML = `<div class="record-title"><span>📄 ${d.caseNum || ""} / ${d.year || ""}</span>${badgeHtml}</div><div class="record-sub-row"><span class="rec-name">👤 ${shortName}</span><span class="rec-date">${dateOnly}</span></div>`;
-            container.appendChild(btn);
+            row.appendChild(btn);
+
+            const dotsBtn = document.createElement("button");
+            dotsBtn.type = "button";
+            dotsBtn.className = "record-dots-btn";
+            dotsBtn.title = "خيارات";
+            dotsBtn.innerHTML = "⋮";
+            dotsBtn.onclick = (e) => {
+                e.stopPropagation();
+                handleRecordDotsClick(row, dotsBtn, key, d.caseNum || "", d.year || "");
+            };
+            row.appendChild(dotsBtn);
+
+            container.appendChild(row);
         } catch(e) {}
     });
 
@@ -5321,6 +5385,112 @@ function loadArchiveToSidebar() {
         };
         container.appendChild(loadMoreBtn);
     }
+}
+
+// ── تزحزح زر المحضر عند الضغط على ⋮ لكشف أيقونة حذف صغيرة خلفه ──
+let openRecordRowEl = null;
+
+function handleRecordDotsClick(row, dotsBtn, key, caseNum, year) {
+    if (row.classList.contains('menu-open')) {
+        // الضغطة الثانية على نفس الزر (بعد ما بقى أيقونة حذف) = تأكيد الحذف
+        closeRecordMenu();
+        confirmDeleteMahdarRecord(key, caseNum, year);
+        return;
+    }
+    closeRecordMenu();
+
+    // إنشاء خانة الحذف الحمراء فقط الآن (وقت الحاجة إليها)، بدل ما تكون
+    // موجودة دائمًا مختبئة خلف زر المحضر — حتى لا يظهر جزء منها عند تأثير الهوفر
+    const deleteSlot = document.createElement('div');
+    deleteSlot.className = 'record-delete-slot';
+    row.insertBefore(deleteSlot, row.firstChild);
+
+    row.classList.add('menu-open');
+    dotsBtn.innerHTML = '🗑️';
+    dotsBtn.title = 'اضغط للحذف نهائياً';
+    openRecordRowEl = row;
+}
+
+function closeRecordMenu() {
+    if (!openRecordRowEl) return;
+    const row = openRecordRowEl;
+    row.classList.remove('menu-open');
+    const dotsBtn = row.querySelector('.record-dots-btn');
+    if (dotsBtn) { dotsBtn.innerHTML = '⋮'; dotsBtn.title = 'خيارات'; }
+    const deleteSlot = row.querySelector('.record-delete-slot');
+    // إزالة خانة الحذف من الصفحة نهائيًا بعد انتهاء حركة الرجوع
+    if (deleteSlot) setTimeout(() => { if (deleteSlot.parentElement) deleteSlot.remove(); }, 200);
+    openRecordRowEl = null;
+}
+
+document.addEventListener('click', function(e) {
+    if (openRecordRowEl && !openRecordRowEl.contains(e.target)) {
+        closeRecordMenu();
+    }
+}, true);
+
+// حذف محضر واحد نهائياً من اللوكال ستورج (بعد تأكيد المستخدم)
+function confirmDeleteMahdarRecord(key, caseNum, year) {
+    const label = (caseNum || year) ? `المحضر رقم ${caseNum || "—"} لسنة ${year || "—"}` : "هذا المحضر";
+    showCustomConfirm(`سيتم حذف ${label} نهائياً من المحاضر المحفوظة، ولن يمكن استرجاعه. هل تريد المتابعة؟`, {
+        title: 'حذف محضر محفوظ',
+        type: 'danger',
+        confirmText: 'حذف نهائياً',
+        cancelText: 'إلغاء',
+        onConfirm: () => deleteMahdarRecord(key)
+    });
+}
+
+function deleteMahdarRecord(key) {
+    localStorage.removeItem(key);
+    try {
+        let index = JSON.parse(localStorage.getItem('mahdar_index') || '[]');
+        if (Array.isArray(index)) {
+            index = index.filter(k => k !== key);
+            localStorage.setItem('mahdar_index', JSON.stringify(index));
+        }
+    } catch(e) {}
+    showRecordDeletedToast();
+    loadArchiveToSidebar();
+}
+
+function showRecordDeletedToast() {
+    let toast = document.getElementById('record-delete-toast');
+    if (!toast) {
+        toast = document.createElement('div');
+        toast.id = 'record-delete-toast';
+        toast.className = 'no-print';
+        toast.style.cssText = `
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%) translateY(80px);
+            background: #c0392b;
+            color: #fff;
+            padding: 14px 32px;
+            border-radius: 10px;
+            font-family: 'Cairo', sans-serif;
+            font-size: 15px;
+            font-weight: 600;
+            box-shadow: 0 4px 18px rgba(0,0,0,0.25);
+            z-index: 99999;
+            opacity: 0;
+            transition: opacity 0.35s ease, transform 0.35s ease;
+            white-space: nowrap;
+            letter-spacing: 0.3px;
+        `;
+        toast.textContent = '🗑️ تم حذف المحضر نهائياً';
+        document.body.appendChild(toast);
+    }
+    requestAnimationFrame(() => {
+        toast.style.opacity = '1';
+        toast.style.transform = 'translateX(-50%) translateY(0)';
+    });
+    clearTimeout(toast._hideTimer);
+    toast._hideTimer = setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateX(-50%) translateY(80px)';
+    }, 2000);
 }
 
 // دالة ملء منطقة العمل بالبيانات عند الضغط على زر محضر

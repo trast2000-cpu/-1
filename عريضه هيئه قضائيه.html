@@ -254,11 +254,62 @@
             font-size: 13px;
             font-weight: 700;
             cursor: pointer;
-            transition: opacity 0.15s;
+            transition: opacity 0.15s, transform 0.15s, box-shadow 0.15s, filter 0.15s;
             white-space: nowrap;
             box-shadow: 0 3px 10px rgba(192,57,43,0.3);
         }
-        .btn-clear:hover { opacity: 0.9; }
+        .btn-clear:hover { opacity: 0.9; transform: translateY(-2px); box-shadow: 0 6px 16px rgba(192,57,43,0.4); }
+        .btn-clear:active { transform: translateY(0) scale(.96); filter: brightness(.9); box-shadow: inset 0 3px 6px rgba(0,0,0,0.3); }
+
+        /* تغذية بصرية عند الضغط على F9 على زر "مسح الحقول" */
+        #petition-clear-all.keyboard-pressed {
+            transform: scale(.96) !important;
+            filter: brightness(.9);
+            box-shadow: inset 0 3px 6px rgba(0,0,0,0.3) !important;
+            transition: none;
+        }
+
+        /* تغذية بصرية عند الضغط على Ctrl+P على زر "طباعة المذكرة" */
+        #petition-print.keyboard-pressed {
+            transform: translateY(0) scale(.96) !important;
+            filter: brightness(.9);
+            box-shadow: inset 0 3px 6px rgba(0,0,0,0.3) !important;
+            transition: none;
+        }
+
+        /* تغذية بصرية عند الضغط على Ctrl+R على زر "استرجاع عريضة سابقة" */
+        #petition-history.keyboard-pressed {
+            transform: translateY(0) scale(.96) !important;
+            filter: brightness(.9);
+            box-shadow: inset 0 3px 6px rgba(0,0,0,0.3) !important;
+            transition: none;
+        }
+
+        /* تويست تأكيد المسح */
+        .petition-toast {
+            position: fixed;
+            bottom: 26px;
+            left: 50%;
+            transform: translateX(-50%) translateY(20px);
+            background: linear-gradient(135deg, #1e824c, #2ecc71);
+            color: #fff;
+            padding: 12px 22px;
+            border-radius: 10px;
+            font-family: 'Cairo', sans-serif;
+            font-size: 14px;
+            font-weight: 700;
+            box-shadow: 0 8px 22px rgba(30,130,76,0.35);
+            z-index: 10000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity .25s ease, transform .25s ease, visibility .25s ease;
+            white-space: nowrap;
+        }
+        .petition-toast.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateX(-50%) translateY(0);
+        }
 
         /* مودال الهيستوري */
         .history-modal-overlay {
@@ -323,7 +374,10 @@
             font-weight: 700;
             cursor: pointer;
             box-shadow: 0 3px 10px rgba(106,76,156,0.3);
+            transition: transform 0.15s, box-shadow 0.15s, filter 0.15s;
         }
+        .btn-history:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(106,76,156,0.4); }
+        .btn-history:active { transform: translateY(0) scale(.96); filter: brightness(.9); box-shadow: inset 0 3px 6px rgba(0,0,0,0.3); }
         .history-item {
             padding: 10px 14px;
             cursor: pointer;
@@ -349,7 +403,10 @@
             font-family: 'Cairo', sans-serif;
             cursor: pointer;
             box-shadow: 0 4px 15px rgba(26,58,107,0.35);
+            transition: transform 0.15s, box-shadow 0.15s, filter 0.15s;
         }
+        .btn-print:hover { transform: translateY(-2px); box-shadow: 0 7px 20px rgba(26,58,107,0.45); }
+        .btn-print:active { transform: translateY(0) scale(.96); filter: brightness(.9); box-shadow: inset 0 3px 6px rgba(0,0,0,0.3); }
 
         /* ====== ورقة المذكرة ====== */
         .document-wrapper {
@@ -857,9 +914,9 @@
     
     <!-- الأزرار أصبحت الآن في جهة اليسار (بسبب توزيع المساحة) -->
     <div style="display: flex; gap: 12px; flex-wrap: wrap;">
-        <button class="btn-print" onclick="saveToHistory(); window.print()">🖨️ طباعة المذكرة</button>
-        <button class="btn-history" onclick="toggleHistory()">📋 استرجاع عريضة سابقة</button>
-        <button class="btn-clear" onclick="clearForm()">🗑️ مسح الحقول</button>
+        <button class="btn-print" id="petition-print" onclick="saveToHistory(); window.print()" title="طباعة المذكرة (Ctrl+P)">🖨️ طباعة المذكرة (Ctrl+P)</button>
+        <button class="btn-history" id="petition-history" onclick="toggleHistory()" title="استرجاع عريضة سابقة (Ctrl+R)">📋 استرجاع عريضة سابقة (Ctrl+R)</button>
+        <button class="btn-clear" id="petition-clear-all" onclick="clearForm()" title="مسح الحقول (F9)">🗑️ مسح الحقول (F9)</button>
     </div>
 
     <!-- الجملة أصبحت الآن في أقصى اليمين -->
@@ -985,6 +1042,57 @@
         if (first) first.focus();
     }
 
+    function showPetitionKeyboardPressFeedback(button) {
+        if (!button) return;
+        button.classList.remove('keyboard-pressed');
+        void button.offsetWidth;
+        button.classList.add('keyboard-pressed');
+        clearTimeout(button._keyboardFeedbackTimer);
+        button._keyboardFeedbackTimer = setTimeout(function() {
+            button.classList.remove('keyboard-pressed');
+        }, 180);
+    }
+
+    var petitionToastTimer = null;
+    var petitionToastHideTimer = null;
+    function showPetitionToast(message) {
+        var toast = document.getElementById('petition-toast');
+        if (!toast) {
+            toast = document.createElement('div');
+            toast.id = 'petition-toast';
+            toast.className = 'petition-toast no-print';
+            document.body.appendChild(toast);
+        }
+        toast.textContent = message;
+        clearTimeout(petitionToastTimer);
+        clearTimeout(petitionToastHideTimer);
+        toast.classList.remove('show');
+        void toast.offsetWidth;
+        toast.classList.add('show');
+        petitionToastTimer = setTimeout(function() {
+            toast.classList.remove('show');
+        }, 2200);
+    }
+
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'F9') {
+            e.preventDefault();
+            showPetitionKeyboardPressFeedback(document.getElementById('petition-clear-all'));
+            clearForm();
+        }
+        if (e.ctrlKey && (e.code === 'KeyP' || e.key === 'p' || e.key === 'P' || e.key === 'ح')) {
+            e.preventDefault(); // منع نافذة طباعة المتصفح الافتراضية لكامل الشاشة
+            showPetitionKeyboardPressFeedback(document.getElementById('petition-print'));
+            saveToHistory();
+            window.print();
+        }
+        if (e.ctrlKey && (e.code === 'KeyR' || e.key === 'r' || e.key === 'R' || e.key === 'ق')) {
+            e.preventDefault(); // منع إعادة تحميل الصفحة الافتراضية للمتصفح
+            showPetitionKeyboardPressFeedback(document.getElementById('petition-history'));
+            toggleHistory();
+        }
+    });
+
     function clearForm() {
         ['pNum','carL1','carL2','carL3','carDigits','ownerName','wifeName','otherInputText',
          'proxyNum','proxyLetter','directorOtherText'].forEach(id => {
@@ -1001,6 +1109,7 @@
         document.getElementById('directorSelect').value = '';
         reconstructForm();
         setTimeout(() => { document.getElementById('pNum').focus(); }, 50);
+        showPetitionToast('تم مسح الحقول بنجاح ✅');
     }
 
     function saveToHistory() {
@@ -1060,10 +1169,12 @@
         container.innerHTML = hist.map((h, i) => {
             const car = (h.carL1 + ' ' + h.carL2 + ' ' + h.carL3 + ' ' + h.carDigits).trim();
             const name = (h.ownerType === 'زوجه') ? `${h.wifeName} / ${h.ownerName}` : (h.ownerName || h.otherInputText || '---');
+            const petitionNo = (h.pNum || h.pYear) ? `${h.pNum || '---'} لسنة ${h.pYear || '---'}` : '---';
             return `
             <div class="history-item" onclick="loadHistory(${i})">
                 <div style="flex:1">
                     <div class="h-car">🏛️ ${name}</div>
+                    <div class="h-name">📄 عريضة رقم ${petitionNo}</div>
                     <div class="h-name">🚗 ${car || '---'}</div>
                 </div>
                 <button onclick="deleteHistory(event,${i})" style="background:#f8d7da;border:none;border-radius:8px;padding:6px 9px;cursor:pointer;">🗑️</button>
