@@ -2203,12 +2203,12 @@ box-sizing: border-box;
                     </select>
                     
                     <div id="plate_manual_container" class="plate-num-container" style="display: flex; margin: 0; flex: 1; gap: 4px; flex-wrap: nowrap;">
-                        <input type="text" id="plate_l1" class="plate-letter persist" maxlength="1" oninput="plateAutoTab(this,'plate_l2'); updateAutoQuestions(); updateVehicleDecisionUI(); updateEngineerDecisionUI(); saveData();" onkeydown="plateBackSpace(this,null)" placeholder="ح" style="width: 32px !important; text-align: center; padding: 2px !important; flex-shrink: 0;">
-                        <input type="text" id="plate_l2" class="plate-letter persist" maxlength="1" oninput="plateAutoTab(this,'plate_l3'); updateAutoQuestions(); updateVehicleDecisionUI(); updateEngineerDecisionUI(); saveData();" onkeydown="plateBackSpace(this,'plate_l1')" placeholder="ر" style="width: 32px !important; text-align: center; padding: 2px !important; flex-shrink: 0;">
-                        <input type="text" id="plate_l3" class="plate-letter persist" maxlength="1" oninput="plateAutoTab(this,'plate_digits'); updateAutoQuestions(); updateVehicleDecisionUI(); updateEngineerDecisionUI(); saveData();" onkeydown="plateBackSpace(this,'plate_l2')" placeholder="ف" style="width: 32px !important; text-align: center; padding: 2px !important; flex-shrink: 0;">
+                        <input type="text" id="plate_l1" class="plate-letter persist" maxlength="1" oninput="plateAutoTab(this,'plate_l2'); updateAutoQuestions(); updateVehicleDecisionUI(); updateEngineerDecisionUI(); saveData();" onkeydown="plateBackSpace(this,null)" placeholder="" style="width: 32px !important; text-align: center; padding: 2px !important; flex-shrink: 0;">
+                        <input type="text" id="plate_l2" class="plate-letter persist" maxlength="1" oninput="plateAutoTab(this,'plate_l3'); updateAutoQuestions(); updateVehicleDecisionUI(); updateEngineerDecisionUI(); saveData();" onkeydown="plateBackSpace(this,'plate_l1')" placeholder="" style="width: 32px !important; text-align: center; padding: 2px !important; flex-shrink: 0;">
+                        <input type="text" id="plate_l3" class="plate-letter persist" maxlength="1" oninput="plateAutoTab(this,'plate_digits'); updateAutoQuestions(); updateVehicleDecisionUI(); updateEngineerDecisionUI(); saveData();" onkeydown="plateBackSpace(this,'plate_l2')" placeholder="" style="width: 32px !important; text-align: center; padding: 2px !important; flex-shrink: 0;">
                         
                         <!-- 💡 السر هنا: حقل الأرقام يتمدد بـ (flex: 1) ليمتص الفراغ المزعج ويدفع زر المسح لحافة الفاصل -->
-                        <input type="text" id="plate_digits" class="plate-digit persist" placeholder="الأرقام" oninput="updateAutoQuestions(); updateVehicleDecisionUI(); updateEngineerDecisionUI(); saveData();" onkeydown="plateBackSpace(this,'plate_l3')" style="flex: 1; min-width: 60px; text-align: center;">
+                        <input type="text" id="plate_digits" class="plate-digit persist" placeholder="" oninput="updateAutoQuestions(); updateVehicleDecisionUI(); updateEngineerDecisionUI(); saveData();" onkeydown="plateBackSpace(this,'plate_l3')" style="flex: 1; min-width: 60px; text-align: center;">
                         
                         <button type="button" onclick="clearPlateFieldsInvest()" style="padding: 0 8px; background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; border-radius: 6px; cursor: pointer; font-size: 14px; flex-shrink: 0; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'" title="مسح رقم المركبة"><i class="fa-solid fa-trash-can"></i></button>
                     </div>
@@ -4005,6 +4005,12 @@ function removeQuestion(id) {
             const currentFont = localStorage.getItem('font_choice');
             const currentFontSize = localStorage.getItem('font_size_choice');
             const currentStyle = localStorage.getItem('selected_style');
+            // حفظ إعدادات النيابة واسم وكيل النيابة قبل مسح الذاكرة
+            const currentNiabatConfig = localStorage.getItem('niabat_config');
+            const currentProsecutor = (document.getElementById('prosecutor') || {}).value || localStorage.getItem('prosecutor') || '';
+            const currentProsOther = (document.getElementById('pros_other') || {}).value || localStorage.getItem('pros_other') || '';
+            const currentProsecutionName = (document.getElementById('prosecution_name') || {}).value || localStorage.getItem('prosecution_name') || '';
+            const currentProsecutionNameOther = (document.getElementById('prosecution_name_other') || {}).value || localStorage.getItem('prosecution_name_other') || '';
             // حفظ بيانات محاضر التلبسات قبل المسح
             const externalSaved = {};
             for (let i = 0; i < localStorage.length; i++) {
@@ -4020,6 +4026,12 @@ function removeQuestion(id) {
             if (currentFont) localStorage.setItem('font_choice', currentFont);
             if (currentFontSize) localStorage.setItem('font_size_choice', currentFontSize);
             if (currentStyle) localStorage.setItem('selected_style', currentStyle);
+            // إعادة إعدادات النيابة واسم وكيل النيابة بعد المسح
+            if (currentNiabatConfig) localStorage.setItem('niabat_config', currentNiabatConfig);
+            if (currentProsecutor) localStorage.setItem('prosecutor', currentProsecutor);
+            if (currentProsOther) localStorage.setItem('pros_other', currentProsOther);
+            if (currentProsecutionName) localStorage.setItem('prosecution_name', currentProsecutionName);
+            if (currentProsecutionNameOther) localStorage.setItem('prosecution_name_other', currentProsecutionNameOther);
             // إعادة بيانات محاضر التلبسات بعد المسح
             Object.keys(externalSaved).forEach(k => localStorage.setItem(k, externalSaved[k]));           
 
@@ -4050,6 +4062,22 @@ function removeQuestion(id) {
                     select.selectedIndex = 0;
                 }
             });
+
+             // إعادة اسم وكيل النيابة وإعدادات النيابة التي لا تخص بيانات المحضر
+             const prosecutorElAfterClear = document.getElementById('prosecutor');
+             if (prosecutorElAfterClear && currentProsecutor) prosecutorElAfterClear.value = currentProsecutor;
+             const prosOtherElAfterClear = document.getElementById('pros_other');
+             if (prosOtherElAfterClear) {
+                 prosOtherElAfterClear.value = currentProsOther;
+                 prosOtherElAfterClear.style.display = currentProsecutor === 'other' ? 'block' : 'none';
+             }
+             const prosecutionNameElAfterClear = document.getElementById('prosecution_name');
+             if (prosecutionNameElAfterClear && currentProsecutionName) prosecutionNameElAfterClear.value = currentProsecutionName;
+             const prosecutionNameOtherElAfterClear = document.getElementById('prosecution_name_other');
+             if (prosecutionNameOtherElAfterClear) {
+                 prosecutionNameOtherElAfterClear.value = currentProsecutionNameOther;
+                 prosecutionNameOtherElAfterClear.style.display = currentProsecutionName === 'other' ? 'block' : 'none';
+             }
 
              // إعادة بناء نص قرار إخلاء السبيل بعد مسح اسم المتهم
              // حتى لا يظل الاسم القديم داخل نص القرار.
@@ -7260,6 +7288,12 @@ ${cairoFontFaceTag2}
         const currentFont     = localStorage.getItem('font_choice');
         const currentFontSize = localStorage.getItem('font_size_choice');
         const currentStyle    = localStorage.getItem('selected_style');
+        // حفظ إعدادات النيابة واسم وكيل النيابة قبل مسح الذاكرة
+        const currentNiabatConfig = localStorage.getItem('niabat_config');
+        const currentProsecutor = (document.getElementById('prosecutor') || {}).value || localStorage.getItem('prosecutor') || '';
+        const currentProsOther = (document.getElementById('pros_other') || {}).value || localStorage.getItem('pros_other') || '';
+        const currentProsecutionName = (document.getElementById('prosecution_name') || {}).value || localStorage.getItem('prosecution_name') || '';
+        const currentProsecutionNameOther = (document.getElementById('prosecution_name_other') || {}).value || localStorage.getItem('prosecution_name_other') || '';
         // حفظ بيانات محاضر التلبسات قبل المسح
         const externalSaved = {};
         for (let i = 0; i < localStorage.length; i++) {
@@ -7274,6 +7308,12 @@ ${cairoFontFaceTag2}
         if (currentFont)     localStorage.setItem('font_choice',      currentFont);
         if (currentFontSize) localStorage.setItem('font_size_choice', currentFontSize);
         if (currentStyle)    localStorage.setItem('selected_style',   currentStyle);
+        // إعادة إعدادات النيابة واسم وكيل النيابة بعد المسح
+        if (currentNiabatConfig) localStorage.setItem('niabat_config', currentNiabatConfig);
+        if (currentProsecutor) localStorage.setItem('prosecutor', currentProsecutor);
+        if (currentProsOther) localStorage.setItem('pros_other', currentProsOther);
+        if (currentProsecutionName) localStorage.setItem('prosecution_name', currentProsecutionName);
+        if (currentProsecutionNameOther) localStorage.setItem('prosecution_name_other', currentProsecutionNameOther);
         // إعادة بيانات محاضر التلبسات بعد المسح
         Object.keys(externalSaved).forEach(k => localStorage.setItem(k, externalSaved[k]));
 
@@ -7294,6 +7334,22 @@ ${cairoFontFaceTag2}
             else if (select.id === 'plate_mode')         { /* لا تُمسح — يبقى وضع اللوحة كما هو حتى يغيّره المستخدم يدويًا */ }
             else    select.selectedIndex = 0;
         });
+
+        // إعادة اسم وكيل النيابة وإعدادات النيابة التي لا تخص بيانات المحضر
+        const prosecutorElAfterSilentClear = document.getElementById('prosecutor');
+        if (prosecutorElAfterSilentClear && currentProsecutor) prosecutorElAfterSilentClear.value = currentProsecutor;
+        const prosOtherElAfterSilentClear = document.getElementById('pros_other');
+        if (prosOtherElAfterSilentClear) {
+            prosOtherElAfterSilentClear.value = currentProsOther;
+            prosOtherElAfterSilentClear.style.display = currentProsecutor === 'other' ? 'block' : 'none';
+        }
+        const prosecutionNameElAfterSilentClear = document.getElementById('prosecution_name');
+        if (prosecutionNameElAfterSilentClear && currentProsecutionName) prosecutionNameElAfterSilentClear.value = currentProsecutionName;
+        const prosecutionNameOtherElAfterSilentClear = document.getElementById('prosecution_name_other');
+        if (prosecutionNameOtherElAfterSilentClear) {
+            prosecutionNameOtherElAfterSilentClear.value = currentProsecutionNameOther;
+            prosecutionNameOtherElAfterSilentClear.style.display = currentProsecutionName === 'other' ? 'block' : 'none';
+        }
 
         // إعادة بناء نص قرار إخلاء السبيل بعد مسح اسم المتهم
         // حتى لا يظل الاسم القديم داخل نص القرار عند استخدام F9.

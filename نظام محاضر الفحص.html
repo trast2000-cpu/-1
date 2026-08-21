@@ -1501,7 +1501,7 @@ thead th[data-tip]:hover::before {
             <td class="ce-cell"><span contenteditable="true" data-ph="00000000000000"></span></td>
             <td style="padding:2px;">
                 <select class="plate-type-select" onchange="togglePlateMode(this)"><option value="both">حروف وأرقام</option><option value="numOnly">بدون لوحات</option></select>
-                <div class="plate-area"><div class="plate-grid"><div class="plate-letters"><div contenteditable="true" data-ph="أ" oninput="autoTab(this, 1)"></div><div contenteditable="true" data-ph="ب" oninput="autoTab(this, 2)"></div><div contenteditable="true" data-ph="ج" oninput="autoTab(this, 3)"></div></div><div class="plate-numbers" contenteditable="true" data-ph="0000"></div></div></div>
+                <div class="plate-area"><div class="plate-grid"><div class="plate-letters"><div contenteditable="true" data-ph="" oninput="autoTab(this, 1)"></div><div contenteditable="true" data-ph="" oninput="autoTab(this, 2)"></div><div contenteditable="true" data-ph="" oninput="autoTab(this, 3)"></div></div><div class="plate-numbers" contenteditable="true" data-ph=""></div></div></div>
             </td>
             <td class="order-cell">
                 <div class="order-cell-inner">
@@ -1541,7 +1541,7 @@ thead th[data-tip]:hover::before {
     function deleteSpecificRow(btn) {
         var row = btn.closest('tr');
         if (!row) return;
-        showInspectionConfirm('حذف هذا الصف؟', 'تأكيد حذف الصف', function() {
+        showInspectionConfirm('حذف هذا الصف؟', 'تأكيد حذف الصف ؟', function() {
             if (row.parentNode) row.parentNode.removeChild(row);
             updateRowNumbers();
             checkScrollable();
@@ -2328,6 +2328,7 @@ thead th[data-tip]:hover::before {
         closeInspectionConfirm(false);
         inspectionConfirmCallback = onConfirm;
         var isClearConfirm = (titleText || '') === 'تأكيد مسح جميع البيانات';
+        var isRowDeleteConfirm = (titleText || '') === 'تأكيد حذف الصف ؟';
 
         var overlay = document.createElement('div');
         overlay.id = 'inspection-confirm-modal';
@@ -2341,7 +2342,7 @@ thead th[data-tip]:hover::before {
             : 'width:min(100%,380px);box-sizing:border-box;background:#fff;border-radius:14px;padding:20px 20px 18px;box-shadow:0 16px 42px rgba(0,0,0,.24);text-align:center;transform:translateY(-12px) scale(.97);transition:transform .22s ease;';
 
         var icon = document.createElement('div');
-        icon.textContent = isClearConfirm ? '!' : '?';
+        icon.textContent = isClearConfirm ? '!' : '';
         icon.style.cssText = 'width:44px;height:44px;margin:0;display:flex;align-items:center;justify-content:center;border-radius:50%;background:#fff3cd;color:#b7791f;border:2px solid #f0c36d;font-size:25px;font-weight:700;line-height:1;flex:0 0 auto;';
 
         var title = document.createElement('h3');
@@ -2362,8 +2363,10 @@ thead th[data-tip]:hover::before {
         var confirmButton = document.createElement('button');
         confirmButton.type = 'button';
         confirmButton.textContent = isClearConfirm ? 'تأكيد المسح' : 'تأكيد';
-        confirmButton.style.cssText = isClearConfirm
-            ? 'min-width:112px;padding:9px 16px;border:0;border-radius:7px;background:#b91c1c;color:#fff;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;box-shadow:0 3px 8px rgba(185,28,28,.25);'
+        confirmButton.style.cssText = isClearConfirm || isRowDeleteConfirm
+            ? (isClearConfirm
+                ? 'min-width:112px;padding:9px 16px;border:0;border-radius:7px;background:#b91c1c;color:#fff;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;box-shadow:0 3px 8px rgba(185,28,28,.25);'
+                : 'min-width:105px;padding:8px 18px;border:0;border-radius:8px;background:#dc3545;color:#fff;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;box-shadow:0 3px 8px rgba(220,53,69,.28);')
             : 'min-width:105px;padding:8px 18px;border:0;border-radius:8px;background:#1a237e;color:#fff;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;box-shadow:0 3px 8px rgba(26,35,126,.25);';
         confirmButton.addEventListener('click', function() { closeInspectionConfirm(true); });
 
@@ -2375,7 +2378,7 @@ thead th[data-tip]:hover::before {
             : 'min-width:105px;padding:8px 18px;border:0;border-radius:8px;background:#6c757d;color:#fff;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;';
         cancelButton.addEventListener('click', function() { closeInspectionConfirm(false); });
 
-        if (isClearConfirm) {
+        if (isClearConfirm || isRowDeleteConfirm) {
             actions.appendChild(cancelButton);
             actions.appendChild(confirmButton);
         } else {
@@ -2386,6 +2389,9 @@ thead th[data-tip]:hover::before {
         header.style.cssText = 'display:flex;align-items:center;justify-content:flex-start;gap:10px;margin:0 0 10px;';
         if (isClearConfirm) {
             header.appendChild(icon);
+            header.appendChild(title);
+        } else if (isRowDeleteConfirm) {
+            header.style.justifyContent = 'center';
             header.appendChild(title);
         } else {
             header.appendChild(title);
@@ -2488,7 +2494,7 @@ thead th[data-tip]:hover::before {
             var delBtn = row.querySelector('.del-row-btn');
             if (delBtn) {
                 delBtn.onclick = function() {
-                    showInspectionConfirm('حذف هذا الصف؟', 'تأكيد حذف الصف', function() { row.remove(); updateRowNumbers(); });
+                    showInspectionConfirm('حذف هذا الصف؟', 'تأكيد حذف الصف ؟', function() { row.remove(); updateRowNumbers(); });
                 };
             }
         });
@@ -3045,6 +3051,7 @@ function insertSelectedRecords() {
 
             if (data.name) fillCell(cells[2], data.name);
             if (data.violations && data.violations.length > 0) fillCell(cells[3], data.violations);
+            if (data.materialsTextShort) fillCell(cells[7], data.materialsTextShort);
             if (data.nationalId) fillCell(cells[4], data.nationalId);
 
             var plateArea = cells[5] ? cells[5].querySelector('.plate-area') : null;
@@ -3222,6 +3229,7 @@ function lookupFromTalbsat(caseNumEl) {
     var cells = row.cells;
     if (data.name)       fillCell(cells[2], data.name);
     if (data.violations && data.violations.length > 0) fillCell(cells[3], data.violations);
+    if (data.materialsTextShort) fillCell(cells[7], data.materialsTextShort);
     if (data.nationalId) fillCell(cells[4], data.nationalId);
 
     var plateArea = cells[5] ? cells[5].querySelector('.plate-area') : null;

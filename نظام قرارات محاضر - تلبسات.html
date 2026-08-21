@@ -2075,6 +2075,8 @@ body[data-theme="dark"] .record-title { color: #7aaeff !important; }
     outline: 3px solid rgba(37, 99, 235, 0.35);
     outline-offset: 2px;
 }
+
+.first-decision-materials { display:inline; white-space:normal; word-break:normal; }
 </style>
 
 </head>
@@ -2260,7 +2262,7 @@ body[data-theme="dark"] .record-title { color: #7aaeff !important; }
                                     <input type="text" id="c1" class="char-input" maxlength="1" oninput="autoTab(this,'c2')" onkeydown="autoBack(event,this,null)">
                                     <input type="text" id="c2" class="char-input" maxlength="1" oninput="autoTab(this,'c3')" onkeydown="autoBack(event,this,'c1')">
                                     <input type="text" id="c3" class="char-input" maxlength="1" oninput="autoTab(this,'n1')" onkeydown="autoBack(event,this,'c2')">
-                                    <input type="text" id="n1" class="num-input" maxlength="4" placeholder="أرقام" oninput="updateAll();" onkeydown="autoBack(event,this,'c3')">
+                                    <input type="text" id="n1" class="num-input" maxlength="4" placeholder="" oninput="updateAll();" onkeydown="autoBack(event,this,'c3')">
                                     <button type="button" onclick="clearPlateFields()" style="padding:2px 6px; background:#f8d7da; color:#721c24; border:1px solid #f5c6cb; border-radius:4px; cursor:pointer; font-size:13px; margin-right:4px;" title="مسح رقم المركبة"><i class="fa-solid fa-trash-can"></i></button>
                                 </div>
                             </div>
@@ -2269,13 +2271,34 @@ body[data-theme="dark"] .record-title { color: #7aaeff !important; }
                                 <input type="text" id="input-no-plate" class="no-plate-input" value="بدون لوحات" oninput="updateAll();">
                             </div>
                         </div>
-                        <div style="display:flex; align-items:center; gap:8px; padding:10px; flex:1;">
-                            <div class="field-group">
+                        <div style="display:flex; align-items:flex-start; gap:8px; padding:10px; flex:1; flex-wrap:nowrap; min-width:0; overflow-x:auto;">
+                            <div class="field-group" style="flex:0 0 120px; min-width:120px;">
                                 <label>تاريخ الواقعة</label>
-                                <div class="date-input-wrapper" style="width:145px;">
+                                <div class="date-input-wrapper" style="width:120px;">
                                     <span class="date-cal-icon">📅</span>
-                                    <input type="text" id="f-incident-date" oninput="updateAll()" placeholder="يوم/شهر/سنة" maxlength="10" style="width:145px;">
+                                    <input type="text" id="f-incident-date" oninput="updateAll()" placeholder="يوم/شهر/سنة" maxlength="10" style="width:120px;">
                                     <input type="date" id="picker-incident-date" class="date-hidden-picker" onchange="pickerToText(this,'f-incident-date'); updateAll()">
+                                </div>
+                            </div>
+                            <div class="field-group" style="flex:1 1 auto; min-width:0;">
+                                <label>نوع المركبة</label>
+                                <div style="display:flex; align-items:flex-end; gap:5px; flex-wrap:nowrap; min-width:0;">
+                                    <select id="vehicle-type" onchange="toggleOther('vehicle-type','vehicle-type-other-wrapper'); updateAll();" style="width:125px; min-width:125px;">
+                                        <option value="">-- اختر --</option>
+                                        <option value="دراجة نارية">دراجة نارية</option>
+                                        <option value="توك توك">توك توك</option>
+                                        <option value="تروسيكل">تروسيكل</option>
+                                        <option value="ملاكي">ملاكي</option>
+                                        <option value="اجرة">اجرة</option>
+                                        <option value="نقل">نقل</option>
+                                        <option value="رحلات">رحلات</option>
+                                        <option value="اتوبيس خاص">اتوبيس خاص</option>
+                                        <option value="أخرى">اخري</option>
+                                    </select>
+                                    <div id="vehicle-type-other-wrapper" data-open-display="flex" style="display:none; align-items:flex-end; gap:4px; white-space:nowrap; min-width:0;">
+                                        <label style="margin-bottom:4px;">النوع</label>
+                                        <input type="text" id="vehicle-type-other" placeholder="اكتب النوع" oninput="updateAll();" style="width:110px; min-width:0; box-sizing:border-box;">
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -2336,7 +2359,37 @@ body[data-theme="dark"] .record-title { color: #7aaeff !important; }
             </div>
         </div>
 
-        <!-- Card ④: إخلاء السبيل -->
+        <!-- Card ④: القرار الأول / مواد الاتهام -->
+        <div class="card" id="card-first-decision">
+            <div class="card-header" onclick="toggleCard('card-first-decision')">
+                <span class="card-icon"><i class="fa-solid fa-scale-balanced"></i></span>
+                <span class="card-title"> — القرار أولا / مواد الاتهام — </span>
+                <span class="card-badge" id="badge-first-decision">تقيد الأوراق جنح مرور</span>
+                <span class="toggle-arrow">▾</span>
+            </div>
+            <div class="card-body" style="flex-direction:column; gap:10px; width:100%; box-sizing:border-box;">
+                <div style="display:flex; flex-wrap:nowrap; align-items:stretch; gap:12px; width:100%;">
+                    <div class="decision-controls" style="flex-shrink:0; flex-grow:0; min-width:unset; width:290px;">
+                        <div class="field-group">
+                            <label for="first-decision-mode">حالة قيد الأوراق</label>
+                            <select id="first-decision-mode" onchange="onFirstDecisionModeChange(this.value)" style="width:100%; padding:6px 8px; border:1.5px solid #c5cfe0; border-radius:6px; font-family:inherit; font-size:13px; background:#fff; color:#1e293b; cursor:pointer;">
+                                <option value="indict" selected>تقيد الأوراق جنح مرور</option>
+                                <option value="no-indict">لا تقيد الأوراق جنح مرور</option>
+                            </select>
+                        </div>
+                        <div id="first-decision-status" style="margin-top:10px; padding:7px 9px; border:1px solid #b8d8c5; border-radius:5px; background:#f0faf3; color:#216e39; font-size:12px; line-height:1.6;">
+                            القرار الأول ظاهر في المعاينة والطباعة.
+                        </div>
+                    </div>
+                    <div class="field-group" style="flex:1; min-width:0;">
+                        <div class="ta-lock-row"><label for="first-decision-preview" style="margin-bottom:0;">معاينة القرار الأول قبل الطباعة</label><label class="ta-lock-lbl" title="( فتح التعديل )"><input type="checkbox" id="first-decision-edit-toggle" onchange="toggleFirstDecisionEdit(this)"><span class="ta-lock-box"><span class="ta-lock-mark">✔</span></span><span>( فتح التعديل )</span></label></div>
+                        <textarea id="first-decision-preview" class="ta-locked" readonly oninput="onFirstDecisionManualInput(this)" style="width:100%; height:145px; border:1.5px solid #c5cfe0; border-radius:6px; background:#fff; padding:8px 10px; font-size:13px; color:#1e293b; font-family:inherit; box-sizing:border-box; overflow-y:auto; resize:vertical; line-height:1.8;"></textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card ⑤: إخلاء السبيل -->
         <div class="card" id="card-sabeel">
             <div class="card-header" onclick="toggleCard('card-sabeel')">
                 <span class="card-icon"><i class="fa-solid fa-lock-open"></i></span>
@@ -2514,7 +2567,7 @@ body[data-theme="dark"] .record-title { color: #7aaeff !important; }
 
             <div class="body-text">
                 <div class="line" style="text-align:center; font-weight:bold; text-decoration:underline; font-size:11pt; margin-bottom:2mm;">بعد الاطـلاع</div>
-                <div class="line">
+                <div class="line all-first-decision-print">
                     <span style="font-weight:bold;font-size:12pt;">أولاً:</span> تقيد الاوراق جنحة مرورية بالمادة 74 مكرر / 2 ، 3 ، 4 من القانون رقم 66 لسنة 1973
                     والمعدل بالقانونين رقمي 121 لسنة 2008 ، 59 لسنة 2014.
                 </div>
@@ -2679,7 +2732,7 @@ body[data-theme="dark"] .record-title { color: #7aaeff !important; }
 
                 <div class="line" style="position:relative; top:-5mm; text-align:center; font-weight:bold; text-decoration:underline; font-size:14pt; margin-bottom:2mm;">بعد الاطـلاع</div>
 
-                <div class="line" style="position: relative; top: -6mm;">
+                <div class="line all-first-decision-print" style="position: relative; top: -6mm;">
     <span style="font-weight:bold;font-size:12pt;">أولاً:</span> تقيد الاوراق جنحة مرورية بالمادة 74 مكرر / 2 ، 3 ، 4 من القانون رقم 66 لسنة 1973
     والمعدل بالقانونين رقمي 121 لسنة 2008 ، 59 لسنة 2014.
 </div>
@@ -2840,7 +2893,7 @@ body[data-theme="dark"] .record-title { color: #7aaeff !important; }
                 <div style="font-size:10pt; margin-bottom:1mm;">عقب مطالعة الأوراق وما تم فيها من تحقيقات.</div>
 
                 <!-- أولاً: تقيد الأوراق -->
-                <div style="font-size:11pt; margin-bottom:1.5mm; line-height:1.4; text-align:justify;">
+                <div class="all-first-decision-print jalsa-first-decision-print" style="font-size:11pt; margin-bottom:1.5mm; line-height:1.4; text-align:justify;">
                     أولاً: تقيد الأوراق جنحة بالمواد 1 ، 3 ، 4 ، 74 مكرر بند 6 ، 74 مكرر (3) ، 74 مكرر (4) وجنحة بالمواد 11 ، 3 ، 4 ، 13/2،3 ، 15/2،3 ، 53 ، 77 وجنحة بالمادة 77 مكرر . 1 ، 2 ، 3 ، 4 ، 76 مكرر ، 78 من القانون رقم 66 لسنة 1973 والمعدل بالقوانين أرقام 210 لسنة 1980 ، 155 لسنة 1999 و 121 لسنة 2008 ، 25 لسنة 2014 ، 59 لسنة 2014
                 </div>
 
@@ -3007,7 +3060,7 @@ body[data-theme="dark"] .record-title { color: #7aaeff !important; }
                         <div style="clear: both;"></div>
                     </div>
                     <div class="line">عقب مطالعة الأوراق وما تم فيها من تحقيقات.</div>
-                    <div class="line">
+                    <div class="line all-first-decision-print jalsa-first-decision-print">
                         أولاً: تقيد الأوراق جنحة بالمواد 1 ، 3 ، 4 ، 74 مكرر بند 6 ، 74 مكرر (3) ، 74 مكرر (4)
                         وجنحة بالمواد 11 ، 3 ، 4 ، 13/2،3 ، 15/2،3 ، 53 ، 77 وجنحة بالمادة 77 مكرر . 1 ، 2 ، 3 ، 4 ،
                         76 مكرر ، 78 من القانون رقم 66 لسنة 1973 والمعدل بالقوانين أرقام 210 لسنة 1980 ، 155 لسنة 1999
@@ -3089,7 +3142,7 @@ body[data-theme="dark"] .record-title { color: #7aaeff !important; }
                         <div style="clear: both;"></div>
                     </div>
                     <div class="line">عقب مطالعة الأوراق وما تم فيها من تحقيقات.</div>
-                    <div class="line">
+                    <div class="line all-first-decision-print jalsa-first-decision-print">
                         أولاً: تقيد الأوراق جنحة بالمواد 1 ، 3 ، 4 ، 74 مكرر بند 6 ، 74 مكرر (3) ، 74 مكرر (4)
                         وجنحة بالمواد 11 ، 3 ، 4 ، 13/2،3 ، 15/2،3 ، 53 ، 77 وجنحة بالمادة 77 مكرر . 1 ، 2 ، 3 ، 4 ،
                         76 مكرر ، 78 من القانون رقم 66 لسنة 1973 والمعدل بالقوانين أرقام 210 لسنة 1980 ، 155 لسنة 1999
@@ -3355,6 +3408,12 @@ function selectDecision(idx) {
     const jalsaDaySel = document.getElementById('f-jalsa-day-select');
     const sabeelCard = document.getElementById('card-sabeel');
     const sabeelSel  = document.getElementById('sabeel-select');
+    const firstDecisionCard = document.getElementById('card-first-decision');
+    // بطاقة القرار الأول مفتوحة دائمًا، وتُطوى فقط في طلب حضور متهم.
+    if (firstDecisionCard) {
+        if (idx === 4) _closeCard(firstDecisionCard);
+        else _openCard(firstDecisionCard);
+    }
 
     if (idx === 0) {
         if (vehCard)    _openCard(vehCard);
@@ -3643,6 +3702,9 @@ function updateViolDisplay() {
         if (hidden) hidden.value = items.map((v,i) => `${i+1}- ${v}`).join('\n');
     }
     
+    // عند إلغاء جميع البنود نعود تلقائيًا للنص الأصلي ونلغي التعديل اليدوي.
+    resetFirstDecisionManualOverrideForEmptyViolations();
+
     // 💡 تشغيل دالة الجمع التلقائي للغرامات أولاً ليتم وضع المبلغ في الحقل f-fine
     calculateTotalFine();
     
@@ -3996,7 +4058,173 @@ function updateJalsaDecisionText() {
     }
 }
 
+
+/* ===== القرار الأول: حالة القيد وإظهار/إخفاء المعاينة والطباعة ===== */
+const GENERAL_FIRST_DECISION_TAIL = 'من القانون رقم 66 لسنة 1973 والمعدل بالقانونين رقمي 121 لسنة 2008 ، 59 لسنة 2014.';
+const JALSA_FIRST_DECISION_TAIL = 'من القانون رقم 66 لسنة 1973 والمعدل بالقوانين أرقام 210 لسنة 1980 ، 155 لسنة 1999 و 121 لسنة 2008 ، 25 لسنة 2014 ، 59 لسنة 2014.';
+const FALLBACK_FIRST_DECISION_MATERIALS = '1 ، 2 ، 3 ، 4 ................................................................................................';
+let firstDecisionMode = 'indict';
+let firstDecisionManualOverride = false;
+
+// مواد بند عدم تركيب اللوحات تختلف حسب فئة المركبة المختارة.
+// المجموعة الخاصة: دراجة نارية، تروسيكل، توك توك.
+const VEHICLE_TYPE_MATERIAL_OVERRIDES = {
+    '30': {
+        special: {
+            codes: ['e01', 'e02', 'e03', 'e04', 'e74m3', 'e75b4', 'e78'],
+            materials: ['1', '2', '3', '4', '74 مكررًا 3', '75 / بند 4', '78']
+        },
+        other: {
+            codes: ['e01', 'e02', 'e03', 'e04', 'e74m1', 'e75b4'],
+            materials: ['1', '2', '3', '4', '74 مكررًا 1', '75 / بند 4']
+        }
+    }
+};
+
+function getMaterialsForSelectedVehicle(code, row) {
+    const override = VEHICLE_TYPE_MATERIAL_OVERRIDES[String(code)];
+    if (!override) return { codes: row.codes || [], materials: row.materials || [] };
+    const vehicleType = typeof getVehicleType === 'function' ? String(getVehicleType() || '').trim() : '';
+    const specialTypes = ['دراجة نارية', 'تروسيكل', 'توك توك'];
+    return specialTypes.includes(vehicleType) ? override.special : override.other;
+}
+
+function getSelectedComprehensiveMaterialData() {
+    const selected = Array.isArray(violItems) ? violItems : [];
+    const seenCodes = new Set();
+    const codes = [];
+    const materials = [];
+    const dbEntries = Object.entries(COMPREHENSIVE_MATERIALS_BY_CODE);
+    selected.forEach(item => {
+        const label = String(item && item.label || '').trim();
+        if (!label) return;
+        let matched = dbEntries.find(([code, row]) => String(fullViolationDB[code] || '').trim() === label);
+        if (!matched) matched = dbEntries.find(([code, row]) => row.offense === label);
+        if (!matched) matched = dbEntries.find(([code, row]) => row.offense.startsWith(label) || label.startsWith(row.offense));
+        if (!matched) return;
+        const selectedVehicleMaterials = getMaterialsForSelectedVehicle(matched[0], matched[1]);
+        selectedVehicleMaterials.codes.forEach((code, index) => {
+            if (!seenCodes.has(code)) {
+                seenCodes.add(code);
+                codes.push(code);
+                materials.push(selectedVehicleMaterials.materials[index] || '');
+            }
+        });
+    });
+    return { codes, materials: materials.filter(Boolean) };
+}
+
+function getSelectedComprehensiveMaterials() {
+    return getSelectedComprehensiveMaterialData().materials;
+}
+
+function getSelectedComprehensiveMaterialCodes() {
+    return getSelectedComprehensiveMaterialData().codes;
+}
+
+function getDynamicFirstDecisionMaterials() {
+    const materials = getSelectedComprehensiveMaterials();
+    return materials.length ? materials.join(' ، ') : FALLBACK_FIRST_DECISION_MATERIALS;
+}
+
+function buildDynamicFirstDecisionText() {
+    const materials = getDynamicFirstDecisionMaterials();
+    const isJalsa = [3, 7, 8].includes(currentDecision);
+    const prefix = isJalsa ? 'أولاً: تقيد الأوراق جنحة بالمواد ' : 'أولاً: تقيد الاوراق جنحة مرورية بالمواد ';
+    const tail = isJalsa ? JALSA_FIRST_DECISION_TAIL : GENERAL_FIRST_DECISION_TAIL;
+    return `${prefix}<span class="first-decision-materials">${materials}</span> ${tail}`;
+}
+
+function getFirstDecisionPreviewText() {
+    if (currentDecision === 4) return 'هذا القرار لا يحتوي على قرار أول في المطبوع الحالي.';
+    const selectedMaterials = getSelectedComprehensiveMaterials();
+    if (!selectedMaterials.length) {
+        const isJalsa = [3, 7, 8].includes(currentDecision);
+        const prefix = isJalsa ? 'أولاً: تقيد الأوراق جنحة بالمواد ' : 'أولاً: تقيد الاوراق جنحة مرورية بالمواد ';
+        const tail = isJalsa ? JALSA_FIRST_DECISION_TAIL : GENERAL_FIRST_DECISION_TAIL;
+        return `${prefix}1 ، 2 ، 3 ، 4 ............ ${tail}`;
+    }
+    return buildDynamicFirstDecisionText().replace(/<[^>]*>/g, '');
+}
+
+function toggleFirstDecisionEdit(cb) {
+    const preview = document.getElementById('first-decision-preview');
+    if (!preview) return;
+    if (cb.checked) {
+        preview.classList.remove('ta-locked');
+        preview.removeAttribute('readonly');
+        preview.focus();
+    } else {
+        preview.classList.add('ta-locked');
+        preview.setAttribute('readonly', true);
+    }
+}
+
+function onFirstDecisionManualInput(preview) {
+    firstDecisionManualOverride = true;
+    document.querySelectorAll('.all-first-decision-print').forEach(el => {
+        el.textContent = preview.value;
+    });
+}
+
+function resetFirstDecisionManualOverrideForEmptyViolations() {
+    if (Array.isArray(violItems) && violItems.length !== 0) return;
+    firstDecisionManualOverride = false;
+    const preview = document.getElementById('first-decision-preview');
+    const editToggle = document.getElementById('first-decision-edit-toggle');
+    if (editToggle) editToggle.checked = false;
+    if (preview) {
+        preview.classList.add('ta-locked');
+        preview.setAttribute('readonly', true);
+        preview.value = getFirstDecisionPreviewText();
+    }
+}
+
+function isFirstDecisionVisible() {
+    const select = document.getElementById('first-decision-mode');
+    return (select ? select.value : firstDecisionMode) === 'indict';
+}
+
+function updateFirstDecisionUI() {
+    const select = document.getElementById('first-decision-mode');
+    const preview = document.getElementById('first-decision-preview');
+    const status = document.getElementById('first-decision-status');
+    const badge = document.getElementById('badge-first-decision');
+    const visible = isFirstDecisionVisible();
+    firstDecisionMode = visible ? 'indict' : 'no-indict';
+
+    const autoPreviewText = visible ? getFirstDecisionPreviewText() : 'لا يوجد قرار أول — لن يظهر في الطباعة.';
+    const previewText = (visible && firstDecisionManualOverride && preview && preview.value.trim()) ? preview.value : autoPreviewText;
+    if (preview && (!firstDecisionManualOverride || !preview.value.trim() || !visible)) preview.value = autoPreviewText;
+    if (status) {
+        status.textContent = !visible
+            ? 'القرار الأول مخفي ولن يظهر في الطباعة.'
+            : (currentDecision === 4 ? 'هذا القرار لا يحتوي على قرار أول في المطبوع الحالي.' : 'تتفاعل مواد الاتهام تلقائيا من بنود الاتهام المختارة.');
+        status.style.background = visible ? '#f0faf3' : '#fff5f5';
+        status.style.borderColor = visible ? '#b8d8c5' : '#f1b8b8';
+        status.style.color = visible ? '#216e39' : '#a12626';
+    }
+    if (badge) badge.textContent = visible ? 'تقيد الأوراق جنح مرور' : 'لا تقيد الأوراق جنح مرور';
+    if (select) select.setAttribute('aria-label', visible ? 'تقيد الأوراق جنح مرور' : 'لا تقيد الأوراق جنح مرور');
+
+    document.querySelectorAll('.all-first-decision-print').forEach(el => {
+        el.style.display = visible ? '' : 'none';
+        el.setAttribute('data-first-decision-visible', visible ? '1' : '0');
+        if (visible) {
+            if (firstDecisionManualOverride && previewText.trim()) el.textContent = previewText;
+            else el.innerHTML = buildDynamicFirstDecisionText();
+        }
+    });
+}
+
+function onFirstDecisionModeChange(value) {
+    firstDecisionMode = value === 'no-indict' ? 'no-indict' : 'indict';
+    updateFirstDecisionUI();
+    if (typeof updateAll === 'function') updateAll();
+}
+
 function updateAll() {
+    updateFirstDecisionUI();
     updateOrdinals();
 
     const deptSel = document.getElementById('input-dept-select');
@@ -4010,7 +4238,10 @@ function updateAll() {
     
     const car          = getPlateNumber();
     // السر هنا: فحص ذكي يكتشف لو اللوحة فاضية أو عبارة عن نقاط فقط
-    const isCarEmpty   = (!car || car.trim() === '' || car.match(/^\.+$/)); 
+    const isCarEmpty   = (!car || car.trim() === '' || car.match(/^\.+$/));
+    const vehicleType = getVehicleType();
+    const vehicleTypeSuffix = getVehicleTypeSuffix();
+    const vehicleTypeSuffixHtml = vehicleType ? ` <span class="vehicle-type-print">/ (${escapeVehicleHtml(vehicleType)})</span>` : '';
 
     const incidentDate = get('f-incident-date')   || '';
     const da2ira       = qism;
@@ -4077,13 +4308,13 @@ function updateAll() {
     setText('p-incident-date-u', incidentDate);
 
     const carDisplay = !isCarEmpty
-                   ? `<span style="font-weight: bold; font-size: 13pt;">${car}</span>`
-                   : `<span style="font-size:5pt;">.........................................................</span>`;
+                   ? `<span style="font-weight: bold; font-size: 13pt;">${car}</span>${vehicleTypeSuffixHtml}`
+                   : `<span style="font-size:5pt;">.........................................................</span>${vehicleTypeSuffixHtml}`;
     const pCarU = document.getElementById('p-car-u');
     if (pCarU) {
         pCarU.innerHTML = carDisplay;
     } else {
-        setText('p-car-u', !isCarEmpty ? car : '');
+        setText('p-car-u', !isCarEmpty ? car + vehicleTypeSuffix : '');
     }
 
     setText('p-fine-u', fineAmountDisplay);
@@ -4167,8 +4398,8 @@ function updateAll() {
 
         const pmCarU = document.getElementById('pm-car-u');
         const carDisplayM = !isCarEmpty
-                       ? `<span style="font-weight: bold; font-size: 13pt;">${car}</span>`
-                       : `<span style="font-size:5pt;">.................................................</span>`;
+                       ? `<span style="font-weight: bold; font-size: 13pt;">${car}</span>${vehicleTypeSuffixHtml}`
+                       : `<span style="font-size:5pt;">.................................................</span>${vehicleTypeSuffixHtml}`;
         if (pmCarU) pmCarU.innerHTML = carDisplayM;
 
         const pmFineU = document.getElementById('pm-fine-u');
@@ -4254,7 +4485,7 @@ function updateAll() {
             pmNameLEl.style.fontSize = hasPMName ? '14pt' : '5pt'; 
         }
         if (pmCarLEl)  { 
-            pmCarLEl.textContent  = hasPMCar  ? car  : ''; 
+            pmCarLEl.textContent  = hasPMCar  ? car + vehicleTypeSuffix  : ''; 
             pmCarLEl.style.fontSize  = hasPMCar  ? '13pt' : '5pt'; 
         }
     }
@@ -4287,8 +4518,8 @@ function updateAll() {
 
         const mjCarU = document.getElementById('mj-car-u');
         if (mjCarU) {
-            if (!isCarEmpty) { 
-                mjCarU.textContent = car; 
+            if (!isCarEmpty) {
+                mjCarU.innerHTML = `${escapeVehicleHtml(car)}${vehicleTypeSuffixHtml}`; 
                 mjCarU.style.fontSize = '13pt'; 
             } else { 
                 mjCarU.innerHTML = '<span style="font-size:5pt">......................................................</span>'; 
@@ -4298,7 +4529,7 @@ function updateAll() {
 
         const mjCarLEl   = document.getElementById('mj-car-l');
         const mjCarDots  = document.getElementById('mj-car-dots-l');
-        if (mjCarLEl)  { mjCarLEl.textContent  = !isCarEmpty ? car : ''; mjCarLEl.style.fontSize = !isCarEmpty ? '13pt' : ''; }
+        if (mjCarLEl)  { mjCarLEl.textContent  = !isCarEmpty ? car + vehicleTypeSuffix : ''; mjCarLEl.style.fontSize = !isCarEmpty ? '13pt' : ''; }
         if (mjCarDots) mjCarDots.style.display = !isCarEmpty ? 'none' : '';
 
         const hasMJName  = name && name.trim() && name !== '.....................................';
@@ -4353,7 +4584,7 @@ function updateAll() {
     setText('j-qarar-date-new', qararDate);
     setText('j-name', name);
     setText('j-incident-date', incidentDate);
-    const plateDisplay = !isCarEmpty ? `( ${car} )` : '...........';
+    const plateDisplay = !isCarEmpty ? `( ${car} )${vehicleTypeSuffix}` : '...........';
     setText('j-car', plateDisplay);
     setText('j-da2ira', da2ira);
     setText('j-jalsa-day', jalsaDay);
@@ -4427,7 +4658,7 @@ function updateAll() {
         setText('mjt-qarar-date-new', qararDate);
         setText('mjt-name', name);
         setText('mjt-incident-date', incidentDate);
-        const mjtPlateDisplay = !isCarEmpty ? `( ${car} )` : '...........';
+        const mjtPlateDisplay = !isCarEmpty ? `( ${car} )${vehicleTypeSuffix}` : '...........';
         setText('mjt-car', mjtPlateDisplay);
         setText('mjt-da2ira', da2ira);
         setText('mjt-director-name', director);
@@ -4517,6 +4748,14 @@ function saveMahdarData() {
     const boss = bossSel ? (bossSel.value === 'أخرى' ? get('input-boss-other') : bossSel.value) : '';
     const vehDecSel  = document.getElementById('vehicle-decision-select');
     const sabeelSel  = document.getElementById('sabeel-select');
+    const materialData = typeof getSelectedComprehensiveMaterialData === 'function'
+        ? getSelectedComprehensiveMaterialData()
+        : { codes: [], materials: [] };
+    const firstDecisionPreview = document.getElementById('first-decision-preview');
+    const firstDecisionModeSelect = document.getElementById('first-decision-mode');
+    const manualDecisionText = firstDecisionPreview && firstDecisionManualOverride
+        ? firstDecisionPreview.value.trim()
+        : '';
     const data = {
         caseNum,
         year,
@@ -4529,6 +4768,9 @@ function saveMahdarData() {
         plate,
         c1: get('c1'), c2: get('c2'), c3: get('c3'), n1: get('n1'),
         noPlateTxt:   get('input-no-plate'),
+        vehicleType:  (document.getElementById('vehicle-type') || {}).value || '',
+        vehicleTypeOther: get('vehicle-type-other'),
+        vehicleTypeText: getVehicleType(),
         incidentDate: get('f-incident-date'),
         fine:         get('f-fine'),
         fineText:     get('fine-text'),
@@ -4537,6 +4779,11 @@ function saveMahdarData() {
         sabeelSelect: sabeelSel ? sabeelSel.value : '',
         sabeelText:   get('sabeel-text'),
         violations:   getViolations(),
+        materialsCodes: materialData.codes,
+        materialsTextShort: materialData.materials.join(' ، '),
+        firstDecisionMode: firstDecisionModeSelect ? firstDecisionModeSelect.value : firstDecisionMode,
+        firstDecisionManualOverride: Boolean(firstDecisionManualOverride && manualDecisionText),
+        firstDecisionManualText: manualDecisionText,
         boss,
         bossSelect:   bossSel ? bossSel.value : '',
         bossOther:    get('input-boss-other'),
@@ -4555,6 +4802,19 @@ function saveMahdarData() {
     const existingPos = index.indexOf(key);
     if (existingPos !== -1) index.splice(existingPos, 1);
     index.push(key);
+    while (index.length > MAX_SAVED_MAHDAR_RECORDS) {
+        const oldestKey = index.shift();
+        if (oldestKey) {
+            let oldestData = {};
+            try { oldestData = JSON.parse(localStorage.getItem(oldestKey) || '{}') || {}; } catch(e) {}
+            pendingAutoDeletionNotice = {
+                caseNum: oldestData.caseNum || '—',
+                year: oldestData.year || '—',
+                dept: oldestData.dept || '—'
+            };
+            localStorage.removeItem(oldestKey);
+        }
+    }
     localStorage.setItem('mahdar_index', JSON.stringify(index));
 
 loadArchiveToSidebar();
@@ -4649,6 +4909,7 @@ function loadMahdarFromStorage() {
     set('sabeel-text',           d.sabeelText);
     set('input-boss-other',      d.bossOther);
     set('input-no-plate',        d.noPlateTxt);
+    set('vehicle-type-other',    d.vehicleTypeOther);
     set('c1', d.c1); set('c2', d.c2); set('c3', d.c3); set('n1', d.n1);
     // تاريخ الجلسة ويومها
     set('f-jalsa-date',          d.jalsaDate);
@@ -4660,6 +4921,8 @@ function loadMahdarFromStorage() {
 
     // نوع اللوحة
     if (d.plateType) { set('plate-type', d.plateType); if (typeof togglePlateInput === 'function') togglePlateInput(); }
+    if (d.vehicleType != null) set('vehicle-type', d.vehicleType);
+    toggleOther('vehicle-type', 'vehicle-type-other-wrapper');
 
     // قوائم منسدلة بدون dispatchEvent
     const selSet = (id, val) => { const el = document.getElementById(id); if (el && val != null) el.value = val; };
@@ -4677,7 +4940,7 @@ function loadMahdarFromStorage() {
         if (typeof updateViolDisplay === 'function') updateViolDisplay();
     }
 
-   // استرجاع القرار المختار وتحديث القائمة الجانبية
+    // استرجاع القرار المختار وتحديث القائمة الجانبية
     if (d.currentDecision !== undefined && d.currentDecision !== -1) {
         selectDecision(d.currentDecision);
         
@@ -4691,13 +4954,26 @@ function loadMahdarFromStorage() {
             toggleNiabaTiming();
         }
         
-    } else {
+        } else {
         updateAll();
     }
-    
 
-
-
+    // استرجاع حالة القرار الأول والتعديل اليدوي إن وُجدا في المحضر المحفوظ.
+    const firstDecisionModeSelect = document.getElementById('first-decision-mode');
+    if (firstDecisionModeSelect && d.firstDecisionMode) {
+        firstDecisionModeSelect.value = d.firstDecisionMode;
+    }
+    firstDecisionMode = d.firstDecisionMode === 'no-indict' ? 'no-indict' : 'indict';
+    firstDecisionManualOverride = Boolean(d.firstDecisionManualOverride && String(d.firstDecisionManualText || '').trim());
+    const firstDecisionPreview = document.getElementById('first-decision-preview');
+    const firstDecisionEditToggle = document.getElementById('first-decision-edit-toggle');
+    if (firstDecisionEditToggle) firstDecisionEditToggle.checked = firstDecisionManualOverride;
+    if (firstDecisionManualOverride && firstDecisionPreview && firstDecisionMode === 'indict') {
+        firstDecisionPreview.value = d.firstDecisionManualText;
+        toggleFirstDecisionEdit({ checked: true });
+    }
+    updateFirstDecisionUI();
+    updateAll();
 
 
     // toast نجاح
@@ -4775,12 +5051,12 @@ function clearAll(suppressToast) {
     const savedDate = dateEl ? dateEl.value : '';
 
     ['input-caseNum','input-dept-other','input-boss-other','input-date',
-     'input-name','f-national-id','c1','c2','c3','n1','input-no-plate',
+     'input-name','f-national-id','c1','c2','c3','n1','input-no-plate','vehicle-type-other',
      'f-incident-date','f-fine','vehicle-decision-text','sabeel-text','jalsa-extra-text',
      'f-jalsa-date','f-jalsa-day-other']
         .forEach(id => { const el = document.getElementById(id); if (el) el.value = (id==='input-no-plate') ? 'بدون لوحات' : ''; });
 
-    ['input-dept-select','input-boss-select','plate-type','vehicle-decision-select','sabeel-select'].forEach(id => {
+    ['input-dept-select','input-boss-select','plate-type','vehicle-type','vehicle-decision-select','sabeel-select'].forEach(id => {
         const el = document.getElementById(id);
         if (el) el.selectedIndex = 0;
     });
@@ -4790,6 +5066,7 @@ function clearAll(suppressToast) {
     toggleJalsaDayOther();
     toggleOther('input-dept-select','dept-other-wrapper');
     toggleOther('input-boss-select','boss-other-wrapper');
+    toggleOther('vehicle-type','vehicle-type-other-wrapper');
     togglePlateInput();
 
     clearViolItems();
@@ -4846,7 +5123,23 @@ function get(id) {
 function toggleOther(selectId, wrapperId) {
     const sel = document.getElementById(selectId);
     const wrapper = document.getElementById(wrapperId);
-    if (wrapper) wrapper.style.display = (sel && sel.value === 'أخرى') ? '' : 'none';
+    if (wrapper) wrapper.style.display = (sel && sel.value === 'أخرى') ? (wrapper.dataset.openDisplay || '') : 'none';
+}
+
+function getVehicleType() {
+    const select = document.getElementById('vehicle-type');
+    if (!select || !select.value) return '';
+    if (select.value === 'أخرى') return get('vehicle-type-other');
+    return select.value;
+}
+
+function escapeVehicleHtml(value) {
+    return String(value || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+function getVehicleTypeSuffix() {
+    const type = getVehicleType();
+    return type ? ` / (${type})` : '';
 }
 
 function autoTab(el, nextId) {
@@ -5181,6 +5474,8 @@ function adjustArchiveMenuWidth() {
     ideal = Math.max(220, Math.min(400, ideal));
     menu.style.width = ideal + 'px';
 }
+const MAX_SAVED_MAHDAR_RECORDS = 700;
+let pendingAutoDeletionNotice = null;
 var recordsLimit = 30;
 
 // بنود تصنّف المحضر كـ "جلسة" حتى لو احتوى بنود غرامة أخرى
@@ -5454,6 +5749,55 @@ function deleteMahdarRecord(key) {
     loadArchiveToSidebar();
 }
 
+function showAutoDeletedMahdarToast(notice) {
+    let toast = document.getElementById('auto-record-delete-toast');
+    if (!toast) {
+        toast = document.createElement('div');
+        toast.id = 'auto-record-delete-toast';
+        toast.className = 'no-print';
+        toast.style.cssText = `
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%) translateY(80px);
+            background: #8b2f2f;
+            color: #fff;
+            padding: 13px 24px;
+            border-radius: 10px;
+            font-family: 'Cairo', sans-serif;
+            font-size: 14px;
+            font-weight: 600;
+            line-height: 1.8;
+            text-align: center;
+            box-shadow: 0 4px 18px rgba(0,0,0,0.25);
+            z-index: 99999;
+            opacity: 0;
+            transition: opacity 0.35s ease, transform 0.35s ease;
+            white-space: pre-line;
+            max-width: 92vw;
+        `;
+        document.body.appendChild(toast);
+    }
+    toast.textContent = `تنبيه: تم الوصول إلى الحد الأقصى لحفظ المحاضر (${MAX_SAVED_MAHDAR_RECORDS} محضر).\nتم حذف أقدم محضر في السجلات: رقم ${notice.caseNum} لسنة ${notice.year} — جنح مرور ${notice.dept}.`;
+    requestAnimationFrame(() => {
+        toast.style.opacity = '1';
+        toast.style.transform = 'translateX(-50%) translateY(0)';
+    });
+    clearTimeout(toast._hideTimer);
+    toast._hideTimer = setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateX(-50%) translateY(80px)';
+    }, 5000);
+}
+
+window.addEventListener('afterprint', function() {
+    if (pendingAutoDeletionNotice) {
+        const notice = pendingAutoDeletionNotice;
+        pendingAutoDeletionNotice = null;
+        showAutoDeletedMahdarToast(notice);
+    }
+});
+
 function showRecordDeletedToast() {
     let toast = document.getElementById('record-delete-toast');
     if (!toast) {
@@ -5506,11 +5850,19 @@ function loadRecordToWorkspace(key) {
 // تُستخدم قبل استيراد محضر من القائمة المحفوظة، لتقرير ما إذا كان يجب
 // تحذير المستخدم قبل الكتابة فوق البيانات الحالية.
 function formHasMeaningfulData() {
-    const name    = (document.getElementById('input-name')    || {}).value || '';
-    const caseNum = (document.getElementById('input-caseNum') || {}).value || '';
-    if (name.trim() || caseNum.trim()) return true;
-    if (Array.isArray(violItems) && violItems.length > 0) return true;
-    return false;
+    // لا تظهر رسالة "مسح واستيراد" إلا إذا كانت هوية المحضر الحالي مكتملة.
+    // وجود اسم المتهم أو بنود الاتهام وحدهما لا يُعد بيانات محضر أساسية.
+    const caseNum = ((document.getElementById('input-caseNum') || {}).value || '').trim();
+    const year    = ((document.getElementById('input-year')    || {}).value || '').trim();
+    const deptSel = document.getElementById('input-dept-select');
+    const dept    = deptSel
+        ? (deptSel.value === 'أخرى'
+            ? ((document.getElementById('input-dept-other') || {}).value || '').trim()
+            : (deptSel.value || '').trim())
+        : '';
+
+    // السنة ورقم المحضر وقسم الشرطة الثلاثة مطلوبة لاعتبار البيانات محضرًا قائمًا.
+    return Boolean(caseNum && year && dept && dept !== '--- اختر ---');
 }
 
 // ── بناء نص وصفي لبيانات المحضر الحالية بالنموذج (رقم / سنة / قسم) لعرضه في رسالة التحذير ──
@@ -5685,6 +6037,2782 @@ document.addEventListener("DOMContentLoaded", () => {
 // ==========================================
 
 // 1. قاموس بنود المخالفات (النصوص الرسمية المختصرة)
+const COMPREHENSIVE_MATERIALS_BY_CODE = {
+    "1": {
+        "offense": "مخالفة التوك توك لخط السير",
+        "materials": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "28",
+            "64 مكررًا"
+        ],
+        "codes": [
+            "e01",
+            "e02",
+            "e03",
+            "e04",
+            "e28",
+            "e64m"
+        ]
+    },
+    "2": {
+        "offense": "سيير التوك توك في عاصمة المحافظه",
+        "materials": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "28",
+            "64 مكررًا"
+        ],
+        "codes": [
+            "e01",
+            "e02",
+            "e03",
+            "e04",
+            "e28",
+            "e64m"
+        ]
+    },
+    "3": {
+        "offense": "سيير التوك توك فى الطريق إلى عاصمة المحافظة",
+        "materials": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "28",
+            "64 مكررًا"
+        ],
+        "codes": [
+            "e01",
+            "e02",
+            "e03",
+            "e04",
+            "e28",
+            "e64m"
+        ]
+    },
+    "4": {
+        "offense": "سيير التوك توك على الطرق السريعة",
+        "materials": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "28",
+            "64 مكررًا"
+        ],
+        "codes": [
+            "e01",
+            "e02",
+            "e03",
+            "e04",
+            "e28",
+            "e64m"
+        ]
+    },
+    "5": {
+        "offense": "استخدم التوك توك فى نقل غير الأشخاص",
+        "materials": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "28",
+            "64 مكررًا"
+        ],
+        "codes": [
+            "e01",
+            "e02",
+            "e03",
+            "e04",
+            "e28",
+            "e64m"
+        ]
+    },
+    "6": {
+        "offense": "تعمد السير عكس الاتجاة",
+        "materials": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "76",
+            "76 مكررًا 1"
+        ],
+        "codes": [
+            "e01",
+            "e02",
+            "e03",
+            "e04",
+            "e76",
+            "e76m1"
+        ]
+    },
+    "7": {
+        "offense": "مخالفة خط السير",
+        "materials": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "72 مكررًا / فقرة (أ) بند 1",
+            "72 مكررًا / فقرة (أ) بند 2"
+        ],
+        "codes": [
+            "e01",
+            "e02",
+            "e03",
+            "e04",
+            "e72mf1b1",
+            "e72mf1b2"
+        ]
+    },
+    "8": {
+        "offense": "عدم السير فى المسار المحدد",
+        "materials": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "74"
+        ],
+        "codes": [
+            "e01",
+            "e02",
+            "e03",
+            "e04",
+            "e74"
+        ]
+    },
+    "9": {
+        "offense": "عدم الإلتزام بالجانب الأيمن",
+        "materials": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "74 / بند 1"
+        ],
+        "codes": [
+            "e01",
+            "e02",
+            "e03",
+            "e04",
+            "e74b1"
+        ]
+    },
+    "10": {
+        "offense": "السير ببطء على الكوبرى",
+        "materials": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "74 مكررًا 1 / بند 3"
+        ],
+        "codes": [
+            "e01",
+            "e02",
+            "e03",
+            "e04",
+            "e74m1b3"
+        ]
+    },
+    "11": {
+        "offense": "التوقف على الكوبرى",
+        "materials": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "74 مكررًا 1 / بند 3"
+        ],
+        "codes": [
+            "e01",
+            "e02",
+            "e03",
+            "e04",
+            "e74m1b3"
+        ]
+    },
+    "12": {
+        "offense": "السير ببطء بمطلع الكوبرى",
+        "materials": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "74 مكررًا 1 / بند 3"
+        ],
+        "codes": [
+            "e01",
+            "e02",
+            "e03",
+            "e04",
+            "e74m1b3"
+        ]
+    },
+    "13": {
+        "offense": "التوقف بمطلع الكوبرى",
+        "materials": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "74 مكررًا 1 / بند 3"
+        ],
+        "codes": [
+            "e01",
+            "e02",
+            "e03",
+            "e04",
+            "e74m1b3"
+        ]
+    },
+    "14": {
+        "offense": "السير ببطء بمنزل الكوبرى",
+        "materials": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "74 مكررًا 1 / بند 3"
+        ],
+        "codes": [
+            "e01",
+            "e02",
+            "e03",
+            "e04",
+            "e74m1b3"
+        ]
+    },
+    "15": {
+        "offense": "تعمد التوقف بمنزل الكوبرى",
+        "materials": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "74 مكررًا 1 / بند 3"
+        ],
+        "codes": [
+            "e01",
+            "e02",
+            "e03",
+            "e04",
+            "e74m1b3"
+        ]
+    },
+    "16": {
+        "offense": "السير ببطء بمدخل النفق",
+        "materials": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "74 مكررًا 1 / بند 3"
+        ],
+        "codes": [
+            "e01",
+            "e02",
+            "e03",
+            "e04",
+            "e74m1b3"
+        ]
+    },
+    "17": {
+        "offense": "تعمد التوقف بمدخل النفق",
+        "materials": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "74 مكررًا 1 / بند 3"
+        ],
+        "codes": [
+            "e01",
+            "e02",
+            "e03",
+            "e04",
+            "e74m1b3"
+        ]
+    },
+    "18": {
+        "offense": "السير ببطء بمخرج النفق",
+        "materials": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "74 مكررًا 1 / بند 3"
+        ],
+        "codes": [
+            "e01",
+            "e02",
+            "e03",
+            "e04",
+            "e74m1b3"
+        ]
+    },
+    "19": {
+        "offense": "تعمد التوقف بمخرج النفق",
+        "materials": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "74 مكررًا 1 / بند 3"
+        ],
+        "codes": [
+            "e01",
+            "e02",
+            "e03",
+            "e04",
+            "e74m1b3"
+        ]
+    },
+    "20": {
+        "offense": "السير ببطء بتقاطع الطرق",
+        "materials": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "74 مكررًا 1 / بند 3"
+        ],
+        "codes": [
+            "e01",
+            "e02",
+            "e03",
+            "e04",
+            "e74m1b3"
+        ]
+    },
+    "21": {
+        "offense": "تعمد التوقف بتقاطع الطرق",
+        "materials": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "74 مكررًا 1 / بند 3"
+        ],
+        "codes": [
+            "e01",
+            "e02",
+            "e03",
+            "e04",
+            "e74m1b3"
+        ]
+    },
+    "22": {
+        "offense": "الإمتناع عن نقل الركاب",
+        "materials": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "70"
+        ],
+        "codes": [
+            "e01",
+            "e02",
+            "e03",
+            "e04",
+            "e70"
+        ]
+    },
+    "23": {
+        "offense": "عدم تشغيل العداد",
+        "materials": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "70"
+        ],
+        "codes": [
+            "e01",
+            "e02",
+            "e03",
+            "e04",
+            "e70"
+        ]
+    },
+    "24": {
+        "offense": "تقاضى أجر أكثر من المقرر",
+        "materials": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "70"
+        ],
+        "codes": [
+            "e01",
+            "e02",
+            "e03",
+            "e04",
+            "e70"
+        ]
+    },
+    "25": {
+        "offense": "تحميل ركاب زيادة",
+        "materials": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "70"
+        ],
+        "codes": [
+            "e01",
+            "e02",
+            "e03",
+            "e04",
+            "e70"
+        ]
+    },
+    "26": {
+        "offense": "التحميل من خارج الموقف",
+        "materials": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "70"
+        ],
+        "codes": [
+            "e01",
+            "e02",
+            "e03",
+            "e04",
+            "e70"
+        ]
+    },
+    "27": {
+        "offense": "وجود خلل بالعداد",
+        "materials": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "72 مكررًا / فقرة (أ) بند 3"
+        ],
+        "codes": [
+            "e01",
+            "e02",
+            "e03",
+            "e04",
+            "e72mf1b3"
+        ]
+    },
+    "28": {
+        "offense": "تحميل ركاب على الاجزاء الخارجية للسيارة",
+        "materials": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "72 مكررًا / فقرة (ب) بند 1"
+        ],
+        "codes": [
+            "e01",
+            "e02",
+            "e03",
+            "e04",
+            "e72mf2b1"
+        ]
+    },
+    "29": {
+        "offense": "عدم أغلاق الأبواب إثناء السير",
+        "materials": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "74 مكررًا 1 / بند 2"
+        ],
+        "codes": [
+            "e01",
+            "e02",
+            "e03",
+            "e04",
+            "e74m1b2"
+        ]
+    },
+    "30": {
+        "offense": "عدم تركيب اللوحات المعدنية ( دراجه او توك توك ) عدم تركيب اللوحات المعدنية ( سياره)",
+        "materials": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "74 مكررًا 3",
+            "75 / بند 4",
+            "78",
+            "74 مكررًا 1"
+        ],
+        "codes": [
+            "e01",
+            "e02",
+            "e03",
+            "e04",
+            "e74m3",
+            "e75b4",
+            "e78",
+            "e74m1"
+        ]
+    },
+    "31": {
+        "offense": "تركيب لوحات غير خاصة بالمركبة",
+        "materials": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "72 مكررًا / فقرة (ج) بند 1",
+            "74 مكررًا / بند 10"
+        ],
+        "codes": [
+            "e01",
+            "e02",
+            "e03",
+            "e04",
+            "e72mf3b1",
+            "e74mb10"
+        ]
+    },
+    "32": {
+        "offense": "استعمال اللوحات التجارية فى غير الغرض المرخصة من أجلة",
+        "materials": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "25"
+        ],
+        "codes": [
+            "e01",
+            "e02",
+            "e03",
+            "e04",
+            "e25"
+        ]
+    },
+    "33": {
+        "offense": "بيانات اللوحات غير ظاهرة",
+        "materials": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "72 مكررًا / فقرة (ج) بند 1",
+            "74 مكررًا / بند 1",
+            "75 / بند 9"
+        ],
+        "codes": [
+            "e01",
+            "e02",
+            "e03",
+            "e04",
+            "e72mf3b1",
+            "e74mb1",
+            "e75b9"
+        ]
+    },
+    "34": {
+        "offense": "عدم وضوح اللوحات المعدنية",
+        "materials": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "72 مكررًا / فقرة (ج) بند 1",
+            "74 مكررًا / بند 1",
+            "75 / بند 9"
+        ],
+        "codes": [
+            "e01",
+            "e02",
+            "e03",
+            "e04",
+            "e72mf3b1",
+            "e74mb1",
+            "e75b9"
+        ]
+    },
+    "35": {
+        "offense": "عدم تثبيت اللوحات فى المكان المقرر لها",
+        "materials": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "74 مكررًا / بند 6"
+        ],
+        "codes": [
+            "e01",
+            "e02",
+            "e03",
+            "e04",
+            "e74mb6"
+        ]
+    },
+    "36": {
+        "offense": "تغير لون اللوحات المعدنية",
+        "materials": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "75 / بند 9"
+        ],
+        "codes": [
+            "e01",
+            "e02",
+            "e03",
+            "e04",
+            "e75b9"
+        ]
+    },
+    "37": {
+        "offense": "القيادة تحت تأثيرموادمخدرة",
+        "materials": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "35",
+            "66",
+            "76"
+        ],
+        "codes": [
+            "e01",
+            "e02",
+            "e03",
+            "e04",
+            "e35",
+            "e66",
+            "e76"
+        ]
+    },
+    "38": {
+        "offense": "القيادة تحت تأثير مواد مسكرة",
+        "materials": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "35",
+            "66",
+            "76"
+        ],
+        "codes": [
+            "e01",
+            "e02",
+            "e03",
+            "e04",
+            "e35",
+            "e66",
+            "e76"
+        ]
+    },
+    "39": {
+        "offense": "قيادة السيارة بدون حزام امان",
+        "materials": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "74 مكررًا / بند 3"
+        ],
+        "codes": [
+            "e01",
+            "e02",
+            "e03",
+            "e04",
+            "e74mb3"
+        ]
+    },
+    "40": {
+        "offense": "عدم ارتداء حزام الامان للمجاور للقائد اثناء السير",
+        "materials": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "74 مكررًا / بند 3"
+        ],
+        "codes": [
+            "e01",
+            "e02",
+            "e03",
+            "e04",
+            "e74mb3"
+        ]
+    },
+    "41": {
+        "offense": "عدم ارتداء غطاء الرأس الواقى",
+        "materials": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "74 مكررًا / بند 4"
+        ],
+        "codes": [
+            "e01",
+            "e02",
+            "e03",
+            "e04",
+            "e74mb4"
+        ]
+    },
+    "42": {
+        "offense": "استخدام التليفون يدويا أثناء القيادة",
+        "materials": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "74 مكررًا / بند 5"
+        ],
+        "codes": [
+            "e01",
+            "e02",
+            "e03",
+            "e04",
+            "e74mb5"
+        ]
+    },
+    "43": {
+        "offense": "قيادة مركبة خالية من الفرامل",
+        "materials": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "75 / بند 5"
+        ],
+        "codes": [
+            "e01",
+            "e02",
+            "e03",
+            "e04",
+            "e75b5"
+        ]
+    },
+    "44": {
+        "offense": "عدم صلاحية الفرامل",
+        "materials": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "75 / بند 5"
+        ],
+        "codes": [
+            "e01",
+            "e02",
+            "e03",
+            "e04",
+            "e75b5"
+        ]
+    },
+    "45": {
+        "offense": "عدم توافر شروط الامن والمتانة",
+        "materials": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "72 مكررًا / فقرة (أ) بند 4"
+        ],
+        "codes": [
+            "e01",
+            "e02",
+            "e03",
+            "e04",
+            "e72mf1b4"
+        ]
+    },
+    "46": {
+        "offense": "عدم صلاحية الأنوار",
+        "materials": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "72 مكررًا / فقرة (ج) بند 2"
+        ],
+        "codes": [
+            "e01",
+            "e02",
+            "e03",
+            "e04",
+            "e72mf3b2"
+        ]
+    },
+    "47": {
+        "offense": "دخان كثيف",
+        "materials": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "72 مكررًا 2"
+        ],
+        "codes": [
+            "e01",
+            "e02",
+            "e03",
+            "e04",
+            "e72m2"
+        ]
+    },
+    "48": {
+        "offense": "مخالفة نسب الإنبعاثات لعادم السيارة",
+        "materials": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "72 مكررًا 2"
+        ],
+        "codes": [
+            "e01",
+            "e02",
+            "e03",
+            "e04",
+            "e72m2"
+        ]
+    },
+    "49": {
+        "offense": "إضافة ملصقات مخالفة على جسم المركبة",
+        "materials": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "74 مكررًا / بند 11"
+        ],
+        "codes": [
+            "e01",
+            "e02",
+            "e03",
+            "e04",
+            "e74mb11"
+        ]
+    },
+    "50": {
+        "offense": "إضافة معلقات",
+        "materials": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "74 مكررًا 11"
+        ],
+        "codes": [
+            "e01",
+            "e02",
+            "e03",
+            "e04",
+            "e74m11"
+        ]
+    },
+    "51": {
+        "offense": "وضع كتابة مخالفة على جسم المركبة",
+        "materials": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "74 مكررًا 11"
+        ],
+        "codes": [
+            "e01",
+            "e02",
+            "e03",
+            "e04",
+            "e74m11"
+        ]
+    },
+    "52": {
+        "offense": "وضع رسم مخالف على جسم المركبة",
+        "materials": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "74 مكررًا 11"
+        ],
+        "codes": [
+            "e01",
+            "e02",
+            "e03",
+            "e04",
+            "e74m11"
+        ]
+    },
+    "53": {
+        "offense": "اضافة بيانات غير واجبة بحكم القانون",
+        "materials": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "74 مكررًا 11"
+        ],
+        "codes": [
+            "e01",
+            "e02",
+            "e03",
+            "e04",
+            "e74m11"
+        ]
+    },
+    "54": {
+        "offense": "أضافة رموز مخالفة على جسم المركبة",
+        "materials": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "74 مكررًا 11"
+        ],
+        "codes": [
+            "e01",
+            "e02",
+            "e03",
+            "e04",
+            "e74m11"
+        ]
+    },
+    "55": {
+        "offense": "إلقاء فضلات بالطريق العام",
+        "materials": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "72 مكررًا 2"
+        ],
+        "codes": [
+            "e01",
+            "e02",
+            "e03",
+            "e04",
+            "e72m2"
+        ]
+    },
+    "56": {
+        "offense": "إلقاء مخلفات بناء أوأشياء أخرى بالطريق العام",
+        "materials": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "72 مكررًا 2"
+        ],
+        "codes": [
+            "e01",
+            "e02",
+            "e03",
+            "e04",
+            "e72m2"
+        ]
+    },
+    "57": {
+        "offense": "يتسرب من الحمولة مواد قابلة للأشتعال",
+        "materials": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "72 مكررًا 2"
+        ],
+        "codes": [
+            "e01",
+            "e02",
+            "e03",
+            "e04",
+            "e72m2"
+        ]
+    },
+    "58": {
+        "offense": "تساقط من الحمولة ما يضر بالطريق",
+        "materials": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "72 مكررًا 2"
+        ],
+        "codes": [
+            "e01",
+            "e02",
+            "e03",
+            "e04",
+            "e72m2"
+        ]
+    },
+    "59": {
+        "offense": "زيادة وزن الحمولة عن المقرر للمركبة",
+        "materials": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "74 مكررًا / بند 4"
+        ],
+        "codes": [
+            "e01",
+            "e02",
+            "e03",
+            "e04",
+            "e74mb4"
+        ]
+    },
+    "60": {
+        "offense": "إرتفاع الحمولة عن الحد المصرح بها",
+        "materials": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "74 مكررًا / بند 4"
+        ],
+        "codes": [
+            "e01",
+            "e02",
+            "e03",
+            "e04",
+            "e74mb4"
+        ]
+    },
+    "61": {
+        "offense": "بروز جانبى",
+        "materials": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "74 مكررًا / بند 4"
+        ],
+        "codes": [
+            "e01",
+            "e02",
+            "e03",
+            "e04",
+            "e74mb4"
+        ]
+    },
+    "62": {
+        "offense": "بروز أمامى",
+        "materials": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "74 مكررًا / بند 4"
+        ],
+        "codes": [
+            "e01",
+            "e02",
+            "e03",
+            "e04",
+            "e74mb4"
+        ]
+    },
+    "63": {
+        "offense": "بروز خلفى",
+        "materials": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "74 مكررًا / بند 4"
+        ],
+        "codes": [
+            "e01",
+            "e02",
+            "e03",
+            "e04",
+            "e74mb4"
+        ]
+    },
+    "64": {
+        "offense": "عدم تركيب جهاز تسجيل البيانات",
+        "materials": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "75 مكررًا / بند 1"
+        ],
+        "codes": [
+            "e01",
+            "e02",
+            "e03",
+            "e04",
+            "e75mb1"
+        ]
+    },
+    "65": {
+        "offense": "عدم تركيب جهاز محدد السرعة",
+        "materials": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "75 مكررًا / بند 1"
+        ],
+        "codes": [
+            "e01",
+            "e02",
+            "e03",
+            "e04",
+            "e75mb1"
+        ]
+    },
+    "66": {
+        "offense": "القيادة بدون رخصة التسيير",
+        "materials": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "74 مكررًا 2"
+        ],
+        "codes": [
+            "e01",
+            "e02",
+            "e03",
+            "e04",
+            "e74m2"
+        ]
+    },
+    "67": {
+        "offense": "بدون مثلث عاكس للضوء",
+        "materials": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "74 مكررًا / بند 8"
+        ],
+        "codes": [
+            "e01",
+            "e02",
+            "e03",
+            "e04",
+            "e74mb8"
+        ]
+    },
+    "68": {
+        "offense": "بدون حقيبة اسعافات اولية",
+        "materials": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "74 مكررًا / بند 9"
+        ],
+        "codes": [
+            "e01",
+            "e02",
+            "e03",
+            "e04",
+            "e74mb9"
+        ]
+    },
+    "69": {
+        "offense": "بدون رخصة قيادة",
+        "materials": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "74 مكررًا 4"
+        ],
+        "codes": [
+            "e01",
+            "e02",
+            "e03",
+            "e04",
+            "e74m4"
+        ]
+    },
+    "70": {
+        "offense": "عدم اتباع إشارات المرور",
+        "materials": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "74 مكررًا / بند 3"
+        ],
+        "codes": [
+            "e01",
+            "e02",
+            "e03",
+            "e04",
+            "e74mb3"
+        ]
+    },
+    "71": {
+        "offense": "عدم اتباع علامات المرور",
+        "materials": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "74 مكررًا / بند 3"
+        ],
+        "codes": [
+            "e01",
+            "e02",
+            "e03",
+            "e04",
+            "e74mb3"
+        ]
+    },
+    "72": {
+        "offense": "عدم اتباع تعليمات رجل المرور",
+        "materials": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "74 مكررًا / بند 3"
+        ],
+        "codes": [
+            "e01",
+            "e02",
+            "e03",
+            "e04",
+            "e74mb3"
+        ]
+    },
+    "73": {
+        "offense": "تركيب أجهزة تنبية مخالفة للقانون",
+        "materials": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "69"
+        ],
+        "codes": [
+            "e01",
+            "e02",
+            "e03",
+            "e04",
+            "e69"
+        ]
+    },
+    "74": {
+        "offense": "تركيب مصابيح مخالفة للقانون",
+        "materials": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "69"
+        ],
+        "codes": [
+            "e01",
+            "e02",
+            "e03",
+            "e04",
+            "e69"
+        ]
+    },
+    "75": {
+        "offense": "تركيب سرينة هوائية",
+        "materials": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "69"
+        ],
+        "codes": [
+            "e01",
+            "e02",
+            "e03",
+            "e04",
+            "e69"
+        ]
+    },
+    "76": {
+        "offense": "تعطيل المرور نتيجة السير بأقل من الحد الأدنى للسرعة المقررة",
+        "materials": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "74 مكررًا / بند 1"
+        ],
+        "codes": [
+            "e01",
+            "e02",
+            "e03",
+            "e04",
+            "e74mb1"
+        ]
+    },
+    "77": {
+        "offense": "تجاوز السرعة المقررة",
+        "materials": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "75 / بند 1"
+        ],
+        "codes": [
+            "e01",
+            "e02",
+            "e03",
+            "e04",
+            "e75b1"
+        ]
+    },
+    "78": {
+        "offense": "تعمد تعطيل حركة المرور",
+        "materials": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "75 / بند 7 ؟"
+        ],
+        "codes": [
+            "e01",
+            "e02",
+            "e03",
+            "e04",
+            "e75b7"
+        ]
+    },
+    "79": {
+        "offense": "ترك المركبة بحالة نجم عنها تعطيل حركة المرور",
+        "materials": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "65 مكررًا"
+        ],
+        "codes": [
+            "e01",
+            "e02",
+            "e03",
+            "e04",
+            "e65m"
+        ]
+    },
+    "81": {
+        "offense": "حيازة أجهزة لكشف الرادار",
+        "materials": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "75 مكررًا / بند 2"
+        ],
+        "codes": [
+            "e01",
+            "e02",
+            "e03",
+            "e04",
+            "e75mb2"
+        ]
+    },
+    "82": {
+        "offense": "استعمال اجهزه تؤثر على عمل الرادار",
+        "materials": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "75 مكررًا / بند 2"
+        ],
+        "codes": [
+            "e01",
+            "e02",
+            "e03",
+            "e04",
+            "e75mb2"
+        ]
+    },
+    "83": {
+        "offense": "إستعمل أجهزة لكشف الرادار",
+        "materials": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "75 مكررًا / بند 2"
+        ],
+        "codes": [
+            "e01",
+            "e02",
+            "e03",
+            "e04",
+            "e75mb2"
+        ]
+    },
+    "84": {
+        "offense": "استعمال الانوار المبهرة",
+        "materials": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "72 مكررًا / فقرة (ب) بند 2"
+        ],
+        "codes": [
+            "e01",
+            "e02",
+            "e03",
+            "e04",
+            "e72mf2b2"
+        ]
+    },
+    "85": {
+        "offense": "استعمال المركبة فى مواكب خاصة بدون تصريح",
+        "materials": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "72 مكررًا / فقرة (ب) بند 4"
+        ],
+        "codes": [
+            "e01",
+            "e02",
+            "e03",
+            "e04",
+            "e72mf2b4"
+        ]
+    },
+    "86": {
+        "offense": "إستعمال المركبة فى غير الغرض المبين بالرخصة",
+        "materials": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "22",
+            "74 مكررًا / بند 2"
+        ],
+        "codes": [
+            "e01",
+            "e02",
+            "e03",
+            "e04",
+            "e22",
+            "e74mb2"
+        ]
+    },
+    "87": {
+        "offense": "إستخدام أكثر من رخصة قيادة",
+        "materials": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "34",
+            "73 مكررًا"
+        ],
+        "codes": [
+            "e01",
+            "e02",
+            "e03",
+            "e04",
+            "e34",
+            "e73m"
+        ]
+    },
+    "88": {
+        "offense": "الحصول على رخصة قيادة بطريق غير مشروع",
+        "materials": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "34",
+            "73 مكررًا"
+        ],
+        "codes": [
+            "e01",
+            "e02",
+            "e03",
+            "e04",
+            "e34",
+            "e73m"
+        ]
+    },
+    "89": {
+        "offense": "استخراج رخصة قيادة بدلا من الرخصة المسحوبة",
+        "materials": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "34",
+            "73 مكررًا"
+        ],
+        "codes": [
+            "e01",
+            "e02",
+            "e03",
+            "e04",
+            "e34",
+            "e73m"
+        ]
+    },
+    "90": {
+        "offense": "استخراج رخصة قيادة بدلا من الرخصة الملغاة",
+        "materials": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "34",
+            "73 مكررًا"
+        ],
+        "codes": [
+            "e01",
+            "e02",
+            "e03",
+            "e04",
+            "e34",
+            "e73m"
+        ]
+    },
+    "91": {
+        "offense": "عدم الإبلاغ عن الحادث الذى وقع منة ونجم عنة اصابات",
+        "materials": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "35 مكررًا 1",
+            "67"
+        ],
+        "codes": [
+            "e01",
+            "e02",
+            "e03",
+            "e04",
+            "e35m1",
+            "e67"
+        ]
+    },
+    "92": {
+        "offense": "عدم الآهتمام بأمر المصابين رغم تسببة فى الحادث",
+        "materials": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "35 مكررًا 1",
+            "67"
+        ],
+        "codes": [
+            "e01",
+            "e02",
+            "e03",
+            "e04",
+            "e35m1",
+            "e67"
+        ]
+    },
+    "93": {
+        "offense": "رفضة نقل المصابين لإسعافهم رغم تسببة فى الحادث",
+        "materials": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "35 مكررًا 1",
+            "67"
+        ],
+        "codes": [
+            "e01",
+            "e02",
+            "e03",
+            "e04",
+            "e35m1",
+            "e67"
+        ]
+    },
+    "94": {
+        "offense": "عدم الاخطار عن تغيير محل الاقامة",
+        "materials": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "16"
+        ],
+        "codes": [
+            "e01",
+            "e02",
+            "e03",
+            "e04",
+            "e16"
+        ]
+    },
+    "95": {
+        "offense": "تغيير بالاجزاء الجوهرية للمركبة",
+        "materials": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "17"
+        ],
+        "codes": [
+            "e01",
+            "e02",
+            "e03",
+            "e04",
+            "e17"
+        ]
+    },
+    "96": {
+        "offense": "مخالفة شروط منح الرخصة التجارية",
+        "materials": [
+            "1",
+            "2",
+            "3",
+            "4"
+        ],
+        "codes": [
+            "e01",
+            "e02",
+            "e03",
+            "e04"
+        ]
+    },
+    "97": {
+        "offense": "وقوف المركبة ليلا بدون اضاءةالانوار",
+        "materials": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "72 مكررًا / فقرة (ب) بند 3"
+        ],
+        "codes": [
+            "e01",
+            "e02",
+            "e03",
+            "e04",
+            "e72mf2b3"
+        ]
+    },
+    "98": {
+        "offense": "عدم استعمال الانوار ليلا اثناء القيادة",
+        "materials": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "72 مكررًا / فقرة (ج) بند 2"
+        ],
+        "codes": [
+            "e01",
+            "e02",
+            "e03",
+            "e04",
+            "e72mf3b2"
+        ]
+    },
+    "99": {
+        "offense": "عدم الارشاد عن قائد المركبة فى وقت معين",
+        "materials": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "68"
+        ],
+        "codes": [
+            "e01",
+            "e02",
+            "e03",
+            "e04",
+            "e68"
+        ]
+    },
+    "100": {
+        "offense": "تعريض حياة المواطنين للخطر",
+        "materials": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "81 مكررًا 2"
+        ],
+        "codes": [
+            "e01",
+            "e02",
+            "e03",
+            "e04",
+            "e81m2"
+        ]
+    },
+    "101": {
+        "offense": "إزالة الأقفال الحديدية",
+        "materials": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "65 مكررًا"
+        ],
+        "codes": [
+            "e01",
+            "e02",
+            "e03",
+            "e04",
+            "e65m"
+        ]
+    },
+    "102": {
+        "offense": "فك الأقفال الحديدية",
+        "materials": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "65 مكررًا"
+        ],
+        "codes": [
+            "e01",
+            "e02",
+            "e03",
+            "e04",
+            "e65m"
+        ]
+    },
+    "103": {
+        "offense": "الإحتفاظ بالأقفال الحديدية",
+        "materials": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "65 مكررًا"
+        ],
+        "codes": [
+            "e01",
+            "e02",
+            "e03",
+            "e04",
+            "e65m"
+        ]
+    },
+    "104": {
+        "offense": "إرتكاب فعل مخالف للآداب العامة",
+        "materials": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "72"
+        ],
+        "codes": [
+            "e01",
+            "e02",
+            "e03",
+            "e04",
+            "e72"
+        ]
+    },
+    "105": {
+        "offense": "السماح بإرتكاب فعل مخالف للآداب العامة",
+        "materials": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "72"
+        ],
+        "codes": [
+            "e01",
+            "e02",
+            "e03",
+            "e04",
+            "e72"
+        ]
+    },
+    "106": {
+        "offense": "صدور أصوات مزعجة من المركبة",
+        "materials": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "72 مكررًا 2"
+        ],
+        "codes": [
+            "e01",
+            "e02",
+            "e03",
+            "e04",
+            "e72m2"
+        ]
+    },
+    "107": {
+        "offense": "عدم وجود طفاية حريق",
+        "materials": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "74 مكررًا / بند 7"
+        ],
+        "codes": [
+            "e01",
+            "e02",
+            "e03",
+            "e04",
+            "e74mb7"
+        ]
+    },
+    "108": {
+        "offense": "عدم صلاحية طفاية الحريق",
+        "materials": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "74 مكررًا / بند 7"
+        ],
+        "codes": [
+            "e01",
+            "e02",
+            "e03",
+            "e04",
+            "e74mb7"
+        ]
+    },
+    "109": {
+        "offense": "الطفاية ليست فى متناول قائد المركبة والركاب",
+        "materials": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "74 مكررًا / بند 7"
+        ],
+        "codes": [
+            "e01",
+            "e02",
+            "e03",
+            "e04",
+            "e74mb7"
+        ]
+    },
+    "110": {
+        "offense": "إستعمال ألة التنبية بدون مبرر",
+        "materials": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "74 مكررًا 1 / بند 1"
+        ],
+        "codes": [
+            "e01",
+            "e02",
+            "e03",
+            "e04",
+            "e74m1b1"
+        ]
+    },
+    "111": {
+        "offense": "إنبعاث رائحة كريهة من المركبة",
+        "materials": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "72 مكررًا 2"
+        ],
+        "codes": [
+            "e01",
+            "e02",
+            "e03",
+            "e04",
+            "e72m2"
+        ]
+    },
+    "115": {
+        "offense": "إعتداء قائد المركبة على رجل المرور",
+        "materials": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "75 / بند 11"
+        ],
+        "codes": [
+            "e01",
+            "e02",
+            "e03",
+            "e04",
+            "e75b11"
+        ]
+    },
+    "116": {
+        "offense": "الانتظار فى الممنوع",
+        "materials": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "64",
+            "77"
+        ],
+        "codes": [
+            "e01",
+            "e02",
+            "e03",
+            "e04",
+            "e64",
+            "e77"
+        ]
+    },
+    "117": {
+        "offense": "القيادة برخصة لاتجيز",
+        "materials": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "42",
+            "74 مكررًا 4"
+        ],
+        "codes": [
+            "e01",
+            "e02",
+            "e03",
+            "e04",
+            "e42",
+            "e74m4"
+        ]
+    },
+    "118": {
+        "offense": "عدم صلاحية الإطارات",
+        "materials": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "23"
+        ],
+        "codes": [
+            "e01",
+            "e02",
+            "e03",
+            "e04",
+            "e23"
+        ]
+    },
+    "119": {
+        "offense": "عدم تسليب الحمولة",
+        "materials": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "72 مكررًا 2"
+        ],
+        "codes": [
+            "e01",
+            "e02",
+            "e03",
+            "e04",
+            "e72m2"
+        ]
+    },
+    "120": {
+        "offense": "عدم تشميع الحمولة",
+        "materials": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "72 مكررًا 2"
+        ],
+        "codes": [
+            "e01",
+            "e02",
+            "e03",
+            "e04",
+            "e72m2"
+        ]
+    },
+    "121": {
+        "offense": "عدم تغطية الحمولة",
+        "materials": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "72 مكررًا 2"
+        ],
+        "codes": [
+            "e01",
+            "e02",
+            "e03",
+            "e04",
+            "e72m2"
+        ]
+    },
+    "122": {
+        "offense": "بدون مرايات",
+        "materials": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "11",
+            "72 مكررًا / فقرة (أ) بند 4"
+        ],
+        "codes": [
+            "e01",
+            "e02",
+            "e03",
+            "e04",
+            "e11",
+            "e72mf1b4"
+        ]
+    },
+    "123": {
+        "offense": "تحميل ركاب فى الصندوق الخلفى",
+        "materials": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "72 مكررًا / فقرة (ب) بند 1"
+        ],
+        "codes": [
+            "e01",
+            "e02",
+            "e03",
+            "e04",
+            "e72mf2b1"
+        ]
+    },
+    "124": {
+        "offense": "عدم صلاحية مساحات المطر",
+        "materials": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "33",
+            "72 مكررًا / فقرة (أ) بند 4"
+        ],
+        "codes": [
+            "e01",
+            "e02",
+            "e03",
+            "e04",
+            "e33",
+            "e72mf1b4"
+        ]
+    },
+    "125": {
+        "offense": "عدم استخدام المعينات البصرية أو السمعية",
+        "materials": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "77"
+        ],
+        "codes": [
+            "e01",
+            "e02",
+            "e03",
+            "e04",
+            "e77"
+        ]
+    },
+    "126": {
+        "offense": "انتهاء ايصال سحب رخصة التسيير",
+        "materials": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "77"
+        ],
+        "codes": [
+            "e01",
+            "e02",
+            "e03",
+            "e04",
+            "e77"
+        ]
+    },
+    "127": {
+        "offense": "انتهاء ايصال سحب رخصة القياده",
+        "materials": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "42",
+            "74 مكررًا 4"
+        ],
+        "codes": [
+            "e01",
+            "e02",
+            "e03",
+            "e04",
+            "e42",
+            "e74m4"
+        ]
+    },
+    "128": {
+        "offense": "انتهاء رخصة التسيير",
+        "materials": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "77"
+        ],
+        "codes": [
+            "e01",
+            "e02",
+            "e03",
+            "e04",
+            "e77"
+        ]
+    },
+    "129": {
+        "offense": "جلوس أطفال دون السابعه فى المقاعد الاماميه",
+        "materials": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "77"
+        ],
+        "codes": [
+            "e01",
+            "e02",
+            "e03",
+            "e04",
+            "e77"
+        ]
+    },
+    "130": {
+        "offense": "عدم افساح الطريق لمرور موكب رسمى",
+        "materials": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "77"
+        ],
+        "codes": [
+            "e01",
+            "e02",
+            "e03",
+            "e04",
+            "e77"
+        ]
+    },
+    "131": {
+        "offense": "عدم افساح الطريق لمرور سيارات الطوارئ",
+        "materials": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "77"
+        ],
+        "codes": [
+            "e01",
+            "e02",
+            "e03",
+            "e04",
+            "e77"
+        ]
+    },
+    "132": {
+        "offense": "تركيب ستائر تحجب الرؤيه",
+        "materials": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "74 مكررًا / بند 11"
+        ],
+        "codes": [
+            "e01",
+            "e02",
+            "e03",
+            "e04",
+            "e74mb11"
+        ]
+    },
+    "133": {
+        "offense": "بدون شبكه علويه",
+        "materials": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "77"
+        ],
+        "codes": [
+            "e01",
+            "e02",
+            "e03",
+            "e04",
+            "e77"
+        ]
+    },
+    "134": {
+        "offense": "زجاج ملون يحجب الرؤيه",
+        "materials": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "74 مكررًا / بند 11"
+        ],
+        "codes": [
+            "e01",
+            "e02",
+            "e03",
+            "e04",
+            "e74mb11"
+        ]
+    },
+    "135": {
+        "offense": "سمكره ودوكو",
+        "materials": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "77"
+        ],
+        "codes": [
+            "e01",
+            "e02",
+            "e03",
+            "e04",
+            "e77"
+        ]
+    },
+    "136": {
+        "offense": "عدم كتابة بيانات المركبه على الابواب",
+        "materials": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "77"
+        ],
+        "codes": [
+            "e01",
+            "e02",
+            "e03",
+            "e04",
+            "e77"
+        ]
+    },
+    "137": {
+        "offense": "اختلاف المحاور",
+        "materials": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "77"
+        ],
+        "codes": [
+            "e01",
+            "e02",
+            "e03",
+            "e04",
+            "e77"
+        ]
+    },
+    "138": {
+        "offense": "ترك محرك المركبه يعمل دون مبرر",
+        "materials": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "77"
+        ],
+        "codes": [
+            "e01",
+            "e02",
+            "e03",
+            "e04",
+            "e77"
+        ]
+    },
+    "139": {
+        "offense": "كسر بزجاج السياره",
+        "materials": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "77"
+        ],
+        "codes": [
+            "e01",
+            "e02",
+            "e03",
+            "e04",
+            "e77"
+        ]
+    },
+    "140": {
+        "offense": "قيادة السياره بدون عداد",
+        "materials": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "70"
+        ],
+        "codes": [
+            "e01",
+            "e02",
+            "e03",
+            "e04",
+            "e70"
+        ]
+    },
+    "141": {
+        "offense": "إنتهاء رخصة القيادة",
+        "materials": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "42",
+            "74 مكررًا 4"
+        ],
+        "codes": [
+            "e01",
+            "e02",
+            "e03",
+            "e04",
+            "e42",
+            "e74m4"
+        ]
+    },
+    "142": {
+        "offense": "الرعونة فى القيادة",
+        "materials": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "81 مكررًا 2"
+        ],
+        "codes": [
+            "e01",
+            "e02",
+            "e03",
+            "e04",
+            "e81m2"
+        ]
+    },
+    "143": {
+        "offense": "هروب من الكمين",
+        "materials": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "77"
+        ],
+        "codes": [
+            "e01",
+            "e02",
+            "e03",
+            "e04",
+            "e77"
+        ]
+    },
+    "144": {
+        "offense": "السير في الممنوع",
+        "materials": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "70 مكررًا",
+            "74 / بند 1"
+        ],
+        "codes": [
+            "e01",
+            "e02",
+            "e03",
+            "e04",
+            "e70m",
+            "e74b1"
+        ]
+    },
+    "145": {
+        "offense": "مخالفة شروط التراخيص",
+        "materials": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "25",
+            "26"
+        ],
+        "codes": [
+            "e01",
+            "e02",
+            "e03",
+            "e04",
+            "e25",
+            "e26"
+        ]
+    },
+    "146": {
+        "offense": "موقف عشوائى",
+        "materials": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "70"
+        ],
+        "codes": [
+            "e01",
+            "e02",
+            "e03",
+            "e04",
+            "e70"
+        ]
+    },
+    "147": {
+        "offense": "تعطيل حركة المرور أو تعويقها",
+        "materials": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "81 مكررًا 1"
+        ],
+        "codes": [
+            "e01",
+            "e02",
+            "e03",
+            "e04",
+            "e81m1"
+        ]
+    },
+    "148": {
+        "offense": "سيارة أجرة وجدت فى حالة غير نظيفة",
+        "materials": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "72 مكررًا 2"
+        ],
+        "codes": [
+            "e01",
+            "e02",
+            "e03",
+            "e04",
+            "e72m2"
+        ]
+    },
+    "149": {
+        "offense": "عدم حمل رخصة القيادة",
+        "materials": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "41",
+            "77"
+        ],
+        "codes": [
+            "e01",
+            "e02",
+            "e03",
+            "e04",
+            "e41",
+            "e77"
+        ]
+    },
+    "152": {
+        "offense": "عدم حمل مركبة النقل البطئ للوحات المنصرفة لها",
+        "materials": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "74 مكررًا / بند 10"
+        ],
+        "codes": [
+            "e01",
+            "e02",
+            "e03",
+            "e04",
+            "e74mb10"
+        ]
+    },
+    "153": {
+        "offense": "زيادة وزن الحمولة عن المقرر للمركبة أو الارتفاع او العرض او الطول",
+        "materials": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "74 مكررًا / بند 4"
+        ],
+        "codes": [
+            "e01",
+            "e02",
+            "e03",
+            "e04",
+            "e74mb4"
+        ]
+    },
+    "157": {
+        "offense": "السير فى اماكن و اوقات الحظر",
+        "materials": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "64",
+            "74 مكررًا 5"
+        ],
+        "codes": [
+            "e01",
+            "e02",
+            "e03",
+            "e04",
+            "e64",
+            "e74m5"
+        ]
+    },
+    "158": {
+        "offense": "عدم حمل رخصة التسيير",
+        "materials": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "77"
+        ],
+        "codes": [
+            "e01",
+            "e02",
+            "e03",
+            "e04",
+            "e77"
+        ]
+    },
+    "170": {
+        "offense": "عدم تركيب اللوحات المعدنية المؤمنة",
+        "materials": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "13",
+            "14"
+        ],
+        "codes": [
+            "e01",
+            "e02",
+            "e03",
+            "e04",
+            "e13",
+            "e14"
+        ]
+    },
+    "174": {
+        "offense": "بدون الملصق الألكترونى",
+        "materials": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "72 مكررًا / فقرة (ب) بند 7"
+        ],
+        "codes": [
+            "e01",
+            "e02",
+            "e03",
+            "e04",
+            "e72mf2b7"
+        ]
+    },
+    "175": {
+        "offense": "اتلاف الملصق",
+        "materials": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "72 مكررًا / فقرة (ب) بند 7"
+        ],
+        "codes": [
+            "e01",
+            "e02",
+            "e03",
+            "e04",
+            "e72mf2b7"
+        ]
+    },
+    "176": {
+        "offense": "اخفاء الملصق",
+        "materials": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "72 مكررًا / فقرة (ب) بند 7"
+        ],
+        "codes": [
+            "e01",
+            "e02",
+            "e03",
+            "e04",
+            "e72mf2b7"
+        ]
+    },
+    "177": {
+        "offense": "نقل الملصق لمركبة اخرى",
+        "materials": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "72 مكررًا / فقرة (ب) بند 7"
+        ],
+        "codes": [
+            "e01",
+            "e02",
+            "e03",
+            "e04",
+            "e72mf2b7"
+        ]
+    },
+    "178": {
+        "offense": "العبث بالملصق ادى لفقد صلاحيتة",
+        "materials": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "72 مكررًا / فقرة (ب) بند 7"
+        ],
+        "codes": [
+            "e01",
+            "e02",
+            "e03",
+            "e04",
+            "e72mf2b7"
+        ]
+    },
+    "179": {
+        "offense": "لم يقم برد اللوحات المعدنية",
+        "materials": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "15"
+        ],
+        "codes": [
+            "e01",
+            "e02",
+            "e03",
+            "e04",
+            "e15"
+        ]
+    },
+    "180": {
+        "offense": "السماح لغير مرخص له بالقيادة نتج عنه إصابة أو وفاة أو ضرر للغير",
+        "materials": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "81 مكررًا 3"
+        ],
+        "codes": [
+            "e01",
+            "e02",
+            "e03",
+            "e04",
+            "e81m3"
+        ]
+    },
+    "181": {
+        "offense": "مكن طفل من قيادة مركبة ألية",
+        "materials": [
+            "1",
+            "2",
+            "3",
+            "4"
+        ],
+        "codes": [
+            "e01",
+            "e02",
+            "e03",
+            "e04"
+        ]
+    },
+    "182": {
+        "offense": "تمكين طفل من قيادة مركبة آلية نتج عنه إصابة أو وفاة أو ضرر",
+        "materials": [
+            "1",
+            "2",
+            "3",
+            "4"
+        ],
+        "codes": [
+            "e01",
+            "e02",
+            "e03",
+            "e04"
+        ]
+    }
+};
+
 const fullViolationDB = {
     "1": "مخالفة التوك توك لخط السير",
     "2": "سيير التوك توك في عاصمة المحافظه",

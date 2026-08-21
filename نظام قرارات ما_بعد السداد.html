@@ -518,7 +518,26 @@ body, .app-layout {
         .logo-box img { width: 100%; }
         .decision-header { text-align: center; margin-top: -20px; font-family: 'Cairo', 'Segoe UI', Arial, sans-serif; }
         .recipient-line { font-size: 21px; font-weight: normal; font-family: 'Cairo', 'Segoe UI', Arial, sans-serif; margin-bottom: 10px; }
-        .case-line { font-size: 18px; font-weight: normal; border-bottom: 2px solid #000; display: inline-block; padding-bottom: 2px; font-family: 'Cairo', 'Segoe UI', Arial, sans-serif; }
+        .case-line {
+            font-size: 18px;
+            font-weight: normal;
+            display: inline-block;
+            padding-bottom: 10px;
+            font-family: 'Cairo', 'Segoe UI', Arial, sans-serif;
+            position: relative;
+        }
+        .case-line::after {
+            content: "";
+            display: block;
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 65%;
+            height: 2px;
+            border-radius: 999px;
+            background: linear-gradient(to right, transparent, #000 30%, #000 70%, transparent);
+        }
         .case-line .case-num-bold { font-weight: bold; }
         .print-info-right { text-align: right; margin-top: 14px; font-family: 'Cairo', 'Segoe UI', Arial, sans-serif; }
         .info-line { font-size: 17px; font-weight: normal; margin-bottom: 17px; }
@@ -1741,7 +1760,7 @@ body[data-theme="dark"] .rec-date { color: #64748b !important; }
                             <input type="text" id="c1" class="char-input" maxlength="1" oninput="autoTab(this, 'c2')" onkeydown="autoBack(event, this, null)">
                             <input type="text" id="c2" class="char-input" maxlength="1" oninput="autoTab(this, 'c3')" onkeydown="autoBack(event, this, 'c1')">
                             <input type="text" id="c3" class="char-input" maxlength="1" oninput="autoTab(this, 'n1')" onkeydown="autoBack(event, this, 'c2')">
-                            <input type="text" id="n1" class="num-input" maxlength="4" placeholder="أرقام" oninput="updateAllTexts(); sync();" onkeydown="autoBack(event, this, 'c3')">
+                            <input type="text" id="n1" class="num-input" maxlength="4" placeholder="" oninput="updateAllTexts(); sync();" onkeydown="autoBack(event, this, 'c3')">
                             <button type="button" onclick="clearPlateFields()" style="padding: 2px 6px; background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; border-radius: 4px; cursor: pointer; font-size: 11px; margin-right: 5px;" title="مسح رقم المركبة"><i class="fa-solid fa-trash-can"></i></button>
                         </div>
                     </div>
@@ -3073,21 +3092,35 @@ function renderArrestItems() {
                 return;
             }
 
-            const bossSelect = document.getElementById('input-boss-select');
-            const bossName = bossSelect && bossSelect.value === 'أخرى'
-                ? ((document.getElementById('input-boss-other') || {}).value || '').trim()
-                : ((bossSelect || {}).value || '').trim();
-            if (!bossName) {
-                showCustomConfirm('اسم وكيل النيابة غير محدد، هل تريد المتابعة؟', {
-                    title: 'اسم وكيل النيابة غير محدد',
-                    confirmText: 'متابعة الطباعة',
-                    cancelText: 'إلغاء',
-                    type: 'danger',
-                    onConfirm: function() {
-                        setTimeout(() => window.print(), 100);
-                    }
-                });
-                return;
+            // إذا كان القرار سيُطبع فارغًا أصلاً (لا رقم محضر ولا قسم شرطة محددين)،
+            // فلا داعي لتنبيه "اسم وكيل النيابة غير محدد" لأن النموذج كله فارغ أصلاً
+            // وسيُملأ بالقلم لاحقًا — التنبيه في هذه الحالة عبثي.
+            const caseNumForBlankCheck = ((document.getElementById('input-caseNum') || {}).value || '').trim();
+            const deptSelForBlankCheck = document.getElementById('input-dept-select');
+            const deptForBlankCheck = deptSelForBlankCheck
+                ? (deptSelForBlankCheck.value === 'أخرى'
+                    ? ((document.getElementById('input-dept-other') || {}).value || '').trim()
+                    : deptSelForBlankCheck.value.trim())
+                : '';
+            const isBlankPrint = !caseNumForBlankCheck && !deptForBlankCheck;
+
+            if (!isBlankPrint) {
+                const bossSelect = document.getElementById('input-boss-select');
+                const bossName = bossSelect && bossSelect.value === 'أخرى'
+                    ? ((document.getElementById('input-boss-other') || {}).value || '').trim()
+                    : ((bossSelect || {}).value || '').trim();
+                if (!bossName) {
+                    showCustomConfirm('اسم وكيل النيابة غير محدد، هل تريد المتابعة؟', {
+                        title: 'اسم وكيل النيابة غير محدد',
+                        confirmText: 'متابعة الطباعة',
+                        cancelText: 'إلغاء',
+                        type: 'danger',
+                        onConfirm: function() {
+                            setTimeout(() => window.print(), 100);
+                        }
+                    });
+                    return;
+                }
             }
 
             setTimeout(() => window.print(), 100);

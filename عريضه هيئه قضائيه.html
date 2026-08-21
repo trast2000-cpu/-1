@@ -808,13 +808,13 @@
                 <div class="form-group form-group-xs"><label>رقم العريضة</label><input type="text" id="pNum" oninput="sync()"></div>
                 <div class="form-group form-group-xs"><label>السنة</label><input type="number" id="pYear" oninput="sync()"></div>
                 <div class="form-group">
-                    <label>رقم المركبة (حروف ثم أرقام)</label>
+                    <label>رقم المركبة</label>
                     <div class="car-num-row">
                         <div class="car-num-container">
                             <input type="text" id="carL1" class="car-letter" maxlength="1" oninput="handleAutoTab(this, 'carL2')" onkeydown="handleBackSpace(this, null)">
                             <input type="text" id="carL2" class="car-letter" maxlength="1" oninput="handleAutoTab(this, 'carL3')" onkeydown="handleBackSpace(this, 'carL1')">
                             <input type="text" id="carL3" class="car-letter" maxlength="1" oninput="handleAutoTab(this, 'carDigits')" onkeydown="handleBackSpace(this, 'carL2')">
-                            <input type="text" id="carDigits" class="car-digit" placeholder="الأرقام" oninput="sync()" onkeydown="handleBackSpace(this, 'carL3')">
+                            <input type="text" id="carDigits" class="car-digit" placeholder="" oninput="sync()" onkeydown="handleBackSpace(this, 'carL3')">
                         </div>
                         <button class="btn-clear-plate" onclick="clearPlateFields()" title="مسح رقم المركبة">🗑️ مسح</button>
                     </div>
