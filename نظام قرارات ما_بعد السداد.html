@@ -512,17 +512,17 @@ body, .app-layout {
         }
         .border-outer { border: 1.5pt solid #1e40af; width: 100%; padding: 3pt; box-sizing: border-box; display: flex; flex-direction: column; flex: 1; }
         .border-inner { border: 3.5pt solid #1e40af; width: 100%; padding: 10mm; box-sizing: border-box; display: flex; flex-direction: column; flex: 1; }
-        .header-section { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
+        .header-section { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px; }
         .prosecution-info { text-align: center; font-weight: normal; font-size: 16px; line-height: 1.3; font-family: 'Cairo', 'Segoe UI', Arial, sans-serif; }
         .logo-box { width: 70px; }
         .logo-box img { width: 100%; }
-        .decision-header { text-align: center; margin-top: -20px; font-family: 'Cairo', 'Segoe UI', Arial, sans-serif; }
-        .recipient-line { font-size: 21px; font-weight: normal; font-family: 'Cairo', 'Segoe UI', Arial, sans-serif; margin-bottom: 10px; }
+        .decision-header { text-align: center; margin-top: -28px; font-family: 'Cairo', 'Segoe UI', Arial, sans-serif; }
+        .recipient-line { font-size: 21px; font-weight: normal; font-family: 'Cairo', 'Segoe UI', Arial, sans-serif; margin-bottom: 6px; }
         .case-line {
             font-size: 18px;
             font-weight: normal;
             display: inline-block;
-            padding-bottom: 10px;
+            padding-bottom: 7px;
             font-family: 'Cairo', 'Segoe UI', Arial, sans-serif;
             position: relative;
         }
@@ -539,7 +539,7 @@ body, .app-layout {
             background: linear-gradient(to right, transparent, #000 30%, #000 70%, transparent);
         }
         .case-line .case-num-bold { font-weight: bold; }
-        .print-info-right { text-align: right; margin-top: 14px; font-family: 'Cairo', 'Segoe UI', Arial, sans-serif; }
+        .print-info-right { text-align: right; margin-top: 10px; font-family: 'Cairo', 'Segoe UI', Arial, sans-serif; }
         .info-line { font-size: 17px; font-weight: normal; margin-bottom: 17px; }
         .info-line .var-data { font-weight: normal; font-size: 19px; }
         .plate-number-display { font-family: 'Cairo', 'Segoe UI', Arial, sans-serif; display: inline-flex; gap: 8px; font-size: 19px; vertical-align: middle; font-weight: bold; }
@@ -1679,7 +1679,7 @@ body[data-theme="dark"] .rec-date { color: #64748b !important; }
 <div style="display:flex; align-items:flex-end; gap:6px; flex-wrap:nowrap; overflow-x:auto; padding:10px; width:100%;">
                     <div class="field-group">
                         <label>رقم المحضر</label>
-                        <input type="text" id="input-caseNum" placeholder="الرقم" oninput="sync()" style="width:60px;">
+                        <input type="text" id="input-caseNum" placeholder="الرقم" oninput="autoSelectSessionDay(); sync()" style="width:60px;">
                     </div>
                     <div class="field-group">
                         <label>قسم الشرطه</label>
@@ -1689,8 +1689,10 @@ body[data-theme="dark"] .rec-date { color: #64748b !important; }
                         </select>
                     </div>
                     <div class="field-group" id="dept-other-wrapper" style="display:none;">
-                        <label>اسم القسم</label>
-                        <input type="text" id="input-dept-other" oninput="sync()" style="width:100px;">
+                        <label>اختر القسم</label>
+                        <select id="input-dept-other" onchange="sync()" style="width:150px;">
+                            <option value="">--- اختر القسم ---</option>
+                        </select>
                     </div>
                     <div class="field-group">
                         <label>السنة</label>
@@ -2057,47 +2059,74 @@ body[data-theme="dark"] .rec-date { color: #64748b !important; }
         <span class="card-badge">جلسة · بند اتهام · تاريخ</span>
         <span class="toggle-arrow">▾</span>
     </div>
-    <div class="card-body" style="flex-direction:column; flex-wrap:nowrap; gap:12px; width:100%; box-sizing:border-box;">
-        <div style="display:flex; gap:12px; align-items:flex-end; flex-wrap:wrap;">
-                    <div class="field-group">
-                        <label>هل تم تحديد جلسة</label>
-                        <select id="session-status" onchange="updateSessionField(true)" style="width:140px;">
-                            <option value="">--- اختر ---</option>
-                            <option value="yes">* تم تحديد جلسة</option>
-                            <option value="no">* لم يتم تحديد جلسة</option>
-                        </select>
-                    </div>
-            <div id="session-date-wrapper" style="display:none; gap:12px; align-items:flex-end; flex-wrap:wrap;">
-                <div class="field-group">
+    <div class="card-body" style="flex-wrap:nowrap; align-items:flex-start; width:100%; box-sizing:border-box;">
+        <!-- جزء التحكم في الجهة اليمنى -->
+        <div class="decision-controls" style="flex-shrink:0; flex-grow:0; min-width:unset; width:290px;">
+            <div style="display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:8px; align-items:end; width:100%;">
+                <div class="field-group" style="min-width:0; width:100%;">
+                    <label>هل تم تحديد جلسة</label>
+                    <select id="session-status" onchange="updateSessionField(true)" style="width:100%;">
+                        <option value="">--- اختر ---</option>
+                        <option value="yes">* تم تحديد جلسة</option>
+                        <option value="no">* لم يتم تحديد جلسة</option>
+                    </select>
+                </div>
+                <div class="field-group" id="session-day-field" style="min-width:0; width:100%; display:none;">
+                    <label>يوم الجلسة</label>
+                    <select id="session-day" onchange="toggleSessionDayOther(); updateSessionText()" style="width:100%;">
+                        <option value="">--- اختر ---</option>
+                        <option value="السبت">السبت</option>
+                        <option value="الأحد">الأحد</option>
+                        <option value="الثلاثاء">الثلاثاء</option>
+                        <option value="الأربعاء">الأربعاء</option>
+                        <option value="أخرى">أخرى (يدوي)</option>
+                    </select>
+                </div>
+            </div>
+            <div class="field-group" id="session-day-other-wrapper" style="display:none;">
+                <label>يوم (يدوي)</label>
+                <input type="text" id="session-day-other" placeholder="مثال: الخميس" oninput="updateSessionText()" style="width:100%;">
+            </div>
+            <div id="session-date-wrapper" style="display:none; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:8px; align-items:end; width:100%;">
+                <div class="field-group" style="min-width:0; width:100%;">
                     <label>واقعة الجلسة</label>
-                    <select id="session-crime" onchange="onSessionCrimeSelect(this)" style="width:210px; padding:6px 8px; border:1.5px solid #c5cfe0; border-radius:6px; font-family:inherit; font-size:13px; background:#fff; color:#1e293b;">
+                    <select id="session-crime" onchange="onSessionCrimeSelect(this)" style="width:100%; padding:6px 8px; border:1.5px solid #c5cfe0; border-radius:6px; font-family:inherit; font-size:13px; background:#fff; color:#1e293b;">
                         <option value="">--- اختر للإضافة ---</option>
-<option value="عدم تركيب اللوحات المعدنية">عدم تركيب اللوحات المعدنية</option> 
- <option value="عدم وضوح اللوحات المعدنية"> عدم وضوح اللوحات المعدنية</option>
-<option value="تركيب لوحات غير خاصة بالمركبة"> تركيب لوحات غير خاصة بالمركبة</option>
-<option value="تعمد السير عكس الاتجاة">تعمد السير عكس الاتجاة</option>
- <option value="تغيير بالاجزاء الجوهرية للمركبة">تغيير بالاجزاء الجوهرية للمركبة</option>
+                        <option value="عدم تركيب اللوحات المعدنية">عدم تركيب اللوحات المعدنية</option>
+                        <option value="عدم وضوح اللوحات المعدنية">عدم وضوح اللوحات المعدنية</option>
+                        <option value="تركيب لوحات غير خاصة بالمركبة">تركيب لوحات غير خاصة بالمركبة</option>
+                        <option value="تعمد السير عكس الاتجاة">تعمد السير عكس الاتجاة</option>
+                        <option value="تغيير بالاجزاء الجوهرية للمركبة">تغيير بالاجزاء الجوهرية للمركبة</option>
                         <option value="__manual__">بند يدوي...</option>
                     </select>
                 </div>
-                <div class="field-group">
+                <div class="field-group" style="min-width:0; width:100%;">
                     <label>تاريخ الجلسة</label>
-                    <div class="date-input-wrapper" style="width:155px;">
+                    <div class="date-input-wrapper" style="width:100%;">
                         <span class="date-cal-icon"><i class="fa-solid fa-calendar-days"></i></span>
-                        <input type="text" id="session-date" oninput="sync()" placeholder="يوم/شهر/سنة" maxlength="10" style="width:155px; padding:6px 8px; border:1.5px solid #c5cfe0; border-radius:6px; font-family:inherit; font-size:13px;">
-                        <input type="date" id="picker-session-date" class="date-hidden-picker" onchange="pickerToText(this,'session-date'); sync()">
+                        <input type="text" id="session-date" oninput="updateSessionText()" placeholder="يوم/شهر/سنة" maxlength="10" autocomplete="off" style="width:100%; padding:6px 8px; border:1.5px solid #c5cfe0; border-radius:6px; font-family:inherit; font-size:13px;">
+                        <input type="date" id="picker-session-date" class="date-hidden-picker" onchange="pickerToText(this,'session-date'); updateSessionText()">
                     </div>
                 </div>
             </div>
-        </div>
-        <div class="field-group" id="session-crime-manual-wrapper" style="display:none;">
-            <label>اكتب البند ثم اضغط Enter أو OK</label>
-            <div style="display:flex; align-items:center; gap:6px;">
-                <input type="text" id="session-crime-manual" placeholder="اكتب البند يدوياً..." onkeydown="addSessionCustomItem(event)" style="width:280px; padding:6px 8px; border:1.5px solid #4a90d9; border-radius:6px; font-family:inherit; font-size:13px;">
-                <button onclick="addSessionCustomItemBtn()" style="padding:6px 16px; background:#4a90d9; color:#fff; border:none; border-radius:6px; font-family:inherit; font-size:13px; font-weight:bold; cursor:pointer; transition:background 0.2s;" onmouseover="this.style.background='#2e6fb5'" onmouseout="this.style.background='#4a90d9'">OK</button>
+            <div class="field-group" id="session-crime-manual-wrapper" style="display:none;">
+                <label>اكتب البند ثم اضغط Enter أو OK</label>
+                <div style="display:flex; align-items:center; gap:6px;">
+                    <input type="text" id="session-crime-manual" placeholder="اكتب البند يدوياً..." onkeydown="addSessionCustomItem(event)" style="width:100%; padding:6px 8px; border:1.5px solid #4a90d9; border-radius:6px; font-family:inherit; font-size:13px;">
+                    <button onclick="addSessionCustomItemBtn()" style="padding:6px 16px; background:#4a90d9; color:#fff; border:none; border-radius:6px; font-family:inherit; font-size:13px; font-weight:bold; cursor:pointer; transition:background 0.2s;" onmouseover="this.style.background='#2e6fb5'" onmouseout="this.style.background='#4a90d9'">OK</button>
+                </div>
             </div>
+            <div id="session-selected-items" style="display:none; flex-wrap:wrap; gap:8px; width:100%; min-height:10px; margin-top:4px;"></div>
         </div>
-        <div id="session-selected-items" style="display:flex; flex-wrap:wrap; gap:8px; width:100%; min-height:10px; margin-top:4px;"></div>
+
+        <!-- مربع نص الملحوظة في الجهة اليسرى -->
+        <div class="field-group" style="flex:1; min-width:0;">
+            <div class="label-with-checkbox">
+                <label>نص ملحوظة تحديد الجلسة</label>
+                <span class="lock-label-text">( فتح التعديل )</span><input type="checkbox" class="lock-checkbox" onchange="toggleLock(this, 'session-text')" title="فتح/قفل التعديل">
+            </div>
+            <textarea id="session-text" rows="5" style="width:100%; height:150px;" oninput="sync()" placeholder="عند اختيار تم تحديد جلسة سيظهر النص هنا" readonly></textarea>
+        </div>
     </div>
 </div>
 
@@ -2270,7 +2299,7 @@ window.addEventListener('beforeprint', function() {
                 sidebarScroll.style.transform = 'translateX(0)';
             }
 
-            document.querySelectorAll('.decision-text, #text-violations, #text-fine-receipt, #text-arrest-reason').forEach(el => {
+            document.querySelectorAll('.decision-text, #text-violations, #text-fine-receipt, #text-arrest-reason, #text-session').forEach(el => {
                 if (el.dataset.original === undefined) el.dataset.original = el.innerHTML;
                 el.innerHTML = el.innerHTML.replace(/_{4,}/g, match => {
                     const w = Math.max(60, match.length * 9);
@@ -2281,7 +2310,7 @@ window.addEventListener('beforeprint', function() {
         });
 
         window.addEventListener('afterprint', function() {
-            document.querySelectorAll('.decision-text, #text-violations, #text-fine-receipt, #text-arrest-reason').forEach(el => {
+            document.querySelectorAll('.decision-text, #text-violations, #text-fine-receipt, #text-arrest-reason, #text-session').forEach(el => {
                 if (el.dataset.original !== undefined) {
                     el.innerHTML = el.dataset.original;
                     delete el.dataset.original;
@@ -2319,7 +2348,7 @@ window.addEventListener('beforeprint', function() {
             } else {
                 lineH=1.5; itemMargin='6px'; spacerMin='12px'; dateMargin='6px';
             }
-            document.querySelectorAll('.decision-text, #text-violations, #text-fine-receipt, #text-arrest-reason').forEach(el => {
+            document.querySelectorAll('.decision-text, #text-violations, #text-fine-receipt, #text-arrest-reason, #text-session').forEach(el => {
                 el.style.lineHeight = String(lineH);
             });
             const fineReceiptEl = document.getElementById('text-fine-receipt');
@@ -2356,7 +2385,7 @@ window.addEventListener('beforeprint', function() {
         }
 
         function resetPrintScale() {
-            document.querySelectorAll('.decision-text, #text-violations, #text-fine-receipt, #text-arrest-reason').forEach(el => { el.style.lineHeight=''; });
+            document.querySelectorAll('.decision-text, #text-violations, #text-fine-receipt, #text-arrest-reason, #text-session').forEach(el => { el.style.lineHeight=''; });
             document.querySelectorAll('.decision-item').forEach(el => { el.style.marginBottom=''; });
             const spacer = document.querySelector('.footer-spacer');
             if (spacer) { spacer.style.flexGrow='1'; spacer.style.minHeight='20mm'; spacer.style.height=''; }
@@ -2440,12 +2469,21 @@ window.addEventListener('beforeprint', function() {
             updateFineReceiptText();
             clearArrestReasons();
             document.getElementById('session-status').value = '';
+            document.getElementById('session-text').value = '';
+            document.getElementById('session-day').value = '';
+            document.getElementById('session-day-other').value = '';
+            document.getElementById('session-day-other-wrapper').style.display = 'none';
             document.getElementById('session-date').value = '';
             document.getElementById('session-crime').value = '';
             document.getElementById('session-crime-manual').value = '';
             document.getElementById('session-crime-manual-wrapper').style.display = 'none';
             sessionItems = [];
-                        importedJalsaDate = '';
+            importedJalsaDate = '';
+            importedJalsaDay = '';
+            importedLinkedSessionCaseNum = '';
+            importedPrimaryMahdarData = null;
+            linkedSessionLookupSignature = '';
+            clearTimeout(linkedSessionLookupTimer);
             importedSessionKeywords = [];
             if (document.getElementById('session-selected-items')) document.getElementById('session-selected-items').innerHTML = '';
             document.getElementById('session-date-wrapper').style.display = 'none';
@@ -2457,13 +2495,18 @@ window.addEventListener('beforeprint', function() {
         // تُستخدم قبل استيراد محضر من القائمة المحفوظة، لتقرير ما إذا كان يجب
         // تحذير المستخدم قبل الكتابة فوق البيانات الحالية.
         function formHasMeaningfulData() {
-            const name    = (document.getElementById('input-name')    || {}).value || '';
-            const caseNum = (document.getElementById('input-caseNum') || {}).value || '';
-            if (name.trim() || caseNum.trim()) return true;
-            if (Array.isArray(sessionItems) && sessionItems.length > 0) return true;
-            const receiptFields = ['violations-receipt', 'fine-receipt-num'];
-            if (receiptFields.some(id => ((document.getElementById(id) || {}).value || '').trim())) return true;
-            return false;
+            // لا يظهر تحذير الكتابة فوق محضر سابق إلا عند اكتمال مفتاح المحضر كله:
+            // رقم المحضر + قسم الشرطة + السنة. أما الاسم أو يوم الجلسة أو أي حقل آخر
+            // بمفرده فلا يُعد محضرًا قائمًا يستدعي التحذير.
+            const caseNum = ((document.getElementById('input-caseNum') || {}).value || '').trim();
+            const year = ((document.getElementById('input-year') || {}).value || '').trim();
+            const deptSelect = document.getElementById('input-dept-select');
+            const dept = deptSelect
+                ? (deptSelect.value === 'أخرى'
+                    ? ((document.getElementById('input-dept-other') || {}).value || '').trim()
+                    : (deptSelect.value || '').trim())
+                : '';
+            return Boolean(caseNum && year && dept && dept !== '--- اختر ---');
         }
 
         // ── بناء نص وصفي لبيانات المحضر الحالية بالنموذج (رقم / سنة / قسم) لعرضه في رسالة التحذير ──
@@ -2770,20 +2813,21 @@ function sync() {
 
 // ملحوظة الجلسة
     const sessionItem = document.getElementById('item-session');
+    const sessionText = document.getElementById('session-text');
     const sessionStatus = document.getElementById('session-status').value;
     if (sessionItem) {
-        if (sessionStatus==='yes') {
-            let dateVal = document.getElementById('session-date').value;
-            let crimePart = sessionItems.length > 0 ? '( ' + sessionItems.map((item,i) => (i+1)+'- '+item.label).join(' / ') + ' )' : '( <span style="font-size:0.5em;">................................................... , ................................................... , ...................................................</span> )';
-            
-            let currentYear = document.getElementById('input-year').value || '2026';
-            
-            // 💡 التعديل هنا: تمت إضافة الأقواس ( ) حول التاريخ الفارغ
-            let datePart = dateVal ? '( '+dateVal+' )' : '( <span style="font-size:0.5em;">..........................................</span> / <span style="font-size:0.5em;">..........................................</span> / <span style="font-weight:bold;">' + currentYear + '</span> )';
-
-            sessionItem.innerHTML = '<div style="text-align:center; line-height:2;"><span class="decision-label">'+noteLabel()+'</span> تم تحديد جلسة محاكمة عن واقعة '+crimePart+'<br>بتاريخ '+datePart+'</div>';
-            sessionItem.style.display='block';
-        } else { sessionItem.style.display='none'; }
+        const sessionValue = sessionText ? sessionText.value.trim() : '';
+        if (sessionStatus === 'yes' && sessionValue) {
+            const sessionLines = sessionValue.split('\n');
+            let sessionHtml = '<div style="text-align:center; line-height:2;"><span class="decision-label">' + noteLabel() + '</span> <span>' + boldVariables(sessionLines[0]) + '</span></div>';
+            for (let i = 1; i < sessionLines.length; i++) {
+                sessionHtml += '<div style="text-align:center; margin-top:4px;">' + boldVariables(sessionLines[i]) + '</div>';
+            }
+            sessionItem.innerHTML = sessionHtml;
+            sessionItem.style.display = 'block';
+        } else {
+            sessionItem.style.display = 'none';
+        }
     }
 }
 
@@ -2883,7 +2927,57 @@ function sync() {
             return words.trim()+" جنيهاً ";
         }
 
-        function toggleOther(id, wrap) { document.getElementById(wrap).style.display=(document.getElementById(id).value==='أخرى')?'flex':'none'; }
+        function toggleOther(id, wrap) {
+            const isOther = document.getElementById(id).value === 'أخرى';
+            if (id === 'input-dept-select' && typeof refreshPostPaymentSecondaryStationList === 'function') {
+                refreshPostPaymentSecondaryStationList();
+            }
+            document.getElementById(wrap).style.display = isOther ? 'flex' : 'none';
+        }
+
+        // قائمة القاهرة الفرعية — ثابتة ولا يديرها زر الترس.
+        // الترتيب حرفي كامل ويحتسب الألف واللام «الـ» كما في نظام التلبسات.
+        const POST_PAYMENT_CAIRO_STATIONS = [
+            '15 مايو',
+            'الأزبكية', 'الأميرية', 'البساتين', 'التبين', 'التجمع الأول', 'التجمع الخامس',
+            'الجمالية', 'الخليفة', 'الدرب الأحمر', 'الزاوية الحمراء', 'الزيتون', 'الساحل',
+            'السيدة زينب', 'الشرابية', 'الشروق', 'الظاهر', 'القطامية', 'المرج', 'المطرية',
+            'المعادي', 'المعصرة', 'المقطم', 'الموسكي', 'النزهة', 'الوايلي',
+            'باب الشعرية', 'بدر', 'بولاق', 'حدائق القبة', 'حلوان', 'دار السلام', 'روض الفرج',
+            'شبرا', 'عابدين', 'عين شمس', 'قصر النيل', 'مدينة السلام أول', 'مدينة السلام ثان',
+            'مدينة نصر أول', 'مدينة نصر ثالث', 'مدينة نصر ثان', 'مصر الجديدة', 'مصر القديمة',
+            'منشأة ناصر'
+        ];
+        function normalizePostPaymentStation(value) {
+            return String(value || '').trim().replace(/ة/g, 'ه').replace(/\s+/g, ' ');
+        }
+        function refreshPostPaymentSecondaryStationList() {
+            const select = document.getElementById('input-dept-other');
+            if (!select) return;
+            const current = select.value || '';
+            const primary = document.getElementById('input-dept-select');
+            const primaryNames = new Set();
+            if (primary) Array.from(primary.options).forEach(function(opt) {
+                const value = String(opt.value || '').trim();
+                if (value && value !== 'أخرى') primaryNames.add(normalizePostPaymentStation(value));
+            });
+            const names = [];
+            const seen = new Set();
+            POST_PAYMENT_CAIRO_STATIONS.forEach(function(name) {
+                const normalized = normalizePostPaymentStation(name);
+                if (!seen.has(normalized) && !primaryNames.has(normalized)) {
+                    seen.add(normalized);
+                    names.push(name);
+                }
+            });
+            // الاحتفاظ مؤقتًا بقيمة قديمة مستوردة إذا لم تعد ضمن القائمة المعتمدة.
+            if (current && !names.includes(current)) names.push(current);
+            select.innerHTML = '<option value="">--- اختر القسم ---</option>' + names.map(function(name) {
+                const safe = String(name).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+                return '<option value="' + safe + '">' + safe + '</option>';
+            }).join('');
+            if (current) select.value = current;
+        }
 
         function autoTab(c, n) {
             if (c.value.length>=c.maxLength) { const next=document.getElementById(n); if(next){next.focus();if(next.tagName==='INPUT')next.select();} }
@@ -3136,7 +3230,25 @@ function renderArrestItems() {
             }
         }, true);
 
+                function restoreLinkedSessionAfterPreset(shouldOpenCard) {
+            if (!importedLinkedSessionCaseNum || !importedSessionKeywords.length) return false;
+            const dateEl = document.getElementById('session-date');
+            if (dateEl) dateEl.value = importedJalsaDate || '';
+            if (importedJalsaDay) setSessionDayValue(importedJalsaDay);
+            sessionItems = importedSessionKeywords.map(function(keyword) { return { label: keyword }; });
+            const statusEl = document.getElementById('session-status');
+            if (statusEl) statusEl.value = 'yes';
+            renderSessionItems();
+            updateSessionField(false);
+            if (shouldOpenCard) {
+                const sessionCard = document.getElementById('card-session');
+                if (sessionCard && typeof _openCard === 'function') _openCard(sessionCard);
+            }
+            return true;
+        }
+
         function applyPreset(type) {
+
             document.querySelectorAll('.preset-btn').forEach(b=>b.classList.remove('active'));
             const activeBtn=document.getElementById('preset-'+type);
             if(activeBtn) activeBtn.classList.add('active');
@@ -3152,7 +3264,10 @@ function renderArrestItems() {
                 document.getElementById('vehicle-status-type').value='deliver'; updateVehicleStatusText();
                 document.getElementById('violations-type').value='paid'; updateViolationsText();
                 document.getElementById('fine-receipt-type').value='paid'; updateFineReceiptText();
-                document.getElementById('session-status').value='no'; updateSessionField();
+                if (!restoreLinkedSessionAfterPreset(false)) {
+                    document.getElementById('session-status').value='no';
+                    updateSessionField();
+                }
                 ['fine-type','eng-type','vehicle-status-type','violations-type','fine-receipt-type'].forEach(id=>syncCustomSelectDisplay(id));
             }
 
@@ -3162,7 +3277,10 @@ function renderArrestItems() {
                 document.getElementById('vehicle-status-type').value='keep'; updateVehicleStatusText();
                 document.getElementById('violations-type').value='other'; updateViolationsText();
                 document.getElementById('fine-receipt-type').value='paid'; updateFineReceiptText();
-                document.getElementById('session-status').value='no'; updateSessionField();
+                if (!restoreLinkedSessionAfterPreset(false)) {
+                    document.getElementById('session-status').value='no';
+                    updateSessionField();
+                }
                 ['fine-type','eng-type','vehicle-status-type','violations-type','fine-receipt-type'].forEach(id=>syncCustomSelectDisplay(id));
             }
 
@@ -3188,7 +3306,10 @@ function renderArrestItems() {
                 document.getElementById('vehicle-status-type').value='other'; updateVehicleStatusText();
                 document.getElementById('violations-type').value='other'; updateViolationsText();
                 document.getElementById('fine-receipt-type').value='paid'; updateFineReceiptText();
-                document.getElementById('session-status').value='no'; updateSessionField();
+                if (!restoreLinkedSessionAfterPreset(false)) {
+                    document.getElementById('session-status').value='no';
+                    updateSessionField();
+                }
                 ['fine-type','eng-type','vehicle-status-type','violations-type','fine-receipt-type'].forEach(id=>syncCustomSelectDisplay(id));
             }
             sync();
@@ -3204,34 +3325,248 @@ function renderArrestItems() {
             ['card-basic','card-vehicle','card-fine','card-eng','card-veh-status',
              'card-violations','card-fine-receipt','card-arrest-reason','card-session'
             ].forEach(function(id) { _setCardState(id, !_shouldClose.has(id)); });
+            if (importedLinkedSessionCaseNum && importedSessionKeywords.length) {
+                restoreLinkedSessionAfterPreset(true);
+            }
         }
 
 
 
 
-        function updateSessionField(isManualTrigger = false) {
-            const status = document.getElementById('session-status').value;
-            document.getElementById('session-date-wrapper').style.display = (status === 'yes') ? 'flex' : 'none';
+        function setSessionDayValue(dayValue) {
+            const day = String(dayValue || '').trim();
+            const daySelect = document.getElementById('session-day');
+            if (!daySelect || !day) return;
+            const hasOption = Array.from(daySelect.options).some(function(option) { return option.value === day; });
+            if (hasOption) {
+                daySelect.value = day;
+                const other = document.getElementById('session-day-other');
+                if (other) other.value = '';
+            } else {
+                daySelect.value = 'أخرى';
+                const other = document.getElementById('session-day-other');
+                if (other) other.value = day;
+            }
+            toggleSessionDayOther();
+        }
 
-            // 💡 الإضافة الجديدة: إذا تم تغيير الحالة إلى "لم يتم" أو "فارغ"، امسح البنود فوراً
-            if (status !== 'yes') {
-                sessionItems = []; // تفريغ مصفوفة بنود الجلسة
-                renderSessionItems(); // تحديث الواجهة لإخفاء البنود (الـ Tags)
-                
-                // احتياطياً: إخفاء وتفريغ حقل الإدخال اليدوي إذا كان مفتوحاً
-                document.getElementById('session-crime-manual').value = '';
-                document.getElementById('session-crime-manual-wrapper').style.display = 'none';
-            } else if (isManualTrigger) {
-                // 💡 إذا تم التفعيل يدوياً من القائمة، استورد البيانات المخزنة فوراً
-                applyImportedSessionData(true);
+        function getSessionDayValue() {
+            const daySelect = document.getElementById('session-day');
+            if (!daySelect) return importedJalsaDay || '';
+            if (daySelect.value === 'أخرى') {
+                return (document.getElementById('session-day-other') || {}).value || '';
+            }
+            return daySelect.value || importedJalsaDay || '';
+        }
+
+        function toggleSessionDayOther() {
+            const daySelect = document.getElementById('session-day');
+            const wrapper = document.getElementById('session-day-other-wrapper');
+            if (wrapper) wrapper.style.display = daySelect && daySelect.value === 'أخرى' ? 'flex' : 'none';
+            if (daySelect && daySelect.value !== 'أخرى') {
+                const other = document.getElementById('session-day-other');
+                if (other) other.value = '';
+            }
+        }
+
+        function autoSelectSessionDay() {
+            const caseNum = ((document.getElementById('input-caseNum') || {}).value || '').trim();
+            if (!caseNum) return;
+            const lastDigit = parseInt(caseNum.charAt(caseNum.length - 1), 10);
+            if (isNaN(lastDigit)) return;
+            const daySelect = document.getElementById('session-day');
+            if (!daySelect) return;
+            if ([0, 1, 2].includes(lastDigit)) daySelect.value = 'السبت';
+            else if ([3, 4].includes(lastDigit)) daySelect.value = 'الأحد';
+            else if ([5, 6].includes(lastDigit)) daySelect.value = 'الثلاثاء';
+            else daySelect.value = 'الأربعاء';
+            toggleSessionDayOther();
+            updateSessionText();
+        }
+
+        function getNextSessionDates(dayName, count = 10) {
+            const daysMap = { 'الأحد': 0, 'الاثنين': 1, 'الثلاثاء': 2, 'الأربعاء': 3, 'الخميس': 4, 'الجمعة': 5, 'السبت': 6 };
+            const targetDay = daysMap[dayName];
+            if (targetDay === undefined) return [];
+            const dates = [];
+            const d = new Date();
+            let distance = targetDay - d.getDay();
+            if (distance <= 0) distance += 7;
+            d.setDate(d.getDate() + distance);
+            for (let i = 0; i < count; i++) {
+                const dd = String(d.getDate()).padStart(2, '0');
+                const mm = String(d.getMonth() + 1).padStart(2, '0');
+                dates.push(d.getFullYear() + '/' + mm + '/' + dd);
+                d.setDate(d.getDate() + 7);
+            }
+            return dates;
+        }
+
+        function setupSessionDateDropdown() {
+            const dateInput = document.getElementById('session-date');
+            const daySelect = document.getElementById('session-day');
+            if (!dateInput || !daySelect || dateInput.dataset.smartDropdownReady === '1') return;
+            dateInput.dataset.smartDropdownReady = '1';
+
+            const dropdown = document.createElement('div');
+            dropdown.id = 'session-smart-date-dropdown';
+            dropdown.style.cssText = 'position:fixed;display:none;flex-direction:column;background:#fff;border:1.5px solid #7a9cbf;border-radius:6px;box-shadow:0 -5px 20px rgba(30,58,95,.25);z-index:100000;max-height:220px;overflow-y:auto;overflow-x:hidden;direction:rtl;font-family:inherit;min-width:0;padding:0;margin:0;box-sizing:border-box;';
+            document.body.appendChild(dropdown);
+
+            function closeDropdown() { dropdown.style.display = 'none'; }
+            function openDropdown() {
+                const selectedDay = getSessionDayValue();
+                if (!selectedDay || selectedDay === 'أخرى') { closeDropdown(); return; }
+                const dates = getNextSessionDates(selectedDay, 10);
+                dropdown.replaceChildren();
+                const header = document.createElement('div');
+                header.textContent = '📅 تواريخ ' + selectedDay + ' القادمة';
+                header.style.cssText = 'padding:6px 4px;background:#edf0f7;color:#5a6a82;font-weight:bold;font-size:11px;text-align:center;border-bottom:1.5px solid #c5cfe0;white-space:nowrap;position:sticky;top:0;z-index:2;box-sizing:border-box;width:100%;';
+                dropdown.appendChild(header);
+                dates.forEach(function(dateStr) {
+                    const option = document.createElement('div');
+                    option.textContent = dateStr;
+                    option.style.cssText = 'display:block;width:100%;box-sizing:border-box;padding:8px 10px;color:#1e293b;font-size:13.5px;font-weight:bold;text-align:center;cursor:pointer;border-bottom:1px solid #edf0f7;white-space:nowrap;transition:background .2s,color .2s,padding-right .2s;';
+                    option.onmouseover = function() {
+                        this.style.background = document.body.dataset.theme === 'dark' ? '#2d4060' : '#e8f0fb';
+                        this.style.color = document.body.dataset.theme === 'dark' ? '#fff' : '#1a3a6b';
+                        this.style.paddingRight = '15px';
+                    };
+                    option.onmouseout = function() {
+                        this.style.background = document.body.dataset.theme === 'dark' ? '#1a2d45' : '#fff';
+                        this.style.color = document.body.dataset.theme === 'dark' ? '#e2e8f0' : '#1e293b';
+                        this.style.paddingRight = '10px';
+                    };
+                    option.onmousedown = function(event) {
+                        event.preventDefault();
+                        dateInput.value = dateStr;
+                        closeDropdown();
+                        updateSessionText();
+                    };
+                    dropdown.appendChild(option);
+                });
+                const zoom = parseFloat(getComputedStyle(document.body).zoom) || 1;
+                const rect = dateInput.getBoundingClientRect();
+                const rectTop = rect.top / zoom;
+                const rectBottom = rect.bottom / zoom;
+                const viewportHeight = window.innerHeight / zoom;
+                const spaceAbove = Math.max(0, rectTop - 8);
+                const spaceBelow = Math.max(0, viewportHeight - rectBottom - 8);
+
+                dropdown.style.width = (rect.width / zoom) + 'px';
+                // مطابقة منطق قائمة التلبسات: الصفحة المستقلة تحاذي الحافة اليسرى،
+                // والصفحة المضمنة تحاذي الحافة اليمنى داخل الإطار.
+                const inFrame = (function() { try { return window.self !== window.top; } catch (e) { return true; } })();
+                if (inFrame) {
+                    dropdown.style.right = ((window.innerWidth / zoom) - (rect.right / zoom)) + 'px';
+                    dropdown.style.left = 'auto';
+                } else {
+                    dropdown.style.left = (rect.left / zoom) + 'px';
+                    dropdown.style.right = 'auto';
+                }
+                dropdown.style.maxHeight = '320px';
+                dropdown.style.display = 'flex';
+
+                // بعد إظهار القائمة نقيس ارتفاعها الحقيقي، ثم نفتحها لأعلى إذا لم تتسع أسفل الحقل.
+                const naturalHeight = dropdown.scrollHeight / zoom;
+                const openUp = spaceBelow < naturalHeight && spaceAbove > spaceBelow;
+                const availableSpace = openUp ? spaceAbove : spaceBelow;
+                dropdown.style.maxHeight = Math.max(120, Math.min(220, availableSpace)) + 'px';
+                const actualHeight = dropdown.getBoundingClientRect().height / zoom;
+                dropdown.style.top = openUp
+                    ? (rectTop - actualHeight - 4) + 'px'
+                    : (rectBottom + 4) + 'px';
             }
 
+            dateInput.addEventListener('focus', openDropdown);
+            dateInput.addEventListener('click', openDropdown);
+            daySelect.addEventListener('change', function() {
+                toggleSessionDayOther();
+                if (document.activeElement === dateInput) openDropdown();
+            });
+            document.addEventListener('mousedown', function(event) {
+                if (event.target !== dateInput && !dropdown.contains(event.target)) closeDropdown();
+            });
+            window.addEventListener('resize', closeDropdown);
+            window.addEventListener('scroll', function(event) {
+                // السماح بالتمرير الرأسي داخل القائمة دون إغلاقها.
+                if (event.target === dropdown) return;
+                closeDropdown();
+            }, true);
+        }
+
+        if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', setupSessionDateDropdown);
+        else setupSessionDateDropdown();
+
+        function updateSessionText() {
+            const status = document.getElementById('session-status').value;
+            const textArea = document.getElementById('session-text');
+            if (!textArea) return;
+            if (status !== 'yes') {
+                textArea.value = '';
+                sync();
+                return;
+            }
+
+            const dateVal = document.getElementById('session-date').value.trim();
+            const currentYear = document.getElementById('input-year').value || '2026';
+            const crimePart = sessionItems.length > 0
+                ? '( ' + sessionItems.map((item, i) => (i + 1) + '- ' + item.label).join(' / ') + ' )'
+                : '( ................................................... , ................................................... , ................................................... )';
+            const sessionDay = getSessionDayValue();
+            const dayPart = sessionDay ? sessionDay + (dateVal ? ' الموافق ' + dateVal : '') : dateVal;
+            const linkedCasePart = importedLinkedSessionCaseNum ? ' / رقم محضر الجلسة ( ' + importedLinkedSessionCaseNum + ' )' : '';
+            const datePart = dayPart
+                ? '( ' + dayPart + ' )'
+                : '( .......................................... / .......................................... / ' + currentYear + ' )';
+
+            textArea.value = 'تم تحديد جلسة محاكمة عن واقعة ' + crimePart + '\nبتاريخ ' + datePart + linkedCasePart;
             sync();
         }
 
+        function updateSessionField(isManualTrigger = false) {
+            const status = document.getElementById('session-status').value;
+            const isSessionConfirmed = status === 'yes';
+            const dayField = document.getElementById('session-day-field');
+            const dateWrapper = document.getElementById('session-date-wrapper');
+            const dayOtherWrapper = document.getElementById('session-day-other-wrapper');
+
+            if (dayField) dayField.style.display = isSessionConfirmed ? 'block' : 'none';
+            if (dateWrapper) dateWrapper.style.display = isSessionConfirmed ? 'grid' : 'none';
+            if (!isSessionConfirmed && dayOtherWrapper) dayOtherWrapper.style.display = 'none';
+
+            // عند اختيار "اختر" أو "لم يتم" لا نعرض أي حقل تابع للجلسة.
+            if (!isSessionConfirmed) {
+                sessionItems = [];
+                renderSessionItems();
+                const daySelect = document.getElementById('session-day');
+                const dayOther = document.getElementById('session-day-other');
+                const dateInput = document.getElementById('session-date');
+                const crimeSelect = document.getElementById('session-crime');
+                const manualInput = document.getElementById('session-crime-manual');
+                if (daySelect) daySelect.value = '';
+                if (dayOther) dayOther.value = '';
+                if (dateInput) dateInput.value = '';
+                if (crimeSelect) crimeSelect.value = '';
+                if (manualInput) manualInput.value = '';
+                const manualWrapper = document.getElementById('session-crime-manual-wrapper');
+                if (manualWrapper) manualWrapper.style.display = 'none';
+            } else if (isManualTrigger) {
+                // عند تفعيل الجلسة يدويًا، استورد بيانات الجلسة المرتبطة إن وُجدت.
+                applyImportedSessionData(true);
+            }
+
+            updateSessionText();
+        }
+
         let sessionItems = [];
-        let importedJalsaDate = ''; // تاريخ الجلسة المستورد من نظام التلبسات (يُستخدم عند اختيار "تسليم بدون غرامة")
-        let importedSessionKeywords = []; // جميع بنود الجلسات المطابقة في المحضر المستورد
+        let importedJalsaDate = ''; // تاريخ الجلسة المستورد من المحضر المختار.
+        let importedJalsaDay = ''; // يوم الجلسة المستورد من المحضر المرتبط.
+        let importedSessionKeywords = []; // جميع بنود الجلسات المطابقة في المحضر المستورد.
+        let importedLinkedSessionCaseNum = ''; // رقم محضر الجلسة المرتبط.
+        let importedPrimaryMahdarData = null; // بيانات المحضر الأساسي بعد استيراده.
+        let linkedSessionLookupSignature = '';
+        let linkedSessionLookupTimer = null;
 
         function findImportedSessionKeywords(violations) {
             if (!Array.isArray(violations)) return [];
@@ -3254,6 +3589,7 @@ function renderArrestItems() {
             // ملء التاريخ إذا وُجد
             const dateEl = document.getElementById('session-date');
             if (dateEl && importedJalsaDate) dateEl.value = importedJalsaDate;
+            if (importedJalsaDay) setSessionDayValue(importedJalsaDay);
 
             // ملء البنود إذا وُجدت
             if (importedSessionKeywords.length > 0) {
@@ -3273,7 +3609,100 @@ function renderArrestItems() {
             updateSessionField(false);
         }
 
+                function normalizePostPaymentLinkValue(value) {
+            return String(value || '').trim()
+                .replace(/[٠-٩]/g, function(d) { return String('٠١٢٣٤٥٦٧٨٩'.indexOf(d)); })
+                .replace(/[أإآ]/g, 'ا')
+                .replace(/ى/g, 'ي')
+                .replace(/ة/g, 'ه')
+                .replace(/[\u064B-\u065F]/g, '')
+                .replace(/\s+/g, ' ')
+                .toLowerCase();
+        }
+
+        function getPostPaymentMahdarKeys() {
+            const keys = new Set();
+            try {
+                const index = JSON.parse(localStorage.getItem('mahdar_index') || '[]');
+                if (Array.isArray(index)) index.forEach(function(key) { if (key) keys.add(key); });
+                Object.keys(localStorage).forEach(function(key) {
+                    if (key.indexOf('mahdar_') === 0 && key !== 'mahdar_index') keys.add(key);
+                });
+            } catch (e) {}
+            return Array.from(keys);
+        }
+
+        function applyLinkedSessionMahdar(data) {
+            if (!data) return false;
+            const linkedKeywords = findImportedSessionKeywords(data.violations);
+            const linkedDate = String(data.jalsaDate || '').trim();
+            const linkedDay = String(data.jalsaDay || '').trim() === 'أخرى'
+                ? String(data.jalsaDayOther || '').trim()
+                : String(data.jalsaDay || '').trim();
+            if (!linkedKeywords.length && !linkedDate && !linkedDay) return false;
+
+            importedLinkedSessionCaseNum = String(data.caseNum || '').trim();
+            importedJalsaDate = linkedDate;
+            importedJalsaDay = linkedDay;
+            if (linkedDay) setSessionDayValue(linkedDay);
+            const linkedDateEl = document.getElementById('session-date');
+            if (linkedDateEl) linkedDateEl.value = linkedDate;
+            importedSessionKeywords = linkedKeywords.slice();
+            sessionItems = linkedKeywords.map(function(keyword) { return { label: keyword }; });
+
+            const statusEl = document.getElementById('session-status');
+            if (statusEl) statusEl.value = 'yes';
+            renderSessionItems();
+            updateSessionField(false);
+            const sessionCard = document.getElementById('card-session');
+            if (sessionCard && typeof _openCard === 'function') _openCard(sessionCard);
+            sync();
+            return true;
+        }
+
+        function importLinkedSessionMahdar() {
+            if (!importedPrimaryMahdarData) return;
+
+            const primary = importedPrimaryMahdarData;
+            const nationalId = String(primary.nationalId || '').trim();
+            const year = String(primary.year || document.getElementById('input-year').value || '').trim();
+            const dept = String(primary.dept || '').trim();
+            const incidentDate = String(primary.incidentDate || '').trim();
+            if (!nationalId || !year || !dept || !incidentDate) return;
+
+            const signature = [nationalId, year, dept, incidentDate].map(normalizePostPaymentLinkValue).join('|');
+            if (signature === linkedSessionLookupSignature) return;
+            linkedSessionLookupSignature = signature;
+
+            const primaryCaseNum = normalizePostPaymentLinkValue(primary.caseNum);
+            const candidates = [];
+            getPostPaymentMahdarKeys().forEach(function(key) {
+                try {
+                    const data = JSON.parse(localStorage.getItem(key) || 'null');
+                    if (!data) return;
+                    if (normalizePostPaymentLinkValue(data.caseNum) === primaryCaseNum) return;
+                    if (normalizePostPaymentLinkValue(data.nationalId) !== normalizePostPaymentLinkValue(nationalId)) return;
+                    if (normalizePostPaymentLinkValue(data.year) !== normalizePostPaymentLinkValue(year)) return;
+                    if (normalizePostPaymentLinkValue(data.dept) !== normalizePostPaymentLinkValue(dept)) return;
+                    if (normalizePostPaymentLinkValue(data.incidentDate) !== normalizePostPaymentLinkValue(incidentDate)) return;
+                    if (!findImportedSessionKeywords(data.violations).length) return;
+                    if (!String(data.jalsaDate || '').trim() && !String(data.jalsaDay || '').trim()) return;
+                    candidates.push(data);
+                } catch (e) {}
+            });
+
+            if (!candidates.length) return null;
+            const linked = candidates[candidates.length - 1];
+            return applyLinkedSessionMahdar(linked) ? linked : null;
+        }
+
+        function scheduleLinkedSessionMahdarImport() {
+            clearTimeout(linkedSessionLookupTimer);
+            linkedSessionLookupTimer = setTimeout(importLinkedSessionMahdar, 450);
+        }
+
         function onSessionCrimeSelect(sel) {
+
             const val=sel.value; sel.value='';
             if(!val) return;
             if(val==='__manual__'){
@@ -3284,7 +3713,7 @@ function renderArrestItems() {
             if(sessionItems.find(i=>i.label===val)) return;
             if(sessionItems.length>=6) return;
             sessionItems.push({label:val});
-            renderSessionItems(); sync();
+            renderSessionItems(); updateSessionText();
         }
 
         function addSessionCustomItem(e) {
@@ -3296,7 +3725,7 @@ function renderArrestItems() {
             input.value='';
             document.getElementById('session-crime-manual-wrapper').style.display='none';
             document.getElementById('session-crime').value='';
-            renderSessionItems(); sync();
+            renderSessionItems(); updateSessionText();
         }
 
         function addSessionCustomItemBtn() {
@@ -3306,37 +3735,56 @@ function renderArrestItems() {
             sessionItems.push({label:val});
             input.value='';
             document.getElementById('session-crime-manual-wrapper').style.display='none';
-            document.getElementById('session-crime').value='';
-            renderSessionItems(); sync();
+                        document.getElementById('session-crime').value='';
+            renderSessionItems(); updateSessionText();
         }
 
-        function removeSessionItem(idx) { sessionItems.splice(idx,1); renderSessionItems(); sync(); }
+        function removeSessionItem(idx) { sessionItems.splice(idx,1); renderSessionItems(); updateSessionText(); }
 
         function renderSessionItems() {
-    const container = document.getElementById('session-selected-items');
-    container.innerHTML = '';
-    
-    sessionItems.forEach((item, idx) => {
-        const div = document.createElement('div');
-        
-        // دعم الوضع الليلي والنهاري أوتوماتيكياً
-        const _isDark = document.body.getAttribute('data-theme') === 'dark';
-        const _bg = _isDark ? '#1e3555' : '#e8eef7';
-        const _border = _isDark ? '#2d4060' : '#c5cfe0';
-        const _text = _isDark ? '#e2e8f0' : '#1e293b';
+            const container = document.getElementById('session-selected-items');
+            container.innerHTML = '';
+            const itemCount = sessionItems.length;
 
-        // التصميم الجديد: شكل "Tag" متجاوب (بدون عرض ثابت) ويمنع خروج النص
-        div.style.cssText = `display:inline-flex; align-items:center; gap:8px; background:${_bg}; border:1px solid ${_border}; border-radius:6px; padding:6px 12px; font-size:12.5px; font-weight:bold; color:${_text}; max-width:100%; box-sizing:border-box;`;
-        
-        div.innerHTML = `
-            <span style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${item.label}</span>
-            <button onclick="removeSessionItem(${idx})" title="حذف البند" style="border:none; background:none; cursor:pointer; color:#e74c3c; font-size:14px; padding:0; display:flex; align-items:center; justify-content:center; flex-shrink:0; transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'">
-                <i class="fa-solid fa-xmark"></i>
-            </button>
-        `;
-        container.appendChild(div);
-    });
-}
+            // شبكة ديناميكية: بند واحد بعرض كامل، وبندان في صف، والبند الأخير الفردي بعرض كامل.
+            container.style.display = itemCount ? 'grid' : 'none';
+            container.style.gridTemplateColumns = itemCount === 1 ? 'minmax(0, 1fr)' : 'repeat(2, minmax(0, 1fr))';
+            container.style.gap = '8px';
+            container.style.width = '100%';
+            container.style.alignItems = 'stretch';
+
+            sessionItems.forEach((item, idx) => {
+                const div = document.createElement('div');
+
+                // دعم الوضع الليلي والنهاري أوتوماتيكياً
+                const _isDark = document.body.getAttribute('data-theme') === 'dark';
+                const _bg = _isDark ? '#1e3555' : '#e8eef7';
+                const _border = _isDark ? '#2d4060' : '#c5cfe0';
+                const _text = _isDark ? '#e2e8f0' : '#1e293b';
+                const isOddLastItem = itemCount > 1 && itemCount % 2 === 1 && idx === itemCount - 1;
+
+                div.style.cssText = `display:flex; align-items:center; gap:8px; min-width:0; width:100%; background:${_bg}; border:1px solid ${_border}; border-radius:6px; padding:6px 10px; font-size:12.5px; font-weight:bold; color:${_text}; box-sizing:border-box;`;
+                if (isOddLastItem) div.style.gridColumn = '1 / -1';
+                div.title = item.label || '';
+
+                const label = document.createElement('span');
+                label.textContent = item.label || '';
+                label.style.cssText = 'display:block; flex:1; min-width:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;';
+
+                const removeButton = document.createElement('button');
+                removeButton.type = 'button';
+                removeButton.title = 'حذف البند';
+                removeButton.innerHTML = '<i class="fa-solid fa-xmark"></i>';
+                removeButton.style.cssText = 'border:none; background:none; cursor:pointer; color:#e74c3c; font-size:14px; padding:0; display:flex; align-items:center; justify-content:center; flex-shrink:0; transition:transform 0.2s;';
+                removeButton.onclick = function() { removeSessionItem(idx); };
+                removeButton.onmouseover = function() { this.style.transform = 'scale(1.2)'; };
+                removeButton.onmouseout = function() { this.style.transform = 'scale(1)'; };
+
+                div.appendChild(label);
+                div.appendChild(removeButton);
+                container.appendChild(div);
+            });
+        }
 
         function clearArrestReasons() {
             arrestItems=[];
@@ -3405,7 +3853,7 @@ if (window.isPresetRunning) return;
         /* ===================================================
            استرجاع بيانات المحضر من Local Storage
         =================================================== */
-        function showLookupToast(text, success) {
+        function showLookupToast(text, success, multiline = false) {
             let toast = document.getElementById('_lookup_toast');
             if (!toast) {
                 toast = document.createElement('div');
@@ -3413,19 +3861,41 @@ if (window.isPresetRunning) return;
                 toast.style.cssText = [
                     'position:fixed','bottom:28px','left:50%',
                     'transform:translateX(-50%) translateY(60px)',
-                    'padding:11px 22px','border-radius:9px',
-                    'font-family:Cairo,sans-serif','font-size:14px','font-weight:700',
-                    'box-shadow:0 4px 18px rgba(0,0,0,0.22)',
+                    'padding:15px 28px','border-radius:12px',
+                    'font-family:Cairo,sans-serif','font-size:17px','font-weight:700',
+                    'line-height:1.75','text-align:center','direction:rtl',
+                    'box-shadow:0 6px 22px rgba(0,0,0,0.28)',
                     'z-index:99999','opacity:0',
                     'transition:opacity 0.3s ease,transform 0.3s ease',
-                    'white-space:nowrap','pointer-events:none','max-width:90vw',
+                    'white-space:nowrap','pointer-events:none','max-width:92vw',
                     'text-overflow:ellipsis','overflow:hidden'
                 ].join(';');
                 document.body.appendChild(toast);
             }
-            toast.style.background = success ? '#1a5c2e' : '#8b1a1a';
+            toast.style.background = success ? '#166534' : '#8b1a1a';
             toast.style.color = '#fff';
-            toast.textContent = text;
+            toast.style.whiteSpace = multiline ? 'normal' : 'nowrap';
+            toast.style.textOverflow = multiline ? 'clip' : 'ellipsis';
+            toast.style.overflow = multiline ? 'visible' : 'hidden';
+            toast.style.fontSize = multiline ? '17px' : '17px';
+            toast.style.padding = multiline ? '15px 28px' : '13px 24px';
+            toast.replaceChildren();
+            if (multiline && Array.isArray(text)) {
+                text.forEach((line, index) => {
+                    const lineElement = document.createElement('div');
+                    lineElement.className = index === 0 ? 'lookup-toast-line lookup-toast-line-primary' : 'lookup-toast-line lookup-toast-line-secondary';
+                    lineElement.style.color = index === 0 ? '#ffffff' : '#c6f6d5';
+                    lineElement.style.fontSize = index === 0 ? '17px' : '16px';
+                    lineElement.style.fontWeight = index === 0 ? '800' : '700';
+                    lineElement.style.lineHeight = '1.75';
+                    lineElement.style.padding = index === 0 ? '0 0 8px' : '8px 0 0';
+                    if (index > 0) lineElement.style.borderTop = '1px solid rgba(255,255,255,0.28)';
+                    lineElement.textContent = line;
+                    toast.appendChild(lineElement);
+                });
+            } else {
+                toast.textContent = text;
+            }
             requestAnimationFrame(() => {
                 toast.style.opacity = '1';
                 toast.style.transform = 'translateX(-50%) translateY(0)';
@@ -3471,6 +3941,10 @@ if (window.isPresetRunning) return;
 
             try {
 
+            importedPrimaryMahdarData = data;
+            linkedSessionLookupSignature = '';
+            importedLinkedSessionCaseNum = '';
+            importedJalsaDay = '';
             const setVal = (id, val) => { const el = document.getElementById(id); if (el && val !== undefined && val !== null) el.value = val; };
 
             // ① الاسم
@@ -3478,6 +3952,8 @@ if (window.isPresetRunning) return;
 
             // تخزين تاريخ الجلسة المستورد (إن وُجد) لاستخدامه لاحقاً عند اختيار "تسليم بدون غرامة"
             importedJalsaDate = data.jalsaDate || '';
+            importedJalsaDay = data.jalsaDay === 'أخرى' ? (data.jalsaDayOther || '') : (data.jalsaDay || '');
+            importedLinkedSessionCaseNum = '';
             importedSessionKeywords = findImportedSessionKeywords(data.violations);
 
 
@@ -3570,7 +4046,17 @@ if (window.isPresetRunning) return;
             // ⑦ sync نهائي
             if (typeof sync === 'function') sync();
 
-            showLookupToast('✔ تم استرجاع بيانات المحضر ' + caseNum + ' — ' + (data.name || ''), true);
+            // بعد استيراد المحضر الأساسي مباشرة، ابحث عن المحضر المرتبط ثم اعرض توستًا واحدًا فقط.
+            const linkedData = importLinkedSessionMahdar();
+            const primaryToastLine = '✔ تم تحميل بيانات المحضر (' + caseNum + ' / ' + year + ' / ' + dept + ') بنجاح';
+            if (linkedData) {
+                showLookupToast([
+                    primaryToastLine,
+                    'تم استيراد بيانات الجلسة من المحضر المنسوخ رقم (' + (linkedData.caseNum || '—') + ')'
+                ], true, true);
+            } else {
+                showLookupToast(primaryToastLine, true);
+            }
 
             } catch (e) {
                 console.error('lookupMahdar fill error:', e);
@@ -4261,8 +4747,9 @@ function applyRecordToWorkspace(key, raw) {
         if (deptSel) {
             let exists = Array.from(deptSel.options).some(opt => opt.value === d.deptSelect);
             if(exists) deptSel.value = d.deptSelect;
-            else { deptSel.value = 'أخرى'; set('input-dept-other', d.dept); }
+            else { deptSel.value = 'أخرى'; }
             if (typeof toggleOther === 'function') toggleOther('input-dept-select','dept-other-wrapper');
+            if (!exists) set('input-dept-other', d.dept);
         }
 
         // استيراد جهة التوجيه إذا كانت محفوظة مع المحضر.
@@ -4318,6 +4805,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (!cfg) return;
       rebuildSelect(document.getElementById('input-boss-select'), cfg.agents, true);
       rebuildSelect(document.getElementById('input-dept-select'), cfg.stations, true);
+      if (typeof refreshPostPaymentSecondaryStationList === 'function') refreshPostPaymentSecondaryStationList();
       if (typeof buildArchiveTabs === 'function') { buildArchiveTabs(); }
     }
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', function() { apply(load()); });

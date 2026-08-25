@@ -310,6 +310,149 @@ body {
     background: #dde3ef; color: #5a6a82; font-weight: bold;
     border: 1px solid #c5cfe0;
 }
+.lookup-record-btn {
+    font-family: inherit;
+    font-size: 11px;
+    font-weight: bold;
+    padding: 2px 9px;
+    border: 2px solid #2d5a8c;
+    border-radius: 8px;
+    background: #e5edf8;
+    color: #1e3a5f;
+    cursor: pointer;
+    line-height: 1.5;
+    white-space: nowrap;
+    box-shadow: 0 0 0 2px rgba(45,90,140,0.13), 0 2px 5px rgba(30,58,95,0.18);
+    transition: background-color 0.2s ease, color 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
+}
+.lookup-record-btn:hover {
+    background: #d5e3f4;
+    color: #163b66;
+    border-color: #1e3a5f;
+    box-shadow: 0 0 0 3px rgba(45,90,140,0.18), 0 3px 8px rgba(30,58,95,0.22);
+}
+.lookup-record-btn:active { transform: scale(0.96); }
+
+/* تخطيط بطاقة البيانات الأساسية: جميع الحقول في صف واحد حتى مع ظهور «أخرى» */
+#card-basic .card-body > div:first-child,
+#card-basic .card-body > div:nth-child(2) {
+    flex: 1 1 0 !important;
+    min-width: 0 !important;
+    overflow: visible;
+}
+#card-basic .card-body > div:first-child .field-group,
+#card-basic .card-body > div:nth-child(2) .field-group {
+    flex: 1 1 0;
+    min-width: 0;
+}
+#card-basic .card-body > div:first-child input,
+#card-basic .card-body > div:first-child select,
+#card-basic .card-body > div:nth-child(2) input,
+#card-basic .card-body > div:nth-child(2) select,
+#card-basic .card-body .date-input-wrapper {
+    width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box;
+}
+#card-basic #dept-other-wrapper,
+#card-basic #boss-other-wrapper {
+    flex: 1 1 0;
+    min-width: 0;
+}
+/* عند فتح «أخرى» لا يسمح الحقل اليدوي بالانكماش إلى عرض غير مرئي */
+#card-basic #dept-other-wrapper:not([style*="display: none"]),
+#card-basic #boss-other-wrapper:not([style*="display: none"]) {
+    display: flex;
+    align-items: center;
+    flex: 1 1 0;
+    min-width: 88px;
+}
+#card-basic #dept-other-wrapper input,
+#card-basic #boss-other-wrapper input {
+    flex: 1 1 0;
+    width: 100% !important;
+    min-width: 0 !important;
+}
+/* نقل جزء من مساحة التاريخ إلى مجموعة مدير النيابة عند ظهور «أخرى» */
+#card-basic .card-body > div:nth-child(2) > .field-group:first-child {
+    flex: 0.82 1 0;
+    min-width: 0;
+}
+#card-basic .card-body > div:nth-child(2) > .field-group:nth-child(2) {
+    flex: 1.18 1 0;
+    min-width: 0;
+}
+#card-basic .card-body > div:nth-child(2) > .field-group:nth-child(2) > div {
+    width: 100%;
+    min-width: 0;
+}
+/* الوضع الطبيعي: لا يظهر شريط تمرير عند تحميل الصفحة */
+#card-basic .card-body {
+    flex-wrap: nowrap !important;
+    overflow-x: hidden !important;
+    overflow-y: hidden !important;
+    align-items: flex-end;
+}
+#card-basic .card-body > div:first-child,
+#card-basic .card-body > div:nth-child(2) {
+    flex: 0 0 auto !important;
+    min-width: max-content !important;
+}
+#card-basic .card-body > div:first-child .field-group,
+#card-basic .card-body > div:nth-child(2) .field-group {
+    flex: 0 0 auto !important;
+}
+/* عند اختيار قسم الشرطة «أخرى» فقط: نوسع القسم ونُظهر التمرير الأفقي */
+#card-basic.dept-other-open .card-body {
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+}
+#card-basic.dept-other-open #dept-other-wrapper {
+    flex: 0 0 150px !important;
+    min-width: 150px !important;
+}
+#card-basic.dept-other-open #dept-other-wrapper select {
+    width: 150px !important;
+    min-width: 150px !important;
+}
+#card-basic .card-body > div:nth-child(2) > .field-group:first-child {
+    flex: 0 0 auto !important;
+    min-width: 135px !important;
+}
+#card-basic .card-body > div:nth-child(2) > .field-group:nth-child(2) {
+    flex: 0 0 auto !important;
+    min-width: 0 !important;
+}
+/* تثبيت الحقول القصيرة وعدم تمديدها بسبب قواعد العرض العامة */
+#card-basic #input-caseNum {
+    width: 70px !important;
+    min-width: 70px !important;
+}
+#card-basic #input-dept-select {
+    width: 120px !important;
+    min-width: 120px !important;
+}
+#card-basic #input-year {
+    width: 65px !important;
+    min-width: 65px !important;
+}
+#card-basic #input-date,
+#card-basic #picker-input-date {
+    width: 135px !important;
+    min-width: 135px !important;
+}
+#card-basic .date-input-wrapper {
+    width: 135px !important;
+    min-width: 135px !important;
+}
+#card-basic #input-boss-select {
+    width: 120px !important;
+    min-width: 120px !important;
+}
+#card-basic #input-boss-other {
+    width: 100px !important;
+    min-width: 100px !important;
+}
 .toggle-arrow { font-size: 11px; color: #8a9bb5; transition: transform 0.25s; }
 .card.collapsed .toggle-arrow { transform: rotate(-90deg); }
 /* card-body animation via max-height */
@@ -2166,60 +2309,52 @@ body[data-theme="dark"] .record-title { color: #7aaeff !important; }
             <div class="card-header" onclick="toggleCard('card-basic')">
                 <span class="card-icon">📋</span>
                 <span class="card-title"> — البيانات الأساسية — </span>
-                <span class="card-badge">قسم الشرطه · رقم المحضر · تاريخ التحرير</span>
+                <button type="button" class="card-badge lookup-record-btn" onclick="event.stopPropagation(); loadMahdarFromStorage();" title="بحث واستيراد بيانات محضر من التخزين المحلي"><i class="fa-solid fa-magnifying-glass"></i> بحث و استيراد بيانات محضر</button>
                 <span class="toggle-arrow">▾</span>
             </div>
             <div class="card-body" style="gap:0; padding:0;">
-                <div style="display:flex; align-items:flex-end; gap:8px; flex-wrap:wrap; padding:10px; flex:0 0 auto;">
+                <div style="display:flex; align-items:flex-end; gap:8px; flex-wrap:nowrap; padding:10px; flex:0 0 auto;">
                     <div class="field-group">
                         <label>رقم المحضر</label>
                         <input type="text" id="input-caseNum" placeholder="الرقم" oninput="autoSelectJalsaDay()" style="width:70px;">
                     </div>
                     <div class="field-group">
                         <label>قسم الشرطه</label>
-                        <select id="input-dept-select" onchange="toggleOther('input-dept-select','dept-other-wrapper'); updateAll();" style="width:130px;">
+                        <select id="input-dept-select" onchange="toggleOther('input-dept-select','dept-other-wrapper'); updateAll();" style="width:120px;">
                             <option value="">--- اختر ---</option>
                                 <option value="أخرى">أخرى</option>
                                 </select>
                     </div>
                     <div class="field-group" id="dept-other-wrapper" style="display:none;">
-                        <label>اسم القسم</label>
-                        <input type="text" id="input-dept-other" oninput="updateAll()" style="width:120px;">
+                        <label>اختر القسم</label>
+                        <select id="input-dept-other" onchange="updateAll()" style="width:150px;">
+                            <option value="">--- اختر القسم ---</option>
+                        </select>
                     </div>
                     <div class="field-group">
                         <label>السنة</label>
                         <input type="number" id="input-year" value="2026" oninput="updateAll()" style="width:65px;">
                     </div>
-                    <div class="field-group" style="justify-content:flex-end;">
-                        <label style="visibility:hidden;">استرجاع</label>
-                        <button onclick="loadMahdarFromStorage()" title="استرجاع بيانات محضر سابق" style="
-                            padding:6px 14px; background:linear-gradient(135deg,#1a3a6b,#2a5298);
-                            color:white; border:none; border-radius:8px;
-                            font-family:'Cairo',sans-serif; font-size:13px; font-weight:700;
-                            cursor:pointer; display:flex; align-items:center; gap:5px;
-                            box-shadow:0 2px 8px rgba(26,58,107,0.3); transition:all 0.2s;
-                        " onmouseover="this.style.transform='translateY(-1px)'"
-                           onmouseout="this.style.transform=''">↩ استرجاع</button>
-                    </div>
+                    
                 </div>
-                <div style="display:flex; align-items:flex-end; gap:8px; flex-wrap:wrap; padding:10px; flex:1; border-right:1px solid #e2e8f0;">
-                    <div class="field-group">
+                <div style="display:flex; align-items:flex-end; gap:8px; flex-wrap:nowrap; padding:10px; flex:1; border-right:1px solid #e2e8f0; justify-content:flex-end;">
+<div class="field-group">
                         <label>تاريخ التحرير</label>
-                        <div class="date-input-wrapper" style="width:145px;">
+                        <div class="date-input-wrapper" style="width:135px;">
                             <span class="date-cal-icon">📅</span>
-                            <input type="text" id="input-date" oninput="updateAll()" placeholder="يوم/شهر/سنة" maxlength="10" style="width:145px;">
+                            <input type="text" id="input-date" oninput="updateAll()" placeholder="يوم/شهر/سنة" maxlength="10" style="width:135px;">
                             <input type="date" id="picker-input-date" class="date-hidden-picker" onchange="pickerToText(this,'input-date'); updateAll()">
                         </div>
                     </div>
                     <div class="field-group">
                         <label>مدير النيابة</label>
                         <div style="display:flex; gap:6px; align-items:center;">
-                            <select id="input-boss-select" onchange="toggleOther('input-boss-select','boss-other-wrapper'); updateAll();" style="width:130px;">
+                            <select id="input-boss-select" onchange="toggleOther('input-boss-select','boss-other-wrapper'); updateAll();" style="width:120px;">
                                 <option value="">--- اختر ---</option>
                                 <option value="أخرى">أخرى</option>
                                 </select>
-                            <span id="boss-other-wrapper" style="display:none;">
-                                <input type="text" id="input-boss-other" oninput="updateAll()" style="width:120px;">
+<span id="boss-other-wrapper" style="display:none;">
+                                <input type="text" id="input-boss-other" oninput="updateAll()" style="width:100px;">
                             </span>
                         </div>
                     </div>
@@ -3562,36 +3697,105 @@ function _openCard(card) {
 
 
 
-/* ===== تبديل توقيت النيابة ===== */
-function toggleNiabaTiming() {
+/* ===== وضع النيابة: الحفظ والتنبيه المسائي ===== */
+const NIABA_TIMING_STORAGE_KEY = 'telbasat_niaba_timing_state';
+let niabaEveningPromptTimer = null;
+let niabaEveningPromptOpen = false;
+
+function niabaTimingDateKey(date) {
+    const d = date || new Date();
+    return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+}
+
+function niabaTimingIsAfterSixOne(now) {
+    const d = now || new Date();
+    return (d.getHours() * 60 + d.getMinutes()) >= (18 * 60 + 1);
+}
+
+function niabaTimingCurrentMode() {
+    const btn = document.getElementById('timing-toggle-btn');
+    return btn && btn.classList.contains('masai-mode') ? 'masai' : 'sabahi';
+}
+
+function saveNiabaTimingState(mode, promptHandled) {
+    try {
+        localStorage.setItem(NIABA_TIMING_STORAGE_KEY, JSON.stringify({
+            mode: mode === 'masai' ? 'masai' : 'sabahi',
+            date: niabaTimingDateKey(),
+            promptHandled: Boolean(promptHandled)
+        }));
+    } catch (e) {}
+}
+
+function loadNiabaTimingState() {
+    try {
+        const raw = localStorage.getItem(NIABA_TIMING_STORAGE_KEY);
+        const state = raw ? JSON.parse(raw) : null;
+        return state && (state.mode === 'masai' || state.mode === 'sabahi') ? state : null;
+    } catch (e) {
+        return null;
+    }
+}
+
+function applyNiabaTimingMode(mode) {
     const btn = document.getElementById('timing-toggle-btn');
     const sabahiGroup = document.getElementById('buttons-sabahi');
     const masaiGroup = document.getElementById('buttons-masai');
-    
-    // إذا كان التوقيت الحالي صباحي، حوله لمسائي
-    if (btn.classList.contains('sabahi-mode')) {
-        // تحديث شكل الزر
-        btn.classList.remove('sabahi-mode');
-        btn.classList.add('masai-mode');
-        btn.querySelector('.icon').textContent = '🌙';
-        btn.querySelector('.text').textContent = 'النيابة المسائية';
-        
-        // إظهار أزرار المسائي وإخفاء الصباحي
-        sabahiGroup.classList.remove('active');
-        masaiGroup.classList.add('active');
-    } 
-    // إذا كان التوقيت الحالي مسائي، حوله لصباحي
-    else {
-        // تحديث شكل الزر
-        btn.classList.remove('masai-mode');
-        btn.classList.add('sabahi-mode');
-        btn.querySelector('.icon').textContent = '☀️';
-        btn.querySelector('.text').textContent = 'النيابة الصباحية';
-        
-        // إظهار أزرار الصباحي وإخفاء المسائي
-        masaiGroup.classList.remove('active');
-        sabahiGroup.classList.add('active');
-    }
+    if (!btn) return;
+    const isMasai = mode === 'masai';
+    btn.classList.toggle('sabahi-mode', !isMasai);
+    btn.classList.toggle('masai-mode', isMasai);
+    const icon = btn.querySelector('.icon');
+    const text = btn.querySelector('.text');
+    if (icon) icon.textContent = isMasai ? '🌙' : '☀️';
+    if (text) text.textContent = isMasai ? 'النيابة المسائية' : 'النيابة الصباحية';
+    if (sabahiGroup) sabahiGroup.classList.toggle('active', !isMasai);
+    if (masaiGroup) masaiGroup.classList.toggle('active', isMasai);
+}
+
+function toggleNiabaTiming() {
+    const nextMode = niabaTimingCurrentMode() === 'sabahi' ? 'masai' : 'sabahi';
+    applyNiabaTimingMode(nextMode);
+    // أي تغيير يدوي يُحفظ، ويُعتبر اختيارًا متعمدًا لهذا اليوم.
+    saveNiabaTimingState(nextMode, true);
+    if (nextMode === 'masai') niabaEveningPromptOpen = false;
+}
+
+function maybeShowNiabaEveningPrompt() {
+    const now = new Date();
+    if (!niabaTimingIsAfterSixOne(now) || niabaTimingCurrentMode() !== 'sabahi' || niabaEveningPromptOpen) return;
+    const state = loadNiabaTimingState();
+    if (state && state.date === niabaTimingDateKey(now) && state.promptHandled) return;
+    if (typeof showCustomConfirm !== 'function') return;
+
+    niabaEveningPromptOpen = true;
+    showCustomConfirm(
+        'الساعة الآن هي ' + now.toLocaleTimeString('ar-EG', { hour: 'numeric', minute: '2-digit' }) + '، وأنت على وضع النيابة الصباحية.\nهل تريد تغيير وضع النيابة إلى المسائية؟',
+        {
+            title: 'تنبيه وضع النيابة',
+            confirmText: 'التغيير إلى النيابة المسائية',
+            cancelText: 'البقاء على النيابة الصباحية',
+            onConfirm: function() {
+                niabaEveningPromptOpen = false;
+                applyNiabaTimingMode('masai');
+                saveNiabaTimingState('masai', true);
+            },
+            onCancel: function() {
+                niabaEveningPromptOpen = false;
+                applyNiabaTimingMode('sabahi');
+                saveNiabaTimingState('sabahi', true);
+            }
+        }
+    );
+}
+
+function initNiabaTimingPersistence() {
+    const state = loadNiabaTimingState();
+    applyNiabaTimingMode(state && state.mode === 'masai' ? 'masai' : 'sabahi');
+    // فحص فوري بعد التحميل ثم متابعة الساعة دون تغيير الوضع تلقائيًا.
+    setTimeout(maybeShowNiabaEveningPrompt, 250);
+    if (niabaEveningPromptTimer) clearInterval(niabaEveningPromptTimer);
+    niabaEveningPromptTimer = setInterval(maybeShowNiabaEveningPrompt, 30000);
 }
 
 
@@ -4889,14 +5093,29 @@ function loadMahdarFromStorage() {
     const dept    = deptSel ? (deptSel.value === 'أخرى' ? get('input-dept-other').trim() : deptSel.value) : '';
 
     if (!caseNum || !year || !dept || dept === '--- اختر ---') {
-        alert('يرجى إدخال رقم المحضر والسنة وقسم الشرطة أولاً');
+        showCustomAlert('يرجى إدخال رقم المحضر والسنة وقسم الشرطة أولاً.', {
+            title: 'بيانات المحضر غير مكتملة',
+            type: 'error'
+        });
         return;
     }
     const key = 'mahdar_' + caseNum + '_' + year + '_' + dept;
     const raw = localStorage.getItem(key);
-    if (!raw) { alert('لا توجد بيانات محفوظة لهذا المحضر'); return; }
+    if (!raw) {
+        showCustomAlert('لا توجد بيانات محفوظة لهذا المحضر بهذا الرقم والقسم والسنة.', {
+            title: 'المحضر غير موجود',
+            type: 'error'
+        });
+        return;
+    }
     let d;
-    try { d = JSON.parse(raw); } catch(e) { alert('خطأ في قراءة البيانات'); return; }
+    try { d = JSON.parse(raw); } catch(e) {
+        showCustomAlert('تعذر قراءة بيانات المحضر المحفوظ.', {
+            title: 'خطأ في بيانات المحضر',
+            type: 'error'
+        });
+        return;
+    }
 
     // حقول نصية
     const set = (id, val) => { const el = document.getElementById(id); if (el && val != null) el.value = val; };
@@ -5123,9 +5342,87 @@ function get(id) {
 function toggleOther(selectId, wrapperId) {
     const sel = document.getElementById(selectId);
     const wrapper = document.getElementById(wrapperId);
-    if (wrapper) wrapper.style.display = (sel && sel.value === 'أخرى') ? (wrapper.dataset.openDisplay || '') : 'none';
+    const isOpen = !!(sel && sel.value === 'أخرى');
+    if (wrapper) wrapper.style.display = isOpen ? (wrapper.dataset.openDisplay || '') : 'none';
+    if (wrapperId === 'dept-other-wrapper') {
+        const basicCard = document.getElementById('card-basic');
+        if (basicCard) basicCard.classList.toggle('dept-other-open', isOpen);
+    }
 }
 
+// قائمة فرعية ثابتة لأقسام محافظة القاهرة — لا يديرها زر الترس.
+// تُكتب الأسماء مختصرة دون كلمة «قسم» لتسهيل الوصول إليها من لوحة المفاتيح.
+const CAIRO_SECONDARY_STATIONS = [
+    '15 مايو',
+    'الأزبكية', 'الأميرية', 'البساتين', 'التبين', 'التجمع الأول', 'التجمع الخامس',
+    'الجمالية', 'الخليفة', 'الدرب الأحمر', 'الزاوية الحمراء', 'الزيتون', 'الساحل',
+    'السيدة زينب', 'الشرابية', 'الشروق', 'الظاهر', 'القطامية', 'المرج', 'المطرية',
+    'المعادي', 'المعصرة', 'المقطم', 'الموسكي', 'النزهة', 'الوايلي',
+    'باب الشعرية', 'بدر', 'بولاق', 'حدائق القبة', 'حلوان', 'دار السلام', 'روض الفرج',
+    'شبرا', 'عابدين', 'عين شمس', 'قصر النيل', 'مدينة السلام أول', 'مدينة السلام ثان',
+    'مدينة نصر أول', 'مدينة نصر ثالث', 'مدينة نصر ثان', 'مصر الجديدة', 'مصر القديمة',
+    'منشأة ناصر'
+];
+
+function normalizeStationName(value) {
+    return String(value || '').trim().replace(/ة/g, 'ه').replace(/\s+/g, ' ');
+}
+
+// ترتيب حرفي عربي كامل: تُحتسب «الـ» ضمن الاسم ولا يتم تجاهلها.
+const ARABIC_STATION_ALPHABET = 'ابتثجحخدذرزسشصضطظعغفقكلمنهوي';
+const ARABIC_STATION_ORDER = Object.fromEntries(
+    Array.from(ARABIC_STATION_ALPHABET).map(function(letter, index) { return [letter, index]; })
+);
+function arabicStationSortKey(value) {
+    const text = String(value || '').trim()
+        .replace(/أ/g, 'ا').replace(/إ/g, 'ا').replace(/آ/g, 'ا');
+    return Array.from(text).map(function(char) {
+        if (/\d/.test(char)) return -2;
+        if (char === ' ') return -1;
+        return Object.prototype.hasOwnProperty.call(ARABIC_STATION_ORDER, char)
+            ? ARABIC_STATION_ORDER[char] : 999;
+    });
+}
+function compareArabicStations(a, b) {
+    const keyA = arabicStationSortKey(a);
+    const keyB = arabicStationSortKey(b);
+    const length = Math.max(keyA.length, keyB.length);
+    for (let index = 0; index < length; index++) {
+        const diff = (keyA[index] ?? -3) - (keyB[index] ?? -3);
+        if (diff !== 0) return diff;
+    }
+    return String(a).localeCompare(String(b), 'ar');
+}
+function refreshSecondaryStationList() {
+    const select = document.getElementById('input-dept-other');
+    if (!select) return;
+    const current = select.value || '';
+    const primaryNames = new Set();
+    const primarySelect = document.getElementById('input-dept-select');
+    if (primarySelect) {
+        Array.from(primarySelect.options).forEach(function(opt) {
+            const value = String(opt.value || '').trim();
+            if (value && value !== 'أخرى') primaryNames.add(normalizeStationName(value));
+        });
+    }
+    const unique = [];
+    const seen = new Set();
+    CAIRO_SECONDARY_STATIONS.forEach(function(name) {
+        const normalized = normalizeStationName(name);
+        if (!seen.has(normalized) && !primaryNames.has(normalized)) {
+            seen.add(normalized);
+            unique.push(name);
+        }
+    });
+    unique.sort(compareArabicStations);
+    select.innerHTML = '<option value="">--- اختر القسم ---</option>' + unique.map(function(name) {
+        return '<option value="' + escapeHtml(name) + '">' + escapeHtml(name) + '</option>';
+    }).join('');
+    if (current && unique.includes(current)) select.value = current;
+}
+function escapeHtml(value) {
+    return String(value || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
 function getVehicleType() {
     const select = document.getElementById('vehicle-type');
     if (!select || !select.value) return '';
@@ -5267,7 +5564,7 @@ function toggleJalsaDayOther() {
 }
 
 function autoSelectJalsaDay() {
-    if (currentDecision !== 3 && currentDecision !== 7) return;
+    if (![3, 7, 8].includes(currentDecision)) return;
     const caseNum = get('input-caseNum');
     if (!caseNum) return;
     const lastDigit = parseInt(caseNum[caseNum.length - 1]);
@@ -5309,7 +5606,9 @@ document.getElementById('jalsa-day-other-wrapper').style.display = 'none';
 window.addEventListener('DOMContentLoaded', function() {
     renderViolItems();
     updateViolDisplay();
+    refreshSecondaryStationList();
     updateAll();
+    initNiabaTimingPersistence();
 });
 /* ============================================================
    طلب حضور متهم — JS معزول تماماً
@@ -5928,18 +6227,34 @@ function applyRecordToWorkspace(key, raw) {
         set("input-caseNum", d.caseNum);
         set("input-year", d.year);
 
-        const deptSel = document.getElementById("input-dept-select");
+                const deptSel = document.getElementById("input-dept-select");
         if (deptSel) {
-            let exists = Array.from(deptSel.options).some(opt => opt.value === d.deptSelect);
-            if (exists) {
-                deptSel.value = d.deptSelect;
+            const savedDept = String(d.dept || '').trim();
+            const savedDeptSelect = String(d.deptSelect || '').trim();
+            // نبحث أولاً عن القسم الفعلي المحفوظ؛ وهذا يدعم الأقسام التي أضيفت لاحقًا من زر الترس.
+            let matchingDept = Array.from(deptSel.options).find(opt =>
+                opt.value && opt.value !== 'أخرى' && opt.value === savedDept
+            );
+            if (!matchingDept && savedDeptSelect && savedDeptSelect !== 'أخرى') {
+                matchingDept = Array.from(deptSel.options).find(opt => opt.value === savedDeptSelect);
+            }
+            if (matchingDept) {
+                deptSel.value = matchingDept.value;
+                set("input-dept-other", "");
             } else {
+                // إذا لم يكن القسم موجودًا بالقائمة، أضفه مؤقتًا إلى القائمة الفرعية
+                // حتى يمكن استعادة المحاضر القديمة أو الأقسام الاستثنائية دون فقد الاسم.
                 deptSel.value = "أخرى";
-                set("input-dept-other", d.dept);
+                const otherEl = document.getElementById("input-dept-other");
+                if (otherEl && savedDept) {
+                    const existingOther = Array.from(otherEl.options).find(opt => opt.value === savedDept);
+                    if (!existingOther) otherEl.add(new Option(savedDept, savedDept));
+                    otherEl.value = savedDept;
+                }
+                set("input-dept-other", savedDept);
             }
             if (typeof toggleOther === "function") toggleOther("input-dept-select","dept-other-wrapper");
         }
-
         loadMahdarFromStorage();
     } catch(e) {}
 }
@@ -6002,6 +6317,7 @@ document.addEventListener("DOMContentLoaded", () => {
       rebuildSelect(document.getElementById('input-boss-select'), cfg.agents, true);
       /* قسم الشرطة */
       rebuildSelect(document.getElementById('input-dept-select'), cfg.stations, true);
+      if (typeof refreshSecondaryStationList === 'function') refreshSecondaryStationList();
       /* اسم النيابة */
       if (cfg.prosecutionName) replaceNiabatName(cfg.prosecutionName);
       
@@ -10091,6 +10407,7 @@ function calculateTotalFine() {
     }
 
     let pendingConfirmAction = null;
+    let pendingConfirmCancelAction = null;
     let confirmActionKeyHandler = null;
 
     function showCustomConfirm(message, options) {
@@ -10104,6 +10421,7 @@ function calculateTotalFine() {
         if (confirmBtn) confirmBtn.textContent = options.confirmText || 'تأكيد';
         if (cancelBtn) cancelBtn.textContent = options.cancelText || 'إلغاء';
         pendingConfirmAction = typeof options.onConfirm === 'function' ? options.onConfirm : null;
+        pendingConfirmCancelAction = typeof options.onCancel === 'function' ? options.onCancel : null;
 
         const overlay = document.getElementById('confirm-action-modal-overlay');
         if (overlay) overlay.classList.add('show');
@@ -10134,8 +10452,11 @@ function calculateTotalFine() {
             confirmActionKeyHandler = null;
         }
         const action = pendingConfirmAction;
+        const cancelAction = pendingConfirmCancelAction;
         pendingConfirmAction = null;
+        pendingConfirmCancelAction = null;
         if (confirmed && typeof action === 'function') action();
+        else if (!confirmed && typeof cancelAction === 'function') cancelAction();
     }
 
     // الضغط على خلفية أي نافذة من النوافذ الثلاث يعادل الإلغاء أو الإغلاق الآمن.

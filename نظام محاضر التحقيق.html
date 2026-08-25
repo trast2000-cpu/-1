@@ -1808,6 +1808,123 @@ box-sizing: border-box;
     .inv-archive-wrapper h1 { text-align: center !important; }
 }
 
+        /* زر البحث المباشر عن محضر */
+        .inv-direct-import-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            padding: 3px 7px;
+            border: 1.5px solid #2563eb;
+            border-radius: 7px;
+            background: #eff6ff;
+            color: #1d4ed8;
+            font-family: 'Cairo', 'Segoe UI', Tahoma, sans-serif;
+            font-size: 12px;
+            font-weight: 800;
+            cursor: pointer;
+            white-space: nowrap;
+            direction: rtl;
+            transition: background .2s, border-color .2s, transform .15s;
+        }
+        .inv-direct-import-btn:hover { background: #dbeafe; border-color: #1d4ed8; }
+        .inv-direct-import-btn:active { transform: scale(.97); }
+        .police-station-inline {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            width: 100%;
+            min-width: 0;
+        }
+        .police-station-inline select,
+        .police-station-inline input {
+            flex: 1 1 0;
+            min-width: 0;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        .police-station-inline input { display: none; }
+        @media print { .inv-direct-import-btn { display: none !important; } }
+
+        /* نافذة البحث والاستيراد المباشر */
+        #direct-import-modal-overlay {
+            position: fixed;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(15, 23, 42, .48);
+            z-index: 100000;
+            padding: 18px;
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+            transition: opacity .25s ease, visibility 0s linear .25s;
+        }
+        #direct-import-modal-overlay.show {
+            opacity: 1;
+            visibility: visible;
+            pointer-events: auto;
+            transition: opacity .25s ease, visibility 0s linear 0s;
+        }
+        #direct-import-modal {
+            width: min(470px, 100%);
+            background: #fff;
+            color: #1e293b;
+            border: 1px solid #cbd5e1;
+            border-radius: 14px;
+            box-shadow: 0 18px 60px rgba(15, 23, 42, .3);
+            padding: 22px;
+            text-align: right;
+            direction: rtl;
+            font-family: 'Cairo', 'Segoe UI', Arial, sans-serif;
+            transform: scale(.94) translateY(10px);
+            opacity: 0;
+            transition: transform .28s cubic-bezier(.34,1.56,.64,1), opacity .22s ease;
+        }
+        #direct-import-modal-overlay.show #direct-import-modal { transform: scale(1) translateY(0); opacity: 1; }
+        #direct-import-modal-header { display: flex; align-items: center; gap: 10px; margin: 0 0 10px; color: #1d4ed8; }
+        #direct-import-modal-header i { font-size: 20px; }
+        #direct-import-modal-header h3 { margin: 0; font-size: 18px; font-weight: bold; }
+        #direct-import-modal-description { margin: 0 0 15px; line-height: 1.75; font-size: 13px; color: #4b5563; }
+        .direct-import-fields {
+            display: grid;
+            grid-template-columns: minmax(0, 1.05fr) minmax(0, .75fr) minmax(0, 1.45fr);
+            gap: 9px;
+            align-items: end;
+        }
+        .direct-import-field { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+        .direct-import-field label { margin: 0; padding: 0; border: 0; color: #1e3a8a; font-size: 13px; }
+        .report-no-label-row {
+            display: flex !important;
+            align-items: center;
+            justify-content: space-between;
+            gap: 5px;
+            width: 100%;
+            white-space: nowrap;
+        }
+        .report-no-label-row .inv-direct-import-btn {
+            flex-shrink: 0;
+            font-size: 10px;
+            padding: 2px 5px;
+        }
+        .direct-import-field input,
+        .direct-import-field select {
+            width: 100%; height: 36px; box-sizing: border-box;
+            padding: 6px 9px; border: 1px solid #cbd5e1; border-radius: 7px;
+            background: #fff; color: #1f2937; font-family: inherit; font-size: 14px;
+        }
+        .direct-import-field input:focus,
+        .direct-import-field select:focus { outline: none; border-color: #2563eb; box-shadow: 0 0 0 2px rgba(37,99,235,.13); }
+        #direct-import-station-other { display: none; margin-top: 6px; }
+        #direct-import-modal-actions { display: flex; gap: 9px; margin-top: 17px; }
+        #direct-import-modal-actions button {
+            flex: 1; height: 38px; border-radius: 7px; font-family: inherit; font-size: 13px; font-weight: 800; cursor: pointer;
+        }
+        #direct-import-cancel-btn { border: 1px solid #cbd5e1; background: #f8fafc; color: #475569; }
+        #direct-import-submit-btn { border: 1px solid #1d4ed8; background: #2563eb; color: #fff; }
+        #direct-import-submit-btn:hover { background: #1d4ed8; }
+        @media print { #direct-import-modal-overlay { display: none !important; } }
         </style>
 <base target="_blank">
 </head>
@@ -1950,10 +2067,21 @@ box-sizing: border-box;
     </div>
 
     <div class="section">
-        <div class="section-title" onclick="toggleSection(this)" id="arrest-section-title">بيانات محضر الضبط <span class="toggle-icon" id="arrest-section-toggle">▼</span></div>
+        <div class="section-title" onclick="toggleSection(this)" id="arrest-section-title">
+            <span>بيانات محضر الضبط</span>
+            <span class="toggle-icon" id="arrest-section-toggle">▼</span>
+        </div>
         <!-- 🏷️ شارة تحكم عربية: كود التحكم في تخطيط أعمدة وحقول بطاقة بيانات محضر الضبط (6 أعمدة دقيقة ومخصصة لعرض الحقول على صفين اثنين تماماً مثل بيانات الجلسة والنيابة) -->
         <div class="section-content form-grid" style="grid-template-columns: 1.2fr 0.9fr 1.1fr 1.2fr 1.6fr ;">
-            <div class="field"><label id="report_no_label">رقم المحضر</label><input type="text" id="report_no" class="persist" value=""></div>
+            <div class="field">
+                <label id="report_no_label" class="report-no-label-row">
+                    <span>رقم المحضر</span>
+                    <button type="button" class="inv-direct-import-btn" onclick="event.stopPropagation(); openDirectImportModal();" title="بحث و استيراد بيانات محضر">
+                        <i class="fa-solid fa-magnifying-glass"></i> بحث و استيراد
+                    </button>
+                </label>
+                <input type="text" id="report_no" class="persist" value="">
+            </div>
             <div class="field"><label>سنة المحضر</label><input type="text" id="report_year" class="persist" value=""></div>
             <div class="field" id="sub_report_no_field" style="display:none;">
                 <label>رقم المحضر الملحق</label>
@@ -1961,8 +2089,10 @@ box-sizing: border-box;
             </div>
             <div class="field">
                 <label>قسم الشرطة</label>
-                <select id="police_station" class="persist" onchange="togglePoliceStationOther(this)"><option value="">-- اختر --</option><option value="other">إضافة قسم شرطة يدوي...</option></select>
-                <input type="text" id="police_station_other" class="other-input persist" placeholder="اكتب اسم قسم الشرطة">
+                <div class="police-station-inline">
+                    <select id="police_station" class="persist" onchange="togglePoliceStationOther(this)"><option value="">-- اختر --</option><option value="other">إضافة قسم شرطة يدوي...</option></select>
+                    <select id="police_station_other" class="other-input persist" onchange="updateAutoQuestions()"><option value="">--- اختر القسم ---</option></select>
+                </div>
             </div>
             <div class="field">
                 <label id="event_date_label">تاريخ واقعة الضبط</label>
@@ -2186,7 +2316,7 @@ box-sizing: border-box;
             <div class="field" style="flex: 0 0 160px;">
                 <label>نوع المركبة المضبوطة</label>
                 <select id="v_type" class="persist" onchange="toggleOther(this, 'v_other'); updateAutoQuestions(); updateVehicleDecisionUI(); updateEngineerDecisionUI(); saveData();">
-                    <option value="">-- اختر --</option><option>الدراجة النارية</option><option>التوك توك</option><option>التروسيكل</option><option>السيارة الملاكي</option><option>السيارة الاجرة</option><option>السيارة النقل</option><option value="other">أخرى...</option>
+                    <option value="">-- اختر --</option><option>الدراجة النارية</option><option>التوك توك</option><option>التروسيكل</option><option>السيارة الملاكي</option><option>السيارة الاجرة</option><option>السيارة النقل</option><option>السيارة الرحلات</option><option>الاتوبيس الخاص</option><option value="other">أخرى...</option>
                 </select>
                 <input type="text" id="v_other" class="other-input persist" placeholder="نوع المركبة" oninput="updateAutoQuestions(); updateVehicleDecisionUI(); updateEngineerDecisionUI(); saveData();">
             </div>
@@ -2947,6 +3077,14 @@ document.addEventListener('DOMContentLoaded', function() {
         return parts.length ? parts.join(' وكذا ') : '...';
     }
 
+   function setReportNoLabelText(text) {
+        const label = document.getElementById('report_no_label');
+        if (!label) return;
+        const textSpan = label.querySelector('span');
+        if (textSpan) textSpan.textContent = text;
+        else label.textContent = text;
+    }
+
    function switchMode(mode, opts) {
         opts = opts || {};
         const mc = document.querySelector('.main-content');
@@ -2987,8 +3125,7 @@ document.addEventListener('DOMContentLoaded', function() {
             // تغيير عنوان بطاقة الضبط واسم حقل رقم المحضر
             const _secTitle = document.getElementById('arrest-section-title');
             if (_secTitle) { const sp = _secTitle.querySelector('#arrest-section-toggle'); _secTitle.childNodes[0].textContent = 'بيانات المحضر الملحق '; }
-            const _rnoLbl = document.getElementById('report_no_label');
-            if (_rnoLbl) _rnoLbl.textContent = 'رقم المحضر الاصلي';
+            setReportNoLabelText('رقم المحضر الاصلي');
             if (subReportField) subReportField.style.display = 'block';
             if (extraSection) extraSection.style.display = 'none';
              const _etimeLbl = document.getElementById('event_time_label');
@@ -3033,8 +3170,7 @@ document.addEventListener('DOMContentLoaded', function() {
             if (_evLbl2) _evLbl2.textContent = 'تاريخ واقعة الضبط';
             const _secTitle2 = document.getElementById('arrest-section-title');
             if (_secTitle2) _secTitle2.childNodes[0].textContent = 'بيانات محضر الضبط ';
-            const _rnoLbl2 = document.getElementById('report_no_label');
-            if (_rnoLbl2) _rnoLbl2.textContent = 'رقم المحضر';
+            setReportNoLabelText('رقم المحضر');
             const _etimeLbl2 = document.getElementById('event_time_label');
             if (_etimeLbl2) _etimeLbl2.textContent = 'ساعة الضبط';
             if (subReportField) subReportField.style.display = 'none';
@@ -3091,8 +3227,7 @@ document.addEventListener('DOMContentLoaded', function() {
             if (_evLbl3) _evLbl3.textContent = 'تاريخ واقعة الضبط';
             const _secTitle3 = document.getElementById('arrest-section-title');
             if (_secTitle3) _secTitle3.childNodes[0].textContent = 'بيانات محضر الضبط ';
-            const _rnoLbl3 = document.getElementById('report_no_label');
-            if (_rnoLbl3) _rnoLbl3.textContent = 'رقم المحضر';
+            setReportNoLabelText('رقم المحضر');
             const _etimeLbl3 = document.getElementById('event_time_label');
             if (_etimeLbl3) _etimeLbl3.textContent = 'ساعة الضبط';
             if (subReportField) subReportField.style.display = 'none';
@@ -3184,7 +3319,75 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
     
-    function togglePoliceStationOther(s) { document.getElementById('police_station_other').style.display = (s.value === 'other') ? 'block' : 'none'; }
+    var INVESTIGATION_CAIRO_STATIONS = [
+        '15 مايو',
+        'الأزبكية', 'الأميرية', 'البساتين', 'التبين', 'التجمع الأول', 'التجمع الخامس',
+        'الجمالية', 'الخليفة', 'الدرب الأحمر', 'الزاوية الحمراء', 'الزيتون', 'الساحل',
+        'السيدة زينب', 'الشرابية', 'الشروق', 'الظاهر', 'القطامية', 'المرج', 'المطرية',
+        'المعادي', 'المعصرة', 'المقطم', 'الموسكي', 'النزهة', 'الوايلي',
+        'باب الشعرية', 'بدر', 'بولاق', 'حدائق القبة', 'حلوان', 'دار السلام', 'روض الفرج',
+        'شبرا', 'عابدين', 'عين شمس', 'قصر النيل', 'مدينة السلام أول', 'مدينة السلام ثان',
+        'مدينة نصر أول', 'مدينة نصر ثالث', 'مدينة نصر ثان', 'مصر الجديدة', 'مصر القديمة',
+        'منشأة ناصر'
+    ];
+    function normalizeInvestigationStation(value) {
+        return String(value || '').trim().replace(/ة/g, 'ه').replace(/\s+/g, ' ');
+    }
+    // ترتيب حرفي عربي كامل مع احتساب الألف واللام «الـ» ضمن الاسم.
+    var INVESTIGATION_ARABIC_STATION_ORDER = Object.fromEntries(
+        Array.from('ابتثجحخدذرزسشصضطظعغفقكلمنهوي').map(function(letter, index) { return [letter, index]; })
+    );
+    function investigationStationSortKey(value) {
+        return Array.from(String(value || '').trim()
+            .replace(/أ/g, 'ا').replace(/إ/g, 'ا').replace(/آ/g, 'ا'))
+            .map(function(char) {
+                if (/\d/.test(char)) return -2;
+                if (char === ' ') return -1;
+                return Object.prototype.hasOwnProperty.call(INVESTIGATION_ARABIC_STATION_ORDER, char)
+                    ? INVESTIGATION_ARABIC_STATION_ORDER[char] : 999;
+            });
+    }
+    function compareInvestigationStations(a, b) {
+        var keyA = investigationStationSortKey(a);
+        var keyB = investigationStationSortKey(b);
+        var length = Math.max(keyA.length, keyB.length);
+        for (var i = 0; i < length; i++) {
+            var diff = (keyA[i] === undefined ? -3 : keyA[i]) - (keyB[i] === undefined ? -3 : keyB[i]);
+            if (diff !== 0) return diff;
+        }
+        return String(a).localeCompare(String(b), 'ar');
+    }
+    function populateInvestigationStationOther() {
+        const select = document.getElementById('police_station_other');
+        if (!select) return;
+        const current = select.value || '';
+        const primary = document.getElementById('police_station');
+        const primaryNames = new Set();
+        if (primary) Array.from(primary.options).forEach(function(opt) {
+            const value = String(opt.value || '').trim();
+            if (value && value !== 'other') primaryNames.add(normalizeInvestigationStation(value));
+        });
+        const names = [];
+        const seen = new Set();
+        INVESTIGATION_CAIRO_STATIONS.forEach(function(name) {
+            const normalized = normalizeInvestigationStation(name);
+            if (!seen.has(normalized) && !primaryNames.has(normalized)) {
+                seen.add(normalized);
+                names.push(name);
+            }
+        });
+        names.sort(compareInvestigationStations);
+        select.innerHTML = '<option value="">--- اختر القسم ---</option>' + names.map(function(name) {
+            const safe = String(name).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+            return '<option value="' + safe + '">' + safe + '</option>';
+        }).join('');
+        if (current && names.indexOf(current) !== -1) select.value = current;
+    }
+    function togglePoliceStationOther(s) {
+        populateInvestigationStationOther();
+        const other = document.getElementById('police_station_other');
+        if (other) other.style.display = (s.value === 'other') ? 'block' : 'none';
+    }
     function toggleProsecutionNameOther(s) { document.getElementById('prosecution_name_other').style.display = (s.value === 'other') ? 'block' : 'none'; }
     function getPoliceStation() {
         const select = document.getElementById('police_station');
@@ -3570,15 +3773,22 @@ function applyFontSize(size) {
 
     // 💡 الدالة المحدثة لجلب رقم اللوحة من الحقول الجديدة
     function getPlate() {
-        const mode = document.getElementById('plate_mode').value;
-        if (mode === 'manual') {
-            const l1 = document.getElementById('plate_l1').value;
-            const l2 = document.getElementById('plate_l2').value;
-            const l3 = document.getElementById('plate_l3').value;
-            const digits = document.getElementById('plate_digits').value;
-            return [l1, l2, l3].filter(c => c.trim()).join(' ') + (digits ? ' ' + digits : '');
+        const modeEl = document.getElementById('plate_mode');
+        const mode = modeEl ? modeEl.value : '';
+        const l1 = (document.getElementById('plate_l1') || {}).value || '';
+        const l2 = (document.getElementById('plate_l2') || {}).value || '';
+        const l3 = (document.getElementById('plate_l3') || {}).value || '';
+        const digits = (document.getElementById('plate_digits') || {}).value || '';
+        const hasActualPlateFields = [l1, l2, l3, digits].some(function(value) { return String(value).trim(); });
+
+        // الحقول الفعلية لها الأولوية حتى لو كانت قيمة القائمة القديمة غير "manual".
+        // هذا يمنع ظهور رقم فارغ في القرارات بعد الاستيراد من سجل محفوظ.
+        if (mode === 'manual' || hasActualPlateFields) {
+            return [l1, l2, l3].map(function(value) { return String(value).trim(); }).filter(Boolean).join(' ') +
+                (String(digits).trim() ? ' ' + String(digits).trim() : '');
         }
-        // حالة اختيار "بدون لوحات" أو غيرها
+
+        // حالة اختيار "بدون لوحات" أو عدم وجود رقم فعلي.
         const noPlateInput = document.getElementById('input_no_plate');
         return noPlateInput ? (noPlateInput.value.trim() || 'بدون لوحات') : 'بدون لوحات';
     }
@@ -7515,8 +7725,8 @@ ${cairoFontFaceTag2}
       /* 3. وكلاء النيابة */
       fillSelect(document.getElementById('prosecutor'), cfg.agents, 'other', 'أخرى...');
       /* 4. قسم الشرطة */
-      fillSelect(document.getElementById('police_station'), cfg.stations, 'other', 'إضافة قسم شرطة يدوي...');
-      
+            fillSelect(document.getElementById('police_station'), cfg.stations, 'other', 'إضافة قسم شرطة يدوي...');
+      if (typeof populateInvestigationStationOther === 'function') populateInvestigationStationOther();
       /* 5. تحديث السنة القضائية */
       if (cfg.fiscalYear) {
         var reportYearEl = document.getElementById('report_year');
@@ -8419,7 +8629,12 @@ function applyInvRecordToWorkspace(key, raw) {
                 // ضعه في حقل "أخرى"
                 psSel.value = 'other';
                 var psOtherEl = document.getElementById('police_station_other');
-                if (psOtherEl) { psOtherEl.value = d.dept; psOtherEl.style.display = 'block'; }
+                if (psOtherEl && d.dept) {
+                    var existingManualStation = Array.from(psOtherEl.options).find(function(opt) { return opt.value === d.dept; });
+                    if (!existingManualStation) psOtherEl.add(new Option(d.dept, d.dept));
+                    psOtherEl.value = d.dept;
+                    psOtherEl.style.display = 'block';
+                }
             } else {
                 var psOtherEl2 = document.getElementById('police_station_other');
                 if (psOtherEl2) psOtherEl2.style.display = 'none';
@@ -8454,7 +8669,55 @@ function applyInvRecordToWorkspace(key, raw) {
             if (typeof updateAutoQuestions === 'function') updateAutoQuestions();
         }
 
-        // ④ اللوحة (معالجة ذكية ودقيقة لحالة بدون لوحات أو وجود لوحات معدنية)
+        // ④ نوع المركبة: مطابقة داخلية بين مسميات نظام التلبسات ونظام التحقيق.
+        // المسميات الظاهرة في نظام التحقيق لا تتغير؛ التحويل يتم على قيمة القائمة فقط.
+        var sourceVehicleSelect = String(d.vehicleType || '').trim();
+        var sourceVehicleText = String(d.vehicleTypeText || '').trim();
+        var sourceVehicleOther = String(d.vehicleTypeOther || '').trim();
+        var sourceIsOther = ['أخرى', 'اخري', 'other'].includes(sourceVehicleSelect) ||
+                            ['أخرى', 'اخري', 'other'].includes(sourceVehicleText);
+        // عند «أخرى» تكون الأولوية للنص اليدوي، حتى لو احتوى السجل القديم على vehicleTypeText = «أخرى».
+        var importedVehicleText = sourceIsOther
+            ? (sourceVehicleOther || (sourceVehicleText && !['أخرى', 'اخري', 'other'].includes(sourceVehicleText) ? sourceVehicleText : ''))
+            : (sourceVehicleText || sourceVehicleSelect);
+        var vehicleLabelMap = {
+            'دراجة نارية': 'الدراجة النارية',
+            'توك توك': 'التوك توك',
+            'تروسيكل': 'التروسيكل',
+            'ملاكي': 'السيارة الملاكي',
+            'اجرة': 'السيارة الاجرة',
+            'نقل': 'السيارة النقل',
+            'رحلات': 'السيارة الرحلات',
+            'اتوبيس خاص': 'الاتوبيس الخاص'
+        };
+        var importedVehicleSelect = document.getElementById('v_type');
+        var importedVehicleOther = document.getElementById('v_other');
+        if (importedVehicleSelect) {
+            var targetVehicleLabel = vehicleLabelMap[importedVehicleText] || '';
+            var matchedVehicleOption = targetVehicleLabel
+                ? Array.prototype.find.call(importedVehicleSelect.options, function(opt) {
+                    return opt.value === targetVehicleLabel || opt.textContent.trim() === targetVehicleLabel;
+                })
+                : null;
+            if (matchedVehicleOption) {
+                importedVehicleSelect.value = matchedVehicleOption.value;
+                if (importedVehicleOther) importedVehicleOther.value = '';
+            } else if (importedVehicleText) {
+                // نوع غير موجود بالقائمة أو قيمة «أخرى»: يحفظ كنص يدوي دون فقد البيانات.
+                importedVehicleSelect.value = 'other';
+                if (importedVehicleOther) importedVehicleOther.value = importedVehicleText;
+            } else {
+                importedVehicleSelect.value = '';
+                if (importedVehicleOther) importedVehicleOther.value = '';
+            }
+            if (typeof toggleOther === 'function') toggleOther(importedVehicleSelect, 'v_other');
+        }
+        // تحديث الأسئلة والنصوص التي تعتمد على نوع المركبة بعد الاستيراد.
+        if (typeof updateAutoQuestions === 'function') updateAutoQuestions();
+        if (typeof updateVehicleDecisionUI === 'function') updateVehicleDecisionUI();
+        if (typeof updateEngineerDecisionUI === 'function') updateEngineerDecisionUI();
+
+        // ⑤ اللوحة (معالجة ذكية ودقيقة لحالة بدون لوحات أو وجود لوحات معدنية)
         var plateModeEl = document.getElementById('plate_mode');
         var isNoPlateRecord = false;
 
@@ -8499,6 +8762,12 @@ function applyInvRecordToWorkspace(key, raw) {
             if (noPlateEl) noPlateEl.value = 'بدون لوحات';
         }
 
+        // إعادة توليد نصوص القرارات بعد اكتمال تعبئة حقول اللوحة؛
+        // لأن التحديث السابق كان يحدث قبل وصول أرقام اللوحة من المحضر المستورد.
+        if (typeof updateVehicleDecisionUI === 'function') updateVehicleDecisionUI();
+        if (typeof updateEngineerDecisionUI === 'function') updateEngineerDecisionUI();
+        if (typeof updateAutoQuestions === 'function') updateAutoQuestions();
+
         // ⑤ بنود الاتهام (violations) → إضافتها للقائمة
         if (d.violations && Array.isArray(d.violations) && d.violations.length > 0 && typeof violations !== 'undefined') {
             // أضف البنود التي لم تكن موجودة مسبقاً فقط
@@ -8523,6 +8792,20 @@ function applyInvRecordToWorkspace(key, raw) {
                 if (typeof updateReleaseDecisionUI === 'function') updateReleaseDecisionUI();
         if (typeof updateForensicDecisionUI === 'function') updateForensicDecisionUI();
 
+        // تحديث نهائي بعد اكتمال جميع عمليات الاستيراد وإعادة رسم الأسئلة؛
+        // يضمن أن نصوص القرارات تقرأ رقم اللوحة من الحقول الممتلئة فعليًا.
+        if (typeof updateVehicleDecisionUI === 'function') updateVehicleDecisionUI();
+        if (typeof updateEngineerDecisionUI === 'function') updateEngineerDecisionUI();
+        setTimeout(function() {
+            if (typeof updateVehicleDecisionUI === 'function') updateVehicleDecisionUI();
+            if (typeof updateEngineerDecisionUI === 'function') updateEngineerDecisionUI();
+            if (typeof saveData === 'function') saveData();
+        }, 0);
+        setTimeout(function() {
+            if (typeof updateVehicleDecisionUI === 'function') updateVehicleDecisionUI();
+            if (typeof updateEngineerDecisionUI === 'function') updateEngineerDecisionUI();
+        }, 60);
+
         // إزالة أي تمييز أحمر من الحقول التي امتلأت من المحضر المحفوظ
         clearValidationHighlightsForFilledFields();
 
@@ -8536,7 +8819,147 @@ function applyInvRecordToWorkspace(key, raw) {
     }
 }
 
-// ── إشعار منبثق ──
+    // ── قائمة موحدة لأقسام محافظة القاهرة داخل نافذة البحث المباشر ──
+    var DIRECT_IMPORT_CAIRO_STATIONS = [
+        '15 مايو',
+        'الأزبكية', 'الأميرية', 'البساتين', 'التبين', 'التجمع الأول', 'التجمع الخامس',
+        'الجمالية', 'الخليفة', 'الدرب الأحمر', 'الزاوية الحمراء', 'الزيتون', 'الساحل',
+        'السيدة زينب', 'الشرابية', 'الشروق', 'الظاهر', 'القطامية', 'المرج', 'المطرية',
+        'المعادي', 'المعصرة', 'المقطم', 'الموسكي', 'النزهة', 'الوايلي',
+        'باب الشعرية', 'بدر', 'بولاق', 'حدائق القبة', 'حلوان', 'دار السلام', 'روض الفرج',
+        'شبرا', 'عابدين', 'عين شمس', 'قصر النيل', 'مدينة السلام أول', 'مدينة السلام ثان',
+        'مدينة نصر أول', 'مدينة نصر ثالث', 'مدينة نصر ثان', 'مصر الجديدة', 'مصر القديمة',
+        'منشأة ناصر'
+    ];
+    function normalizeDirectImportStation(value) {
+        return String(value || '').trim().replace(/ة/g, 'ه').replace(/\s+/g, ' ');
+    }
+    function escapeDirectImportHtml(value) {
+        return String(value || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+    function populateDirectImportStations() {
+        var select = document.getElementById('direct-import-station');
+        if (!select) return;
+        var current = select.value || '';
+        var seen = new Set();
+        var names = [];
+        var primary = document.getElementById('police_station');
+        if (primary) Array.prototype.forEach.call(primary.options, function(opt) {
+            var value = String(opt.value || '').trim();
+            if (!value || value === 'other') return;
+            var normalized = normalizeDirectImportStation(value);
+            if (!seen.has(normalized)) { seen.add(normalized); names.push(value); }
+        });
+        DIRECT_IMPORT_CAIRO_STATIONS.forEach(function(name) {
+            var normalized = normalizeDirectImportStation(name);
+            if (!seen.has(normalized)) { seen.add(normalized); names.push(name); }
+        });
+        names.sort(compareInvestigationStations);
+        select.innerHTML = '<option value="">--- اختر القسم ---</option>' + names.map(function(name) {
+            return '<option value="' + escapeDirectImportHtml(name) + '">' + escapeDirectImportHtml(name) + '</option>';
+        }).join('');
+        if (current && (current === '__manual__' || names.indexOf(current) !== -1)) select.value = current;
+        toggleDirectImportStationOther();
+    }
+    function toggleDirectImportStationOther() {
+        var select = document.getElementById('direct-import-station');
+        var other = document.getElementById('direct-import-station-other');
+        if (other) other.style.display = select && select.value === '__manual__' ? 'block' : 'none';
+    }
+    function getDirectImportStationValue() {
+        var select = document.getElementById('direct-import-station');
+        return select ? String(select.value || '').trim() : '';
+    }
+
+    // ── بحث واستيراد محضر مباشر برقم المحضر والسنة والقسم ──
+    var directImportKeyHandler = null;
+    function openDirectImportModal() {
+        var overlay = document.getElementById('direct-import-modal-overlay');
+        if (!overlay) return;
+        populateDirectImportStations();
+        overlay.classList.add('show');
+        var noEl = document.getElementById('direct-import-report-no');
+        var yearEl = document.getElementById('direct-import-year');
+        var stationEl = document.getElementById('direct-import-station');
+        if (noEl && !noEl.value) noEl.value = (document.getElementById('report_no') || {}).value || '';
+        if (yearEl && !yearEl.value) yearEl.value = (document.getElementById('report_year') || {}).value || String(new Date().getFullYear());
+        if (stationEl && typeof getPoliceStation === 'function') {
+            var currentStation = getPoliceStation() || '';
+            if (currentStation && Array.prototype.some.call(stationEl.options, function(opt) { return opt.value === currentStation; })) {
+                stationEl.value = currentStation;
+            }
+        }
+        requestAnimationFrame(function() { if (noEl) noEl.focus(); });
+        if (directImportKeyHandler) document.removeEventListener('keydown', directImportKeyHandler, true);
+        directImportKeyHandler = function(e) {
+            var active = document.getElementById('direct-import-modal-overlay');
+            if (!active || !active.classList.contains('show')) return;
+            if (e.key === 'Escape') {
+                e.preventDefault();
+                closeDirectImportModal();
+            } else if (e.key === 'Enter') {
+                e.preventDefault();
+                searchDirectImport();
+            }
+        };
+        document.addEventListener('keydown', directImportKeyHandler, true);
+    }
+    function closeDirectImportModal() {
+        var overlay = document.getElementById('direct-import-modal-overlay');
+        if (overlay) overlay.classList.remove('show');
+        if (directImportKeyHandler) {
+            document.removeEventListener('keydown', directImportKeyHandler, true);
+            directImportKeyHandler = null;
+        }
+    }
+    function directImportError(message, title) {
+        closeDirectImportModal();
+        showCustomAlert(message, {
+            title: title || 'تعذر الاستيراد',
+            type: 'error',
+            onClose: openDirectImportModal
+        });
+    }
+    function searchDirectImport() {
+        var caseNum = ((document.getElementById('direct-import-report-no') || {}).value || '').trim();
+        var year = ((document.getElementById('direct-import-year') || {}).value || '').trim();
+        var dept = getDirectImportStationValue();
+        if (!caseNum || !year || !dept) {
+            directImportError('يرجى إدخال رقم المحضر والسنة وقسم الشرطة أولاً.', 'بيانات البحث غير مكتملة');
+            return;
+        }
+        var key = 'mahdar_' + caseNum + '_' + year + '_' + dept;
+        var raw = localStorage.getItem(key);
+        // بحث احتياطي داخل السجلات لدعم أي اختلاف قديم في شكل المفتاح.
+        if (!raw) {
+            for (var i = 0; i < localStorage.length; i++) {
+                var candidateKey = localStorage.key(i);
+                if (!candidateKey || candidateKey.indexOf('mahdar_') !== 0) continue;
+                try {
+                    var candidate = JSON.parse(localStorage.getItem(candidateKey));
+                    if (String(candidate.caseNum || '').trim() === caseNum &&
+                        String(candidate.year || '').trim() === year &&
+                        String(candidate.dept || '').trim() === dept) {
+                        key = candidateKey;
+                        raw = localStorage.getItem(candidateKey);
+                        break;
+                    }
+                } catch (e) {}
+            }
+        }
+        if (!raw) {
+            directImportError('لا يوجد محضر محفوظ يطابق رقم المحضر والسنة وقسم الشرطة المدخلة.', 'المحضر غير موجود');
+            return;
+        }
+        closeDirectImportModal();
+        loadInvRecordToWorkspace(key);
+    }
+    document.addEventListener('click', function(e) {
+        var overlay = document.getElementById('direct-import-modal-overlay');
+        if (overlay && overlay.classList.contains('show') && e.target === overlay) closeDirectImportModal();
+    }, true);
+
+    // ── إشعار منبثق ──
 function showInvArchiveToast(text, success) {
     var toast = document.getElementById('_inv_archive_toast');
     if (!toast) {
@@ -8568,6 +8991,33 @@ window.addEventListener('load', function() {
     }, 100);
 });
 </script>
-
+    <div id="direct-import-modal-overlay" role="dialog" aria-modal="true" aria-labelledby="direct-import-modal-title">
+        <div id="direct-import-modal">
+            <div id="direct-import-modal-header">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <h3 id="direct-import-modal-title">بحث و استيراد بيانات محضر</h3>
+            </div>
+            <div class="direct-import-fields">
+                <div class="direct-import-field">
+                    <label for="direct-import-report-no">رقم المحضر</label>
+                    <input type="text" id="direct-import-report-no" autocomplete="off">
+                </div>
+                <div class="direct-import-field">
+                    <label for="direct-import-year">السنة</label>
+                    <input type="text" id="direct-import-year" inputmode="numeric" autocomplete="off">
+                </div>
+                <div class="direct-import-field">
+                    <label for="direct-import-station">قسم الشرطة</label>
+                    <select id="direct-import-station">
+                        <option value="">--- اختر القسم ---</option>
+                    </select>
+                </div>
+            </div>
+            <div id="direct-import-modal-actions">
+                <button type="button" id="direct-import-cancel-btn" onclick="closeDirectImportModal()">إلغاء</button>
+                <button type="button" id="direct-import-submit-btn" onclick="searchDirectImport()">بحث و استيراد</button>
+            </div>
+        </div>
+    </div>
 </body>
 </html>
