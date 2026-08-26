@@ -340,7 +340,7 @@ td.ce-cell:focus-within,
         background-color: transparent !important;
         box-shadow: none !important;
     }
-    #_fhs_lookup_toast, #copy-toast, #f9-toast, #_fhs_insert_success_toast {
+    #_fhs_lookup_toast, #copy-toast, #f9-toast, #_fhs_insert_success_toast, #_fhs_duplicate_violation_toast {
         display: none !important;
     }
 }
@@ -1706,7 +1706,7 @@ thead th[data-tip]:hover::before {
         // Shift+Enter: سطر جديد داخل نفس البند.
         // Enter: إنشاء بند جديد بالترقيم التالي.
         const violationList = active && active.closest ? active.closest('.auto-list ol') : null;
-        if (violationList && e.key === 'Enter') {
+        if (violationList && !violationList.classList.contains('inspection-inline-list') && e.key === 'Enter') {
             e.preventDefault();
             var currentItem = getActiveViolationItem(violationList) || ensureFirstViolationItem(violationList);
             if (e.shiftKey) {
@@ -1904,7 +1904,7 @@ thead th[data-tip]:hover::before {
     }
 
     function sortViolationItemsBySize(list) {
-        if (!list || list.dataset.manualFontSize === 'true') return;
+        if (!list || list.dataset.manualFontSize === 'true' || list.classList.contains('inspection-inline-list')) return;
         var items = Array.from(list.children).filter(function(node) { return node.tagName === 'LI'; });
         if (items.length < 2) return;
         var decorated = items.map(function(item, index) {
@@ -2454,6 +2454,7 @@ thead th[data-tip]:hover::before {
             if (!snap) return;
             showInspectionConfirm('سيتم استبدال محتوى الجدول الحالي بكشف ' + snap.dept + '\nهل أنت متأكد؟', 'تأكيد استبدال الكشف المحفوظ', function() {
                 document.getElementById('mainTable').querySelector('tbody').innerHTML = snap.tbody;
+                document.getElementById('mainTable').querySelectorAll('tbody tr').forEach(function(row) { row.dataset.inspectionImportPreserve = '1'; });
                 document.getElementById('dateInput').value = snap.date;
                 document.getElementById('writtenAtDate').value = snap.writtenDate || '';
                 var deptSelect = document.getElementById('dept');
@@ -2512,7 +2513,7 @@ thead th[data-tip]:hover::before {
             setTimeout(function() { t.select(); }, 0);
         } else if (t.tagName === 'SELECT') {
             // select لا يحتاج select() لكن نضمن التركيز
-        } else if (t.isContentEditable) {
+        } else if (t.isContentEditable && !(t.closest && t.closest('.inspection-inline-list li'))) {
             setTimeout(function() {
                 var range = document.createRange();
                 var sel   = window.getSelection();
@@ -2536,6 +2537,7 @@ document.addEventListener('keydown', function(e) {
     if (e.key !== 'ArrowDown' && e.key !== 'ArrowUp') return;
     const active = document.activeElement;
     if (!active || !active.isContentEditable) return;
+    if (active.closest && active.closest('.inspection-inline-list')) return;
     const currentTd = active.closest('td');
     if (!currentTd) return;
     const currentRow = currentTd.closest('tr');
@@ -2584,6 +2586,9 @@ document.addEventListener('keydown', function(e) {
 });
 
 document.getElementById('mainTable').addEventListener('click', function(e) {
+    // مربع البحث وقائمة الاقتراحات لهما تفاعلهما الخاص؛ لا تنقل النقرات داخلهما إلى قائمة البنود.
+    if (e.target.closest('.violation-search-input') || e.target.closest('.violation-search-suggestions')) return;
+    if (e.target.closest('.inspection-inline-list')) return;
     if (e.target.tagName === 'SELECT' || e.target.closest('select')) return;
     const td = e.target.closest('td');
     if (!td || td.classList.contains('del-col') || td.closest('.del-col')) return;
@@ -3041,6 +3046,7 @@ function insertSelectedRecords() {
                 if (td.isContentEditable) td.innerText = text;
             }
 
+    targetRow.dataset.inspectionImportPreserve = '1';
             const cells = targetRow.cells;
             
             // تعبئة البيانات بصمت
@@ -3382,5 +3388,3960 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 </script>
 
+
+<style id="inspection-smart-violation-style">
+/* البحث الذكي لبنود المخالفات داخل كشف الفحص */
+.auto-list { position: relative; }
+.violation-search-shell { position: relative; margin: 0 0 5px; direction: rtl; }
+.violation-search-input {
+  position: relative; z-index: 3; cursor: text;
+  width: 100%; box-sizing: border-box; min-height: 26px; padding: 3px 5px;
+  border: 1px solid #aab7c4; border-radius: 3px; background: #fff; color: #1f2937;
+  font-family: inherit; font-size: 12px; outline: none; text-align: right;
+}
+.violation-search-input:focus { border-color: #365f8d; box-shadow: 0 0 0 1px rgba(54,95,141,.16); }
+.violation-search-suggestions {
+  position: absolute; top: calc(100% + 2px); right: 0; left: 0; display: none;
+  max-height: 180px; overflow-y: auto; background: #fff; border: 1px solid #7994b1;
+  box-shadow: 0 5px 14px rgba(20,40,60,.18); z-index: 10020; text-align: right;
+}
+.violation-search-suggestions.open { display: block; }
+.violation-suggestion {
+  display: block; width: 100%; box-sizing: border-box; padding: 6px 7px; border: 0;
+  border-bottom: 1px solid #e5e7eb; background: #fff; color: #243447; cursor: pointer;
+  font-family: inherit; font-size: 12px; line-height: 1.45; text-align: right;
+}
+.violation-suggestion:last-child { border-bottom: 0; }
+.violation-suggestion:hover, .violation-suggestion.active { background: #edf4fb; }
+.violation-suggestion-code { color: #1a3a6b; font-weight: 700; margin-left: 5px; }
+.violation-suggestion-fine { color: #6b7280; font-size: 11px; margin-right: 5px; white-space: nowrap; }
+.violation-search-help { color: #718096; font-size: 10px; margin-top: 2px; white-space: nowrap; }
+@media print {
+  .violation-search-shell { display: none !important; }
+  .auto-list ol { margin-top: 2px !important; }
+}
+</style>
+<script>
+const INSPECTION_VIOLATION_CATALOG = [
+  {
+    "code": "1",
+    "label": "مخالفة التوك توك لخط السير",
+    "fine": 600,
+    "materials": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "28",
+      "64 مكررًا"
+    ],
+    "materialCodes": [
+      "e01",
+      "e02",
+      "e03",
+      "e04",
+      "e28",
+      "e64m"
+    ],
+    "sourceFineLabel": "مخالفة التوك توك لخط السير"
+  },
+  {
+    "code": "2",
+    "label": "سيير التوك توك في عاصمة المحافظه",
+    "fine": 600,
+    "materials": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "28",
+      "64 مكررًا"
+    ],
+    "materialCodes": [
+      "e01",
+      "e02",
+      "e03",
+      "e04",
+      "e28",
+      "e64m"
+    ],
+    "sourceFineLabel": "سيير التوك توك في عاصمة المحافظه"
+  },
+  {
+    "code": "3",
+    "label": "سيير التوك توك فى الطريق إلى عاصمة المحافظة",
+    "fine": 600,
+    "materials": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "28",
+      "64 مكررًا"
+    ],
+    "materialCodes": [
+      "e01",
+      "e02",
+      "e03",
+      "e04",
+      "e28",
+      "e64m"
+    ],
+    "sourceFineLabel": "سيير التوك توك فى الطريق إلى عاصمة المحافظة"
+  },
+  {
+    "code": "4",
+    "label": "سيير التوك توك على الطرق السريعة",
+    "fine": 600,
+    "materials": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "28",
+      "64 مكررًا"
+    ],
+    "materialCodes": [
+      "e01",
+      "e02",
+      "e03",
+      "e04",
+      "e28",
+      "e64m"
+    ],
+    "sourceFineLabel": "سيير التوك توك  على الطرق السريعة"
+  },
+  {
+    "code": "5",
+    "label": "استخدم التوك توك فى نقل غير الأشخاص",
+    "fine": 600,
+    "materials": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "28",
+      "64 مكررًا"
+    ],
+    "materialCodes": [
+      "e01",
+      "e02",
+      "e03",
+      "e04",
+      "e28",
+      "e64m"
+    ],
+    "sourceFineLabel": "استخدم التوك توك فى نقل غير الأشخاص"
+  },
+  {
+    "code": "6",
+    "label": "تعمد السير عكس الاتجاة",
+    "fine": 0,
+    "materials": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "76",
+      "76 مكررًا 1"
+    ],
+    "materialCodes": [
+      "e01",
+      "e02",
+      "e03",
+      "e04",
+      "e76",
+      "e76m1"
+    ],
+    "sourceFineLabel": "تعمد السير عكس الاتجاة"
+  },
+  {
+    "code": "7",
+    "label": "مخالفة خط السير",
+    "fine": 600,
+    "materials": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "72 مكررًا / فقرة (أ) بند 1",
+      "72 مكررًا / فقرة (أ) بند 2"
+    ],
+    "materialCodes": [
+      "e01",
+      "e02",
+      "e03",
+      "e04",
+      "e72mf1b1",
+      "e72mf1b2"
+    ],
+    "sourceFineLabel": "مخالفة خط السير "
+  },
+  {
+    "code": "8",
+    "label": "عدم السير فى المسار المحدد",
+    "fine": 600,
+    "materials": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "74"
+    ],
+    "materialCodes": [
+      "e01",
+      "e02",
+      "e03",
+      "e04",
+      "e74"
+    ],
+    "sourceFineLabel": "عدم السير فى المسار المحدد"
+  },
+  {
+    "code": "9",
+    "label": "عدم الإلتزام بالجانب الأيمن",
+    "fine": 600,
+    "materials": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "74 / بند 1"
+    ],
+    "materialCodes": [
+      "e01",
+      "e02",
+      "e03",
+      "e04",
+      "e74b1"
+    ],
+    "sourceFineLabel": "عدم الإلتزام بالجانب الأيمن"
+  },
+  {
+    "code": "10",
+    "label": "السير ببطء على الكوبرى",
+    "fine": 200,
+    "materials": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "74 مكررًا 1 / بند 3"
+    ],
+    "materialCodes": [
+      "e01",
+      "e02",
+      "e03",
+      "e04",
+      "e74m1b3"
+    ],
+    "sourceFineLabel": "السير ببطء على الكوبرى"
+  },
+  {
+    "code": "11",
+    "label": "التوقف على الكوبرى",
+    "fine": 200,
+    "materials": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "74 مكررًا 1 / بند 3"
+    ],
+    "materialCodes": [
+      "e01",
+      "e02",
+      "e03",
+      "e04",
+      "e74m1b3"
+    ],
+    "sourceFineLabel": "التوقف  على الكوبرى"
+  },
+  {
+    "code": "12",
+    "label": "السير ببطء بمطلع الكوبرى",
+    "fine": 200,
+    "materials": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "74 مكررًا 1 / بند 3"
+    ],
+    "materialCodes": [
+      "e01",
+      "e02",
+      "e03",
+      "e04",
+      "e74m1b3"
+    ],
+    "sourceFineLabel": "السير ببطء بمطلع الكوبرى"
+  },
+  {
+    "code": "13",
+    "label": "التوقف بمطلع الكوبرى",
+    "fine": 200,
+    "materials": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "74 مكررًا 1 / بند 3"
+    ],
+    "materialCodes": [
+      "e01",
+      "e02",
+      "e03",
+      "e04",
+      "e74m1b3"
+    ],
+    "sourceFineLabel": "التوقف بمطلع الكوبرى"
+  },
+  {
+    "code": "14",
+    "label": "السير ببطء بمنزل الكوبرى",
+    "fine": 200,
+    "materials": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "74 مكررًا 1 / بند 3"
+    ],
+    "materialCodes": [
+      "e01",
+      "e02",
+      "e03",
+      "e04",
+      "e74m1b3"
+    ],
+    "sourceFineLabel": "السير ببطء بمنزل الكوبرى"
+  },
+  {
+    "code": "15",
+    "label": "تعمد التوقف بمنزل الكوبرى",
+    "fine": 200,
+    "materials": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "74 مكررًا 1 / بند 3"
+    ],
+    "materialCodes": [
+      "e01",
+      "e02",
+      "e03",
+      "e04",
+      "e74m1b3"
+    ],
+    "sourceFineLabel": "تعمد التوقف بمنزل الكوبرى"
+  },
+  {
+    "code": "16",
+    "label": "السير ببطء بمدخل النفق",
+    "fine": 200,
+    "materials": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "74 مكررًا 1 / بند 3"
+    ],
+    "materialCodes": [
+      "e01",
+      "e02",
+      "e03",
+      "e04",
+      "e74m1b3"
+    ],
+    "sourceFineLabel": "السير ببطء بمدخل النفق"
+  },
+  {
+    "code": "17",
+    "label": "تعمد التوقف بمدخل النفق",
+    "fine": 200,
+    "materials": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "74 مكررًا 1 / بند 3"
+    ],
+    "materialCodes": [
+      "e01",
+      "e02",
+      "e03",
+      "e04",
+      "e74m1b3"
+    ],
+    "sourceFineLabel": "تعمد التوقف بمدخل النفق"
+  },
+  {
+    "code": "18",
+    "label": "السير ببطء بمخرج النفق",
+    "fine": 200,
+    "materials": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "74 مكررًا 1 / بند 3"
+    ],
+    "materialCodes": [
+      "e01",
+      "e02",
+      "e03",
+      "e04",
+      "e74m1b3"
+    ],
+    "sourceFineLabel": "السير ببطء بمخرج النفق"
+  },
+  {
+    "code": "19",
+    "label": "تعمد التوقف بمخرج النفق",
+    "fine": 200,
+    "materials": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "74 مكررًا 1 / بند 3"
+    ],
+    "materialCodes": [
+      "e01",
+      "e02",
+      "e03",
+      "e04",
+      "e74m1b3"
+    ],
+    "sourceFineLabel": "تعمد التوقف بمخرج النفق"
+  },
+  {
+    "code": "20",
+    "label": "السير ببطء بتقاطع الطرق",
+    "fine": 200,
+    "materials": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "74 مكررًا 1 / بند 3"
+    ],
+    "materialCodes": [
+      "e01",
+      "e02",
+      "e03",
+      "e04",
+      "e74m1b3"
+    ],
+    "sourceFineLabel": "السير ببطء بتقاطع الطرق"
+  },
+  {
+    "code": "21",
+    "label": "تعمد التوقف بتقاطع الطرق",
+    "fine": 200,
+    "materials": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "74 مكررًا 1 / بند 3"
+    ],
+    "materialCodes": [
+      "e01",
+      "e02",
+      "e03",
+      "e04",
+      "e74m1b3"
+    ],
+    "sourceFineLabel": "تعمد التوقف بتقاطع الطرق"
+  },
+  {
+    "code": "22",
+    "label": "الإمتناع عن نقل الركاب",
+    "fine": 400,
+    "materials": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "70"
+    ],
+    "materialCodes": [
+      "e01",
+      "e02",
+      "e03",
+      "e04",
+      "e70"
+    ],
+    "sourceFineLabel": "الإمتناع عن نقل الركاب"
+  },
+  {
+    "code": "23",
+    "label": "عدم تشغيل العداد",
+    "fine": 400,
+    "materials": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "70"
+    ],
+    "materialCodes": [
+      "e01",
+      "e02",
+      "e03",
+      "e04",
+      "e70"
+    ],
+    "sourceFineLabel": "عدم تشغيل العداد"
+  },
+  {
+    "code": "24",
+    "label": "تقاضى أجر أكثر من المقرر",
+    "fine": 400,
+    "materials": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "70"
+    ],
+    "materialCodes": [
+      "e01",
+      "e02",
+      "e03",
+      "e04",
+      "e70"
+    ],
+    "sourceFineLabel": "تقاضى أجر أكثر من المقرر"
+  },
+  {
+    "code": "25",
+    "label": "تحميل ركاب زيادة",
+    "fine": 400,
+    "materials": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "70"
+    ],
+    "materialCodes": [
+      "e01",
+      "e02",
+      "e03",
+      "e04",
+      "e70"
+    ],
+    "sourceFineLabel": "تحميل ركاب زيادة"
+  },
+  {
+    "code": "26",
+    "label": "التحميل من خارج الموقف",
+    "fine": 400,
+    "materials": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "70"
+    ],
+    "materialCodes": [
+      "e01",
+      "e02",
+      "e03",
+      "e04",
+      "e70"
+    ],
+    "sourceFineLabel": "التحميل من خارج الموقف"
+  },
+  {
+    "code": "27",
+    "label": "وجود خلل بالعداد",
+    "fine": 400,
+    "materials": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "72 مكررًا / فقرة (أ) بند 3"
+    ],
+    "materialCodes": [
+      "e01",
+      "e02",
+      "e03",
+      "e04",
+      "e72mf1b3"
+    ],
+    "sourceFineLabel": "وجود خلل بالعداد"
+  },
+  {
+    "code": "28",
+    "label": "تحميل ركاب على الاجزاء الخارجية للسيارة",
+    "fine": 50,
+    "materials": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "72 مكررًا / فقرة (ب) بند 1"
+    ],
+    "materialCodes": [
+      "e01",
+      "e02",
+      "e03",
+      "e04",
+      "e72mf2b1"
+    ],
+    "sourceFineLabel": "تحميل ركاب على الاجزاء الخارجية للسيارة"
+  },
+  {
+    "code": "29",
+    "label": "عدم أغلاق الأبواب إثناء السير",
+    "fine": 200,
+    "materials": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "74 مكررًا 1 / بند 2"
+    ],
+    "materialCodes": [
+      "e01",
+      "e02",
+      "e03",
+      "e04",
+      "e74m1b2"
+    ],
+    "sourceFineLabel": "عدم أغلاق الأبواب إثناء السير"
+  },
+  {
+    "code": "30",
+    "label": "عدم تركيب اللوحات",
+    "fine": 0,
+    "materials": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "74 مكررًا 1",
+      "75 / بند 4"
+    ],
+    "materialCodes": [
+      "e01",
+      "e02",
+      "e03",
+      "e04",
+      "e74m1",
+      "e75b4"
+    ],
+    "sourceFineLabel": "عدم تركيب اللوحات المعدنية"
+  },
+  {
+    "code": "31",
+    "label": "تركيب لوحات غير خاصة بالمركبة",
+    "fine": 0,
+    "materials": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "72 مكررًا / فقرة (ج) بند 1",
+      "74 مكررًا / بند 10"
+    ],
+    "materialCodes": [
+      "e01",
+      "e02",
+      "e03",
+      "e04",
+      "e72mf3b1",
+      "e74mb10"
+    ],
+    "sourceFineLabel": "تركيب لوحات غير خاصة بالمركبة"
+  },
+  {
+    "code": "32",
+    "label": "استعمال اللوحات التجارية فى غير الغرض المرخصة من أجلة",
+    "fine": 0,
+    "materials": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "25"
+    ],
+    "materialCodes": [
+      "e01",
+      "e02",
+      "e03",
+      "e04",
+      "e25"
+    ],
+    "sourceFineLabel": "استعمال اللوحات التجارية فى غير الغرض المرخصة من أجلة"
+  },
+  {
+    "code": "33",
+    "label": "بيانات اللوحات غير ظاهرة",
+    "fine": 0,
+    "materials": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "72 مكررًا / فقرة (ج) بند 1",
+      "74 مكررًا / بند 1",
+      "75 / بند 9"
+    ],
+    "materialCodes": [
+      "e01",
+      "e02",
+      "e03",
+      "e04",
+      "e72mf3b1",
+      "e74mb1",
+      "e75b9"
+    ],
+    "sourceFineLabel": "بيانات اللوحات غير ظاهرة"
+  },
+  {
+    "code": "34",
+    "label": "عدم وضوح اللوحات المعدنية",
+    "fine": 0,
+    "materials": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "72 مكررًا / فقرة (ج) بند 1",
+      "74 مكررًا / بند 1",
+      "75 / بند 9"
+    ],
+    "materialCodes": [
+      "e01",
+      "e02",
+      "e03",
+      "e04",
+      "e72mf3b1",
+      "e74mb1",
+      "e75b9"
+    ],
+    "sourceFineLabel": "عدم وضوح اللوحات المعدنية"
+  },
+  {
+    "code": "35",
+    "label": "عدم تثبيت اللوحات فى المكان المقرر لها",
+    "fine": 0,
+    "materials": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "74 مكررًا / بند 6"
+    ],
+    "materialCodes": [
+      "e01",
+      "e02",
+      "e03",
+      "e04",
+      "e74mb6"
+    ],
+    "sourceFineLabel": "عدم تثبيت اللوحات فى المكان المقرر لها"
+  },
+  {
+    "code": "36",
+    "label": "تغير لون اللوحات المعدنية",
+    "fine": 0,
+    "materials": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "75 / بند 9"
+    ],
+    "materialCodes": [
+      "e01",
+      "e02",
+      "e03",
+      "e04",
+      "e75b9"
+    ],
+    "sourceFineLabel": "تغير لون اللوحات المعدنية"
+  },
+  {
+    "code": "37",
+    "label": "القيادة تحت تأثيرموادمخدرة",
+    "fine": 0,
+    "materials": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "35",
+      "66",
+      "76"
+    ],
+    "materialCodes": [
+      "e01",
+      "e02",
+      "e03",
+      "e04",
+      "e35",
+      "e66",
+      "e76"
+    ],
+    "sourceFineLabel": "القيادة تحت تأثيرموادمخدرة"
+  },
+  {
+    "code": "38",
+    "label": "القيادة تحت تأثير مواد مسكرة",
+    "fine": 0,
+    "materials": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "35",
+      "66",
+      "76"
+    ],
+    "materialCodes": [
+      "e01",
+      "e02",
+      "e03",
+      "e04",
+      "e35",
+      "e66",
+      "e76"
+    ],
+    "sourceFineLabel": "القيادة تحت تأثير مواد مسكرة"
+  },
+  {
+    "code": "39",
+    "label": "قيادة السيارة بدون حزام امان",
+    "fine": 200,
+    "materials": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "74 مكررًا / بند 3"
+    ],
+    "materialCodes": [
+      "e01",
+      "e02",
+      "e03",
+      "e04",
+      "e74mb3"
+    ],
+    "sourceFineLabel": "قيادة السيارة بدون حزام امان"
+  },
+  {
+    "code": "40",
+    "label": "عدم ارتداء حزام الامان للمجاور للقائد اثناء السير",
+    "fine": 200,
+    "materials": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "74 مكررًا / بند 3"
+    ],
+    "materialCodes": [
+      "e01",
+      "e02",
+      "e03",
+      "e04",
+      "e74mb3"
+    ],
+    "sourceFineLabel": "عدم ارتداء حزام الامان للمجاور للقائد اثناء السير"
+  },
+  {
+    "code": "41",
+    "label": "عدم ارتداء غطاء الرأس الواقى",
+    "fine": 200,
+    "materials": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "74 مكررًا / بند 4"
+    ],
+    "materialCodes": [
+      "e01",
+      "e02",
+      "e03",
+      "e04",
+      "e74mb4"
+    ],
+    "sourceFineLabel": "عدم ارتداء غطاء الرأس الواقى"
+  },
+  {
+    "code": "42",
+    "label": "استخدام التليفون يدويا أثناء القيادة",
+    "fine": 200,
+    "materials": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "74 مكررًا / بند 5"
+    ],
+    "materialCodes": [
+      "e01",
+      "e02",
+      "e03",
+      "e04",
+      "e74mb5"
+    ],
+    "sourceFineLabel": "استخدام التليفون يدويا أثناء القيادة"
+  },
+  {
+    "code": "43",
+    "label": "قيادة مركبة خالية من الفرامل",
+    "fine": 400,
+    "materials": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "75 / بند 5"
+    ],
+    "materialCodes": [
+      "e01",
+      "e02",
+      "e03",
+      "e04",
+      "e75b5"
+    ],
+    "sourceFineLabel": "قيادة مركبة خالية من الفرامل"
+  },
+  {
+    "code": "44",
+    "label": "عدم صلاحية الفرامل",
+    "fine": 400,
+    "materials": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "75 / بند 5"
+    ],
+    "materialCodes": [
+      "e01",
+      "e02",
+      "e03",
+      "e04",
+      "e75b5"
+    ],
+    "sourceFineLabel": "عدم صلاحية الفرامل"
+  },
+  {
+    "code": "45",
+    "label": "عدم توافر شروط الامن والمتانة",
+    "fine": 200,
+    "materials": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "72 مكررًا / فقرة (أ) بند 4"
+    ],
+    "materialCodes": [
+      "e01",
+      "e02",
+      "e03",
+      "e04",
+      "e72mf1b4"
+    ],
+    "sourceFineLabel": "عدم توافر شروط الامن والمتانة"
+  },
+  {
+    "code": "46",
+    "label": "عدم صلاحية الأنوار",
+    "fine": 50,
+    "materials": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "72 مكررًا / فقرة (ج) بند 2"
+    ],
+    "materialCodes": [
+      "e01",
+      "e02",
+      "e03",
+      "e04",
+      "e72mf3b2"
+    ],
+    "sourceFineLabel": "عدم صلاحية الأنوار"
+  },
+  {
+    "code": "47",
+    "label": "دخان كثيف",
+    "fine": 600,
+    "materials": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "72 مكررًا 2"
+    ],
+    "materialCodes": [
+      "e01",
+      "e02",
+      "e03",
+      "e04",
+      "e72m2"
+    ],
+    "sourceFineLabel": "دخان كثيف"
+  },
+  {
+    "code": "48",
+    "label": "مخالفة نسب الإنبعاثات لعادم السيارة",
+    "fine": 600,
+    "materials": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "72 مكررًا 2"
+    ],
+    "materialCodes": [
+      "e01",
+      "e02",
+      "e03",
+      "e04",
+      "e72m2"
+    ],
+    "sourceFineLabel": "مخالفة نسب الإنبعاثات لعادم السيارة"
+  },
+  {
+    "code": "49",
+    "label": "إضافة ملصقات مخالفة على جسم المركبة",
+    "fine": 200,
+    "materials": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "74 مكررًا / بند 11"
+    ],
+    "materialCodes": [
+      "e01",
+      "e02",
+      "e03",
+      "e04",
+      "e74mb11"
+    ],
+    "sourceFineLabel": "إضافة ملصقات مخالفة على جسم المركبة"
+  },
+  {
+    "code": "50",
+    "label": "إضافة معلقات",
+    "fine": 200,
+    "materials": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "74 مكررًا 11"
+    ],
+    "materialCodes": [
+      "e01",
+      "e02",
+      "e03",
+      "e04",
+      "e74m11"
+    ],
+    "sourceFineLabel": "إضافة معلقات"
+  },
+  {
+    "code": "51",
+    "label": "وضع كتابة مخالفة على جسم المركبة",
+    "fine": 200,
+    "materials": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "74 مكررًا 11"
+    ],
+    "materialCodes": [
+      "e01",
+      "e02",
+      "e03",
+      "e04",
+      "e74m11"
+    ],
+    "sourceFineLabel": "وضع كتابة مخالفة على جسم المركبة"
+  },
+  {
+    "code": "52",
+    "label": "وضع رسم مخالف على جسم المركبة",
+    "fine": 200,
+    "materials": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "74 مكررًا 11"
+    ],
+    "materialCodes": [
+      "e01",
+      "e02",
+      "e03",
+      "e04",
+      "e74m11"
+    ],
+    "sourceFineLabel": "وضع رسم مخالف على جسم المركبة"
+  },
+  {
+    "code": "53",
+    "label": "اضافة بيانات غير واجبة بحكم القانون",
+    "fine": 200,
+    "materials": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "74 مكررًا 11"
+    ],
+    "materialCodes": [
+      "e01",
+      "e02",
+      "e03",
+      "e04",
+      "e74m11"
+    ],
+    "sourceFineLabel": "اضافة بيانات غير واجبة بحكم القانون"
+  },
+  {
+    "code": "54",
+    "label": "أضافة رموز مخالفة على جسم المركبة",
+    "fine": 200,
+    "materials": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "74 مكررًا 11"
+    ],
+    "materialCodes": [
+      "e01",
+      "e02",
+      "e03",
+      "e04",
+      "e74m11"
+    ],
+    "sourceFineLabel": "أضافة رموز مخالفة على جسم المركبة"
+  },
+  {
+    "code": "55",
+    "label": "إلقاء فضلات بالطريق العام",
+    "fine": 600,
+    "materials": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "72 مكررًا 2"
+    ],
+    "materialCodes": [
+      "e01",
+      "e02",
+      "e03",
+      "e04",
+      "e72m2"
+    ],
+    "sourceFineLabel": "إلقاء فضلات بالطريق العام"
+  },
+  {
+    "code": "56",
+    "label": "إلقاء مخلفات بناء أوأشياء أخرى بالطريق العام",
+    "fine": 600,
+    "materials": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "72 مكررًا 2"
+    ],
+    "materialCodes": [
+      "e01",
+      "e02",
+      "e03",
+      "e04",
+      "e72m2"
+    ],
+    "sourceFineLabel": "إلقاء مخلفات بناء أوأشياء أخرى بالطريق العام"
+  },
+  {
+    "code": "57",
+    "label": "يتسرب من الحمولة مواد قابلة للأشتعال",
+    "fine": 600,
+    "materials": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "72 مكررًا 2"
+    ],
+    "materialCodes": [
+      "e01",
+      "e02",
+      "e03",
+      "e04",
+      "e72m2"
+    ],
+    "sourceFineLabel": "يتسرب من الحمولة مواد قابلة للأشتعال"
+  },
+  {
+    "code": "58",
+    "label": "تساقط من الحمولة ما يضر بالطريق",
+    "fine": 600,
+    "materials": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "72 مكررًا 2"
+    ],
+    "materialCodes": [
+      "e01",
+      "e02",
+      "e03",
+      "e04",
+      "e72m2"
+    ],
+    "sourceFineLabel": "تساقط من الحمولة ما يضر بالطريق"
+  },
+  {
+    "code": "59",
+    "label": "زيادة وزن الحمولة عن المقرر للمركبة",
+    "fine": 600,
+    "materials": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "74 مكررًا / بند 4"
+    ],
+    "materialCodes": [
+      "e01",
+      "e02",
+      "e03",
+      "e04",
+      "e74mb4"
+    ],
+    "sourceFineLabel": "زيادة وزن الحمولة عن المقرر للمركبة"
+  },
+  {
+    "code": "60",
+    "label": "إرتفاع الحمولة عن الحد المصرح بها",
+    "fine": 600,
+    "materials": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "74 مكررًا / بند 4"
+    ],
+    "materialCodes": [
+      "e01",
+      "e02",
+      "e03",
+      "e04",
+      "e74mb4"
+    ],
+    "sourceFineLabel": "إرتفاع الحمولة عن الحد المصرح بها"
+  },
+  {
+    "code": "61",
+    "label": "بروز جانبى",
+    "fine": 600,
+    "materials": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "74 مكررًا / بند 4"
+    ],
+    "materialCodes": [
+      "e01",
+      "e02",
+      "e03",
+      "e04",
+      "e74mb4"
+    ],
+    "sourceFineLabel": "بروز جانبى"
+  },
+  {
+    "code": "62",
+    "label": "بروز أمامى",
+    "fine": 600,
+    "materials": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "74 مكررًا / بند 4"
+    ],
+    "materialCodes": [
+      "e01",
+      "e02",
+      "e03",
+      "e04",
+      "e74mb4"
+    ],
+    "sourceFineLabel": "بروز أمامى"
+  },
+  {
+    "code": "63",
+    "label": "بروز خلفى",
+    "fine": 600,
+    "materials": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "74 مكررًا / بند 4"
+    ],
+    "materialCodes": [
+      "e01",
+      "e02",
+      "e03",
+      "e04",
+      "e74mb4"
+    ],
+    "sourceFineLabel": "بروز خلفى"
+  },
+  {
+    "code": "64",
+    "label": "عدم تركيب جهاز تسجيل البيانات",
+    "fine": 1600,
+    "materials": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "75 مكررًا / بند 1"
+    ],
+    "materialCodes": [
+      "e01",
+      "e02",
+      "e03",
+      "e04",
+      "e75mb1"
+    ],
+    "sourceFineLabel": "عدم تركيب جهاز تسجيل البيانات"
+  },
+  {
+    "code": "65",
+    "label": "عدم تركيب جهاز محدد السرعة",
+    "fine": 1600,
+    "materials": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "75 مكررًا / بند 1"
+    ],
+    "materialCodes": [
+      "e01",
+      "e02",
+      "e03",
+      "e04",
+      "e75mb1"
+    ],
+    "sourceFineLabel": "عدم تركيب جهاز محدد السرعة"
+  },
+  {
+    "code": "66",
+    "label": "القيادة بدون رخصة التسيير",
+    "fine": 1100,
+    "materials": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "74 مكررًا 2"
+    ],
+    "materialCodes": [
+      "e01",
+      "e02",
+      "e03",
+      "e04",
+      "e74m2"
+    ],
+    "sourceFineLabel": "القيادة بدون رخصة التسيير"
+  },
+  {
+    "code": "67",
+    "label": "بدون مثلث عاكس للضوء",
+    "fine": 200,
+    "materials": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "74 مكررًا / بند 8"
+    ],
+    "materialCodes": [
+      "e01",
+      "e02",
+      "e03",
+      "e04",
+      "e74mb8"
+    ],
+    "sourceFineLabel": "بدون مثلث عاكس للضوء"
+  },
+  {
+    "code": "68",
+    "label": "بدون حقيبة اسعافات اولية",
+    "fine": 200,
+    "materials": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "74 مكررًا / بند 9"
+    ],
+    "materialCodes": [
+      "e01",
+      "e02",
+      "e03",
+      "e04",
+      "e74mb9"
+    ],
+    "sourceFineLabel": "بدون حقيبة اسعافات اولية"
+  },
+  {
+    "code": "69",
+    "label": "بدون رخصة قيادة",
+    "fine": 1100,
+    "materials": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "74 مكررًا 4"
+    ],
+    "materialCodes": [
+      "e01",
+      "e02",
+      "e03",
+      "e04",
+      "e74m4"
+    ],
+    "sourceFineLabel": "بدون رخصة قيادة"
+  },
+  {
+    "code": "70",
+    "label": "عدم اتباع إشارات المرور",
+    "fine": 600,
+    "materials": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "74 مكررًا / بند 3"
+    ],
+    "materialCodes": [
+      "e01",
+      "e02",
+      "e03",
+      "e04",
+      "e74mb3"
+    ],
+    "sourceFineLabel": "عدم اتباع إشارات المرور"
+  },
+  {
+    "code": "71",
+    "label": "عدم اتباع علامات المرور",
+    "fine": 600,
+    "materials": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "74 مكررًا / بند 3"
+    ],
+    "materialCodes": [
+      "e01",
+      "e02",
+      "e03",
+      "e04",
+      "e74mb3"
+    ],
+    "sourceFineLabel": "عدم اتباع علامات المرور"
+  },
+  {
+    "code": "72",
+    "label": "عدم اتباع تعليمات رجل المرور",
+    "fine": 600,
+    "materials": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "74 مكررًا / بند 3"
+    ],
+    "materialCodes": [
+      "e01",
+      "e02",
+      "e03",
+      "e04",
+      "e74mb3"
+    ],
+    "sourceFineLabel": "عدم اتباع تعليمات رجل المرور"
+  },
+  {
+    "code": "73",
+    "label": "تركيب أجهزة تنبية مخالفة للقانون",
+    "fine": 600,
+    "materials": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "69"
+    ],
+    "materialCodes": [
+      "e01",
+      "e02",
+      "e03",
+      "e04",
+      "e69"
+    ],
+    "sourceFineLabel": "تركيب أجهزة تنبية مخالفة للقانون"
+  },
+  {
+    "code": "74",
+    "label": "تركيب مصابيح مخالفة للقانون",
+    "fine": 600,
+    "materials": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "69"
+    ],
+    "materialCodes": [
+      "e01",
+      "e02",
+      "e03",
+      "e04",
+      "e69"
+    ],
+    "sourceFineLabel": "تركيب مصابيح مخالفة للقانون"
+  },
+  {
+    "code": "75",
+    "label": "تركيب سرينة هوائية",
+    "fine": 600,
+    "materials": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "69"
+    ],
+    "materialCodes": [
+      "e01",
+      "e02",
+      "e03",
+      "e04",
+      "e69"
+    ],
+    "sourceFineLabel": "تركيب سرينة هوائية"
+  },
+  {
+    "code": "76",
+    "label": "تعطيل المرور نتيجة السير بأقل من الحد الأدنى للسرعة المقررة",
+    "fine": 200,
+    "materials": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "74 مكررًا / بند 1"
+    ],
+    "materialCodes": [
+      "e01",
+      "e02",
+      "e03",
+      "e04",
+      "e74mb1"
+    ],
+    "sourceFineLabel": "تعطيل حركة المرور نتيجة السير بأقل من الحد الأدنى للسرعة المقررة"
+  },
+  {
+    "code": "77",
+    "label": "تجاوز السرعة المقررة",
+    "fine": 400,
+    "materials": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "75 / بند 1"
+    ],
+    "materialCodes": [
+      "e01",
+      "e02",
+      "e03",
+      "e04",
+      "e75b1"
+    ],
+    "sourceFineLabel": "تجاوز السرعة المقررة"
+  },
+  {
+    "code": "78",
+    "label": "تعمد تعطيل حركة المرور",
+    "fine": 400,
+    "materials": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "75 / بند 7 ؟"
+    ],
+    "materialCodes": [
+      "e01",
+      "e02",
+      "e03",
+      "e04",
+      "e75b7"
+    ],
+    "sourceFineLabel": "تعمد تعطيل حركة المرور"
+  },
+  {
+    "code": "79",
+    "label": "ترك المركبة بحالة نجم عنها تعطيل حركة المرور",
+    "fine": 300,
+    "materials": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "65 مكررًا"
+    ],
+    "materialCodes": [
+      "e01",
+      "e02",
+      "e03",
+      "e04",
+      "e65m"
+    ],
+    "sourceFineLabel": "ترك المركبة بحالة نجم عنها تعطيل حركة المرور"
+  },
+  {
+    "code": "81",
+    "label": "حيازة أجهزة لكشف الرادار",
+    "fine": 1600,
+    "materials": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "75 مكررًا / بند 2"
+    ],
+    "materialCodes": [
+      "e01",
+      "e02",
+      "e03",
+      "e04",
+      "e75mb2"
+    ],
+    "sourceFineLabel": "حيازة أجهزة لكشف الرادار"
+  },
+  {
+    "code": "82",
+    "label": "استعمال اجهزه تؤثر على عمل الرادار",
+    "fine": 1600,
+    "materials": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "75 مكررًا / بند 2"
+    ],
+    "materialCodes": [
+      "e01",
+      "e02",
+      "e03",
+      "e04",
+      "e75mb2"
+    ],
+    "sourceFineLabel": "استعمال اجهزه تؤثر على عمل الرادار"
+  },
+  {
+    "code": "83",
+    "label": "إستعمل أجهزة لكشف الرادار",
+    "fine": 1600,
+    "materials": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "75 مكررًا / بند 2"
+    ],
+    "materialCodes": [
+      "e01",
+      "e02",
+      "e03",
+      "e04",
+      "e75mb2"
+    ],
+    "sourceFineLabel": "إستعمل أجهزة لكشف الرادار"
+  },
+  {
+    "code": "84",
+    "label": "استعمال الانوار المبهرة",
+    "fine": 200,
+    "materials": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "72 مكررًا / فقرة (ب) بند 2"
+    ],
+    "materialCodes": [
+      "e01",
+      "e02",
+      "e03",
+      "e04",
+      "e72mf2b2"
+    ],
+    "sourceFineLabel": "استعمال الانوار المبهرة"
+  },
+  {
+    "code": "85",
+    "label": "استعمال المركبة فى مواكب خاصة بدون تصريح",
+    "fine": 200,
+    "materials": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "72 مكررًا / فقرة (ب) بند 4"
+    ],
+    "materialCodes": [
+      "e01",
+      "e02",
+      "e03",
+      "e04",
+      "e72mf2b4"
+    ],
+    "sourceFineLabel": "استعمال المركبة فى مواكب خاصة بدون تصريح"
+  },
+  {
+    "code": "86",
+    "label": "إستعمال المركبة فى غير الغرض المبين بالرخصة",
+    "fine": 200,
+    "materials": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "22",
+      "74 مكررًا / بند 2"
+    ],
+    "materialCodes": [
+      "e01",
+      "e02",
+      "e03",
+      "e04",
+      "e22",
+      "e74mb2"
+    ],
+    "sourceFineLabel": "إستعمال المركبة فى غير الغرض المبين بالرخصة"
+  },
+  {
+    "code": "87",
+    "label": "إستخدام أكثر من رخصة قيادة",
+    "fine": 1100,
+    "materials": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "34",
+      "73 مكررًا"
+    ],
+    "materialCodes": [
+      "e01",
+      "e02",
+      "e03",
+      "e04",
+      "e34",
+      "e73m"
+    ],
+    "sourceFineLabel": "إستخدام أكثر من رخصة قيادة"
+  },
+  {
+    "code": "88",
+    "label": "الحصول على رخصة قيادة بطريق غير مشروع",
+    "fine": 1100,
+    "materials": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "34",
+      "73 مكررًا"
+    ],
+    "materialCodes": [
+      "e01",
+      "e02",
+      "e03",
+      "e04",
+      "e34",
+      "e73m"
+    ],
+    "sourceFineLabel": "الحصول على رخصة قيادة بطريق غير مشروع"
+  },
+  {
+    "code": "89",
+    "label": "استخراج رخصة قيادة بدلا من الرخصة المسحوبة",
+    "fine": 1100,
+    "materials": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "34",
+      "73 مكررًا"
+    ],
+    "materialCodes": [
+      "e01",
+      "e02",
+      "e03",
+      "e04",
+      "e34",
+      "e73m"
+    ],
+    "sourceFineLabel": "استخراج رخصة قيادة بدلا من الرخصة المسحوبة"
+  },
+  {
+    "code": "90",
+    "label": "استخراج رخصة قيادة بدلا من الرخصة الملغاة",
+    "fine": 1100,
+    "materials": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "34",
+      "73 مكررًا"
+    ],
+    "materialCodes": [
+      "e01",
+      "e02",
+      "e03",
+      "e04",
+      "e34",
+      "e73m"
+    ],
+    "sourceFineLabel": "استخراج رخصة قيادة بدلا من الرخصة الملغاة"
+  },
+  {
+    "code": "91",
+    "label": "عدم الإبلاغ عن الحادث الذى وقع منة ونجم عنة اصابات",
+    "fine": 600,
+    "materials": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "35 مكررًا 1",
+      "67"
+    ],
+    "materialCodes": [
+      "e01",
+      "e02",
+      "e03",
+      "e04",
+      "e35m1",
+      "e67"
+    ],
+    "sourceFineLabel": "عدم الإبلاغ عن الحادث الذى وقع منة ونجم عنة اصابات"
+  },
+  {
+    "code": "92",
+    "label": "عدم الآهتمام بأمر المصابين رغم تسببة فى الحادث",
+    "fine": 600,
+    "materials": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "35 مكررًا 1",
+      "67"
+    ],
+    "materialCodes": [
+      "e01",
+      "e02",
+      "e03",
+      "e04",
+      "e35m1",
+      "e67"
+    ],
+    "sourceFineLabel": "عدم الآهتمام بأمر المصابين رغم تسببة فى الحادث"
+  },
+  {
+    "code": "93",
+    "label": "رفضة نقل المصابين لإسعافهم رغم تسببة فى الحادث",
+    "fine": 600,
+    "materials": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "35 مكررًا 1",
+      "67"
+    ],
+    "materialCodes": [
+      "e01",
+      "e02",
+      "e03",
+      "e04",
+      "e35m1",
+      "e67"
+    ],
+    "sourceFineLabel": "رفضة نقل المصابين لإسعافهم رغم تسببة فى الحادث"
+  },
+  {
+    "code": "94",
+    "label": "عدم الاخطار عن تغيير محل الاقامة",
+    "fine": 50,
+    "materials": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "16"
+    ],
+    "materialCodes": [
+      "e01",
+      "e02",
+      "e03",
+      "e04",
+      "e16"
+    ],
+    "sourceFineLabel": "عدم الاخطار عن تغيير محل الاقامة"
+  },
+  {
+    "code": "95",
+    "label": "تغيير بالاجزاء الجوهرية للمركبة",
+    "fine": 0,
+    "materials": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "17"
+    ],
+    "materialCodes": [
+      "e01",
+      "e02",
+      "e03",
+      "e04",
+      "e17"
+    ],
+    "sourceFineLabel": "تغيير بالاجزاء الجوهرية للمركبة"
+  },
+  {
+    "code": "96",
+    "label": "مخالفة شروط منح الرخصة التجارية",
+    "fine": 200,
+    "materials": [
+      "1",
+      "2",
+      "3",
+      "4"
+    ],
+    "materialCodes": [
+      "e01",
+      "e02",
+      "e03",
+      "e04"
+    ],
+    "sourceFineLabel": "مخالفة شروط منح الرخصة التجارية"
+  },
+  {
+    "code": "97",
+    "label": "وقوف المركبة ليلا بدون اضاءةالانوار",
+    "fine": 50,
+    "materials": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "72 مكررًا / فقرة (ب) بند 3"
+    ],
+    "materialCodes": [
+      "e01",
+      "e02",
+      "e03",
+      "e04",
+      "e72mf2b3"
+    ],
+    "sourceFineLabel": "وقوف المركبة ليلا بدون اضاءةالانوار"
+  },
+  {
+    "code": "98",
+    "label": "عدم استعمال الانوار ليلا اثناء القيادة",
+    "fine": 50,
+    "materials": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "72 مكررًا / فقرة (ج) بند 2"
+    ],
+    "materialCodes": [
+      "e01",
+      "e02",
+      "e03",
+      "e04",
+      "e72mf3b2"
+    ],
+    "sourceFineLabel": "عدم استعمال الانوار ليلا اثناء القيادة"
+  },
+  {
+    "code": "99",
+    "label": "عدم الارشاد عن قائد المركبة فى وقت معين",
+    "fine": 600,
+    "materials": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "68"
+    ],
+    "materialCodes": [
+      "e01",
+      "e02",
+      "e03",
+      "e04",
+      "e68"
+    ],
+    "sourceFineLabel": "عدم الارشاد عن قائد المركبة فى وقت معين"
+  },
+  {
+    "code": "100",
+    "label": "تعريض حياة المواطنين للخطر",
+    "fine": 300,
+    "materials": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "81 مكررًا 2"
+    ],
+    "materialCodes": [
+      "e01",
+      "e02",
+      "e03",
+      "e04",
+      "e81m2"
+    ],
+    "sourceFineLabel": "تعريض حياة المواطنين للخطر"
+  },
+  {
+    "code": "101",
+    "label": "إزالة الأقفال الحديدية",
+    "fine": 300,
+    "materials": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "65 مكررًا"
+    ],
+    "materialCodes": [
+      "e01",
+      "e02",
+      "e03",
+      "e04",
+      "e65m"
+    ],
+    "sourceFineLabel": "إزالة الأقفال الحديدية"
+  },
+  {
+    "code": "102",
+    "label": "فك الأقفال الحديدية",
+    "fine": 300,
+    "materials": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "65 مكررًا"
+    ],
+    "materialCodes": [
+      "e01",
+      "e02",
+      "e03",
+      "e04",
+      "e65m"
+    ],
+    "sourceFineLabel": "فك الأقفال الحديدية"
+  },
+  {
+    "code": "103",
+    "label": "الإحتفاظ بالأقفال الحديدية",
+    "fine": 300,
+    "materials": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "65 مكررًا"
+    ],
+    "materialCodes": [
+      "e01",
+      "e02",
+      "e03",
+      "e04",
+      "e65m"
+    ],
+    "sourceFineLabel": "الإحتفاظ بالأقفال الحديدية"
+  },
+  {
+    "code": "104",
+    "label": "إرتكاب فعل مخالف للآداب العامة",
+    "fine": 400,
+    "materials": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "72"
+    ],
+    "materialCodes": [
+      "e01",
+      "e02",
+      "e03",
+      "e04",
+      "e72"
+    ],
+    "sourceFineLabel": "إرتكاب فعل مخالف للآداب العامة"
+  },
+  {
+    "code": "105",
+    "label": "السماح بإرتكاب فعل مخالف للآداب العامة",
+    "fine": 400,
+    "materials": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "72"
+    ],
+    "materialCodes": [
+      "e01",
+      "e02",
+      "e03",
+      "e04",
+      "e72"
+    ],
+    "sourceFineLabel": "السماح بإرتكاب فعل مخالف للآداب العامة"
+  },
+  {
+    "code": "106",
+    "label": "صدور أصوات مزعجة من المركبة",
+    "fine": 600,
+    "materials": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "72 مكررًا 2"
+    ],
+    "materialCodes": [
+      "e01",
+      "e02",
+      "e03",
+      "e04",
+      "e72m2"
+    ],
+    "sourceFineLabel": "صدور أصوات مزعجة من المركبة"
+  },
+  {
+    "code": "107",
+    "label": "عدم وجود طفاية حريق",
+    "fine": 200,
+    "materials": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "74 مكررًا / بند 7"
+    ],
+    "materialCodes": [
+      "e01",
+      "e02",
+      "e03",
+      "e04",
+      "e74mb7"
+    ],
+    "sourceFineLabel": "عدم وجود طفاية حريق"
+  },
+  {
+    "code": "108",
+    "label": "عدم صلاحية طفاية الحريق",
+    "fine": 200,
+    "materials": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "74 مكررًا / بند 7"
+    ],
+    "materialCodes": [
+      "e01",
+      "e02",
+      "e03",
+      "e04",
+      "e74mb7"
+    ],
+    "sourceFineLabel": "عدم صلاحية طفاية الحريق"
+  },
+  {
+    "code": "109",
+    "label": "الطفاية ليست فى متناول قائد المركبة والركاب",
+    "fine": 200,
+    "materials": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "74 مكررًا / بند 7"
+    ],
+    "materialCodes": [
+      "e01",
+      "e02",
+      "e03",
+      "e04",
+      "e74mb7"
+    ],
+    "sourceFineLabel": "الطفاية ليست فى متناول قائد المركبة والركاب"
+  },
+  {
+    "code": "110",
+    "label": "إستعمال ألة التنبية بدون مبرر",
+    "fine": 200,
+    "materials": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "74 مكررًا 1 / بند 1"
+    ],
+    "materialCodes": [
+      "e01",
+      "e02",
+      "e03",
+      "e04",
+      "e74m1b1"
+    ],
+    "sourceFineLabel": "إستعمال ألة التنبية بدون مبرر"
+  },
+  {
+    "code": "111",
+    "label": "إنبعاث رائحة كريهة من المركبة",
+    "fine": 600,
+    "materials": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "72 مكررًا 2"
+    ],
+    "materialCodes": [
+      "e01",
+      "e02",
+      "e03",
+      "e04",
+      "e72m2"
+    ],
+    "sourceFineLabel": "إنبعاث رائحة كريهة من المركبة"
+  },
+  {
+    "code": "115",
+    "label": "إعتداء قائد المركبة على رجل المرور",
+    "fine": 400,
+    "materials": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "75 / بند 11"
+    ],
+    "materialCodes": [
+      "e01",
+      "e02",
+      "e03",
+      "e04",
+      "e75b11"
+    ],
+    "sourceFineLabel": "إعتداء قائد المركبة على رجل المرور"
+  },
+  {
+    "code": "116",
+    "label": "الانتظار فى الممنوع",
+    "fine": 50,
+    "materials": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "64",
+      "77"
+    ],
+    "materialCodes": [
+      "e01",
+      "e02",
+      "e03",
+      "e04",
+      "e64",
+      "e77"
+    ],
+    "sourceFineLabel": "الانتظار فى الممنوع"
+  },
+  {
+    "code": "117",
+    "label": "القيادة برخصة لاتجيز",
+    "fine": 1100,
+    "materials": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "42",
+      "74 مكررًا 4"
+    ],
+    "materialCodes": [
+      "e01",
+      "e02",
+      "e03",
+      "e04",
+      "e42",
+      "e74m4"
+    ],
+    "sourceFineLabel": "القيادة برخصة لاتجيز"
+  },
+  {
+    "code": "118",
+    "label": "عدم صلاحية الإطارات",
+    "fine": 50,
+    "materials": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "23"
+    ],
+    "materialCodes": [
+      "e01",
+      "e02",
+      "e03",
+      "e04",
+      "e23"
+    ],
+    "sourceFineLabel": "عدم صلاحية الإطارات"
+  },
+  {
+    "code": "119",
+    "label": "عدم تسليب الحمولة",
+    "fine": 600,
+    "materials": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "72 مكررًا 2"
+    ],
+    "materialCodes": [
+      "e01",
+      "e02",
+      "e03",
+      "e04",
+      "e72m2"
+    ],
+    "sourceFineLabel": "عدم تسليب الحمولة"
+  },
+  {
+    "code": "120",
+    "label": "عدم تشميع الحمولة",
+    "fine": 600,
+    "materials": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "72 مكررًا 2"
+    ],
+    "materialCodes": [
+      "e01",
+      "e02",
+      "e03",
+      "e04",
+      "e72m2"
+    ],
+    "sourceFineLabel": "عدم تشميع الحمولة"
+  },
+  {
+    "code": "121",
+    "label": "عدم تغطية الحمولة",
+    "fine": 600,
+    "materials": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "72 مكررًا 2"
+    ],
+    "materialCodes": [
+      "e01",
+      "e02",
+      "e03",
+      "e04",
+      "e72m2"
+    ],
+    "sourceFineLabel": "عدم تغطية الحمولة"
+  },
+  {
+    "code": "122",
+    "label": "بدون مرايات",
+    "fine": 50,
+    "materials": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "11",
+      "72 مكررًا / فقرة (أ) بند 4"
+    ],
+    "materialCodes": [
+      "e01",
+      "e02",
+      "e03",
+      "e04",
+      "e11",
+      "e72mf1b4"
+    ],
+    "sourceFineLabel": "بدون مرايات"
+  },
+  {
+    "code": "123",
+    "label": "تحميل ركاب فى الصندوق الخلفى",
+    "fine": 50,
+    "materials": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "72 مكررًا / فقرة (ب) بند 1"
+    ],
+    "materialCodes": [
+      "e01",
+      "e02",
+      "e03",
+      "e04",
+      "e72mf2b1"
+    ],
+    "sourceFineLabel": "تحميل ركاب فى الصندوق الخلفى"
+  },
+  {
+    "code": "124",
+    "label": "عدم صلاحية مساحات المطر",
+    "fine": 50,
+    "materials": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "33",
+      "72 مكررًا / فقرة (أ) بند 4"
+    ],
+    "materialCodes": [
+      "e01",
+      "e02",
+      "e03",
+      "e04",
+      "e33",
+      "e72mf1b4"
+    ],
+    "sourceFineLabel": "عدم صلاحية مساحات المطر"
+  },
+  {
+    "code": "125",
+    "label": "عدم استخدام المعينات البصرية أو السمعية",
+    "fine": 50,
+    "materials": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "77"
+    ],
+    "materialCodes": [
+      "e01",
+      "e02",
+      "e03",
+      "e04",
+      "e77"
+    ],
+    "sourceFineLabel": "عدم استخدام المعينات البصرية أو السمعية"
+  },
+  {
+    "code": "126",
+    "label": "انتهاء ايصال سحب رخصة التسيير",
+    "fine": 50,
+    "materials": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "77"
+    ],
+    "materialCodes": [
+      "e01",
+      "e02",
+      "e03",
+      "e04",
+      "e77"
+    ],
+    "sourceFineLabel": "انتهاء ايصال سحب رخصة التسيير"
+  },
+  {
+    "code": "127",
+    "label": "انتهاء ايصال سحب رخصة القياده",
+    "fine": 1100,
+    "materials": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "42",
+      "74 مكررًا 4"
+    ],
+    "materialCodes": [
+      "e01",
+      "e02",
+      "e03",
+      "e04",
+      "e42",
+      "e74m4"
+    ],
+    "sourceFineLabel": "انتهاء ايصال سحب رخصة القياده"
+  },
+  {
+    "code": "128",
+    "label": "انتهاء رخصة التسيير",
+    "fine": 50,
+    "materials": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "77"
+    ],
+    "materialCodes": [
+      "e01",
+      "e02",
+      "e03",
+      "e04",
+      "e77"
+    ],
+    "sourceFineLabel": "انتهاء رخصة التسيير"
+  },
+  {
+    "code": "129",
+    "label": "جلوس أطفال دون السابعه فى المقاعد الاماميه",
+    "fine": 50,
+    "materials": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "77"
+    ],
+    "materialCodes": [
+      "e01",
+      "e02",
+      "e03",
+      "e04",
+      "e77"
+    ],
+    "sourceFineLabel": "جلوس أطفال دون السابعه فى المقاعد الاماميه"
+  },
+  {
+    "code": "130",
+    "label": "عدم افساح الطريق لمرور موكب رسمى",
+    "fine": 50,
+    "materials": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "77"
+    ],
+    "materialCodes": [
+      "e01",
+      "e02",
+      "e03",
+      "e04",
+      "e77"
+    ],
+    "sourceFineLabel": "عدم افساح الطريق لمرور موكب رسمى"
+  },
+  {
+    "code": "131",
+    "label": "عدم افساح الطريق لمرور سيارات الطوارئ",
+    "fine": 50,
+    "materials": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "77"
+    ],
+    "materialCodes": [
+      "e01",
+      "e02",
+      "e03",
+      "e04",
+      "e77"
+    ],
+    "sourceFineLabel": "عدم افساح الطريق لمرور سيارات الطوارئ"
+  },
+  {
+    "code": "132",
+    "label": "تركيب ستائر تحجب الرؤيه",
+    "fine": 200,
+    "materials": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "74 مكررًا / بند 11"
+    ],
+    "materialCodes": [
+      "e01",
+      "e02",
+      "e03",
+      "e04",
+      "e74mb11"
+    ],
+    "sourceFineLabel": "تركيب ستائر تحجب الرؤيه"
+  },
+  {
+    "code": "133",
+    "label": "بدون شبكه علويه",
+    "fine": 50,
+    "materials": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "77"
+    ],
+    "materialCodes": [
+      "e01",
+      "e02",
+      "e03",
+      "e04",
+      "e77"
+    ],
+    "sourceFineLabel": "بدون شبكه علويه"
+  },
+  {
+    "code": "134",
+    "label": "زجاج ملون يحجب الرؤيه",
+    "fine": 200,
+    "materials": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "74 مكررًا / بند 11"
+    ],
+    "materialCodes": [
+      "e01",
+      "e02",
+      "e03",
+      "e04",
+      "e74mb11"
+    ],
+    "sourceFineLabel": "زجاج ملون يحجب الرؤيه"
+  },
+  {
+    "code": "135",
+    "label": "سمكره ودوكو",
+    "fine": 50,
+    "materials": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "77"
+    ],
+    "materialCodes": [
+      "e01",
+      "e02",
+      "e03",
+      "e04",
+      "e77"
+    ],
+    "sourceFineLabel": "سمكره ودوكو"
+  },
+  {
+    "code": "136",
+    "label": "عدم كتابة بيانات المركبه على الابواب",
+    "fine": 50,
+    "materials": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "77"
+    ],
+    "materialCodes": [
+      "e01",
+      "e02",
+      "e03",
+      "e04",
+      "e77"
+    ],
+    "sourceFineLabel": "عدم كتابة بيانات المركبه على الابواب"
+  },
+  {
+    "code": "137",
+    "label": "اختلاف المحاور",
+    "fine": 50,
+    "materials": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "77"
+    ],
+    "materialCodes": [
+      "e01",
+      "e02",
+      "e03",
+      "e04",
+      "e77"
+    ],
+    "sourceFineLabel": "اختلاف المحاور"
+  },
+  {
+    "code": "138",
+    "label": "ترك محرك المركبه يعمل دون مبرر",
+    "fine": 50,
+    "materials": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "77"
+    ],
+    "materialCodes": [
+      "e01",
+      "e02",
+      "e03",
+      "e04",
+      "e77"
+    ],
+    "sourceFineLabel": "ترك محرك المركبه يعمل دون مبرر"
+  },
+  {
+    "code": "139",
+    "label": "كسر بزجاج السياره",
+    "fine": 50,
+    "materials": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "77"
+    ],
+    "materialCodes": [
+      "e01",
+      "e02",
+      "e03",
+      "e04",
+      "e77"
+    ],
+    "sourceFineLabel": "كسر بزجاج السياره"
+  },
+  {
+    "code": "140",
+    "label": "قيادة السياره بدون عداد",
+    "fine": 400,
+    "materials": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "70"
+    ],
+    "materialCodes": [
+      "e01",
+      "e02",
+      "e03",
+      "e04",
+      "e70"
+    ],
+    "sourceFineLabel": "قيادة السياره بدون عداد"
+  },
+  {
+    "code": "141",
+    "label": "إنتهاء رخصة القيادة",
+    "fine": 1100,
+    "materials": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "42",
+      "74 مكررًا 4"
+    ],
+    "materialCodes": [
+      "e01",
+      "e02",
+      "e03",
+      "e04",
+      "e42",
+      "e74m4"
+    ],
+    "sourceFineLabel": "إنتهاء رخصة القيادة"
+  },
+  {
+    "code": "142",
+    "label": "الرعونة فى القيادة",
+    "fine": 50,
+    "materials": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "81 مكررًا 2"
+    ],
+    "materialCodes": [
+      "e01",
+      "e02",
+      "e03",
+      "e04",
+      "e81m2"
+    ],
+    "sourceFineLabel": "الرعونة فى القيادة"
+  },
+  {
+    "code": "143",
+    "label": "هروب من الكمين",
+    "fine": 50,
+    "materials": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "77"
+    ],
+    "materialCodes": [
+      "e01",
+      "e02",
+      "e03",
+      "e04",
+      "e77"
+    ],
+    "sourceFineLabel": "هروب من الكمين"
+  },
+  {
+    "code": "144",
+    "label": "السير في الممنوع",
+    "fine": 600,
+    "materials": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "70 مكررًا",
+      "74 / بند 1"
+    ],
+    "materialCodes": [
+      "e01",
+      "e02",
+      "e03",
+      "e04",
+      "e70m",
+      "e74b1"
+    ],
+    "sourceFineLabel": "السير في الممنوع"
+  },
+  {
+    "code": "145",
+    "label": "مخالفة شروط التراخيص",
+    "fine": 200,
+    "materials": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "25",
+      "26"
+    ],
+    "materialCodes": [
+      "e01",
+      "e02",
+      "e03",
+      "e04",
+      "e25",
+      "e26"
+    ],
+    "sourceFineLabel": "مخالفة شروط التراخيص"
+  },
+  {
+    "code": "146",
+    "label": "موقف عشوائى",
+    "fine": 400,
+    "materials": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "70"
+    ],
+    "materialCodes": [
+      "e01",
+      "e02",
+      "e03",
+      "e04",
+      "e70"
+    ],
+    "sourceFineLabel": "موقف عشوائى"
+  },
+  {
+    "code": "147",
+    "label": "تعطيل حركة المرور أو تعويقها",
+    "fine": 600,
+    "materials": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "81 مكررًا 1"
+    ],
+    "materialCodes": [
+      "e01",
+      "e02",
+      "e03",
+      "e04",
+      "e81m1"
+    ],
+    "sourceFineLabel": "تعطيل حركة المرور أو تعويقها"
+  },
+  {
+    "code": "148",
+    "label": "سيارة أجرة وجدت فى حالة غير نظيفة",
+    "fine": 50,
+    "materials": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "72 مكررًا 2"
+    ],
+    "materialCodes": [
+      "e01",
+      "e02",
+      "e03",
+      "e04",
+      "e72m2"
+    ],
+    "sourceFineLabel": "سيارة أجرة وجدت فى حالة غير نظيفة"
+  },
+  {
+    "code": "149",
+    "label": "عدم حمل رخصة القيادة",
+    "fine": 50,
+    "materials": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "41",
+      "77"
+    ],
+    "materialCodes": [
+      "e01",
+      "e02",
+      "e03",
+      "e04",
+      "e41",
+      "e77"
+    ],
+    "sourceFineLabel": "عدم حمل رخصة القيادة "
+  },
+  {
+    "code": "152",
+    "label": "عدم حمل مركبة النقل البطئ للوحات المنصرفة لها",
+    "fine": 0,
+    "materials": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "74 مكررًا / بند 10"
+    ],
+    "materialCodes": [
+      "e01",
+      "e02",
+      "e03",
+      "e04",
+      "e74mb10"
+    ],
+    "sourceFineLabel": "عدم حمل مركبة النقل البطئ للوحات المنصرفة لها"
+  },
+  {
+    "code": "153",
+    "label": "زيادة وزن الحمولة عن المقرر للمركبة أو الارتفاع او العرض او الطول",
+    "fine": 600,
+    "materials": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "74 مكررًا / بند 4"
+    ],
+    "materialCodes": [
+      "e01",
+      "e02",
+      "e03",
+      "e04",
+      "e74mb4"
+    ],
+    "sourceFineLabel": "زيادة وزن الحمولة عن المقرر للمركبة أو الارتفاع او العرض او الطول"
+  },
+  {
+    "code": "157",
+    "label": "السير فى اماكن و اوقات الحظر",
+    "fine": 1100,
+    "materials": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "64",
+      "74 مكررًا 5"
+    ],
+    "materialCodes": [
+      "e01",
+      "e02",
+      "e03",
+      "e04",
+      "e64",
+      "e74m5"
+    ],
+    "sourceFineLabel": "السير فى اماكن و اوقات الحظر"
+  },
+  {
+    "code": "158",
+    "label": "عدم حمل رخصة التسيير",
+    "fine": 50,
+    "materials": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "77"
+    ],
+    "materialCodes": [
+      "e01",
+      "e02",
+      "e03",
+      "e04",
+      "e77"
+    ],
+    "sourceFineLabel": "عدم حمل رخصة التسيير"
+  },
+  {
+    "code": "170",
+    "label": "عدم تركيب اللوحات المعدنية المؤمنة",
+    "fine": 0,
+    "materials": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "13",
+      "14"
+    ],
+    "materialCodes": [
+      "e01",
+      "e02",
+      "e03",
+      "e04",
+      "e13",
+      "e14"
+    ],
+    "sourceFineLabel": "عدم تركيب اللوحات المعدنية المؤمنة"
+  },
+  {
+    "code": "174",
+    "label": "بدون الملصق الألكترونى",
+    "fine": 400,
+    "materials": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "72 مكررًا / فقرة (ب) بند 7"
+    ],
+    "materialCodes": [
+      "e01",
+      "e02",
+      "e03",
+      "e04",
+      "e72mf2b7"
+    ],
+    "sourceFineLabel": "بدون الملصق الألكترونى "
+  },
+  {
+    "code": "175",
+    "label": "اتلاف الملصق",
+    "fine": 400,
+    "materials": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "72 مكررًا / فقرة (ب) بند 7"
+    ],
+    "materialCodes": [
+      "e01",
+      "e02",
+      "e03",
+      "e04",
+      "e72mf2b7"
+    ],
+    "sourceFineLabel": "اتلاف الملصق"
+  },
+  {
+    "code": "176",
+    "label": "اخفاء الملصق",
+    "fine": 400,
+    "materials": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "72 مكررًا / فقرة (ب) بند 7"
+    ],
+    "materialCodes": [
+      "e01",
+      "e02",
+      "e03",
+      "e04",
+      "e72mf2b7"
+    ],
+    "sourceFineLabel": "اخفاء الملصق"
+  },
+  {
+    "code": "177",
+    "label": "نقل الملصق لمركبة اخرى",
+    "fine": 400,
+    "materials": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "72 مكررًا / فقرة (ب) بند 7"
+    ],
+    "materialCodes": [
+      "e01",
+      "e02",
+      "e03",
+      "e04",
+      "e72mf2b7"
+    ],
+    "sourceFineLabel": "نقل الملصق لمركبة اخرى"
+  },
+  {
+    "code": "178",
+    "label": "العبث بالملصق ادى لفقد صلاحيتة",
+    "fine": 400,
+    "materials": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "72 مكررًا / فقرة (ب) بند 7"
+    ],
+    "materialCodes": [
+      "e01",
+      "e02",
+      "e03",
+      "e04",
+      "e72mf2b7"
+    ],
+    "sourceFineLabel": "العبث بالملصق ادى لفقد صلاحيتة"
+  },
+  {
+    "code": "179",
+    "label": "لم يقم برد اللوحات المعدنية",
+    "fine": 50,
+    "materials": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "15"
+    ],
+    "materialCodes": [
+      "e01",
+      "e02",
+      "e03",
+      "e04",
+      "e15"
+    ],
+    "sourceFineLabel": "لم يقم برد اللوحات المعدنية"
+  },
+  {
+    "code": "180",
+    "label": "السماح لغير مرخص له بالقيادة نتج عنه إصابة أو وفاة أو ضرر للغير",
+    "fine": 50,
+    "materials": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "81 مكررًا 3"
+    ],
+    "materialCodes": [
+      "e01",
+      "e02",
+      "e03",
+      "e04",
+      "e81m3"
+    ],
+    "sourceFineLabel": "السماح لغير مرخص له بالقيادة نتج عنه إصابة أو وفاة أو ضرر للغير"
+  },
+  {
+    "code": "181",
+    "label": "مكن طفل من قيادة مركبة ألية",
+    "fine": 50,
+    "materials": [
+      "1",
+      "2",
+      "3",
+      "4"
+    ],
+    "materialCodes": [
+      "e01",
+      "e02",
+      "e03",
+      "e04"
+    ],
+    "sourceFineLabel": "مكن طفل من قيادة مركبة ألية"
+  },
+  {
+    "code": "182",
+    "label": "تمكين طفل من قيادة مركبة آلية نتج عنه إصابة أو وفاة أو ضرر",
+    "fine": 0,
+    "materials": [
+      "1",
+      "2",
+      "3",
+      "4"
+    ],
+    "materialCodes": [
+      "e01",
+      "e02",
+      "e03",
+      "e04"
+    ],
+    "sourceFineLabel": "تمكين طفل من قيادة مركبة آلية نتج عنه إصابة أو وفاة أو ضرر"
+  }
+];
+
+/* INSPECTION_SMART_VIOLATION_SEARCH_V1 */
+(function () {
+  'use strict';
+  var CATALOG = Array.isArray(window.INSPECTION_VIOLATION_CATALOG) ? window.INSPECTION_VIOLATION_CATALOG : INSPECTION_VIOLATION_CATALOG;
+  var tbodyObserver = null;
+
+  function normalizeArabic(value) {
+    return String(value == null ? '' : value)
+      .replace(/[أإآٱ]/g, 'ا').replace(/ى/g, 'ي').replace(/ة/g, 'ه')
+      .replace(/[ؤ]/g, 'و').replace(/[ئ]/g, 'ي')
+      .replace(/[ً-ٰٟ]/g, '')
+      .replace(/[إ]/g, 'ا').replace(/[٠-٩]/g, function (d) { return String('٠١٢٣٤٥٦٧٨٩'.indexOf(d)); })
+      .replace(/[\sـ،,:؛.()\[\]{}\/\-]+/g, '')
+      .toLowerCase();
+  }
+
+  function textOfItem(item) { return (item && (item.innerText || item.textContent) || '').replace(/\u00a0/g, ' ').trim(); }
+  function findByCode(code) { return CATALOG.find(function (entry) { return String(entry.code) === String(code).trim(); }) || null; }
+  function findByLabel(text) {
+    var key = normalizeArabic(text);
+    if (!key) return null;
+    return CATALOG.find(function (entry) {
+      return normalizeArabic(entry.label) === key || normalizeArabic(entry.sourceFineLabel) === key;
+    }) || null;
+  }
+  function searchCatalog(query) {
+    var key = normalizeArabic(query);
+    if (!key) return [];
+    var exactCode = /^\d+$/.test(String(query).trim()) ? findByCode(String(query).trim()) : null;
+    if (exactCode) return [exactCode];
+    return CATALOG.filter(function (entry) {
+      return normalizeArabic(entry.label).indexOf(key) !== -1 || normalizeArabic(entry.sourceFineLabel).indexOf(key) !== -1 || String(entry.code) === String(query).trim();
+    }).slice(0, 12);
+  }
+
+  function getRowFromInput(input) { return input && input.closest ? input.closest('tr') : null; }
+  function getList(row) { return row && row.querySelector('.auto-list ol[contenteditable]'); }
+  function getMaterialsCell(row) { return row && row.cells && row.cells[7]; }
+  function getAmountSpan(row) { return row && row.cells && row.cells[6] && row.cells[6].querySelector('.amount-span'); }
+
+  function cellText(cell) {
+    if (!cell) return '';
+    var el = cell.querySelector('span[contenteditable], [contenteditable]');
+    return (el ? (el.innerText || el.textContent) : (cell.innerText || cell.textContent) || '').trim();
+  }
+  function setMaterials(row, materials) {
+    var cell = getMaterialsCell(row);
+    if (!cell) return;
+    var target = cell.querySelector('span[contenteditable]') || cell.querySelector('[contenteditable]') || cell;
+    target.innerText = materials.join('، ');
+  }
+
+  function entryForItem(item) {
+    if (!item) return null;
+    var current = textOfItem(item);
+    var code = item.dataset.catalogCode;
+    var entry = code ? findByCode(code) : null;
+    if (entry && normalizeArabic(current) === normalizeArabic(entry.label)) return entry;
+    if (entry && normalizeArabic(current) === normalizeArabic(entry.sourceFineLabel)) return entry;
+    if (entry) {
+      delete item.dataset.catalogCode; delete item.dataset.catalogLabel; delete item.dataset.catalogFine;
+      delete item.dataset.catalogMaterials; delete item.dataset.catalogMaterialCodes;
+    }
+    return findByLabel(current);
+  }
+
+  function refreshRowDerived(row) {
+    if (!row || row.dataset.inspectionImportPreserve === '1') return;
+    var list = getList(row);
+    if (!list) return;
+    var matched = [];
+    Array.from(list.querySelectorAll(':scope > li')).forEach(function (item) {
+      var current = textOfItem(item);
+      if (!current) return;
+      var entry = entryForItem(item);
+      if (entry) matched.push(entry);
+    });
+
+    var amount = matched.reduce(function (sum, entry) { return sum + (Number.isFinite(Number(entry.fine)) ? Number(entry.fine) : 0); }, 0);
+    var amountSpan = getAmountSpan(row);
+    if (amountSpan && row.dataset.inspectionAmountManual !== '1') {
+      if (matched.length) {
+        row.dataset.inspectionSyncingFine = '1';
+        amountSpan.innerText = String(amount);
+        row.dataset.inspectionAutoFine = String(amount);
+        row.dataset.inspectionSyncingFine = '0';
+      } else if (row.dataset.inspectionAutoFine !== undefined) {
+        row.dataset.inspectionSyncingFine = '1';
+        amountSpan.innerText = '';
+        delete row.dataset.inspectionAutoFine;
+        row.dataset.inspectionSyncingFine = '0';
+      }
+    }
+
+    var materialKeys = new Set();
+    var materials = [];
+    matched.forEach(function (entry) {
+      var values = Array.isArray(entry.materials) ? entry.materials : [];
+      var codes = Array.isArray(entry.materialCodes) ? entry.materialCodes : [];
+      values.forEach(function (material, index) {
+        var code = codes[index] || '';
+        var key = code ? 'code:' + normalizeArabic(code) : 'text:' + normalizeArabic(material);
+        if (!key || materialKeys.has(key)) return;
+        materialKeys.add(key); materials.push(String(material));
+      });
+    });
+    if (matched.length) {
+      setMaterials(row, materials);
+      row.dataset.inspectionAutoMaterials = '1';
+    } else if (row.dataset.inspectionAutoMaterials === '1') {
+      setMaterials(row, []);
+      row.dataset.inspectionAutoMaterials = '0';
+    }
+  }
+
+  function markManualAmount(row) {
+    if (!row || row.dataset.inspectionSyncingFine === '1') return;
+    row.dataset.inspectionAmountManual = '1';
+  }
+
+  function clearItemCatalogIfEdited(item) {
+    var entry = item && item.dataset.catalogCode ? findByCode(item.dataset.catalogCode) : null;
+    if (entry && normalizeArabic(textOfItem(item)) !== normalizeArabic(entry.label) && normalizeArabic(textOfItem(item)) !== normalizeArabic(entry.sourceFineLabel)) {
+      delete item.dataset.catalogCode; delete item.dataset.catalogLabel; delete item.dataset.catalogFine;
+      delete item.dataset.catalogMaterials; delete item.dataset.catalogMaterialCodes;
+    }
+  }
+
+  function closeSuggestions(shell) {
+    var box = shell && shell.querySelector('.violation-search-suggestions');
+    if (box) { box.classList.remove('open'); box.innerHTML = ''; }
+  }
+
+  function renderSuggestions(input) {
+    var shell = input.closest('.violation-search-shell');
+    var box = shell.querySelector('.violation-search-suggestions');
+    var query = input.value.trim();
+    var results = searchCatalog(query);
+    box.innerHTML = '';
+    if (!query || !results.length) { box.classList.remove('open'); return; }
+    results.forEach(function (entry, index) {
+      var button = document.createElement('button');
+      button.type = 'button'; button.className = 'violation-suggestion';
+      button.dataset.index = String(index);
+      button.innerHTML = '<span class="violation-suggestion-code">' + entry.code + '</span>' +
+        '<span>' + entry.label + '</span>' +
+        '<span class="violation-suggestion-fine">' + (Number(entry.fine) ? entry.fine + ' ج' : 'بدون غرامة') + '</span>';
+      button.addEventListener('mousedown', function (event) { event.preventDefault(); commitEntry(input, entry); });
+      box.appendChild(button);
+    });
+    box.classList.add('open');
+  }
+
+  function ensureFirstItem(list) {
+    var item = list.querySelector(':scope > li');
+    if (!item) { item = document.createElement('li'); list.appendChild(item); }
+    return item;
+  }
+
+  function commitEntry(input, entry) {
+    var row = getRowFromInput(input), list = getList(row);
+    if (!row || !list || !entry) return;
+    var items = Array.from(list.querySelectorAll(':scope > li'));
+    var empty = items.find(function (item) { return !textOfItem(item); });
+    var item = empty || document.createElement('li');
+    if (!empty) list.appendChild(item);
+    item.innerText = entry.label;
+    item.dataset.catalogCode = entry.code;
+    item.dataset.catalogLabel = entry.label;
+    item.dataset.catalogFine = String(entry.fine);
+    item.dataset.catalogMaterials = JSON.stringify(entry.materials || []);
+    item.dataset.catalogMaterialCodes = JSON.stringify(entry.materialCodes || []);
+    input.value = '';
+    input.dataset.committed = '1';
+    closeSuggestions(input.closest('.violation-search-shell'));
+    row.dataset.inspectionAmountManual = row.dataset.inspectionAmountManual === '1' ? '1' : '0';
+    refreshRowDerived(row);
+    input.focus();
+  }
+
+  function focusNextRow(row) {
+    var tbody = row && row.parentElement;
+    if (!tbody) return;
+    var rows = Array.from(tbody.rows), index = rows.indexOf(row), next = rows[index + 1];
+    if (!next) {
+      if (typeof window.addRow === 'function') window.addRow();
+      setTimeout(function () {
+        var latest = tbody.rows[rows.length] || tbody.rows[tbody.rows.length - 1];
+        var nextInput = latest && latest.querySelector('.violation-search-input');
+        if (nextInput) nextInput.focus();
+      }, 230);
+      return;
+    }
+    installRow(next);
+    var input = next.querySelector('.violation-search-input');
+    if (input) { input.focus(); input.select(); }
+  }
+
+  function handleSearchKeydown(event) {
+    var input = event.currentTarget;
+    if (event.key !== 'Enter') return;
+    event.preventDefault(); event.stopPropagation();
+    var query = input.value.trim(), results = searchCatalog(query);
+    if (results.length) { commitEntry(input, results[0]); return; }
+    if (!query && input.dataset.committed === '1') {
+      input.dataset.committed = '0'; focusNextRow(getRowFromInput(input));
+    } else if (query) {
+      // إبقاء الإدخال اليدوي متاحًا إذا لم يوجد البند في القاموس.
+      var row = getRowFromInput(input), list = getList(row), item = ensureFirstItem(list);
+      if (!textOfItem(item)) item.innerText = query; else { item = document.createElement('li'); item.innerText = query; list.appendChild(item); }
+      input.value = ''; input.dataset.committed = '1'; closeSuggestions(input.closest('.violation-search-shell')); refreshRowDerived(row);
+    }
+  }
+
+  function installRow(row) {
+    if (!row || row.dataset.smartViolationReady === '1') return;
+    var list = getList(row), host = row.querySelector('.auto-list');
+    if (!list || !host) return;
+    row.dataset.smartViolationReady = '1';
+    var shell = document.createElement('div'); shell.className = 'violation-search-shell';
+    var input = document.createElement('input'); input.type = 'text'; input.className = 'violation-search-input';
+    input.autocomplete = 'off'; input.spellcheck = false; input.setAttribute('aria-label', 'بحث وإضافة بند المخالفة'); input.title = 'اكتب كود المخالفة أو جزءًا من اسمها ثم اضغط Enter';
+    var box = document.createElement('div'); box.className = 'violation-search-suggestions';
+    shell.appendChild(input); shell.appendChild(box); host.insertBefore(shell, list);
+    input.addEventListener('input', function () { input.dataset.committed = '0'; renderSuggestions(input); });
+    input.addEventListener('keydown', handleSearchKeydown);
+    input.addEventListener('blur', function () { setTimeout(function () { closeSuggestions(shell); }, 180); });
+    list.addEventListener('input', function () {
+      row.dataset.inspectionImportPreserve = '0';
+      Array.from(list.querySelectorAll(':scope > li')).forEach(clearItemCatalogIfEdited);
+      refreshRowDerived(row);
+    });
+    var amount = getAmountSpan(row);
+    if (amount) amount.addEventListener('input', function () { markManualAmount(row); });
+    refreshRowDerived(row);
+  }
+
+  function installAllRows() {
+    document.querySelectorAll('#mainTable tbody tr').forEach(installRow);
+  }
+
+  function installObserver() {
+    var tbody = document.querySelector('#mainTable tbody');
+    if (!tbody || tbodyObserver) return;
+    tbodyObserver = new MutationObserver(function () { installAllRows(); });
+    tbodyObserver.observe(tbody, { childList: true, subtree: true });
+  }
+
+  function wrapLookup() {
+    if (typeof window.lookupFromTalbsat !== 'function' || window.lookupFromTalbsat.__smartWrapped) return;
+    var original = window.lookupFromTalbsat;
+    var wrapped = function (cell) {
+      var row = cell && cell.closest ? cell.closest('tr') : null;
+      if (row) row.dataset.inspectionImportPreserve = '1';
+      original(cell);
+      setTimeout(function () {
+        var importedRow = cell && cell.closest ? cell.closest('tr') : null;
+        if (importedRow) { installRow(importedRow); refreshRowDerived(importedRow); }
+      }, 0);
+    };
+    wrapped.__smartWrapped = true; window.lookupFromTalbsat = wrapped;
+  }
+
+  function boot() {
+    installAllRows(); installObserver(); wrapLookup();
+    setTimeout(function () { installAllRows(); wrapLookup(); }, 250);
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
+  else boot();
+  window.refreshInspectionRowDerived = refreshRowDerived;
+  window.inspectionViolationCatalog = CATALOG;
+})();
+</script>
+
+<style id="inspection-inline-violation-style">
+/* البحث داخل خانة وصف الاتهام الأصلية، بدون مربع بحث إضافي لكل صف */
+.auto-list ol.inspection-inline-list { position: relative; min-height: 34px; }
+.inspection-inline-autocomplete {
+  position: fixed; display: none; box-sizing: border-box; background: #fff;
+  border: 1.5px solid #7a9cbf; border-radius: 0 0 6px 6px;
+  box-shadow: 0 10px 30px rgba(30,58,95,.3); z-index: 999999;
+  overflow-y: auto; direction: rtl; overscroll-behavior: contain;
+}
+.inspection-inline-autocomplete.open { display: block; }
+  .inspection-inline-suggestion {
+  box-sizing: border-box; width: 100%; min-height: 42px; padding: 9px 14px;
+  display: flex; align-items: center; justify-content: flex-start; gap: 8px;
+  border: 0; border-bottom: 1px solid #edf0f7; background: #fff; color: #1e293b;
+  cursor: pointer; font-family: inherit; font-size: 14px; font-weight: 600; text-align: right;
+}
+.inspection-inline-suggestion:hover { background: #e8f0fb; padding-right: 18px; }
+.inspection-inline-suggestion .inspection-item-text {
+  display: block; width: 100%; min-width: 0; white-space: normal; overflow: visible;
+  text-overflow: clip; line-height: 1.55; text-align: right; word-break: normal;
+}
+.inspection-inline-suggestion .inspection-item-code,
+.inspection-inline-suggestion .inspection-item-fine { display: none !important; }
+
+.inspection-inline-manual { color: #2d6da3; }
+@media print { .inspection-inline-autocomplete { display: none !important; } }
+</style>
+<script>
+/* INSPECTION_INLINE_VIOLATION_SEARCH_V2 */
+(function () {
+  'use strict';
+  var catalog = Array.isArray(window.inspectionViolationCatalog) ? window.inspectionViolationCatalog : [];
+  var box = null;
+  var rowObserver = null;
+  var currentList = null;
+  var currentItem = null;
+  var lastMouseItem = null;
+  var lockedMouseItem = null;
+  var lockedMouseSelectionUntil = 0;
+
+  function normalizeArabic(value) {
+    return String(value == null ? '' : value)
+      .replace(/[أإآٱ]/g, 'ا').replace(/[ى]/g, 'ي').replace(/[ة]/g, 'ه')
+      .replace(/[ؤ]/g, 'و').replace(/[ئ]/g, 'ي')
+      .replace(/[ً-ٰٟ]/g, '')
+      .replace(/[\sـ،,:؛.()\[\]{}\/\-]+/g, '').toLowerCase();
+  }
+  function itemText(item) { return String(item && (item.innerText || item.textContent) || '').replace(/ /g, ' ').trim(); }
+  function findByCode(code) { return catalog.find(function (entry) { return String(entry.code) === String(code).trim(); }) || null; }
+  function findByText(text) {
+    var key = normalizeArabic(text);
+    if (!key) return null;
+    return catalog.find(function (entry) { return normalizeArabic(entry.label) === key || normalizeArabic(entry.sourceFineLabel) === key; }) || null;
+  }
+  function search(query) {
+    var clean = String(query || '').trim();
+    if (!clean) return [];
+    var exact = /^\d+$/.test(clean) ? findByCode(clean) : null;
+    if (exact) return [exact];
+    var key = normalizeArabic(clean);
+    return catalog.filter(function (entry) {
+      return normalizeArabic(entry.label).indexOf(key) !== -1 || normalizeArabic(entry.sourceFineLabel).indexOf(key) !== -1;
+    }).slice(0, 12);
+  }
+  function ensureBox() {
+    if (box) return box;
+    box = document.createElement('div'); box.className = 'inspection-inline-autocomplete';
+    box.setAttribute('role', 'listbox'); document.body.appendChild(box);
+    box.addEventListener('mousedown', function (event) { event.preventDefault(); });
+    return box;
+  }
+  function closeBox() {
+    if (!box) return;
+    box.classList.remove('open'); box.innerHTML = ''; currentList = null; currentItem = null;
+  }
+  function placeBox(list) {
+    var anchor = list.closest('td') || list;
+    var target = anchor.getBoundingClientRect();
+    var zoom = parseFloat(getComputedStyle(document.body).zoom) || 1;
+    var viewportWidth = window.innerWidth / zoom;
+    var menuWidth = Math.min(360, viewportWidth - 24);
+    var anchorRight = target.right / zoom;
+    var anchorLeft = target.left / zoom;
+    var menuLeft = Math.max(12, Math.min(anchorRight - menuWidth, anchorLeft));
+    var spaceBelow = window.innerHeight - target.bottom;
+    box.style.width = menuWidth + 'px';
+    box.style.left = menuLeft + 'px';
+    box.style.right = 'auto';
+    box.style.borderRadius = '0 0 6px 6px';
+    if (spaceBelow > 220) {
+      box.style.top = (target.bottom / zoom) + 'px';
+      box.style.bottom = 'auto';
+      box.style.maxHeight = Math.max(140, spaceBelow / zoom - 10) + 'px';
+    } else {
+      box.style.top = 'auto';
+      box.style.bottom = ((window.innerHeight - target.top) / zoom) + 'px';
+      box.style.maxHeight = Math.max(140, target.top / zoom - 10) + 'px';
+      box.style.borderRadius = '6px 6px 0 0';
+    }
+  }
+  function render(list, item, query) {
+    var results = search(query), clean = String(query || '').trim();
+    ensureBox(); box.innerHTML = ''; currentList = list; currentItem = item;
+    if (!clean) { closeBox(); return; }
+    results.forEach(function (entry) {
+      var button = document.createElement('button'); button.type = 'button'; button.className = 'inspection-inline-suggestion';
+      button.innerHTML = '<span class="inspection-item-text" title="' + entry.label.replace(/"/g, '&quot;') + '">' + entry.label + '</span>';
+      button.addEventListener('mousedown', function (event) { event.preventDefault(); commit(list, item, entry); });
+      box.appendChild(button);
+    });
+    var manual = document.createElement('button'); manual.type = 'button'; manual.className = 'inspection-inline-suggestion inspection-inline-manual';
+    manual.innerHTML = '<span class="inspection-item-text">إضافة: "' + clean.replace(/"/g, '&quot;') + '" (بند حر)</span>';
+    manual.addEventListener('mousedown', function (event) { event.preventDefault(); commitManual(list, item, clean); });
+    box.appendChild(manual);
+    placeBox(list); box.classList.add('open');
+  }
+  function setCatalogData(item, entry) {
+    item.dataset.catalogCode = entry.code; item.dataset.catalogLabel = entry.label;
+    item.dataset.catalogFine = String(entry.fine);
+    item.dataset.catalogMaterials = JSON.stringify(entry.materials || []);
+    item.dataset.catalogMaterialCodes = JSON.stringify(entry.materialCodes || []);
+    item.dataset.lastCommittedText = entry.label;
+    item.dataset.lastCommittedCode = entry.code || '';
+    item.dataset.inlineCommitted = '1';
+  }
+  function rowOf(list) { return list && list.closest ? list.closest('tr') : null; }
+  function duplicateExists(list, item, entry, text) {
+    if (!list) return false;
+    var targetCode = entry && entry.code ? String(entry.code) : '';
+    var targetLabels = [];
+    if (entry) { targetLabels.push(entry.label); if (entry.sourceFineLabel) targetLabels.push(entry.sourceFineLabel); }
+    if (text) targetLabels.push(text);
+    var targetKeys = targetLabels.map(normalizeArabic).filter(Boolean);
+    return Array.from(list.querySelectorAll(':scope > li')).some(function (other) {
+      if (other === item) return false;
+      if (targetCode && String(other.dataset.catalogCode || '') === targetCode) return true;
+      var otherKey = normalizeArabic(itemText(other));
+      return !!otherKey && targetKeys.indexOf(otherKey) !== -1;
+    });
+  }
+  function showDuplicateViolationToast() {
+    var toast = document.getElementById('_fhs_duplicate_violation_toast');
+    if (!toast) {
+      toast = document.createElement('div');
+      toast.id = '_fhs_duplicate_violation_toast';
+      toast.style.cssText = 'position:fixed;bottom:72px;left:50%;transform:translateX(-50%);background:#b42318;color:#fff;padding:15px 30px;border:2px solid #fca5a5;border-radius:12px;font-family:inherit;font-size:18px;font-weight:800;line-height:1.5;min-width:340px;max-width:min(620px,calc(100vw - 40px));text-align:center;box-shadow:0 5px 22px rgba(127,29,29,.32);z-index:100000;opacity:0;transition:opacity .25s ease;pointer-events:none;';
+      document.body.appendChild(toast);
+    }
+    toast.textContent = 'هذا البند مضاف بالفعل داخل الخلية';
+    toast.style.opacity = '1';
+    clearTimeout(toast._hideTimer);
+    toast._hideTimer = setTimeout(function () { toast.style.opacity = '0'; }, 2200);
+  }
+  function rejectDuplicate(list, item) {
+    if (item.dataset.lastCommittedText) {
+      item.innerText = item.dataset.lastCommittedText;
+      var previous = item.dataset.lastCommittedCode ? findByCode(item.dataset.lastCommittedCode) : null;
+      if (previous) setCatalogData(item, previous); else item.dataset.inlineCommitted = '1';
+    } else {
+      item.innerText = '';
+      delete item.dataset.catalogCode; delete item.dataset.catalogLabel; delete item.dataset.catalogFine;
+      delete item.dataset.catalogMaterials; delete item.dataset.catalogMaterialCodes;
+      delete item.dataset.inlineCommitted;
+    }
+    closeBox();
+    if (typeof window.refreshInspectionRowDerived === 'function') window.refreshInspectionRowDerived(rowOf(list));
+    showDuplicateViolationToast();
+    placeCaret(item); item.focus();
+  }
+  function newEmptyAfter(list, item) {
+    var next = document.createElement('li'); next.contentEditable = 'true'; item.after(next); return next;
+  }
+  function commit(list, item, entry) {
+    if (!list || !item || !entry) return;
+    if (duplicateExists(list, item, entry, '')) { rejectDuplicate(list, item); return; }
+    var row = rowOf(list);
+    if (row) row.dataset.inspectionImportPreserve = '0';
+    item.innerText = entry.label; setCatalogData(item, entry);
+    closeBox();
+    if (typeof window.refreshInspectionRowDerived === 'function') window.refreshInspectionRowDerived(rowOf(list));
+    placeCaret(item); item.focus();
+  }
+  function commitManual(list, item, text) {
+    if (!list || !item || !text) return;
+    if (duplicateExists(list, item, null, text)) { rejectDuplicate(list, item); return; }
+    var row = rowOf(list);
+    if (row) row.dataset.inspectionImportPreserve = '0';
+    item.innerText = text;
+    delete item.dataset.catalogCode; delete item.dataset.catalogLabel; delete item.dataset.catalogFine;
+    delete item.dataset.catalogMaterials; delete item.dataset.catalogMaterialCodes;
+    item.dataset.lastCommittedText = text;
+    item.dataset.lastCommittedCode = '';
+    item.dataset.inlineCommitted = '1';
+    closeBox();
+    if (typeof window.refreshInspectionRowDerived === 'function') window.refreshInspectionRowDerived(rowOf(list));
+    placeCaret(item); item.focus();
+  }
+  function placeCaret(item) {
+    if (!item) return;
+    var range = document.createRange(), selection = window.getSelection();
+    range.selectNodeContents(item); range.collapse(false); selection.removeAllRanges(); selection.addRange(range);
+  }
+  function selectWholeItem(item) {
+    if (!item || !item.isConnected) return;
+    item.focus();
+    var range = document.createRange();
+    var selection = window.getSelection();
+    range.selectNodeContents(item);
+    selection.removeAllRanges();
+    selection.addRange(range);
+  }
+  function lockMouseSelection(item) {
+    lockedMouseItem = item;
+    lockedMouseSelectionUntil = Infinity;
+    selectWholeItem(item);
+    [40, 180, 600].forEach(function (delay) {
+      setTimeout(function () {
+        if (lockedMouseItem === item) selectWholeItem(item);
+      }, delay);
+    });
+  }
+  function placeCaretAtPoint(item, x, y) {
+    if (!item) return;
+    var range = null;
+    if (document.caretRangeFromPoint) {
+      range = document.caretRangeFromPoint(x, y);
+    } else if (document.caretPositionFromPoint) {
+      var position = document.caretPositionFromPoint(x, y);
+      if (position) { range = document.createRange(); range.setStart(position.offsetNode, position.offset); range.collapse(true); }
+    }
+    if (!range || !item.contains(range.startContainer)) {
+      range = document.createRange(); range.selectNodeContents(item); range.collapse(false);
+    }
+    item.focus();
+    var selection = window.getSelection(); selection.removeAllRanges(); selection.addRange(range);
+  }
+  function activeItem(list, event) {
+    var node = event && (event.target || event.srcElement);
+    if (node && node.closest) { var direct = node.closest('li'); if (direct && direct.parentElement === list) return direct; }
+    var selection = window.getSelection(), anchor = selection && selection.anchorNode;
+    if (anchor && anchor.nodeType === Node.TEXT_NODE) anchor = anchor.parentElement;
+    var selected = anchor && anchor.closest ? anchor.closest('li') : null;
+    return selected && selected.parentElement === list ? selected : list.lastElementChild;
+  }
+  function handleInput(event) {
+    var row = rowOf(event.currentTarget);
+    if (row) row.dataset.inspectionImportPreserve = '0';
+    lockedMouseItem = null;
+    lockedMouseSelectionUntil = 0;
+    lastMouseItem = null;
+    var list = event.currentTarget, item = activeItem(list, event);
+    if (item) item.removeAttribute('data-mouse-selected');
+    if (!item) return;
+    var known = item.dataset.catalogCode ? findByCode(item.dataset.catalogCode) : null;
+    if (item.dataset.inlineCommitted === '1') delete item.dataset.inlineCommitted;
+    item.dataset.lastCommittedText = itemText(item);
+    item.dataset.lastCommittedCode = item.dataset.catalogCode || '';
+    if (known && normalizeArabic(itemText(item)) !== normalizeArabic(known.label) && normalizeArabic(itemText(item)) !== normalizeArabic(known.sourceFineLabel)) {
+      delete item.dataset.catalogCode; delete item.dataset.catalogLabel; delete item.dataset.catalogFine;
+      delete item.dataset.catalogMaterials; delete item.dataset.catalogMaterialCodes;
+    }
+    var text = itemText(item);
+    if (text) render(list, item, text); else closeBox();
+  }
+  function handleKeydown(event) {
+    lockedMouseItem = null;
+    lockedMouseSelectionUntil = 0;
+    if (event.key === 'Backspace' || event.key === 'Delete') {
+      event.stopImmediatePropagation();
+      var deleteList = event.currentTarget;
+      var deleteItem = deleteList.querySelector('li[data-mouse-selected="1"]') || activeItem(deleteList, event);
+      var mouseMarkedDelete = !!(deleteItem && deleteItem.dataset.mouseSelected === '1');
+      if (mouseMarkedDelete) selectWholeItem(deleteItem);
+      if (deleteItem && (mouseMarkedDelete || (window.getSelection && window.getSelection().toString() === itemText(deleteItem)))) {
+        event.preventDefault(); event.stopImmediatePropagation();
+        var deleteRow = rowOf(deleteList);
+        if (deleteRow) deleteRow.dataset.inspectionImportPreserve = '0';
+        deleteItem.remove();
+        if (!deleteList.querySelector('li')) {
+          var replacement = document.createElement('li'); replacement.contentEditable = 'true'; deleteList.appendChild(replacement);
+          placeCaret(replacement); replacement.focus();
+        } else {
+          var focusItem = deleteList.querySelector('li:last-child'); focusItem.focus(); placeCaret(focusItem);
+        }
+        if (typeof window.refreshInspectionRowDerived === 'function') window.refreshInspectionRowDerived(rowOf(deleteList));
+      }
+      return;
+    }
+    if (event.key === 'ArrowUp' || event.key === 'ArrowDown') {
+      event.stopImmediatePropagation();
+      var arrowList = event.currentTarget;
+      var arrowItem = activeItem(arrowList, event) || arrowList.querySelector('li[data-mouse-selected="1"]');
+      var arrowItems = Array.from(arrowList.querySelectorAll(':scope > li'));
+      var arrowIndex = arrowItems.indexOf(arrowItem);
+      if (arrowIndex !== -1) {
+        var arrowTarget = arrowItems[arrowIndex + (event.key === 'ArrowUp' ? -1 : 1)];
+        event.preventDefault();
+        lockedMouseItem = null; lastMouseItem = null;
+        if (arrowTarget) { arrowTarget.focus(); placeCaret(arrowTarget); }
+      }
+      return;
+    }
+    if (event.key !== 'Enter') return;
+    var list = event.currentTarget, item = activeItem(list, event), text = itemText(item);
+    event.preventDefault(); event.stopImmediatePropagation();
+    if (!text) {
+      closeBox();
+      var next = document.createElement('li');
+      next.contentEditable = 'true';
+      item.after(next);
+      placeCaret(next);
+      next.focus();
+      return;
+    }
+    if (item.dataset.inlineCommitted === '1') {
+      closeBox();
+      var committedNext = document.createElement('li');
+      committedNext.contentEditable = 'true';
+      item.after(committedNext);
+      placeCaret(committedNext);
+      committedNext.focus();
+      return;
+    }
+    var results = search(text), exactText = findByText(text);
+    if (results.length) { commit(list, item, results[0]); return; }
+    if (exactText) { commit(list, item, exactText); return; }
+    commitManual(list, item, text);
+  }
+  function installList(list) {
+    if (!list || list.dataset.inlineSearchReady === '1') return;
+    list.dataset.inlineSearchReady = '1'; list.classList.add('inspection-inline-list');
+    list.contentEditable = 'false';
+    Array.from(list.querySelectorAll(':scope > li')).forEach(function (li) { li.contentEditable = 'true'; });
+    list.addEventListener('input', handleInput);
+    list.addEventListener('keydown', handleKeydown, true);
+    list.addEventListener('mousedown', function (event) {
+      var node = event.target || event.srcElement;
+      var item = node && node.closest ? node.closest('li') : null;
+      if (!item || item.parentElement !== list) return;
+      var alreadySelected = item.dataset.mouseSelected === '1' || lastMouseItem === item;
+      if (alreadySelected) {
+        lockedMouseItem = null;
+        lockedMouseSelectionUntil = 0;
+        lastMouseItem = null;
+        item.removeAttribute('data-mouse-selected');
+        placeCaretAtPoint(item, event.clientX, event.clientY);
+        return;
+      }
+      list.querySelectorAll('li[data-mouse-selected]').forEach(function (selectedItem) { selectedItem.removeAttribute('data-mouse-selected'); });
+      event.preventDefault();
+      closeBox();
+      lastMouseItem = item;
+      item.dataset.mouseSelected = '1';
+      lockMouseSelection(item);
+    });
+    list.addEventListener('focusin', function () { closeBox(); });
+    list.addEventListener('focusout', function () { setTimeout(function () { if (!box || !box.matches(':hover')) closeBox(); }, 180); });
+  }
+  function cleanOldShells(row) {
+    row.querySelectorAll('.violation-search-shell').forEach(function (shell) { shell.remove(); });
+  }
+  function installAll() {
+    document.querySelectorAll('#mainTable tbody tr').forEach(function (row) { cleanOldShells(row); installList(row.querySelector('.auto-list ol[contenteditable]')); });
+  }
+  document.addEventListener('mousedown', function (event) {
+    if (!event.target.closest('.inspection-inline-list')) {
+      lockedMouseItem = null;
+      lockedMouseSelectionUntil = 0;
+      lastMouseItem = null;
+      document.querySelectorAll('.inspection-inline-list li[data-mouse-selected]').forEach(function (item) { item.removeAttribute('data-mouse-selected'); });
+    }
+  }, true);
+  document.addEventListener('selectionchange', function () {
+    if (!lockedMouseItem || Date.now() >= lockedMouseSelectionUntil || !lockedMouseItem.isConnected) {
+      lockedMouseItem = null;
+      lockedMouseSelectionUntil = 0;
+      return;
+    }
+    var selection = window.getSelection();
+    var text = selection ? selection.toString() : '';
+    if (!selection || !lockedMouseItem.contains(selection.anchorNode) || text !== itemText(lockedMouseItem)) {
+      selectWholeItem(lockedMouseItem);
+    }
+  });
+  document.addEventListener('click', function (event) {
+    if (!event.target.closest('.auto-list') && !event.target.closest('.inspection-inline-autocomplete')) closeBox();
+  });
+  window.addEventListener('scroll', function () { if (currentList && box && box.classList.contains('open')) placeBox(currentList); }, true);
+  function observeRows() {
+    var tbody = document.querySelector('#mainTable tbody');
+    if (!tbody || rowObserver) return;
+    rowObserver = new MutationObserver(function () { installAll(); });
+    rowObserver.observe(tbody, { childList: true, subtree: true });
+  }
+  function boot() { installAll(); observeRows(); setTimeout(installAll, 250); }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot); else boot();
+})();
+</script>
 </body>
 </html>
