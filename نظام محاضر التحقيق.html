@@ -858,6 +858,9 @@ box-sizing: border-box;
         /* قسم الاسئلة قابل للتمرير */
         .questions-scroll { max-height: 450px; overflow-y: auto; border: 1px solid #e2e8f0; border-radius: 6px; padding: 5px; background: #f8fafc; }
 
+        /* إبقاء نوع المركبة ورقمها متماسكين في المعاينة والطباعة */
+        .print-keep { display: inline-block; white-space: nowrap; break-inside: avoid; page-break-inside: avoid; }
+
         /* --- تنسيق الطباعة الرسمي المتقدم --- */
         #print-area { display: none; }
 
@@ -875,10 +878,12 @@ box-sizing: border-box;
             .report-body { text-align: justify; color: #000; flex-grow: 1; }
             .report-body p { margin: 3px 0; line-height: 1.3; }
             .var-text { font-weight: 900; text-decoration: none; }
+            /* إبقاء رقم المركبة ونوعها متماسكين في سطر واحد عند الطباعة */
+            .print-keep { display: inline-block; white-space: nowrap; break-inside: avoid; page-break-inside: avoid; }
             
             /* تضييق المسافات في الطباعة */
-            .question-block { margin-top: 4px; font-weight: bold; border-right: 3px solid #000; padding-right: 8px; display: block; line-height: 1.2; word-wrap: break-word; overflow-wrap: break-word; white-space: normal; }
-            .answer-block { margin-bottom: 2px; padding-right: 25px; display: block; font-style: italic; line-height: 1.2; word-wrap: break-word; overflow-wrap: break-word; white-space: normal; }
+            .question-block { margin-top: 4px; margin-bottom: 3.5px; font-weight: bold; border-right: 3px solid #000; padding-right: 8px; display: block; line-height: 1.2; word-wrap: break-word; overflow-wrap: break-word; white-space: normal; }
+            .answer-block { margin-bottom: 3.5px; padding-right: 25px; display: block; font-style: italic; line-height: 1.2; word-wrap: break-word; overflow-wrap: break-word; white-space: normal; }
             .note-block { margin-bottom: 4px; padding-right: 25px; display: block; font-style: normal; line-height: 1.2; color: #333; font-weight: bold; word-wrap: break-word; overflow-wrap: break-word; white-space: normal; }
             
             .footer-signs { display: flex; justify-content: space-between; margin-top: 8px; font-size: 16px; font-weight: bold; padding-top: 5px; }
@@ -4722,6 +4727,15 @@ window.onload = function() {
         return numbers[num] || num + 'ـاً';
     }
 
+    // إبقاء القوسين مع رقم المركبة كاملًا حتى لا يظهر القوس في سطر منفصل عند الطباعة.
+    function keepPlateParenthesesTogether(html, plate) {
+        const value = String(plate || '');
+        if (!value) return html;
+        const escaped = value.replace(/[.*+?^${}()|[\\]\\]/g, '\\$&');
+        const pattern = new RegExp('\\(\\s*<span[^>]*>' + escaped + '<\\/span>\\s*\\)', 'g');
+        return String(html).replace(pattern, '<span class="print-keep">( ' + value + ' )</span>');
+    }
+
     function buildProsecutionDecision(def, vType, plate, sizeNum) {
         const releaseType = document.getElementById('release_type').value;
         const vehicleDecision = document.getElementById('vehicle_decision').value;
@@ -4745,12 +4759,12 @@ window.onload = function() {
             
             // 2. نوع المركبة
             if (vType) {
-                processedText = processedText.split(vType).join(`<span class="var-text" style="font-size: ${sizeNum + 2}px; font-weight: bold;">${vType}</span>`);
+                processedText = processedText.split(vType).join(`<span class="var-text print-keep" style="font-size: ${sizeNum + 2}px; font-weight: bold;">${vType}</span>`);
             }
             
             // 3. رقم اللوحات
             if (plate) {
-                processedText = processedText.split(plate).join(`<span class="var-text" style="font-size: ${sizeNum + 2}px; font-weight: bold;">${plate}</span>`);
+                processedText = processedText.split(plate).join(`<span class="var-text print-keep" style="font-size: ${sizeNum + 2}px; font-weight: bold;">${plate}</span>`);
             }
             
             // 4. مبلغ الكفالة (رقمي)
@@ -4763,7 +4777,7 @@ window.onload = function() {
                 processedText = processedText.split(bailWords).join(`<span class="var-text" style="font-size: ${sizeNum + 2}px; font-weight: bold;">${bailWords}</span>`);
             }
             
-            return processedText;
+            return keepPlateParenthesesTogether(processedText, plate);
         };
         
         let decisions = [];
@@ -4843,7 +4857,7 @@ window.onload = function() {
             if (plate) processedText = processedText.split(plate).join(`<span class="var-text" style="font-size: ${sizeNum + 2}px; font-weight: bold;">${plate}</span>`);
             if (bailVal) processedText = processedText.split(bailVal).join(`<span class="var-text" style="font-size: ${sizeNum + 2}px; font-weight: bold;">${bailVal}</span>`);
             if (bailWords) processedText = processedText.split(bailWords).join(`<span class="var-text" style="font-size: ${sizeNum + 2}px; font-weight: bold;">${bailWords}</span>`);
-            return processedText;
+            return keepPlateParenthesesTogether(processedText, plate);
         };
         
         let decisions = [];
@@ -4914,10 +4928,16 @@ window.onload = function() {
 
 let questionsHtml = "";
         let closingQuestionHtml = "";
+        const keepPrintValues = (text) => {
+            let result = String(text || '');
+            if (vType) result = result.split(vType).join(`<span class="print-keep">${vType}</span>`);
+            if (plate) result = result.split(plate).join(`<span class="print-keep">${plate}</span>`);
+            return keepPlateParenthesesTogether(result, plate);
+        };
         questions.forEach(item => {
             if (item.q.trim() !== "") {
                 // تحويل "حياته" إلى "حياتك" في الأسئلة الموجهة للمتهم
-                const questionText = item.q.split('حياته').join('حياتك');
+                const questionText = keepPrintValues(item.q.split('حياته').join('حياتك'));
                 const questionBlock = `
                     <span class="question-block" style="font-size: ${sizeNum + 1}px;">س/ ${questionText}</span>
                     <span class="answer-block" style="font-size: ${sizeNum}px;">ج/ ${item.a}</span>
@@ -4946,7 +4966,7 @@ let questionsHtml = "";
             if (item.viol) {
                 // تحويل "حياته" إلى "حياتك" في سؤال الاتهام الختامي
                 const violText = item.viol.split('حياته').join('حياتك');
-                const newQuestion = `انت متهم بقيادة المركبة ( ${getVehicleType()} ) رقم (${plate}) مرتكبا مخالفة / ${violText}`;
+                const newQuestion = keepPlateParenthesesTogether(`انت متهم بقيادة المركبة ( <span class="print-keep">${vType}</span> ) رقم(<span class="print-keep">${plate}</span>) مرتكبا مخالفة / ${violText}`, plate);
                 violationQuestionsHtml += `
                     <span class="question-block" style="font-size: ${sizeNum + 1}px;">س/ ${newQuestion}</span>
                     <span class="answer-block" style="font-size: ${sizeNum}px;">ج/ ${item.a}</span>
@@ -5018,7 +5038,7 @@ let questionsHtml = "";
               questions.forEach(item => {
                   if (item.q.trim() !== '') {
                       const qBlock = `
-                          <span class="question-block" style="font-size: ${sizeNum + 1}px;">س/ ${item.q}</span>
+                          <span class="question-block" style="font-size: ${sizeNum + 1}px;">س/ ${keepPrintValues(item.q)}</span>
                           <span class="answer-block" style="font-size: ${sizeNum}px;">ج/ ${item.a}</span>
                       `;
                       const notes = Array.isArray(item.notes) ? item.notes : (item.note ? [item.note] : []);
@@ -5051,7 +5071,7 @@ let questionsHtml = "";
               let objViolQuestionsHtml = '';
               questions.filter(item => item.type === 'viol').forEach(item => {
                   if (item.viol) {
-                      const newQuestion = `أنت متهم بقيادة ${vType} الرقيمة ( ${plate} ) مرتكبا مخالفة / ${item.viol} على النحو المبين بالتحقيقات؟`;
+                      const newQuestion = keepPlateParenthesesTogether(`أنت متهم بقيادة <span class="print-keep">${vType}</span> الرقيمة ( <span class="print-keep">${plate}</span> ) مرتكبا مخالفة / ${item.viol} على النحو المبين بالتحقيقات؟`, plate);
                       objViolQuestionsHtml += `
                           <span class="question-block" style="font-size: ${sizeNum + 1}px;">س/ ${newQuestion}</span>
                           <span class="answer-block" style="font-size: ${sizeNum}px;">ج/ ${item.a}</span>
@@ -5346,7 +5366,12 @@ let questionsHtml = "";
         const reportNo = document.getElementById('report_no').value || 'بدون رقم';
         const reportYear = document.getElementById('report_year').value || 'بدون سنة';
         const policeStation = getPoliceStation() || 'بدون قسم';
-        return `محضر تحقيق رقم (${reportNo}) لسنه (${reportYear}) قسم شرطه (${policeStation}).txt`;
+        const modeSuffix = reportMode === 'bail_reduction'
+            ? ' - تخفيض كفالة'
+            : reportMode === 'objection'
+                ? ' - حركات استعراضية'
+                : '';
+        return `محضر تحقيق رقم (${reportNo}) لسنه (${reportYear}) قسم شرطه (${policeStation})${modeSuffix}.txt`;
     }
 
     function buildReportFileData() {
