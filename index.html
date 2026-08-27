@@ -757,6 +757,132 @@ body::after {
 
 
 </style>
+<style id="horizontal-settings-layout">
+/* تخطيط أفقي متوسط لنافذة إعدادات النيابة */
+/* أنيميشن متناسق للظهور والاختفاء في الاتجاهين */
+#settings-overlay {
+  display: flex;
+  visibility: hidden;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .26s ease, visibility 0s linear .26s;
+}
+#settings-overlay.open {
+  display: flex;
+  visibility: visible;
+  opacity: 1;
+  pointer-events: auto;
+  transition: opacity .26s ease, visibility 0s linear 0s;
+}
+#settings-modal {
+  opacity: 0;
+  transform: scale(.96) translateY(16px);
+  animation: none;
+  transition: opacity .24s ease, transform .28s cubic-bezier(.22,.8,.25,1);
+}
+#settings-overlay.open #settings-modal {
+  opacity: 1;
+  transform: scale(1) translateY(0);
+}
+#settings-modal {
+  width: min(900px, calc(100vw - 32px));
+  max-width: 900px;
+  max-height: 88vh;
+  padding: 24px 26px 22px;
+  overflow-x: hidden;
+  box-sizing: border-box;
+}
+.cfg-settings-top,
+.cfg-settings-bottom {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  direction: rtl;
+}
+.cfg-settings-top { align-items: stretch; margin-bottom: 14px; }
+.cfg-settings-bottom { align-items: start; }
+.cfg-top-card,
+.cfg-bottom-card {
+  min-width: 0;
+  width: auto;
+  margin-bottom: 0;
+  box-sizing: border-box;
+}
+.cfg-top-card {
+  min-height: 122px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 225px;
+  align-items: center;
+  gap: 12px;
+  padding: 14px;
+}
+.cfg-top-card .cfg-info {
+  min-width: 0;
+}
+.cfg-top-card .cfg-field-label {
+  font-size: 13px !important;
+  line-height: 1.55;
+}
+.cfg-top-card .cfg-input {
+  width: 100%;
+  max-width: none;
+  min-width: 0;
+  box-sizing: border-box;
+}
+.cfg-bottom-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 225px;
+  align-items: start;
+  gap: 12px;
+  padding: 14px;
+}
+.cfg-bottom-card .cfg-info {
+  min-width: 0;
+  margin-bottom: 0;
+  padding-top: 2px;
+}
+.cfg-bottom-card .cfg-field-label {
+  font-size: 13px !important;
+  line-height: 1.55;
+}
+.cfg-list-control {
+  width: 225px;
+  min-width: 0;
+}
+.cfg-list-control .agents-list {
+  width: 100%;
+}
+.cfg-list-control .btn-add-agent {
+  width: 100%;
+  margin-bottom: 0;
+}
+.cfg-bottom-card .agent-row {
+  width: 100%;
+  min-width: 0;
+}
+.cfg-bottom-card .agent-row .cfg-input {
+  width: auto;
+  min-width: 0;
+  flex: 1 1 auto;
+  box-sizing: border-box;
+}
+@media (max-width: 720px) {
+  #settings-modal { width: calc(100vw - 24px); padding: 20px 16px; }
+  .cfg-settings-top,
+  .cfg-settings-bottom { grid-template-columns: 1fr; }
+  .cfg-top-card {
+    min-height: 0;
+    grid-template-columns: minmax(0, 1fr) 185px;
+    padding: 14px;
+  }
+  .cfg-bottom-card {
+    grid-template-columns: minmax(0, 1fr) 185px;
+  }
+  .cfg-list-control {
+    width: 185px;
+  }
+}
+</style>
 </head>
 <body>
 
@@ -778,48 +904,52 @@ body::after {
     </div>
     <div class="cfg-divider"></div>
 
-    <!-- اسم النيابة والسنة القضائية -->
-    <div class="cfg-row">
-      <div class="cfg-info">
-        <div class="cfg-section-title">اسم النيابة</div>
-        <div class="cfg-field-label">يظهر في جميع الأنظمة والمستندات المطبوعة</div>
+    <div class="cfg-settings-top" aria-label="بيانات النيابة الأساسية">
+      <!-- اسم النيابة — الجهة اليمنى -->
+      <div class="cfg-row cfg-top-card">
+        <div class="cfg-info">
+          <div class="cfg-section-title">اسم النيابة</div>
+          <div class="cfg-field-label">يظهر في جميع الأنظمة والمستندات المطبوعة</div>
+        </div>
+        <input type="text" id="cfg-prosecution-name" class="cfg-input" placeholder="مثال: نيابة مرور عين الصيرة">
       </div>
-      <input type="text" id="cfg-prosecution-name" class="cfg-input" placeholder="مثال: نيابة مرور عين الصيرة">
-    </div>
 
-    <div class="cfg-row">
-      <div class="cfg-info">
-        <div class="cfg-section-title">السنة القضائية</div>
-        <div class="cfg-field-label">تظهر كقيمة افتراضية في جميع حقول السنة بجميع الأنظمة</div>
-      </div>
-      <input type="number" id="cfg-fiscal-year" class="cfg-input" placeholder="مثال: 2026">
-    </div>
-
-    
-    <!-- وكلاء النيابة -->
-    <div class="cfg-row" style="align-items: flex-start;">
-      <div class="cfg-info">
-        <div class="cfg-section-title">وكلاء النيابة</div>
-        <div class="cfg-field-label">تظهر في القرارات والعرائض</div>
-      </div>
-      <div style="width: 260px;">
-        <div class="agents-list" id="agents-list"><div class="agent-row"><input type="text" class="cfg-input agent-input" placeholder="اسم وكيل النيابة / المسمى الوظيفي" value="اسلام ناجي"><button class="btn-remove-agent" onclick="this.parentElement.remove()" title="حذف هذا الوكيل"><i class="fa-solid fa-trash-can"></i></button></div><div class="agent-row"><input type="text" class="cfg-input agent-input" placeholder="اسم وكيل النيابة / المسمى الوظيفي" value="نور اللمصري"><button class="btn-remove-agent" onclick="this.parentElement.remove()" title="حذف هذا الوكيل"><i class="fa-solid fa-trash-can"></i></button></div></div>
-        <button class="btn-add-agent" onclick="addAgentRow()">
-          <i class="fa-solid fa-plus"></i> إضافة وكيل نيابة
-        </button>
+      <!-- السنة القضائية — الجهة اليسرى -->
+      <div class="cfg-row cfg-top-card">
+        <div class="cfg-info">
+          <div class="cfg-section-title">السنة القضائية</div>
+          <div class="cfg-field-label">تظهر كقيمة افتراضية في جميع حقول السنة بجميع الأنظمة</div>
+        </div>
+        <input type="number" id="cfg-fiscal-year" class="cfg-input" placeholder="مثال: 2026">
       </div>
     </div>
 
-    <!-- أقسام الشرطة -->
-    <div class="cfg-row" style="align-items: flex-start;">
-      <div class="cfg-info">
-        <div class="cfg-section-title">أقسام الشرطة</div>
-        <div class="cfg-field-label">تظهر في القرارات</div>
+    <div class="cfg-settings-bottom" aria-label="قوائم النيابة">
+      <!-- وكلاء النيابة — الجهة اليمنى -->
+      <div class="cfg-row cfg-bottom-card">
+        <div class="cfg-info">
+          <div class="cfg-section-title">وكلاء النيابة</div>
+          <div class="cfg-field-label">تظهر في القرارات والعرائض</div>
+        </div>
+        <div class="cfg-list-control">
+          <div class="agents-list" id="agents-list"><div class="agent-row"><input type="text" class="cfg-input agent-input" placeholder="اسم وكيل النيابة / المسمى الوظيفي" value="اسلام ناجي"><button class="btn-remove-agent" onclick="this.parentElement.remove()" title="حذف هذا الوكيل"><i class="fa-solid fa-trash-can"></i></button></div><div class="agent-row"><input type="text" class="cfg-input agent-input" placeholder="اسم وكيل النيابة / المسمى الوظيفي" value="نور اللمصري"><button class="btn-remove-agent" onclick="this.parentElement.remove()" title="حذف هذا الوكيل"><i class="fa-solid fa-trash-can"></i></button></div></div>
+          <button class="btn-add-agent" onclick="addAgentRow()">
+            <i class="fa-solid fa-plus"></i> إضافة وكيل نيابة
+          </button>
+        </div>
       </div>
-      <div style="width: 260px;">
-        <div class="agents-list" id="stations-list"><div class="agent-row"><input type="text" class="cfg-input station-input" placeholder="اسم قسم الشرطة" value="مصر القديمة"><button class="btn-remove-agent" onclick="this.parentElement.remove()" title="حذف هذا القسم"><i class="fa-solid fa-trash-can"></i></button></div><div class="agent-row"><input type="text" class="cfg-input station-input" placeholder="اسم قسم الشرطة" value="السيدة زينب"><button class="btn-remove-agent" onclick="this.parentElement.remove()" title="حذف هذا القسم"><i class="fa-solid fa-trash-can"></i></button></div></div>
-        <button class="btn-add-agent" onclick="addStationRow()" style="border-color:rgba(167,139,250,.4);color:#c4b5fd">
-          <i class="fa-solid fa-plus"></i> إضافة قسم شرطه </button>
+
+      <!-- أقسام الشرطة — الجهة اليسرى -->
+      <div class="cfg-row cfg-bottom-card">
+        <div class="cfg-info">
+          <div class="cfg-section-title">أقسام الشرطة</div>
+          <div class="cfg-field-label">تظهر في القرارات</div>
+        </div>
+        <div class="cfg-list-control">
+          <div class="agents-list" id="stations-list"><div class="agent-row"><input type="text" class="cfg-input station-input" placeholder="اسم قسم الشرطة" value="مصر القديمة"><button class="btn-remove-agent" onclick="this.parentElement.remove()" title="حذف هذا القسم"><i class="fa-solid fa-trash-can"></i></button></div><div class="agent-row"><input type="text" class="cfg-input station-input" placeholder="اسم قسم الشرطة" value="السيدة زينب"><button class="btn-remove-agent" onclick="this.parentElement.remove()" title="حذف هذا القسم"><i class="fa-solid fa-trash-can"></i></button></div></div>
+          <button class="btn-add-agent" onclick="addStationRow()" style="border-color:rgba(167,139,250,.4);color:#c4b5fd">
+            <i class="fa-solid fa-plus"></i> إضافة قسم شرطه </button>
+        </div>
       </div>
     </div>
 
