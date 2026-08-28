@@ -2514,16 +2514,6 @@ thead th[data-tip]:hover::before {
         var t = e.target;
         if (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA') {
             setTimeout(function() { t.select(); }, 0);
-        } else if (t.tagName === 'SELECT') {
-            // select لا يحتاج select() لكن نضمن التركيز
-        } else if (t.isContentEditable && !(t.closest && t.closest('.inspection-inline-list li'))) {
-            setTimeout(function() {
-                var range = document.createRange();
-                var sel   = window.getSelection();
-                range.selectNodeContents(t);
-                sel.removeAllRanges();
-                sel.addRange(range);
-            }, 0);
         }
     });
 
@@ -2589,21 +2579,19 @@ document.addEventListener('keydown', function(e) {
 });
 
 document.getElementById('mainTable').addEventListener('click', function(e) {
-    // مربع البحث وقائمة الاقتراحات لهما تفاعلهما الخاص؛ لا تنقل النقرات داخلهما إلى قائمة البنود.
     if (e.target.closest('.violation-search-input') || e.target.closest('.violation-search-suggestions')) return;
     if (e.target.closest('.inspection-inline-list')) return;
     if (e.target.tagName === 'SELECT' || e.target.closest('select')) return;
+    
+    // ★ السطر ده هو الحل السحري! لو ضغطت على النص نفسه، سيب المتصفح يحدد مكان المؤشر براحته
+    if (e.target.isContentEditable) return; 
+
     const td = e.target.closest('td');
     if (!td || td.classList.contains('del-col') || td.closest('.del-col')) return;
     let editableElement = td.querySelector('span[contenteditable="true"], ol[contenteditable="true"], td[contenteditable="true"], [contenteditable="true"]');
     if (!editableElement && td.classList.contains('case-num-cell')) { editableElement = td.querySelector('[contenteditable="true"]'); }
     if (editableElement) {
         editableElement.focus();
-        setTimeout(() => {
-            const range = document.createRange(); const sel = window.getSelection();
-            range.selectNodeContents(editableElement); range.collapse(false);
-            sel.removeAllRanges(); sel.addRange(range);
-        }, 10);
     }
 });
 
